@@ -72,6 +72,10 @@ module Organizer
                       points_draw
                       points_loss
                       points_bye
+                      swiss_rounds_count
+                      top_cut_size
+                      round_minutes
+                      top_cut_round_minutes
                     ])
     end
   end

@@ -16,7 +16,7 @@ class SwissRound < Round
   end
 
   def duration
-    80.minutes
+    event.round_minutes.minutes
   end
 
   def create_pods

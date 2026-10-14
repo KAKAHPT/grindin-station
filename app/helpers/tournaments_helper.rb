@@ -25,6 +25,20 @@ module TournamentsHelper
     EventOrganizer::CURRENCIES.keys.map { |c| [CURRENCY_SYMBOLS[c], c] }
   end
 
+  def top_cut_options
+    [[t("organizer.no_cut"), 0]] + Tournaments::TopCut::SIZES.map { |size| [t("organizer.top_cut_option", size:), size] }
+  end
+
+  def structure_suggestion(tournament)
+    players = tournament.event_participants.size
+    suggested = Tournaments::Structure.suggested(players)
+    if suggested[:top_cut_size].zero?
+      t("organizer.structure_suggestion_no_cut", players:, rounds: suggested[:swiss_rounds])
+    else
+      t("organizer.structure_suggestion", players:, rounds: suggested[:swiss_rounds], cut: suggested[:top_cut_size])
+    end
+  end
+
   def number_to_currency_options(currency)
     NUMBER_CURRENCY_OPTIONS[currency]
   end

@@ -14,6 +14,7 @@ module Tournaments
 
     test "round 2 standard: the four highest ranked players share pod 1" do
       t = TournamentBuilder.build(players: 16, organizer: event_organizers(:standard_organizer))
+      t.update_columns(swiss_rounds_count: 2) # rubocop:disable Rails/SkipsModelValidations -- round 2 of 2 is standard
       t.rounds.create!(type: SwissRound, number: 1)
       TournamentBuilder.play_round!(t, winners: { 1 => 0, 2 => 0, 3 => 0, 4 => 0 })
       r2 = t.rounds.create!(type: SwissRound, number: 2)

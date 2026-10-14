@@ -14,16 +14,27 @@ en:
               locked: "cannot change once the tournament has started"
             points_bye:
               locked: "cannot change once the tournament has started"
+            top_cut_size:
+              too_big: "is bigger than the number of players"
     attributes:
       event:
         points_win: "Points for a win"
         points_draw: "Points for a draw"
         points_loss: "Points for a loss"
         points_bye: "Points for a bye"
+        swiss_rounds_count: "Swiss rounds"
+        top_cut_size: "Top cut"
+        round_minutes: "Swiss round length (minutes)"
+        top_cut_round_minutes: "Top cut round length (minutes)"
       event_participant:
         accepted_terms: "I have read and accepted the rules for this event."
   organizer:
     points_help: "Points per result. Locked once the swiss starts."
+    structure_suggestion: "Suggested for %{players} players: %{rounds} swiss rounds, top %{cut}"
+    structure_suggestion_no_cut: "Suggested for %{players} players: %{rounds} swiss rounds, no cut"
+    structure_use_suggestion: "Suggested"
+    no_cut: "No cut"
+    top_cut_option: "Top %{size}"
   views:
     pagination:
       previous: "Previous"

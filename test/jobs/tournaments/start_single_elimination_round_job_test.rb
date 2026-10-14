@@ -6,6 +6,7 @@ module Tournaments
   class StartSingleEliminationRoundJobTest < ActiveJob::TestCase
     test "creates new single elimination round with incremented number" do
       event = Event.find_by(type: "Tournament", slug: "standard-tournament")
+      event.update_columns(swiss_rounds_count: event.rounds.swiss_rounds.count) # rubocop:disable Rails/SkipsModelValidations -- the fixture's swiss rounds are all played
       initial_round_count = event.rounds.count
 
       # Perform the job

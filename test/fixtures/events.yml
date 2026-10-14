@@ -1,6 +1,6 @@
 # Tournament fixtures for testing different player count thresholds and states
 
-# 4 players: 1 swiss round, no top cut - boundary testing
+# 4 players: suggested 3 swiss rounds, no top cut
 small_tournament:
   name: "Small Tournament"
   slug: "small-tournament"
@@ -11,7 +11,7 @@ small_tournament:
   type: "Tournament"
   event_participants_count: 4
 
-# 6 players: 2 swiss rounds, top 4 - boundary testing (6 is first player count with 2 rounds)
+# 6 players: suggested 3 swiss rounds, top 4 (6 is the first player count with a cut)
 # Alias for tests that expect a registration_open tournament
 medium_tournament_registration_open:
   name: "Medium Tournament Registration Open"
@@ -32,7 +32,7 @@ medium_tournament:
   type: "Tournament"
   event_participants_count: 6
 
-# 16 players: 2 swiss rounds, top 4 - boundary testing (16 is last player count with top 4)
+# 16 players: suggested 4 swiss rounds, top 4
 standard_tournament:
   name: "Standard Tournament"
   slug: "standard-tournament"
@@ -53,7 +53,7 @@ small_tournament_swiss:
   end_time: <%= 2.weeks.from_now %>
   event_participants_count: 4
 
-# 17 players: 3 swiss rounds, top 7 - boundary testing (17 is first player count with top 7)
+# 17 players: suggested 4 swiss rounds, top 4
 large_tournament:
   name: "Large Tournament"
   slug: "large-tournament"
@@ -64,7 +64,7 @@ large_tournament:
   type: "Tournament"
   event_participants_count: 17
 
-# 5 players: 1 swiss round, no top cut - boundary testing (5 is last player count with 1 round)
+# 5 players: suggested 3 swiss rounds, no top cut (5 is the last player count without a cut)
 boundary_five_tournament:
   name: "Boundary Five Tournament"
   slug: "boundary-five-tournament"

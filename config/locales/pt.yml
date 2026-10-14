@@ -14,16 +14,27 @@ pt:
               locked: "não pode mudar depois de o torneio começar"
             points_bye:
               locked: "não pode mudar depois de o torneio começar"
+            top_cut_size:
+              too_big: "é maior do que o número de jogadores"
     attributes:
       event:
         points_win: "Pontos por vitória"
         points_draw: "Pontos por empate"
         points_loss: "Pontos por derrota"
         points_bye: "Pontos por bye"
+        swiss_rounds_count: "Rondas Swiss"
+        top_cut_size: "Corte"
+        round_minutes: "Duração da ronda Swiss (minutos)"
+        top_cut_round_minutes: "Duração da ronda do corte (minutos)"
       event_participant:
         accepted_terms: "Li e aceito as regras deste evento."
   organizer:
     points_help: "Pontos por resultado. Bloqueados quando o Swiss começa."
+    structure_suggestion: "Sugestão para %{players} jogadores: %{rounds} rondas Swiss, top %{cut}"
+    structure_suggestion_no_cut: "Sugestão para %{players} jogadores: %{rounds} rondas Swiss, sem corte"
+    structure_use_suggestion: "Sugerido"
+    no_cut: "Sem corte"
+    top_cut_option: "Top %{size}"
   views:
     pagination:
       previous: "Anterior"

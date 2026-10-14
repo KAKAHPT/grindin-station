@@ -11,65 +11,6 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
   POINTS_PER_DRAW = 1
   POINTS_PER_BYE = POINTS_PER_WIN
 
-  PLAYERS_ROUNDS_THRESHOLDS = {
-    4..5 => {
-      rounds: [{ swiss_round: :standard }],
-      top: nil
-    },
-    6..16 => {
-      rounds: [{ swiss_round: :standard }, { swiss_round: :standard }],
-      top: { players: 4, pods: [1] }
-    },
-    17..24 => {
-      rounds: [{ swiss_round: :standard }, { swiss_round: :spread }, { swiss_round: :standard }],
-      top: { players: 7, pods: [1, 1] }
-    },
-    25..32 => {
-      rounds: [{ swiss_round: :standard }, { swiss_round: :spread }, { swiss_round: :standard },
-               { swiss_round: :forced }],
-      top: { players: 10, pods: [2, 1] }
-    },
-    33..40 => {
-      rounds: [{ swiss_round: :standard },
-               { swiss_round: :spread }] + ([{ swiss_round: :standard }] * 2) + [{ swiss_round: :forced }],
-      top: { players: 13, pods: [2, 1] }
-    },
-    41..64 => {
-      rounds: [{ swiss_round: :standard },
-               { swiss_round: :spread }] + ([{ swiss_round: :standard }] * 2) + [{ swiss_round: :forced }],
-      top: { players: 16, pods: [4, 1] }
-    },
-    65..128 => {
-      rounds: [{ swiss_round: :standard },
-               { swiss_round: :spread }] + ([{ swiss_round: :standard }] * 3) + [{ swiss_round: :forced }],
-      top: { players: 16, pods: [4, 1] }
-    },
-    129..256 => {
-      rounds: [{ swiss_round: :standard },
-               { swiss_round: :spread }] + ([{ swiss_round: :standard }] * 4) + [{ swiss_round: :forced }],
-      top: { players: 40, pods: [8, 4, 1] }
-    },
-    257..512 => {
-      rounds: [{ swiss_round: :standard },
-               { swiss_round: :spread }] + ([{ swiss_round: :standard }] * 5) + [{ swiss_round: :forced }],
-      top: { players: 40, pods: [8, 4, 1] }
-    },
-    513.. => {
-      rounds: [{ swiss_round: :standard },
-               { swiss_round: :spread }] + ([{ swiss_round: :standard }] * 6) + [{ swiss_round: :forced }],
-      top: { players: 64, pods: [16, 4, 1] }
-    }
-  }.tap do |thresholds|
-    thresholds.default_proc =
-      lambda do |hash, key|
-        return nil unless key.is_a?(Integer)
-
-        range_key = hash.keys.find { |r| r.include?(key) }
-
-        hash[range_key]
-      end
-  end.freeze
-
   enum :state, {
     draft: 0,
     registration_open: 1,
@@ -90,14 +31,35 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
     canceled: [:canceled]
   }.with_indifferent_access.freeze
 
+  # States from which the top cut must fit the field (players can no longer register).
+  TOP_CUT_CHECKED_STATES = %w[registration_closed swiss single_elimination finished].freeze
+
+  validates :top_cut_size, inclusion: { in: [0] + Tournaments::TopCut::SIZES }, allow_nil: true
+  validates :swiss_rounds_count, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_nil: true
+  validates :round_minutes, :top_cut_round_minutes, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
+  validate :top_cut_fits_the_field
+
+  def suggested_structure
+    Tournaments::Structure.suggested(event_participants.size)
+  end
+
   def rounds_info
-    PLAYERS_ROUNDS_THRESHOLDS[event_participants.size]
+    suggested = suggested_structure
+    total = swiss_rounds_count || suggested[:swiss_rounds]
+    cut_size = top_cut_size || suggested[:top_cut_size]
+    cut = Tournaments::TopCut.for(cut_size) if cut_size.positive?
+
+    {
+      rounds: (1..total).map { |number| { swiss_round: swiss_round_strategy(number, total) } },
+      top: cut && { players: cut.players, pods: cut.stages.pluck(:pods) }
+    }
   end
 
   def progress_percent
-    return 0 if rounds_info.nil?
+    total_rounds = number_of_swiss_rounds + number_of_single_elimination_rounds
+    return 0 if total_rounds.zero?
 
-    (rounds.finished.count.to_f / (number_of_swiss_rounds + number_of_single_elimination_rounds)) * 100
+    (rounds.finished.count.to_f / total_rounds) * 100
   end
 
   def number_of_swiss_rounds
@@ -127,5 +89,24 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
     when :finished
       Tournaments::FinishTournamentJob.perform_now(self)
     end
+  end
+
+  private
+
+  def swiss_round_strategy(number, total)
+    if number == 2 && total >= 3 then :spread
+    elsif number == total && total >= 4 then :forced
+    else :standard
+    end
+  end
+
+  def top_cut_fits_the_field
+    return unless top_cut_size.to_i.positive? && TOP_CUT_CHECKED_STATES.include?(state)
+    return unless Tournaments::TopCut::SIZES.include?(top_cut_size)
+
+    participants = event_participants.size
+    return if participants.zero? || Tournaments::TopCut.for(top_cut_size).valid_for?(participants)
+
+    errors.add(:top_cut_size, :too_big)
   end
 end

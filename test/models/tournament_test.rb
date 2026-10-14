@@ -67,55 +67,93 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     assert_not_includes available, :swiss
   end
 
-  # ===== PLAYER THRESHOLD TESTS - BOUNDARY VALUE ANALYSIS =====
+  # ===== STRUCTURE TESTS (suggested rounds and cut, unless the organiser set them) =====
 
-  test "4 players generates 1 swiss round with no top cut" do
+  test "4 players get the suggested 3 swiss rounds with no top cut" do
     tournament = events(:small_tournament) # 4 players
     rounds_info = tournament.rounds_info
 
-    assert_equal 1, rounds_info[:rounds].size, "Should have 1 swiss round for 4 players"
+    assert_equal %i[standard spread standard], rounds_info[:rounds].map { |r| r[:swiss_round] }
     assert_nil rounds_info[:top], "Should have no top cut for 4 players"
-    assert_equal 1, tournament.number_of_swiss_rounds
+    assert_equal 3, tournament.number_of_swiss_rounds
     assert_equal 0, tournament.number_of_single_elimination_rounds
   end
 
-  test "6 players generates 2 swiss rounds with top 4" do
+  test "6 players get the suggested 3 swiss rounds with top 4" do
     tournament = events(:medium_tournament) # 6 players
     rounds_info = tournament.rounds_info
 
-    assert_equal 2, rounds_info[:rounds].size, "Should have 2 swiss rounds for 6 players"
-    assert_equal 4, rounds_info[:top][:players], "Should have top 4 for 6 players"
-    assert_equal [1], rounds_info[:top][:pods], "Should have 1 elimination pod"
-    assert_equal 2, tournament.number_of_swiss_rounds
+    assert_equal 3, rounds_info[:rounds].size
+    assert_equal({ players: 4, pods: [1] }, rounds_info[:top])
+    assert_equal 3, tournament.number_of_swiss_rounds
     assert_equal 1, tournament.number_of_single_elimination_rounds
   end
 
-  test "boundary at 16-17 players changes top cut size" do
-    # 16 players: top 4 (from fixture)
-    tournament_16 = Tournament.find_by(slug: "standard-tournament") # 16 players
-    assert_equal 16, tournament_16.event_participants.size, "standard_tournament should have 16 players"
-    assert_equal 4, tournament_16.rounds_info[:top][:players], "16 players should have top 4"
+  test "16 and 17 players both get 4 swiss rounds with top 4" do
+    tournament16 = Tournament.find_by(slug: "standard-tournament")
+    tournament17 = Tournament.find_by(slug: "large-tournament")
+    assert_equal [16, 17], [tournament16.event_participants.size, tournament17.event_participants.size]
 
-    # 17 players: top 7 (from fixture)
-    tournament_17 = Tournament.find_by(slug: "large-tournament") # 17 players
-    assert_equal 17, tournament_17.event_participants.size, "large_tournament should have 17 players"
-    assert_equal 7, tournament_17.rounds_info[:top][:players], "17 players should have top 7"
+    [tournament16, tournament17].each do |tournament|
+      assert_equal 4, tournament.number_of_swiss_rounds
+      assert_equal({ players: 4, pods: [1] }, tournament.rounds_info[:top])
+    end
   end
 
-  test "17 players generates 3 swiss rounds with spread matching" do
+  test "17 players: round 2 spreads and the last round is forced" do
     tournament = Tournament.find_by(slug: "large-tournament") # 17 players
-    assert_equal 17, tournament.event_participants.size
-    rounds_info = tournament.rounds_info
 
-    assert_equal 3, rounds_info[:rounds].size, "Should have 3 swiss rounds for 17 players"
+    assert_equal %i[standard spread standard forced], tournament.rounds_info[:rounds].map { |r| r[:swiss_round] }
+  end
 
-    # Check round types: standard, spread, standard
-    assert_equal({ swiss_round: :standard }, rounds_info[:rounds][0])
-    assert_equal({ swiss_round: :spread }, rounds_info[:rounds][1])
-    assert_equal({ swiss_round: :standard }, rounds_info[:rounds][2])
+  test "configured rounds and cut win over the suggestion; a cut of 0 means no top cut" do
+    tournament = events(:standard_tournament) # 16 players, suggested 4 rounds + top 4
+    tournament.swiss_rounds_count = 2
+    tournament.top_cut_size = 10
+    assert_equal %i[standard standard], tournament.rounds_info[:rounds].map { |r| r[:swiss_round] }
+    assert_equal({ players: 10, pods: [2, 1] }, tournament.rounds_info[:top])
+    assert_equal 2, tournament.number_of_single_elimination_rounds
 
-    assert_equal 7, rounds_info[:top][:players], "Should have top 7 for 17 players"
-    assert_equal [1, 1], rounds_info[:top][:pods], "Should have 2 elimination pods"
+    tournament.top_cut_size = 0
+    assert_nil tournament.rounds_info[:top]
+    assert_equal 0, tournament.number_of_single_elimination_rounds
+  end
+
+  test "fewer than 4 players have no rounds and no progress" do
+    tournament = TournamentBuilder.build(players: 3, organizer: event_organizers(:standard_organizer),
+                                         state: :registration_open)
+
+    assert_equal({ rounds: [], top: nil }, tournament.rounds_info)
+    assert_equal 0, tournament.progress_percent
+  end
+
+  test "structure values are validated" do
+    tournament = events(:small_tournament)
+    tournament.assign_attributes(top_cut_size: 8, swiss_rounds_count: 0, round_minutes: 0, top_cut_round_minutes: 0)
+
+    assert_not tournament.valid?
+    assert_includes tournament.errors[:top_cut_size], I18n.t("errors.messages.inclusion")
+    assert_includes tournament.errors[:swiss_rounds_count], I18n.t("errors.messages.greater_than_or_equal_to", count: 1)
+    assert_includes tournament.errors[:round_minutes], I18n.t("errors.messages.greater_than_or_equal_to", count: 1)
+    assert_includes tournament.errors[:top_cut_round_minutes],
+                    I18n.t("errors.messages.greater_than_or_equal_to", count: 1)
+  end
+
+  test "a cut bigger than the field is allowed while registrations are open" do
+    tournament = TournamentBuilder.build(players: 12, organizer: event_organizers(:standard_organizer),
+                                         state: :registration_open)
+    tournament.top_cut_size = 16
+
+    assert tournament.valid?, tournament.errors.full_messages.to_sentence
+  end
+
+  test "round lengths come from the event" do
+    tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+    tournament.update_columns(round_minutes: 60, top_cut_round_minutes: 90, top_cut_size: 16, swiss_rounds_count: 1) # rubocop:disable Rails/SkipsModelValidations
+
+    assert_equal 60.minutes, SwissRound.new(event: tournament, number: 1).duration
+    assert_equal 90.minutes, SingleEliminationRound.new(event: tournament, number: 2).duration
+    assert_nil SingleEliminationRound.new(event: tournament, number: 3).duration, "the final has no time limit"
   end
 
   # ===== VALIDATION TESTS =====
@@ -166,15 +204,15 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
   end
 
   test "single_elimination_round_name generates correct names" do
-    tournament = events(:standard_tournament) # 16 players: 2 swiss + 1 single elim
+    tournament = events(:standard_tournament) # 16 players: 4 swiss + 1 single elim (suggested)
 
-    # For a tournament with 2 swiss rounds + 1 single elimination round
-    # Round 3 (single elimination) should be "Finals"
-    assert_equal "Finals", tournament.single_elimination_round_name(3)
+    # For a tournament with 4 swiss rounds + 1 single elimination round
+    # Round 5 (single elimination) should be "Finals"
+    assert_equal "Finals", tournament.single_elimination_round_name(5)
   end
 
   test "progress_percent calculation with no rounds completed" do
-    tournament = events(:standard_tournament) # 16 players: 2 swiss + 1 single elim = 3 total
+    tournament = events(:standard_tournament) # 16 players: 4 swiss + 1 single elim = 5 total
 
     # With 0 rounds completed, progress should be 0%
     expected_progress = 0.0
@@ -220,10 +258,8 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     assert_equal 1, Tournament::POINTS_PER_DRAW
   end
 
-  test "player rounds thresholds hash is properly configured" do
-    assert_not_nil Tournament::PLAYERS_ROUNDS_THRESHOLDS
-    assert_not_nil Tournament::PLAYERS_ROUNDS_THRESHOLDS[4] # Should return config for 4 players
-    assert_not_nil Tournament::PLAYERS_ROUNDS_THRESHOLDS[100] # Should return config for 100 players
+  test "supported top cuts are 4, 10, 13, 16 and 40" do
+    assert_equal [4, 10, 13, 16, 40], Tournaments::TopCut::SIZES
   end
 
   # ===== LOCATION TESTS =====

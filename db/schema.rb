@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_201134) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_220000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -108,12 +108,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_201134) do
     t.integer "points_win", default: 7, null: false
     t.decimal "price"
     t.text "prizes"
+    t.integer "round_minutes", default: 80, null: false
     t.integer "rounds_count", default: 0, null: false
     t.text "rules"
     t.text "schedule"
     t.string "slug", null: false
     t.datetime "start_time"
     t.integer "state", default: 0, null: false
+    t.integer "swiss_rounds_count"
+    t.integer "top_cut_round_minutes", default: 150, null: false
+    t.integer "top_cut_size"
     t.string "type", default: "Tournament", null: false
     t.datetime "updated_at", null: false
     t.decimal "wager_percentage", precision: 5, scale: 2
