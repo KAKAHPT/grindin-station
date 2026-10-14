@@ -1,0 +1,48 @@
+pt:
+  app:
+    name: "Grindin Station"
+  activerecord:
+    attributes:
+      event_participant:
+        accepted_terms: "Li e aceito as regras deste evento."
+  views:
+    pagination:
+      previous: "Anterior"
+      next: "Seguinte"
+  flash:
+    notice:
+      registration_successful: "Inscrição concluída com sucesso!"
+      update_successful: "Atualização concluída com sucesso!"
+      registration_canceled: "Inscrição cancelada!"
+      circuit_created: "Circuito criado com sucesso"
+      circuit_updated: "Circuito atualizado com sucesso"
+      infraction_added: "Infração adicionada com sucesso"
+      league_created: "Liga criada com sucesso"
+      league_updated: "Liga atualizada com sucesso"
+      pickup_pod_created: "Pod improvisado criado com sucesso"
+      result_submitted: "Resultado submetido com sucesso"
+      round_published: "Ronda publicada!"
+      round_started: "Ronda iniciada!"
+      round_finished: "Ronda terminada!"
+      round_rollback: "A ronda em curso foi eliminada e a ronda anterior voltou ao estado por terminar!"
+      players_swapped: "Jogadores trocados!"
+      tournament_created: "Torneio criado com sucesso"
+      tournament_advanced: "Torneio avançado!"
+      tournament_updated: "Torneio atualizado com sucesso"
+      password_reset_sent: "Enviámos as instruções para repor a palavra-passe (se existir um utilizador com esse e-mail)."
+      password_reset: "A palavra-passe foi reposta."
+      welcome_signed_up: "Bem-vindo! A tua conta foi criada com sucesso."
+      signed_in: "Iniciaste sessão."
+      signed_out: "Terminaste a sessão."
+    alert:
+      not_authorized_circuit: "Não tens permissão para gerir o circuito selecionado"
+      not_authorized_league: "Não tens permissão para gerir a liga selecionada"
+      not_authorized_tournament: "Não tens permissão para gerir o torneio selecionado"
+      not_allowed: "Não permitido"
+      passwords_no_match: "As palavras-passe não coincidem."
+      password_reset_link_invalid: "A ligação para repor a palavra-passe é inválida ou expirou."
+      try_again_later: "Tenta novamente mais tarde."
+      invalid_credentials: "Tenta outro e-mail ou outra palavra-passe."
+  passwords_mailer:
+    reset:
+      subject: "Repõe a tua palavra-passe"

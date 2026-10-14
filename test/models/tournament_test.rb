@@ -124,8 +124,8 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     tournament = Tournament.new(name: "Test Tournament") # Provide name to avoid slug generation error
     assert_not tournament.valid?
 
-    assert_includes tournament.errors[:start_time], "can't be blank"
-    assert_includes tournament.errors[:end_time], "can't be blank"
+    assert_includes tournament.errors[:start_time], I18n.t("errors.messages.blank")
+    assert_includes tournament.errors[:end_time], I18n.t("errors.messages.blank")
     # event_organizer is required by belongs_to association
   end
 

@@ -42,7 +42,7 @@ class ResultTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLength
     )
 
     assert_not duplicate_result.valid?
-    assert_includes duplicate_result.errors[:event_participant_id], "has already been taken"
+    assert_includes duplicate_result.errors[:event_participant_id], I18n.t("errors.messages.taken")
   end
 
   # ===== STI HIERARCHY TESTS =====

@@ -69,11 +69,11 @@ class LeagueTest < ActiveSupport::TestCase
     league = leagues(:standard_league)
     league.wager_percentage = 101
     assert_not league.valid?
-    assert_match(/less than or equal to 100/, league.errors[:wager_percentage].first)
+    assert_includes league.errors[:wager_percentage], I18n.t("errors.messages.less_than_or_equal_to", count: 100)
 
     league.wager_percentage = -1
     assert_not league.valid?
-    assert_match(/greater than or equal to 0/, league.errors[:wager_percentage].first)
+    assert_includes league.errors[:wager_percentage], I18n.t("errors.messages.greater_than_or_equal_to", count: 0)
 
     league.wager_percentage = 0
     assert league.valid?

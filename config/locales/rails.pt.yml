@@ -1,0 +1,201 @@
+# pt-PT translations for Rails/framework and gem-provided keys (the :pt locale has no rails-i18n counterpart).
+# The number.nth procs live in rails.pt.rb because YAML cannot hold them.
+pt:
+  date:
+    formats:
+      default: "%d/%m/%Y"
+      short: "%d de %b"
+      long: "%d de %B de %Y"
+    day_names: [domingo, segunda-feira, terça-feira, quarta-feira, quinta-feira, sexta-feira, sábado]
+    abbr_day_names: [dom, seg, ter, qua, qui, sex, sáb]
+    month_names: [~, janeiro, fevereiro, março, abril, maio, junho, julho, agosto, setembro, outubro, novembro, dezembro]
+    abbr_month_names: [~, jan, fev, mar, abr, mai, jun, jul, ago, set, out, nov, dez]
+    order: [day, month, year]
+  time:
+    formats:
+      default: "%a, %d de %b de %Y, %H:%M:%S %z"
+      short: "%d/%m, %H:%M"
+      long: "%d de %B de %Y, %H:%M"
+    am: "da manhã"
+    pm: "da tarde"
+  support:
+    array:
+      words_connector: ", "
+      two_words_connector: " e "
+      last_word_connector: " e "
+  number:
+    format:
+      separator: ","
+      delimiter: "."
+      precision: 3
+      round_mode: default
+      significant: false
+      strip_insignificant_zeros: false
+    currency:
+      format:
+        format: "%n %u"
+        negative_format: "-%n %u"
+        unit: "€"
+        separator: ","
+        delimiter: "."
+        precision: 2
+        significant: false
+        strip_insignificant_zeros: false
+    percentage:
+      format:
+        delimiter: ""
+        format: "%n%"
+    precision:
+      format:
+        delimiter: ""
+    human:
+      format:
+        delimiter: ""
+        precision: 3
+        significant: true
+        strip_insignificant_zeros: true
+      storage_units:
+        format: "%n %u"
+        units:
+          byte:
+            one: Byte
+            other: Bytes
+          kb: KB
+          mb: MB
+          gb: GB
+          tb: TB
+          pb: PB
+          eb: EB
+          zb: ZB
+      decimal_units:
+        format: "%n %u"
+        units:
+          unit: ""
+          thousand: mil
+          million: milhão
+          billion: mil milhões
+          trillion: bilião
+          quadrillion: mil biliões
+  errors:
+    format: "%{attribute} %{message}"
+    messages:
+      model_invalid: "A validação falhou: %{errors}"
+      inclusion: "não está incluído na lista"
+      exclusion: "está reservado"
+      invalid: "é inválido"
+      confirmation: "não coincide com %{attribute}"
+      accepted: "tem de ser aceite"
+      empty: "não pode estar vazio"
+      blank: "não pode estar em branco"
+      present: "tem de estar em branco"
+      too_long:
+        one: "é demasiado longo (máximo: 1 carácter)"
+        other: "é demasiado longo (máximo: %{count} caracteres)"
+      password_too_long: "é demasiado longo"
+      too_short:
+        one: "é demasiado curto (mínimo: 1 carácter)"
+        other: "é demasiado curto (mínimo: %{count} caracteres)"
+      wrong_length:
+        one: "tem o comprimento errado (deve ter 1 carácter)"
+        other: "tem o comprimento errado (deve ter %{count} caracteres)"
+      not_a_number: "não é um número"
+      not_an_integer: "tem de ser um número inteiro"
+      greater_than: "tem de ser superior a %{count}"
+      greater_than_or_equal_to: "tem de ser superior ou igual a %{count}"
+      equal_to: "tem de ser igual a %{count}"
+      less_than: "tem de ser inferior a %{count}"
+      less_than_or_equal_to: "tem de ser inferior ou igual a %{count}"
+      other_than: "tem de ser diferente de %{count}"
+      in: "tem de estar em %{count}"
+      odd: "tem de ser ímpar"
+      even: "tem de ser par"
+      required: "tem de existir"
+      taken: "já está a ser utilizado"
+    unavailable_session: |
+      A sessão %{id} já não está disponível em memória.
+
+      Se estás a usar um servidor com vários processos (como Unicorn ou Puma), o processo
+      que recebeu este pedido não guarda %{id} em memória. Considera reduzir o número de
+      processos/workers para um (1) ou usar outro servidor em desenvolvimento.
+    unacceptable_request: |
+      É esperada uma versão suportada no cabeçalho Accept.
+    connection_refused: |
+      Ups! Não foi possível ligar ao middleware Web Console.
+      Confirma que um servidor de desenvolvimento Rails está a correr.
+  activerecord:
+    errors:
+      messages:
+        record_invalid: "A validação falhou: %{errors}"
+        restrict_dependent_destroy:
+          has_one: "Não é possível eliminar o registo porque existe um(a) %{record} dependente"
+          has_many: "Não é possível eliminar o registo porque existem %{record} dependentes"
+  datetime:
+    distance_in_words:
+      half_a_minute: "meio minuto"
+      less_than_x_seconds:
+        one: "menos de 1 segundo"
+        other: "menos de %{count} segundos"
+      x_seconds:
+        one: "1 segundo"
+        other: "%{count} segundos"
+      less_than_x_minutes:
+        one: "menos de um minuto"
+        other: "menos de %{count} minutos"
+      x_minutes:
+        one: "1 minuto"
+        other: "%{count} minutos"
+      about_x_hours:
+        one: "cerca de 1 hora"
+        other: "cerca de %{count} horas"
+      x_days:
+        one: "1 dia"
+        other: "%{count} dias"
+      about_x_months:
+        one: "cerca de 1 mês"
+        other: "cerca de %{count} meses"
+      x_months:
+        one: "1 mês"
+        other: "%{count} meses"
+      about_x_years:
+        one: "cerca de 1 ano"
+        other: "cerca de %{count} anos"
+      over_x_years:
+        one: "mais de 1 ano"
+        other: "mais de %{count} anos"
+      almost_x_years:
+        one: "quase 1 ano"
+        other: "quase %{count} anos"
+    prompts:
+      year: Ano
+      month: Mês
+      day: Dia
+      hour: Hora
+      minute: Minuto
+      second: Segundos
+    relative:
+      future: "dentro de %{time}"
+      past: "há %{time}"
+  helpers:
+    select:
+      prompt: "Seleciona uma opção"
+    submit:
+      create: "Criar %{model}"
+      update: "Atualizar %{model}"
+      submit: "Guardar %{model}"
+    page_entries_info:
+      entry:
+        zero: "registos"
+        one: "registo"
+        other: "registos"
+      one_page:
+        display_entries:
+          zero: "Nenhum %{entry_name} encontrado"
+          one: "A mostrar <b>1</b> %{entry_name}"
+          other: "A mostrar <b>todos os %{count}</b> %{entry_name}"
+      more_pages:
+        display_entries: "A mostrar %{entry_name} <b>%{first}&nbsp;-&nbsp;%{last}</b> de <b>%{total}</b> no total"
+  views:
+    pagination:
+      first: "&laquo; Primeira"
+      last: "Última &raquo;"
+      truncate: "&hellip;"

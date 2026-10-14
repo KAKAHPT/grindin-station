@@ -7,9 +7,9 @@ SimpleCov.start "rails" do
   command_name "Job #{ENV['TEST_ENV_NUMBER']}" if ENV["TEST_ENV_NUMBER"]
 
   # Optional: filter out specific directories
-  add_filter "/bin/"
-  add_filter "/db/"
-  add_filter "/test/"
+  skip "/bin/"
+  skip "/db/"
+  skip "/test/"
 end
 
 ENV["RAILS_ENV"] ||= "test"
