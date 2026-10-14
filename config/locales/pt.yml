@@ -2,9 +2,28 @@ pt:
   app:
     name: "Grindin Station"
   activerecord:
+    errors:
+      models:
+        event:
+          attributes:
+            points_win:
+              locked: "não pode mudar depois de o torneio começar"
+            points_draw:
+              locked: "não pode mudar depois de o torneio começar"
+            points_loss:
+              locked: "não pode mudar depois de o torneio começar"
+            points_bye:
+              locked: "não pode mudar depois de o torneio começar"
     attributes:
+      event:
+        points_win: "Pontos por vitória"
+        points_draw: "Pontos por empate"
+        points_loss: "Pontos por derrota"
+        points_bye: "Pontos por bye"
       event_participant:
         accepted_terms: "Li e aceito as regras deste evento."
+  organizer:
+    points_help: "Pontos por resultado. Bloqueados quando o Swiss começa."
   views:
     pagination:
       previous: "Anterior"

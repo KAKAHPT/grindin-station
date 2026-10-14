@@ -101,10 +101,18 @@ class EventParticipantTest < ActiveSupport::TestCase # rubocop:disable Metrics/C
     assert_equal 1, participant_with_penalty.number_of_losses
   end
 
-  test "number_of_advancements counts Advance results" do
-    participant = event_participants(:medium_event_participant_one)
-    # Should count the advance result from fixture
+  test "an Advance in a swiss round is a bye worth points_bye, not an advancement" do
+    participant = event_participants(:medium_event_participant_one) # Advance fixture in a SwissRound
+    assert_equal 1, participant.number_of_byes
+    assert_equal 0, participant.number_of_advancements
+    assert_equal participant.event.points_bye, participant.match_points
+  end
+
+  test "number_of_advancements counts Advance results in single elimination rounds" do
+    rounds(:medium_tournament_round_1).update_column(:type, "SingleEliminationRound") # rubocop:disable Rails/SkipsModelValidations
+    participant = EventParticipant.find(event_participants(:medium_event_participant_one).id)
     assert_equal 1, participant.number_of_advancements
+    assert_equal 0, participant.number_of_byes
   end
 
   # ===== POINT CALCULATION TESTS =====

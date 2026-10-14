@@ -5,9 +5,11 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
 
   scope :ongoing, -> { where(state: %i[swiss single_elimination]) }
 
+  # Default points per result; each event keeps its own (events.points_*), editable until the swiss starts.
   POINTS_PER_WIN = 7
   POINTS_PER_LOSS = 0
   POINTS_PER_DRAW = 1
+  POINTS_PER_BYE = POINTS_PER_WIN
 
   PLAYERS_ROUNDS_THRESHOLDS = {
     4..5 => {

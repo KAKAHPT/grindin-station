@@ -242,10 +242,10 @@
           >
             MP means Match Points:
             <br>
-            <%= @event.class::POINTS_PER_WIN %>
+            <%= @event.points_win %>
             per win,
-            <%= @event.class::POINTS_PER_DRAW %>
-            per draw, 0 per loss.
+            <%= @event.points_draw %>
+            per draw, <%= @event.points_loss %> per loss.
             <div class="tooltip-arrow" data-popper-arrow="true"></div>
           </div>
           <div
@@ -278,7 +278,7 @@
             <br>
             the Average of your Opponent's Match Win %, with a minimum
             contribution cap of
-            <%= ((@event.class::POINTS_PER_DRAW / @event.class::POINTS_PER_WIN.to_f) * 100).round(2) %>
+            <%= ((@event.points_draw / @event.points_win.to_f) * 100).round(2) %>
             %
             <div class="tooltip-arrow" data-popper-arrow="true"></div>
           </div>

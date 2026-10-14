@@ -3,10 +3,6 @@
 class League < Event
   paginates_per 20
 
-  POINTS_PER_WIN = 7
-  POINTS_PER_LOSS = 0
-  POINTS_PER_DRAW = 1
-
   enum :play_mode, { scheduled: 0, pickup: 1 }, prefix: true
 
   validates :wager_percentage,

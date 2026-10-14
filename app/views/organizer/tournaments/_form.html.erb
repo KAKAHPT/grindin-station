@@ -35,6 +35,13 @@
     <%= f.select_with_label :currency, currency_options, selected: tournament.currency %>
   </div>
 
+  <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><%= t("organizer.points_help") %></p>
+  <div class="flex gap-2">
+    <% %i[points_win points_draw points_loss points_bye].each do |attribute| %>
+      <%= f.number_field_with_label attribute, min: 0, step: 1, disabled: tournament.points_locked? %>
+    <% end %>
+  </div>
+
   <%= f.text_area_with_label :description, rows: 4, placeholder: "Additional info, like how to get to the venue, where to eat, etc." %>
 
   <% content_for :footer do %>

@@ -68,6 +68,10 @@ module Organizer
                       price
                       currency
                       cover
+                      points_win
+                      points_draw
+                      points_loss
+                      points_bye
                     ])
     end
   end

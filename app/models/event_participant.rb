@@ -100,7 +100,7 @@ class EventParticipant < ApplicationRecord
   end
 
   def corrected_opponents
-    opponents.to_a + Array.new(number_of_ghost_opponents) { Ghost.new }
+    opponents.to_a + Array.new(number_of_ghost_opponents) { Ghost.new(event: event) }
   end
 
   def number_of_ghost_opponents
@@ -109,8 +109,14 @@ class EventParticipant < ApplicationRecord
     end * (event.class::PREFERRED_POD_SIZE - event.class::SMALLER_POD_SIZE)
   end
 
+  # Advance results in single-elimination rounds (byes into the next cut round).
   def number_of_advancements
-    results.count { |result| result.is_a?(Advance) }
+    results.count { |result| result.is_a?(Advance) && result.round.is_a?(SingleEliminationRound) }
+  end
+
+  # Advance results in swiss rounds: a bye, worth event.points_bye.
+  def number_of_byes
+    results.count { |result| result.is_a?(Advance) && result.round.is_a?(SwissRound) }
   end
 
   def number_of_draws
@@ -126,8 +132,9 @@ class EventParticipant < ApplicationRecord
   end
 
   def match_points
-    @match_points ||= (number_of_draws * event.class::POINTS_PER_DRAW) +
-                      (number_of_wins * event.class::POINTS_PER_WIN)
+    @match_points ||= (number_of_draws * event.points_draw) +
+                      (number_of_wins * event.points_win) +
+                      (number_of_byes * event.points_bye)
   end
 
   def match_win_percentage
@@ -135,7 +142,7 @@ class EventParticipant < ApplicationRecord
 
     @match_win_percentage ||= match_points / (results.count do |result|
       !result.is_a?(Advance) && !result.is_a?(Eliminated)
-    end * event.class::POINTS_PER_WIN).to_f
+    end * event.points_win).to_f
   end
 
   def opponents_average_match_points
@@ -151,7 +158,7 @@ class EventParticipant < ApplicationRecord
 
     @opponents_average_match_win_percentage ||=
       corrected_opponents.reduce(0.0) do |sum, n|
-        [n.match_win_percentage, 1.0 / event.class::POINTS_PER_WIN].max + sum
+        [n.match_win_percentage, 1.0 / event.points_win].max + sum
       end / corrected_opponents.size.to_f
   end
 
@@ -166,6 +173,15 @@ class EventParticipant < ApplicationRecord
           (opponents_average_match_points * OAMP_COEFF).to_i +
           (opponents_average_match_win_percentage.round(4) * OAMW_COEFF).to_i
       end
+  end
+
+  def reload(*)
+    @match_points = nil
+    @match_win_percentage = nil
+    @opponents_average_match_points = nil
+    @opponents_average_match_win_percentage = nil
+    @rank_score = nil
+    super
   end
 
   def rebuild_round

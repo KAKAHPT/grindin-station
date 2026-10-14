@@ -13,6 +13,9 @@ class Event < ApplicationRecord
   SMALLER_POD_SIZE = 3
   LARGER_POD_SIZE = 5
 
+  POINT_ATTRIBUTES = %i[points_win points_draw points_loss points_bye].freeze
+  UNLOCKED_POINTS_STATES = %w[draft registration_open registration_closed].freeze
+
   scope :for_organizer, ->(organizer) { where(event_organizer: organizer) }
   scope :past, -> { where(end_time: ...Time.current) }
   scope :upcoming, -> { where(start_time: Time.current..) }
@@ -26,10 +29,16 @@ class Event < ApplicationRecord
     validates :state, :name, :slug, :start_time, :end_time
   end
 
+  validate :points_locked_after_start, on: :update
+
   before_validation :populate_slug
 
   after_update :perform_state_based_actions, if: -> { state_previously_changed? }
   after_save :geocode_address, if: -> { address_previously_changed? }
+
+  def points_locked?
+    !UNLOCKED_POINTS_STATES.include?(state)
+  end
 
   def available_states
     return self.class.states.slice(:draft) if new_record?
@@ -115,5 +124,15 @@ class Event < ApplicationRecord
 
   def populate_slug
     self.slug = name.downcase.gsub(/[^a-z0-9]/, "-")
+  end
+
+  private
+
+  def points_locked_after_start
+    return unless points_locked?
+
+    POINT_ATTRIBUTES.each do |attribute|
+      errors.add(attribute, :locked) if attribute_changed?(attribute)
+    end
   end
 end

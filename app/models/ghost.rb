@@ -15,7 +15,7 @@ class Ghost < EventParticipant
   end
 
   def match_win_percentage
-    1.0 / Tournament::POINTS_PER_WIN
+    event.points_draw.to_f / event.points_win
   end
 
   def opponents_average_match_points
