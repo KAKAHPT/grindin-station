@@ -33,49 +33,12 @@ class Pod < ApplicationRecord
     results.size == event_participants.size
   end
 
-  def receive_candidate(candidate)
-    candidates.push(candidate) if !full? && can_match?(candidate)
-  end
-
   def force_candidate(candidate)
     candidates.push(candidate) unless full?
   end
 
   def full?
     candidates.size == size
-  end
-
-  def can_match?(candidate)
-    candidates.none? { |participant| participant.played_against?(candidate) } ||
-      candidate.played_in_smaller_pod?(except_in: round)
-  end
-
-  def candidates_average_rank
-    candidates.sum(&:rank_score) / candidates.size.to_f
-  end
-
-  def swap_suitable_by_rank_for?(candidate)
-    full? && candidates_average_rank.between?(
-      (candidate.match_win_percentage * 1.0) - event.class::PAIR_DOWN_DEVIATION_PERCENT,
-      (candidate.match_win_percentage * 1.0) + event.class::PAIR_DOWN_DEVIATION_PERCENT
-    )
-  end
-
-  def swap_suitable_by_rematch_for?(candidate)
-    full? && candidates.count { |participant| participant.played_against?(candidate) } <= 1
-  end
-
-  def a_swap_candidate_by_rematch_for(candidate)
-    candidates.find { |participant| participant.played_against?(candidate) } || candidates.last
-  end
-
-  def best_swap_candidate_by_rank_for(player, _round)
-    candidates.min { |a, b| (a.rank_score - player.rank_score).abs <=> (b.rank_score - player.rank_score).abs }
-  end
-
-  def swap_candidates!(new_candidate, existing_candidate)
-    candidates.delete(existing_candidate)
-    candidates.push(new_candidate)
   end
 
   def sit_participants!

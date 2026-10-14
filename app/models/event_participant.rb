@@ -91,10 +91,6 @@ class EventParticipant < ApplicationRecord
     "##{player.key.first(5)}"
   end
 
-  def played_in_smaller_pod?(except_in:)
-    pods.where.not(round_id: except_in).any? { |pod| pod.size == event.class::SMALLER_POD_SIZE }
-  end
-
   def times_going_at(position)
     seatings.count { |seat| seat.order == position }
   end

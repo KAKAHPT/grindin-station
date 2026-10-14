@@ -8,7 +8,6 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
   POINTS_PER_WIN = 7
   POINTS_PER_LOSS = 0
   POINTS_PER_DRAW = 1
-  PAIR_DOWN_DEVIATION_PERCENT = 0.1
 
   PLAYERS_ROUNDS_THRESHOLDS = {
     4..5 => {

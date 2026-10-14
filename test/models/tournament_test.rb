@@ -218,7 +218,6 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     assert_equal 7, Tournament::POINTS_PER_WIN
     assert_equal 0, Tournament::POINTS_PER_LOSS
     assert_equal 1, Tournament::POINTS_PER_DRAW
-    assert_equal 0.1, Tournament::PAIR_DOWN_DEVIATION_PERCENT
   end
 
   test "player rounds thresholds hash is properly configured" do

@@ -9,6 +9,7 @@ module Tournaments
       @players_by_rank = Tournaments::PlayerSorter.new(@round).sorted_players
 
       match_according_to_strategy!
+      Tournaments::RematchRepair.new(@round, max_point_gap: gap_for(load_strategy)).repair!
 
       @round.transaction do
         @round.pods.each(&:sit_participants!)
@@ -21,15 +22,18 @@ module Tournaments
       case load_strategy
       when :spread
         Tournaments::Strategies::SpreadMatcher.new(@round, @players_by_rank).match_players!
-      when :forced
-        Tournaments::Strategies::SwissMatcher.new(@round, @players_by_rank, forced: true).match_players!
-      when :standard
+      when :forced, :standard
         Tournaments::Strategies::SwissMatcher.new(@round, @players_by_rank).match_players!
       end
     end
 
+    def gap_for(strategy)
+      strategy == :standard ? 0 : Float::INFINITY
+    end
+
+    # Rounds beyond the thresholds table play as :standard.
     def load_strategy
-      @round.event.rounds_info[:rounds][@round.number - 1].values.first
+      @round.event.rounds_info[:rounds][@round.number - 1]&.values&.first || :standard
     end
   end
 end

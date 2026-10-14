@@ -12,7 +12,6 @@ class Event < ApplicationRecord
   PREFERRED_POD_SIZE = 4
   SMALLER_POD_SIZE = 3
   LARGER_POD_SIZE = 5
-  PAIR_DOWN_DEVIATION_PERCENT = 0.1
 
   scope :for_organizer, ->(organizer) { where(event_organizer: organizer) }
   scope :past, -> { where(end_time: ...Time.current) }
