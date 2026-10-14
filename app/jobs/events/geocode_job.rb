@@ -39,8 +39,8 @@ module Events
       params = { limit: 1, format: "jsonv2", q: address }
       uri.query = URI.encode_www_form(params)
       headers = {
-        "User-Agent" => "Canivete webapp backend",
-        "Referrer" => "https://canivete.pt",
+        "User-Agent" => "Grindin Station webapp backend",
+        "Referrer" => "https://grindin-station.example",
         "Content-type" => "application/json; charset=UTF-8"
       }
 

@@ -115,7 +115,7 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
     visit root_path
 
     assert_current_path root_path
-    assert_text "Canivete"
+    assert_text "Grindin Station"
     assert_text "Log in"
     assert_no_text "Logout"
   end

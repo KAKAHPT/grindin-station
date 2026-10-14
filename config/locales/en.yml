@@ -1,4 +1,6 @@
 en:
+  app:
+    name: "Grindin Station"
   activerecord:
     attributes:
       event_participant:

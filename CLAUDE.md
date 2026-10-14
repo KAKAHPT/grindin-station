@@ -20,7 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture Overview
 
-This is a **Rails 8** tournament management system ("Canivete") for organizing competitive gaming tournaments (Magic: The Gathering) with Swiss and single-elimination formats. The app also supports **Leagues** (pickup play with wagers) and **Circuits** (multi-event point standings).
+This is a **Rails 8** tournament management system ("Grindin Station") for organizing competitive gaming tournaments (Magic: The Gathering) with Swiss and single-elimination formats. The app also supports **Leagues** (pickup play with wagers) and **Circuits** (multi-event point standings).
 
 ### Domain Hierarchy
 

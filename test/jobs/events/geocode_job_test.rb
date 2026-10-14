@@ -13,8 +13,8 @@ module Events
         .with(
           query: { "limit" => "1", "format" => "jsonv2", "q" => "Porto, Portugal" },
           headers: {
-            "User-Agent" => "Canivete webapp backend",
-            "Referrer" => "https://canivete.pt",
+            "User-Agent" => "Grindin Station webapp backend",
+            "Referrer" => "https://grindin-station.example",
             "Content-Type" => "application/json; charset=UTF-8"
           }
         )
@@ -49,8 +49,8 @@ module Events
         .with(
           query: { "limit" => "1", "format" => "jsonv2", "q" => "Nonexistent Place, Nowhere" },
           headers: {
-            "User-Agent" => "Canivete webapp backend",
-            "Referrer" => "https://canivete.pt",
+            "User-Agent" => "Grindin Station webapp backend",
+            "Referrer" => "https://grindin-station.example",
             "Content-Type" => "application/json; charset=UTF-8"
           }
         )
@@ -79,8 +79,8 @@ module Events
         .with(
           query: { "limit" => "1", "format" => "jsonv2", "q" => "Some Address" },
           headers: {
-            "User-Agent" => "Canivete webapp backend",
-            "Referrer" => "https://canivete.pt",
+            "User-Agent" => "Grindin Station webapp backend",
+            "Referrer" => "https://grindin-station.example",
             "Content-Type" => "application/json; charset=UTF-8"
           }
         )

@@ -1,6 +1,7 @@
 default: &default
   adapter: postgis
   encoding: unicode
+  gssencmode: disable
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   <% if ENV["DB_HOST"] %>
   host: <%= ENV["DB_HOST"] %>
@@ -11,14 +12,14 @@ default: &default
 
 development:
   <<: *default
-  database: canivete_development
+  database: grindin_station_development
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: canivete_test
+  database: grindin_station_test
 
 production:
   primary:

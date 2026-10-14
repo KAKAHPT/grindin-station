@@ -2,8 +2,8 @@ services:
   rails-app:
     env_file:
       - .env
-    image: fbatista/canivete:latest
-    container_name: canivete-rails-app
+    image: kakahpt/grindin-station:latest
+    container_name: grindin-station-rails-app
     ports:
       - "3003:3000"
     environment:
@@ -14,20 +14,20 @@ services:
       QUEUE_DATABASE_URL: ${QUEUE_DATABASE_URL}
       CABLE_DATABASE_URL: ${CABLE_DATABASE_URL}
     volumes:
-      - /volume1/docker/canivete/log:/rails/log
-      - /volume1/docker/canivete/storage:/rails/storage
-      - /volume1/docker/canivete/tmp:/rails/tmp
+      - /volume1/docker/grindin-station/log:/rails/log
+      - /volume1/docker/grindin-station/storage:/rails/storage
+      - /volume1/docker/grindin-station/tmp:/rails/tmp
     depends_on:
       - database
   database:
     image: postgis/postgis:16-3.5
-    container_name: canivete-postgres
+    container_name: grindin-station-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
-      - /volume1/docker/canivete/postgres:/var/lib/postgresql/data
+      - /volume1/docker/grindin-station/postgres:/var/lib/postgresql/data
   ngrok:
     env_file:
       - .env

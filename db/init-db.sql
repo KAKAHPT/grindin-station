@@ -5,25 +5,25 @@ EXCEPTION WHEN DUPLICATE_OBJECT THEN
 END $$;
 
 DO $$ BEGIN
-   CREATE DATABASE canivete_development OWNER :DB_USER;
+   CREATE DATABASE grindin_station_development OWNER :DB_USER;
 EXCEPTION WHEN DUPLICATE_DATABASE THEN
-   RAISE NOTICE 'Database canivete_development already exists, skipping creation.';
+   RAISE NOTICE 'Database grindin_station_development already exists, skipping creation.';
 END $$;
 
 DO $$ BEGIN
-   CREATE DATABASE canivete_test OWNER :DB_USER;
+   CREATE DATABASE grindin_station_test OWNER :DB_USER;
 EXCEPTION WHEN DUPLICATE_DATABASE THEN
-   RAISE NOTICE 'Database canivete_test already exists, skipping creation.';
+   RAISE NOTICE 'Database grindin_station_test already exists, skipping creation.';
 END $$;
 
 DO $$ BEGIN
-   CREATE DATABASE canivete_production OWNER :DB_USER;
+   CREATE DATABASE grindin_station_production OWNER :DB_USER;
 EXCEPTION WHEN DUPLICATE_DATABASE THEN
-   RAISE NOTICE 'Database canivete_production already exists, skipping creation.';
+   RAISE NOTICE 'Database grindin_station_production already exists, skipping creation.';
 END $$;
 
 DO $$ BEGIN
-   CREATE DATABASE canivete_production_queue OWNER :DB_USER;
+   CREATE DATABASE grindin_station_production_queue OWNER :DB_USER;
 EXCEPTION WHEN DUPLICATE_DATABASE THEN
-   RAISE NOTICE 'Database canivete_production_queue already exists, skipping creation.';
+   RAISE NOTICE 'Database grindin_station_production_queue already exists, skipping creation.';
 END $$;

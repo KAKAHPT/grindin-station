@@ -2,7 +2,7 @@
 
 <html>
   <head>
-    <title>Canivete</title>
+    <title><%= t("app.name") %></title>
 
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
@@ -66,7 +66,7 @@
                   whitespace-nowrap dark:text-white
                 "
               >
-                Canivete
+                <%= t("app.name") %>
               </strong>
             <% end %>
           </div>
@@ -151,9 +151,9 @@
           "
         >
           <div class="container mx-auto text-center text-zinc-400 text-xs">
-            Canivete is open-source software. Contribute here:
+            <%= t("app.name") %> is open-source software. Contribute here:
             <%= icon("github-logo") %>
-            <%= link_to 'Github', 'https://github.com/fbatista/canivete', class: 'underline', target: '_blank' %>
+            <%= link_to 'Github', 'https://github.com/KAKAHPT/grindin-station', class: 'underline', target: '_blank' %>
           </div>
         </footer>
       </div>
