@@ -37,7 +37,11 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
   validates :top_cut_size, inclusion: { in: [0] + Tournaments::TopCut::SIZES }, allow_nil: true
   validates :swiss_rounds_count, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_nil: true
   validates :round_minutes, :top_cut_round_minutes, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
+  STRUCTURE_ATTRIBUTES = %i[swiss_rounds_count top_cut_size round_minutes top_cut_round_minutes].freeze
+
   validate :top_cut_fits_the_field
+  validate :structure_locked_after_start, on: :update
+  before_update :snapshot_structure, if: -> { will_save_change_to_state? && swiss? }
 
   def suggested_structure
     Tournaments::Structure.suggested(event_participants.size)
@@ -98,6 +102,21 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
     elsif number == total && total >= 4 then :forced
     else :standard
     end
+  end
+
+  def structure_locked_after_start
+    return unless points_locked?
+
+    STRUCTURE_ATTRIBUTES.each do |attribute|
+      errors.add(attribute, :locked) if attribute_changed?(attribute)
+    end
+  end
+
+  # A nil structure follows the player count; freeze it when the swiss starts so drops can't change it mid-event.
+  def snapshot_structure
+    suggested = suggested_structure
+    self.swiss_rounds_count ||= suggested[:swiss_rounds]
+    self.top_cut_size ||= suggested[:top_cut_size]
   end
 
   def top_cut_fits_the_field

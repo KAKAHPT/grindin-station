@@ -156,6 +156,60 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     assert_nil SingleEliminationRound.new(event: tournament, number: 3).duration, "the final has no time limit"
   end
 
+  test "structure is locked once the swiss starts" do
+    tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
+    locked = I18n.t("activerecord.errors.models.event.attributes.swiss_rounds_count.locked")
+    assert_equal "cannot change once the tournament has started", locked
+
+    tournament.assign_attributes(swiss_rounds_count: 2, top_cut_size: 0, round_minutes: 60, top_cut_round_minutes: 90)
+    assert_not tournament.valid?
+    %i[swiss_rounds_count top_cut_size round_minutes top_cut_round_minutes].each do |attribute|
+      assert_includes tournament.errors[attribute],
+                      I18n.t("activerecord.errors.models.event.attributes.#{attribute}.locked")
+    end
+    I18n.with_locale(:pt) do
+      assert_equal "não pode mudar depois de o torneio começar",
+                   I18n.t("activerecord.errors.models.event.attributes.top_cut_size.locked")
+    end
+  end
+
+  test "a locked tournament still accepts non-structure changes" do
+    tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
+    tournament.name = "Renamed"
+
+    assert tournament.valid?, tournament.errors.full_messages.to_sentence
+  end
+
+  test "structure stays editable before the swiss starts" do
+    tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer),
+                                         state: :registration_closed)
+    tournament.assign_attributes(swiss_rounds_count: 2, top_cut_size: 0, round_minutes: 60)
+
+    assert tournament.valid?, tournament.errors.full_messages.to_sentence
+  end
+
+  test "starting the swiss snapshots the suggested structure" do
+    tournament = TournamentBuilder.build(players: 24, organizer: event_organizers(:standard_organizer),
+                                         state: :registration_closed)
+    assert_nil tournament.swiss_rounds_count
+
+    tournament.update!(state: :swiss) # StartSwissRoundJob creates round 1
+    tournament.reload
+
+    assert_equal [4, 10], [tournament.swiss_rounds_count, tournament.top_cut_size]
+    assert_equal 1, tournament.rounds.count
+  end
+
+  test "starting the swiss keeps a structure the organiser already chose" do
+    tournament = TournamentBuilder.build(players: 24, organizer: event_organizers(:standard_organizer),
+                                         state: :registration_closed)
+    tournament.update_columns(swiss_rounds_count: 3, top_cut_size: 0) # rubocop:disable Rails/SkipsModelValidations
+
+    tournament.update!(state: :swiss)
+
+    assert_equal [3, 0], [tournament.reload.swiss_rounds_count, tournament.top_cut_size]
+  end
+
   # ===== VALIDATION TESTS =====
 
   test "requires name, start_time, end_time and event_organizer" do

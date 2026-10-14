@@ -14,7 +14,14 @@ pt:
               locked: "não pode mudar depois de o torneio começar"
             points_bye:
               locked: "não pode mudar depois de o torneio começar"
+            swiss_rounds_count:
+              locked: "não pode mudar depois de o torneio começar"
+            round_minutes:
+              locked: "não pode mudar depois de o torneio começar"
+            top_cut_round_minutes:
+              locked: "não pode mudar depois de o torneio começar"
             top_cut_size:
+              locked: "não pode mudar depois de o torneio começar"
               too_big: "é maior do que o número de jogadores"
     attributes:
       event:
