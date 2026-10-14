@@ -18,8 +18,8 @@ module GrindinStation
     config.autoload_lib(ignore: %w[assets tasks])
     config.generators { |g| g.orm :active_record, primary_key_type: :uuid }
 
-    config.i18n.default_locale = :pt
-    config.i18n.available_locales = %i[pt en]
+    config.i18n.default_locale = :en
+    config.i18n.available_locales = %i[en pt]
 
     # Configuration for the application, engines, and railties goes here.
     #
