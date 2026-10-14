@@ -20,7 +20,7 @@
 - O histórico de assentos nunca altera a composição dos pods.
 - Cortes: Top 4 `[{byes:0,pods:1}]`; Top 10 `[{byes:2,pods:2},{byes:0,pods:1}]`; Top 13 `[{byes:1,pods:3},{byes:0,pods:1}]`; Top 16 `[{byes:0,pods:4},{byes:0,pods:1}]`; Top 40 `[{byes:8,pods:8},{byes:0,pods:4},{byes:0,pods:1}]`.
 - Tabela de sugestões (jogadores → rondas, corte): 4–7 → 3, Top 4 (4–5 jogadores: sem corte); 8–23 → 4, Top 4; 24–31 → 4, Top 10; 32–39 → 4, Top 13; 40–63 → 5, Top 16; 64–127 → 6, Top 16; 128–255 → 7, Top 40.
-- Locale predefinido `pt` (pt-PT), `en` disponível. Estilo Ruby: rubocop-rails-omakase, `# frozen_string_literal: true`, aspas duplas.
+- Locale predefinido `en`, `pt` (pt-PT) disponível como segunda opção (alterado a pedido do utilizador em 2026-10-14). Estilo Ruby: rubocop-rails-omakase, `# frozen_string_literal: true`, aspas duplas.
 - Commits pequenos, mensagens em inglês no estilo do Canivete (`feat:`, `test:`, `chore:`).
 - Desvio consciente da spec §4: as colunas de cache `event_participants.seat_counts` e `tiebreak_cache` **não** se criam em M1; `seat_counts` e os desempates calculam-se por query. A cache só entra se o M3 (páginas públicas) a mostrar necessária.
 
@@ -828,4 +828,85 @@ Expected: CI verde no GitHub.
 
 ```bash
 git add README.md docs && git commit -m "docs: engine section and M0-M1 plan closed" && git push
+```
+
+---
+
+### Task 14: Reencontros evitados em todas as rondas Swiss (executar logo após a Task 6)
+
+Origem: a Task 6 descobriu que o `SwissMatcher` herdado só evita reencontros nas rondas `:forced`, o `SpreadMatcher` nunca os evita e o código de swaps está partido (ver `docs/superpowers/notes/2026-10-14-swiss-matcher-notes.md`). A spec §5.2 exige "sem repetir adversários salvo impossibilidade".
+
+**Files:**
+- Create: `app/services/tournaments/rematch_repair.rb`
+- Modify: `app/services/tournaments/strategies/swiss_matcher.rb` (só `initial_match!` com `force_candidate`; apagar `handle_unmatched_players!`, `attempt_swaping!`, `sort_pod_by_rank_diff`, `incomplete_pods`, `find_swap_candidate`, `swap!`, `unmatched_players`, o parâmetro `forced:`), `app/jobs/tournaments/create_pods_job.rb` (chama o repair depois da estratégia, antes de `sit_participants!`), `app/models/pod.rb` (apagar `receive_candidate`, `can_match?`, `swap_suitable_by_rank_for?`, `swap_suitable_by_rematch_for?`, `a_swap_candidate_by_rematch_for`, `best_swap_candidate_by_rank_for`, `candidates_average_rank` e `swap_candidates!` se mais nada os usar — confirmar com `grep -rn` em `app/`), `app/models/event.rb` e `app/models/tournament.rb` (apagar `PAIR_DOWN_DEVIATION_PERCENT` se ficar sem uso), `app/models/event_participant.rb` (apagar `played_in_smaller_pod?` se ficar sem uso)
+- Test: `test/services/tournaments/rematch_repair_test.rb`, `test/jobs/tournaments/create_pods_job_test.rb` (retirar o `skip` do teste "players never meet twice…" e acrescentar os dois testes abaixo)
+
+**Interfaces:**
+- Consumes: `Pod#candidates` (array em memória preenchido pelas estratégias), `EventParticipant#played_against?`, `#match_points`, `#rank_score`.
+- Produces: `Tournaments::RematchRepair.new(round, max_point_gap:)` com `#repair!` → Integer (reencontros que sobraram). `max_point_gap` = 0 para `:standard` (só troca jogadores com os mesmos `match_points`), `Float::INFINITY` para `:spread` e `:forced`. Algoritmo: enquanto existir um par (a, b) no mesmo pod com `a.played_against?(b)`, procurar uma troca de um deles com um candidato c de outro pod (respeitando o gap em pontos entre o trocado e c) que **reduza estritamente** o nº total de pares repetidos na ronda; aplicar a primeira que reduzir; parar quando nenhuma troca reduz (máximo `20 × nº de pods` iterações). Determinístico dado o estado inicial.
+- `CreatePodsJob` chama `RematchRepair.new(@round, max_point_gap: gap_for(strategy)).repair!` depois de `match_according_to_strategy!`.
+
+- [ ] **Step 1: Testes**
+
+```ruby
+# test/services/tournaments/rematch_repair_test.rb
+require "test_helper"
+
+class Tournaments::RematchRepairTest < ActiveSupport::TestCase
+  test "removes every rematch when a clean arrangement exists (16 players after an all-draw round)" do
+    t = TournamentBuilder.build(players: 16, organizer: event_organizers(:standard_organizer))
+    t.rounds.create!(type: SwissRound, number: 1)
+    TournamentBuilder.play_round!(t, winners: { 1 => :draw, 2 => :draw, 3 => :draw, 4 => :draw })
+    r2 = t.rounds.create!(type: SwissRound, number: 2)   # job runs strategy + repair
+    assert_equal 0, rematch_pairs(r2)
+  end
+
+  test "standard rounds never move a player out of their points group" do
+    t = TournamentBuilder.build(players: 16, organizer: event_organizers(:standard_organizer))
+    t.rounds.create!(type: SwissRound, number: 1)
+    TournamentBuilder.play_round!(t, winners: { 1 => 0, 2 => 0, 3 => 0, 4 => 0 })
+    r2 = t.rounds.create!(type: SwissRound, number: 2)
+    winners = t.event_participants.select { |p| p.match_points == 7 }.map(&:id).sort
+    assert_equal winners, r2.pods.find_by(number: 1).event_participants.map(&:id).sort
+    assert_equal 0, rematch_pairs(r2)
+  end
+
+  test "an unavoidable rematch still seats everyone and terminates (4 players, round 2)" do
+    t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+    t.update_columns(swiss_rounds_count: 2) if t.has_attribute?(:swiss_rounds_count)
+    t.rounds.create!(type: SwissRound, number: 1)
+    TournamentBuilder.play_round!(t, winners: { 1 => 0 })
+    r2 = t.rounds.create!(type: SwissRound, number: 2)
+    assert_equal 4, r2.seatings.count
+    assert_equal 6, rematch_pairs(r2)
+  end
+
+  private
+
+  def rematch_pairs(round)
+    round.pods.sum { |pod| pod.event_participants.to_a.combination(2).count { |a, b| a.played_against?(b) } }
+  end
+end
+```
+
+E em `create_pods_job_test.rb`: retirar o `skip` do terceiro teste; acrescentar `test "spread round (20 players) has no rematches"` (20 jogadores, ronda 1 toda em empate, ronda 2 → `rematch_pairs == 0`).
+
+- [ ] **Step 2: Correr e ver falhar**
+
+Run: `bin/rails test test/services/tournaments/rematch_repair_test.rb test/jobs/tournaments/create_pods_job_test.rb`
+Expected: FAIL (`RematchRepair` desconhecido; o teste 3 da Task 6 falha com reencontros).
+
+- [ ] **Step 3: Implementar**
+
+`RematchRepair` como descrito nas Interfaces. Nos testes com 4 jogadores a ronda 2 só existe se `rounds_info` o permitir: se `Tournament::PLAYERS_ROUNDS_THRESHOLDS` ainda der 1 ronda para 4 jogadores, criar a ronda 2 na mesma (o `CreatePodsJob` lê `rounds_info[:rounds][number - 1]`, que será `nil` → tratar `nil` como `:standard`). Apagar o código órfão listado em Files. Se a pesquisa local deixar reencontros num caso em que existe arranjo limpo (teste 1 ou o teste da Task 6 a falhar de forma reprodutível), acrescentar um segundo tipo de movimento (rotação a três entre três pods) antes de desistir — e só então reportar.
+
+- [ ] **Step 4: Testes**
+
+Run: `bin/rails test`
+Expected: PASS, 0 skips.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add -A && git commit -m "feat: avoid rematches in every swiss round with a post-pairing repair pass; drop the broken swap code"
 ```

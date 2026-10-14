@@ -34,7 +34,7 @@ P4[10,12,16,14] P5[2,11,20,9]). Uma ronda `:forced` (25 jogadores, ronda 4, depo
   existe — o método chama-se `swap_candidates!`; e `best_swap_candidate_by_rank_for` recebe 2 argumentos mas é
   chamado com 1.)
 
-## Decisão pendente
+## Resolução (Task 14, 2026-10-14)
 
-Corrigir isto exige alterar `app/` (fora do âmbito da Task 6, que só acrescenta testes). O teste fica escrito e em
-`skip`, a apontar para esta nota, até uma tarefa de correção do emparelhamento o reativar.
+Resolvido: `Tournaments::RematchRepair` corre depois de cada estratégia e troca jogadores entre pods até não haver
+reencontros (rondas standard só entre jogadores com os mesmos pontos). O código de swaps partido foi apagado e o teste está ativo.

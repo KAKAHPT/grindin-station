@@ -29,7 +29,7 @@ Decisões já tomadas (14-10-2026):
 - Chamada de juiz por mesa; penalizações (sistema do Canivete); timer de ronda em ecrã grande; tempo extra por mesa.
 - Páginas públicas mobile: evento, lista de inscritos, a minha mesa/assento (ao vivo), standings, histórico do jogador.
 - Feeds JSON para o kit de stream (OBS), com o formato que o kit já lê.
-- Interface em pt-PT (predefinição) e en.
+- Interface em inglês (predefinição) e português de Portugal como segunda opção (pedido de 14-10-2026).
 
 **Fora da v1** (fica no código do Canivete mas sem trabalho nem garantia): ligas, wagers, circuitos. Não se faz:
 pagamentos online, verificador de decklists, metagame, mensagens em massa, página de "hub"/descoberta.
@@ -61,7 +61,7 @@ Alterações:
 - `events`: `points_win` (7), `points_draw` (1), `points_loss` (0), `points_bye` (7), `swiss_rounds_count`, `top_cut_size`
   (4/10/16/40), `round_minutes` (80), `top_cut_round_minutes` (150), `max_participants`, `waitlist_enabled`,
   `self_report_enabled` (true), `result_confirmation` (none | one | all; predefinição none; alterável a qualquer momento),
-  `locale`. Os quatro campos de pontos ficam bloqueados quando o Swiss começa.
+  `locale` (predefinição "en"). Os quatro campos de pontos ficam bloqueados quando o Swiss começa.
 - `event_participants`: `waitlisted` (bool), `waitlist_position`, `seat_counts` (jsonb `{ "1": n, … "5": n }`, cache
   recalculada ao publicar cada ronda), `tiebreak_cache` (jsonb, recalculada ao terminar cada ronda).
 - `seatings`: `assigned_by` ("fair" | "ranked" | "manual") e `cost` (número, para auditoria).
