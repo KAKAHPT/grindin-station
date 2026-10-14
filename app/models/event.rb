@@ -29,6 +29,8 @@ class Event < ApplicationRecord
     validates :state, :name, :slug, :start_time, :end_time
   end
 
+  validates :points_win, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
+  validates :points_draw, :points_loss, :points_bye, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validate :points_locked_after_start, on: :update
 
   before_validation :populate_slug

@@ -137,12 +137,15 @@ class EventParticipant < ApplicationRecord
                       (number_of_byes * event.points_bye)
   end
 
-  def match_win_percentage
-    return 0.0 if results.empty?
+  # Swiss rounds the player got points from: games plus byes (a bye is worth a round).
+  def number_of_rounds_played
+    number_of_wins + number_of_draws + number_of_losses + number_of_byes
+  end
 
-    @match_win_percentage ||= match_points / (results.count do |result|
-      !result.is_a?(Advance) && !result.is_a?(Eliminated)
-    end * event.points_win).to_f
+  def match_win_percentage
+    return 0.0 if number_of_rounds_played.zero?
+
+    @match_win_percentage ||= match_points / (number_of_rounds_played * event.points_win).to_f
   end
 
   def opponents_average_match_points
@@ -158,7 +161,7 @@ class EventParticipant < ApplicationRecord
 
     @opponents_average_match_win_percentage ||=
       corrected_opponents.reduce(0.0) do |sum, n|
-        [n.match_win_percentage, 1.0 / event.points_win].max + sum
+        [n.match_win_percentage, event.points_draw.to_f / event.points_win].max + sum
       end / corrected_opponents.size.to_f
   end
 
