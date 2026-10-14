@@ -70,6 +70,30 @@ class EventPointsTest < ActiveSupport::TestCase
     assert_includes t.errors[:points_win], I18n.t("errors.messages.greater_than_or_equal_to", count: 1)
   end
 
+  test "losses score points_loss" do
+    t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+    t.rounds.create!(type: SwissRound, number: 1)
+    TournamentBuilder.play_round!(t, winners: { 1 => 0 })
+    loser = t.rounds.first.pods.first.event_participants.second
+    assert_equal [0, 0.0], [loser.match_points, loser.match_win_percentage]
+
+    t.update_columns(points_win: 7, points_draw: 1, points_loss: 1) # rubocop:disable Rails/SkipsModelValidations
+    loser.reload
+    assert_equal 1, loser.match_points
+    assert_in_delta 1.0 / 7, loser.match_win_percentage
+  end
+
+  test "a locked event still accepts changes that are not points" do
+    t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+    assert t.points_locked?
+
+    t.name = "Renamed"
+    assert t.valid?, t.errors.full_messages.to_sentence
+    assert t.save
+    t.state = :finished
+    assert t.valid?, t.errors.full_messages.to_sentence
+  end
+
   private
 
   # A finished, published swiss round with no pods, so an Advance in it is a bye (see Round#byes).

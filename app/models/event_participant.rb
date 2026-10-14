@@ -134,6 +134,7 @@ class EventParticipant < ApplicationRecord
   def match_points
     @match_points ||= (number_of_draws * event.points_draw) +
                       (number_of_wins * event.points_win) +
+                      (number_of_losses * event.points_loss) +
                       (number_of_byes * event.points_bye)
   end
 
