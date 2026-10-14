@@ -27,7 +27,13 @@ class LocaleTest < ActionDispatch::IntegrationTest
 
   private
 
+  PLURAL_KEYS = %i[zero one two few many other].freeze
+
+  # A hash made only of plural forms counts as a single key: languages may translate a plain string as plural forms.
   def flatten_keys(hash, prefix = nil)
-    hash.flat_map { |k, v| key = [prefix, k].compact.join("."); v.is_a?(Hash) ? flatten_keys(v, key) : [key] }
+    hash.flat_map do |k, v|
+      key = [prefix, k].compact.join(".")
+      v.is_a?(Hash) && !(v.keys - PLURAL_KEYS).empty? ? flatten_keys(v, key) : [key]
+    end
   end
 end

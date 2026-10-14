@@ -72,9 +72,13 @@ pt:
         units:
           unit: ""
           thousand: mil
-          million: milhão
+          million:
+            one: milhão
+            other: milhões
           billion: mil milhões
-          trillion: bilião
+          trillion:
+            one: bilião
+            other: biliões
           quadrillion: mil biliões
   errors:
     format: "%{attribute} %{message}"

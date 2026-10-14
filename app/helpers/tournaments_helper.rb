@@ -8,7 +8,7 @@ module TournamentsHelper
 
   NUMBER_CURRENCY_OPTIONS = {
     euro: { unit: "€", separator: ",", delimiter: " ", format: "%n %u" },
-    dollar: {}
+    dollar: { unit: "$", separator: ".", delimiter: ",", format: "%u%n" }
   }.with_indifferent_access.freeze
 
   STATE_TRANSITION_MAP = {
