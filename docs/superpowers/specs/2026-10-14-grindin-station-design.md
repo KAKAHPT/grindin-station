@@ -40,6 +40,16 @@ preparada (ver §4 "Preparação para a v2" e §6): cada jogador é uma entidade
 genérica de notificações desde o início, e as regras de privacidade (quem vê o quê) são campos do jogador e não lógica
 espalhada.
 
+**Planeado para a v3 — Judge Bot** (pedido de 17-10-2026): um assistente de regras dentro de cada torneio, numa
+área de chat que os jogadores consultam. Responde a dúvidas de regras e de procedimento de torneio e **toda a resposta
+traz obrigatoriamente a fonte** (documento, secção/número da regra e ligação); sem fonte, não responde e sugere chamar
+o juiz. Fontes previstas: as regras oficiais (Comprehensive Rules, regras do formato Commander, MTR/IPG), as
+regras da cEDH PT e o material dos juízes de Portugal / da Europa publicado no GitHub (repositório a confirmar com os
+juízes), tudo versionado e lido por data de evento. Integra com o Judge Center: um botão "não resolveu, chamar juiz"
+abre uma `judge_call` com o histórico da conversa. Não decide nada: é apoio, o juiz humano prevalece, e a interface
+diz isso. Preparação na v1: nenhuma estrutura nova; a tabela `notifications` genérica e `judge_calls` já chegam. Fica
+documentado aqui para que o modelo de eventos/juízes não se feche a isto.
+
 ## 3. Arquitetura
 
 - **Stack:** Ruby 4.0.6, Rails 8.1, PostgreSQL 17 + PostGIS, Hotwire (Turbo + Stimulus), Tailwind 4, Solid Queue/Cache/Cable, Propshaft, Importmap. Tudo herdado do Canivete.
