@@ -14,7 +14,7 @@ class EventParticipantsStandingsTest < ActionDispatch::IntegrationTest
     get tournament_event_participants_path(@tournament)
 
     assert_response :success
-    assert_standings_headers
+    assert_standings_headers(:en)
     assert_select "p", text: I18n.t("standings.help.beaten")
   end
 
@@ -22,15 +22,17 @@ class EventParticipantsStandingsTest < ActionDispatch::IntegrationTest
     get tournament_event_participants_path(@tournament, locale: "pt")
 
     assert_response :success
-    assert_standings_headers
+    assert_standings_headers(:pt)
+    assert_select "th", text: /\A\s*Batidos\s*\z/
     assert_select "p", text: I18n.t("standings.help.beaten", locale: :pt)
   end
 
   private
 
-  def assert_standings_headers
-    %w[Pts OWR Beaten Unique Seats].each do |header|
-      assert_select "th", text: /\A\s*#{header}\s*\z/
+  def assert_standings_headers(locale)
+    %i[points owr beaten unique seats].each do |column|
+      header = I18n.t("standings.columns.#{column}", locale: locale)
+      assert_select "th", text: /\A\s*#{Regexp.escape(header)}\s*\z/
     end
   end
 end

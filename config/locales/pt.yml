@@ -43,6 +43,13 @@ pt:
     no_cut: "Sem corte"
     top_cut_option: "Top %{size}"
   standings:
+    columns:
+      points: "Pts"
+      owr: "OWR"
+      beaten: "Batidos"
+      unique: "Únicos"
+      seats: "Assentos"
+    order_tooltip: "Pts > OWR > Batidos > Únicos > sorteio com semente"
     help:
       points: "Pontos de match: %{win} por vitória, %{draw} por empate, %{loss} por derrota."
       owr: "Win rate dos adversários: a média dos pontos dos teus adversários sobre o máximo de cada um, com um mínimo igual a um empate."

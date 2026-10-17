@@ -170,7 +170,7 @@ class EventParticipant < ApplicationRecord
       else
         (number_of_advancements * (10**18)) +
           (match_points * (10**13)) +
-          ((opponents_win_rate.round(4) * 10_000).to_i * (10**8)) +
+          ((opponents_win_rate * 10_000).round * (10**8)) +
           (opponents_beaten * (10**6)) +
           (unique_opponents * (10**4)) +
           tiebreak_salt

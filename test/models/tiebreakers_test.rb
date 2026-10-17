@@ -27,10 +27,30 @@ class TiebreakersTest < ActiveSupport::TestCase
     assert_operator @winner.rank_score, :>, others.first.rank_score
   end
 
+  test "opponents win rate decides before beaten, at full precision" do
+    a, b = @r1.pods.find_by(number: 2).event_participants.map { |p| EventParticipant.find(p.id) }.first(2)
+    assert_operator with_tiebreakers(a, owr: 0.143).rank_score, :>, with_tiebreakers(b, owr: 0.1429).rank_score,
+                    "0.143 must outrank 0.1429"
+
+    c, d = @r1.pods.find_by(number: 2).event_participants.map { |p| EventParticipant.find(p.id) }.first(2)
+    assert_operator with_tiebreakers(c, owr: 0.2, beaten: 2).rank_score, :>, with_tiebreakers(d, owr: 0.2, beaten: 1).rank_score,
+                    "with equal OWR, opponents beaten decides"
+  end
+
   test "a dropped player keeps counting as an opponent and the salt is stable" do
     loser = @r1.pods.find_by(number: 1).seatings.order(:order).last.event_participant
     loser.update_columns(dropped: true)
     assert_equal 3, @winner.reload.opponents_beaten
     assert_equal @winner.tiebreak_salt, EventParticipant.find(@winner.id).tiebreak_salt
+  end
+
+  private
+
+  # Pins the tiebreakers on one instance (Minitest 6 ships without stub); points and unique stay real and equal.
+  def with_tiebreakers(participant, owr:, beaten: 0, salt: 0)
+    participant.define_singleton_method(:opponents_win_rate) { owr }
+    participant.define_singleton_method(:opponents_beaten) { beaten }
+    participant.define_singleton_method(:tiebreak_salt) { salt }
+    participant
   end
 end

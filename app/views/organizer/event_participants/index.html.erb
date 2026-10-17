@@ -200,19 +200,19 @@
           </th>
           <th scope="col" class="px-5 py-3">Player</th>
           <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-points">
-            Pts
+            <%= t("standings.columns.points") %>
           </th>
           <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-owr">
-            OWR
+            <%= t("standings.columns.owr") %>
           </th>
           <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-beaten">
-            Beaten
+            <%= t("standings.columns.beaten") %>
           </th>
           <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-unique">
-            Unique
+            <%= t("standings.columns.unique") %>
           </th>
           <th scope="col" class="px-5 py-3">
-            Seats
+            <%= t("standings.columns.seats") %>
           </th>
           <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-wld">
             W-L-D
@@ -230,7 +230,7 @@
             Player rank is calculated according to the tiebreakers you can see
             in this table:
             <br>
-            Pts > OWR > Beaten > Unique > seeded draw
+            <%= t("standings.order_tooltip") %>
             <div class="tooltip-arrow" data-popper-arrow="true"></div>
           </div>
           <div

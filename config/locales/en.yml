@@ -43,6 +43,13 @@ en:
     no_cut: "No cut"
     top_cut_option: "Top %{size}"
   standings:
+    columns:
+      points: "Pts"
+      owr: "OWR"
+      beaten: "Beaten"
+      unique: "Unique"
+      seats: "Seats"
+    order_tooltip: "Pts > OWR > Beaten > Unique > seeded draw"
     help:
       points: "Match points: %{win} per win, %{draw} per draw, %{loss} per loss."
       owr: "Opponents' win rate: the average of your opponents' points out of their maximum, floored at a draw."
