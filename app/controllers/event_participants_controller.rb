@@ -4,7 +4,7 @@ class EventParticipantsController < ApplicationController
   skip_before_action :require_authentication, only: %i[index]
 
   def index
-    @event = load_event
+    @tournament = load_event
     render layout: "modal"
   end
 
