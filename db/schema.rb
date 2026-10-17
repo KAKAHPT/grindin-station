@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_220000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_17_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -112,6 +112,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_220000) do
     t.integer "rounds_count", default: 0, null: false
     t.text "rules"
     t.text "schedule"
+    t.integer "seed"
     t.string "slug", null: false
     t.datetime "start_time"
     t.integer "state", default: 0, null: false
@@ -197,6 +198,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_220000) do
   end
 
   create_table "seatings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "assigned_by", default: "fair", null: false
+    t.integer "cost"
     t.datetime "created_at", null: false
     t.uuid "event_participant_id"
     t.integer "order", default: 1, null: false

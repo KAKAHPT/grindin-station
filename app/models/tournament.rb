@@ -113,10 +113,12 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
   end
 
   # A nil structure follows the player count; freeze it when the swiss starts so drops can't change it mid-event.
+  # The seed for fair-seating tie-breaks is drawn at the same moment.
   def snapshot_structure
     suggested = suggested_structure
     self.swiss_rounds_count ||= suggested[:swiss_rounds]
     self.top_cut_size ||= suggested[:top_cut_size]
+    self.seed ||= SecureRandom.random_number(2**31)
   end
 
   def top_cut_fits_the_field

@@ -13,13 +13,14 @@ module Organizer
       else
         @event_participants =
           @event.event_participants.sort_by do |p|
+            seat_counts = p.seat_counts
             [
               p.playing? ? 0 : 1,
               -p.rank_score,
-              -p.times_going_at(4),
-              -p.times_going_at(3),
-              -p.times_going_at(2),
-              -p.times_going_at(1),
+              -seat_counts[4],
+              -seat_counts[3],
+              -seat_counts[2],
+              -seat_counts[1],
               p.name
             ]
           end

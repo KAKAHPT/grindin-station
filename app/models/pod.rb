@@ -45,7 +45,7 @@ class Pod < ApplicationRecord
     if round.is_a? SingleEliminationRound
       ranked_seatings
     else
-      weighted_seatings
+      fair_seatings
     end
 
     self.candidates = []
@@ -55,24 +55,24 @@ class Pod < ApplicationRecord
 
   def ranked_seatings
     candidates.sort_by.with_index { |p, i| [-p.rank_score, i] }.each.with_index do |participant, i|
-      seatings.build(event_participant: participant, order: i + 1)
+      seatings.build(event_participant: participant, order: i + 1, assigned_by: "ranked")
     end
   end
 
-  def weighted_seatings
-    ordered_candidates =
-      candidates.shuffle.sort_by.with_index do |participant, i|
-        (1..size).to_a.map do |position|
-          participant.times_going_at(position)
-        end + [-participant.rank_score, i]
-      end
+  # Swiss: Tournaments::SeatAssigner over the candidates' seat history, its tie-break seeded by
+  # (event seed, round number, pod number). Digest, not Array#hash, which changes between processes.
+  # No candidates (league pick-up pods build their seatings directly) leaves the seats as they are.
+  def fair_seatings
+    return if candidates.empty?
 
-    build_seatings(ordered_candidates)
+    seat_counts = candidates.index_with(&:seat_counts)
+    assigner = Tournaments::SeatAssigner.new(participants: candidates, seat_counts: seat_counts, rng: seating_rng)
+    assigner.order.each.with_index(1) do |participant, position|
+      seatings.build(event_participant: participant, order: position, assigned_by: "fair", cost: assigner.cost)
+    end
   end
 
-  def build_seatings(ordered_candidates)
-    ordered_candidates.each.with_index do |participant, i|
-      seatings.build(event_participant: participant, order: i + 1)
-    end
+  def seating_rng
+    Random.new(Digest::SHA256.hexdigest([event.seed.to_i, round.number, number].join("-")).to_i(16))
   end
 end

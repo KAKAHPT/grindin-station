@@ -91,8 +91,14 @@ class EventParticipant < ApplicationRecord
     "##{player.key.first(5)}"
   end
 
-  def times_going_at(position)
-    seatings.count { |seat| seat.order == position }
+  # Times this participant sat at each position 1..5 in swiss rounds that are finished or published.
+  # Byes have no seating, so they never count.
+  def seat_counts
+    counts = Seating.joins(pod: :round)
+                    .where(event_participant_id: id, rounds: { type: "SwissRound" })
+                    .where("rounds.finished_at IS NOT NULL OR rounds.published = TRUE")
+                    .group(:order).count
+    (1..5).to_h { |position| [position, counts.fetch(position, 0)] }
   end
 
   def played_against?(another)
