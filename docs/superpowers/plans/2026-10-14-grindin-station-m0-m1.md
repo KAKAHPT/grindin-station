@@ -624,7 +624,7 @@ git add -A && git commit -m "feat: fair seat assignment in swiss pods with audit
 
 **Interfaces:**
 - Produces em `EventParticipant`: `#match_points`, `#opponents_win_rate -> Float` (média de `opp.match_points / (opp.swiss_games × event.points_win)`, cada termo com mínimo `event.points_draw.to_f / event.points_win`, só adversários de `SwissRound`, sem byes/fantasmas; 0.0 sem adversários), `#opponents_beaten -> Integer` (adversários distintos nas mesas onde teve `Win`), `#unique_opponents -> Integer`, `#tiebreak_salt -> Integer` (0..9999, `Digest::MD5.hexdigest("#{event.seed}-#{id}").to_i(16) % 10_000`), `#swiss_games -> Integer` (resultados em SwissRound que não são Advance).
-- `#rank_score` = `advancements × 10**18 + match_points × 10**13 + (opponents_win_rate.round(4) × 10_000).to_i × 10**8 + opponents_beaten × 10**6 + unique_opponents × 10**4 + tiebreak_salt`. Ligas mantêm `league_score`.
+- `#rank_score` = `advancements × 10**18 + match_points × 10**13 + (opponents_win_rate × 10_000).round × 10**8 + opponents_beaten × 10**6 + unique_opponents × 10**4 + tiebreak_salt`. Ligas mantêm `league_score`.
 - `#standing_columns -> Hash` com as cinco componentes legíveis, para a view.
 
 - [ ] **Step 1: Teste**
