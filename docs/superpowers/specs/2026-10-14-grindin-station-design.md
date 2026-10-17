@@ -180,6 +180,15 @@ Garantias e medição:
 
 **Público sem login:** evento, inscritos, pods da ronda atual, standings, resultados finais.
 
+**Decisões de interface (17-10-2026, a partir dos mockups):**
+- Aspeto **neutro**, separado da marca cEDH PT: nada de roxo/dourado do site. Paleta a escolher entre três propostas
+  (A grafite + teal, B papel claro + azul, C carvão + âmbar); uma só cor de destaque.
+- **O mais simples possível**: sem textos explicativos sobre a justiça dos assentos nas páginas do jogador; a
+  contagem de assentos aparece só na coluna "Seats 1·2·3·4" dos standings.
+- **Comandantes nos standings são opcionais**: campo `events.show_commanders_in_standings` (booleano, predefinição
+  false) no painel do organizador; quando desligado a coluna não existe e os feeds não os enviam.
+- O botão de empate chama-se apenas "Draw".
+
 ## 8. Feeds para o stream (OBS)
 
 Sem autenticação, cache 30 s, CORS aberto, mesmas chaves que o kit lê hoje do cedhpt.com:
