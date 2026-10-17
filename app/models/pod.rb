@@ -61,12 +61,14 @@ class Pod < ApplicationRecord
 
   # Swiss: Tournaments::SeatAssigner over the candidates' seat history, its tie-break seeded by
   # (event seed, round number, pod number). Digest, not Array#hash, which changes between processes.
+  # Candidates are sorted by id first (they arrive shuffled), so the seed alone decides the tie-break.
   # No candidates (league pick-up pods build their seatings directly) leaves the seats as they are.
   def fair_seatings
     return if candidates.empty?
 
-    seat_counts = candidates.index_with(&:seat_counts)
-    assigner = Tournaments::SeatAssigner.new(participants: candidates, seat_counts: seat_counts, rng: seating_rng)
+    participants = candidates.sort_by(&:id)
+    seat_counts = participants.index_with(&:seat_counts)
+    assigner = Tournaments::SeatAssigner.new(participants: participants, seat_counts: seat_counts, rng: seating_rng)
     assigner.order.each.with_index(1) do |participant, position|
       seatings.build(event_participant: participant, order: position, assigned_by: "fair", cost: assigner.cost)
     end

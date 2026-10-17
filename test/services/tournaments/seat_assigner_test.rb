@@ -35,4 +35,9 @@ class Tournaments::SeatAssignerTest < ActiveSupport::TestCase
     assert_equal 5, five.size
     assert_not_equal E, five.last
   end
+
+  test "the seat-1 hard rule beats a cheaper order" do
+    sc = counts(A => [0, 0, 0], B => [1, 5, 5], C => [1, 0, 0])
+    assert_equal A, Tournaments::SeatAssigner.new(participants: [A, B, C], seat_counts: sc, rng: Random.new(1)).order.first
+  end
 end
