@@ -37,7 +37,7 @@ class EventPointsTest < ActiveSupport::TestCase
     assert t.valid?, t.errors.full_messages.to_sentence
   end
 
-  test "a swiss bye counts as a played round in match win percentage" do
+  test "a swiss bye counts as a played round" do
     t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
     winner, loser = t.event_participants.first(2)
     round_one = finished_swiss_round(t, 1)
@@ -48,11 +48,10 @@ class EventPointsTest < ActiveSupport::TestCase
 
     assert_equal [1, 1], [winner.reload.number_of_byes, winner.number_of_wins]
     assert_equal 14, winner.match_points
-    assert_in_delta 1.0, winner.match_win_percentage
-    assert_in_delta 0.5, loser.reload.match_win_percentage
+    assert_equal [2, 2], [winner.number_of_rounds_played, loser.reload.number_of_rounds_played]
   end
 
-  test "opponents' match win percentage is floored at the draw value" do
+  test "opponents' win rate is floored at the draw value" do
     { [7, 1] => 1.0 / 7, [5, 2] => 0.4 }.each do |(win, draw), floor|
       t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
       t.update_columns(points_win: win, points_draw: draw) # rubocop:disable Rails/SkipsModelValidations
@@ -60,7 +59,7 @@ class EventPointsTest < ActiveSupport::TestCase
       TournamentBuilder.play_round!(t, winners: { 1 => 0 })
       winner = t.rounds.first.pods.first.event_participants.first
 
-      assert_in_delta floor, winner.reload.opponents_average_match_win_percentage
+      assert_in_delta floor, winner.reload.opponents_win_rate
     end
   end
 
@@ -75,12 +74,11 @@ class EventPointsTest < ActiveSupport::TestCase
     t.rounds.create!(type: SwissRound, number: 1)
     TournamentBuilder.play_round!(t, winners: { 1 => 0 })
     loser = t.rounds.first.pods.first.event_participants.second
-    assert_equal [0, 0.0], [loser.match_points, loser.match_win_percentage]
+    assert_equal 0, loser.match_points
 
     t.update_columns(points_win: 7, points_draw: 1, points_loss: 1) # rubocop:disable Rails/SkipsModelValidations
     loser.reload
     assert_equal 1, loser.match_points
-    assert_in_delta 1.0 / 7, loser.match_win_percentage
   end
 
   test "a locked event still accepts changes that are not points" do

@@ -152,25 +152,6 @@ class EventParticipantTest < ActiveSupport::TestCase # rubocop:disable Metrics/C
     assert_equal expected_points, participant.match_points
   end
 
-  test "match_win_percentage calculation" do
-    participant = event_participants(:small_event_participant_one) # Has 1 win (7 points)
-
-    # With 1 result worth 7 points out of maximum 7 points per result
-    expected_percentage = 7.0 / (1 * Tournament::POINTS_PER_WIN) # 7/7 = 1.0 (100%)
-    assert_equal expected_percentage, participant.match_win_percentage
-  end
-
-  test "match_win_percentage returns 0 for no results" do
-    # Create participant with no results
-    participant = EventParticipant.create!(
-      event: events(:small_tournament),
-      player: players(:player_two),
-      accepted_terms: true
-    )
-
-    assert_equal 0.0, participant.match_win_percentage
-  end
-
   # ===== COMPLEX BUSINESS LOGIC TESTS =====
 
   test "playing? returns opposite of dropped" do
@@ -196,29 +177,16 @@ class EventParticipantTest < ActiveSupport::TestCase # rubocop:disable Metrics/C
     assert_equal expected_key, participant.obfuscated_key
   end
 
-  # ===== CONSTANTS TESTS =====
-
-  test "ranking coefficients have expected values" do
-    assert_equal 100_000_000_000_000_000, EventParticipant::SINGLE_ELIM_COEFF
-    assert_equal 100_000_000_000_000, EventParticipant::MP_COEFF
-    assert_equal 10_000_000_000_000, EventParticipant::MW_COEFF
-    assert_equal 10_000_000, EventParticipant::OAMW_COEFF
-    assert_equal 10_000, EventParticipant::OAMP_COEFF
-  end
-
   test "rank_score calculation includes all components" do
     participant = event_participants(:small_event_participant_one) # Has 1 win (not just advance)
 
     # Debug the calculation components
     advancements = participant.number_of_advancements
     match_points = participant.match_points
-    match_win_pct = participant.match_win_percentage
 
     # Ensure we have valid numbers
     assert advancements >= 0
     assert match_points >= 0
-    assert match_win_pct >= 0.0
-    assert_not match_win_pct.nan?, "Match win percentage should not be NaN"
 
     # Rank score should be positive
     rank_score = participant.rank_score

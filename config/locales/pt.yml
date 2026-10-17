@@ -42,6 +42,13 @@ pt:
     structure_use_suggestion: "Sugerido"
     no_cut: "Sem corte"
     top_cut_option: "Top %{size}"
+  standings:
+    help:
+      points: "Pontos de match: %{win} por vitória, %{draw} por empate, %{loss} por derrota."
+      owr: "Win rate dos adversários: a média dos pontos dos teus adversários sobre o máximo de cada um, com um mínimo igual a um empate."
+      beaten: "Adversários batidos: jogadores distintos nas mesas que ganhaste."
+      unique: "Adversários únicos: jogadores distintos que defrontaste."
+      seed: "Restantes empates: sorteio com semente feito na ronda 1, fixo durante todo o evento."
   views:
     pagination:
       previous: "Anterior"

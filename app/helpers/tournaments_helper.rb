@@ -39,6 +39,16 @@ module TournamentsHelper
     end
   end
 
+  # Times in seats 1-4 as "2·1·1·1", plus seat 5 when any player in the standings sat there.
+  def seat_counts_label(seats, seat_five: false)
+    seats.values_at(*(1..(seat_five ? 5 : 4))).join("·")
+  end
+
+  # True when anyone in the list sat in seat 5 of a swiss pod.
+  def seat_five?(participants)
+    participants.any? { |participant| participant.seat_counts[5].positive? }
+  end
+
   def number_to_currency_options(currency)
     NUMBER_CURRENCY_OPTIONS[currency]
   end

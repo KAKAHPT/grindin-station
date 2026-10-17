@@ -64,18 +64,8 @@ class EventParticipant < ApplicationRecord
   before_save :reset_rank_score_cache, if: -> { league_score_previously_changed? }
   after_update :rebuild_round, if: -> { dropped_previously_changed? }
 
-  SINGLE_ELIM_COEFF = 100_000_000_000_000_000
-  MP_COEFF = 100_000_000_000_000
-  MW_COEFF = 10_000_000_000_000
-  OAMW_COEFF = 10_000_000
-  OAMP_COEFF = 10_000
-
   def initialize(attributes = nil)
-    @match_points = nil
-    @match_win_percentage = nil
-    @opponents_average_match_points = nil
-    @opponents_average_match_win_percentage = nil
-    @rank_score = nil
+    clear_standings_cache
     super
   end
 
@@ -103,16 +93,6 @@ class EventParticipant < ApplicationRecord
 
   def played_against?(another)
     opponents.include?(another)
-  end
-
-  def corrected_opponents
-    opponents.to_a + Array.new(number_of_ghost_opponents) { Ghost.new(event: event) }
-  end
-
-  def number_of_ghost_opponents
-    pods.count do |pod|
-      pod.size == event.class::SMALLER_POD_SIZE
-    end * (event.class::PREFERRED_POD_SIZE - event.class::SMALLER_POD_SIZE)
   end
 
   # Advance results in single-elimination rounds (byes into the next cut round).
@@ -149,48 +129,62 @@ class EventParticipant < ApplicationRecord
     number_of_wins + number_of_draws + number_of_losses + number_of_byes
   end
 
-  def match_win_percentage
-    return 0.0 if number_of_rounds_played.zero?
-
-    @match_win_percentage ||= match_points / (number_of_rounds_played * event.points_win).to_f
+  # Average over swiss pairings (byes and the top cut excluded) of each opponent's points out of
+  # their maximum, each term floored at a draw. 0.0 without opponents.
+  def opponents_win_rate
+    @opponents_win_rate ||= begin
+      floor = event.points_draw.to_f / event.points_win
+      rates = opponents.map do |opponent|
+        rounds = opponent.number_of_rounds_played
+        rounds.zero? ? floor : [opponent.match_points / (rounds * event.points_win).to_f, floor].max
+      end
+      rates.empty? ? 0.0 : rates.sum / rates.size
+    end
   end
 
-  def opponents_average_match_points
-    return 0.0 if corrected_opponents.empty?
-
-    @opponents_average_match_points ||= (
-      corrected_opponents.reduce(0.0) { |sum, n| n.match_points + sum } / corrected_opponents.size.to_f
-    ).round(2)
+  # Distinct players at the swiss tables this participant won.
+  def opponents_beaten
+    @opponents_beaten ||= begin
+      won_round_ids = results.select { |result| result.is_a?(Win) && result.round.is_a?(SwissRound) }.map(&:round_id)
+      won_pod_ids = pods.where(pods: { round_id: won_round_ids }).pluck("pods.id")
+      Seating.where(pod_id: won_pod_ids).where.not(event_participant_id: id).distinct.count(:event_participant_id)
+    end
   end
 
-  def opponents_average_match_win_percentage
-    return 0.0 if corrected_opponents.empty?
-
-    @opponents_average_match_win_percentage ||=
-      corrected_opponents.reduce(0.0) do |sum, n|
-        [n.match_win_percentage, event.points_draw.to_f / event.points_win].max + sum
-      end / corrected_opponents.size.to_f
+  # Distinct players faced in swiss rounds.
+  def unique_opponents
+    @unique_opponents ||= opponents.distinct.count
   end
 
-  def rank_score # rubocop:disable Metrics/AbcSize
+  # Last tiebreaker: a fixed draw per participant, reproducible from the event's seed.
+  def tiebreak_salt
+    Digest::MD5.hexdigest("#{event.seed}-#{id}").to_i(16) % 10_000
+  end
+
+  # Points, then opponents' win rate, then opponents beaten, then unique opponents, then the seeded salt.
+  # Top cut advancements outrank everything.
+  def rank_score
     @rank_score ||=
       if event.is_a?(League)
         league_score.to_f
       else
-        (number_of_advancements * SINGLE_ELIM_COEFF) +
-          (match_points * MP_COEFF) +
-          (match_win_percentage.round(4) * MW_COEFF).to_i +
-          (opponents_average_match_points * OAMP_COEFF).to_i +
-          (opponents_average_match_win_percentage.round(4) * OAMW_COEFF).to_i
+        (number_of_advancements * (10**18)) +
+          (match_points * (10**13)) +
+          ((opponents_win_rate.round(4) * 10_000).to_i * (10**8)) +
+          (opponents_beaten * (10**6)) +
+          (unique_opponents * (10**4)) +
+          tiebreak_salt
       end
   end
 
+  # The readable tiebreakers, for the standings views.
+  def standing_columns
+    { points: match_points, owr: opponents_win_rate, beaten: opponents_beaten,
+      unique: unique_opponents, seats: seat_counts }
+  end
+
   def reload(*)
-    @match_points = nil
-    @match_win_percentage = nil
-    @opponents_average_match_points = nil
-    @opponents_average_match_win_percentage = nil
-    @rank_score = nil
+    clear_standings_cache
     super
   end
 
@@ -204,6 +198,14 @@ class EventParticipant < ApplicationRecord
   private
 
   def reset_rank_score_cache
+    @rank_score = nil
+  end
+
+  def clear_standings_cache
+    @match_points = nil
+    @opponents_win_rate = nil
+    @opponents_beaten = nil
+    @unique_opponents = nil
     @rank_score = nil
   end
 end

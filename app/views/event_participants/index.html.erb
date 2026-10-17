@@ -48,17 +48,20 @@
           Rank
         </th>
         <th scope="col" class="px-5 py-3">Player</th>
-        <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-mp">
-          MP
+        <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-points">
+          Pts
         </th>
-        <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-mwp">
-          MW%
+        <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-owr">
+          OWR
         </th>
-        <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-oamwp">
-          OAMW%
+        <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-beaten">
+          Beaten
         </th>
-        <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-oamp">
-          OAMP
+        <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-unique">
+          Unique
+        </th>
+        <th scope="col" class="px-5 py-3">
+          Seats
         </th>
         <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-wld">
           W-L-D
@@ -77,11 +80,11 @@
           Player rank is calculated according to the tiebreakers you can see in
           this table:
           <br>
-          MP > MW% > OAMW% > OAMP
+          Pts > OWR > Beaten > Unique > seeded draw
           <div class="tooltip-arrow" data-popper-arrow="true"></div>
         </div>
         <div
-          id="tooltip-mp"
+          id="tooltip-points"
           role="tooltip"
           class="
             absolute z-10 invisible inline-block px-3 py-2 text-sm
@@ -90,16 +93,11 @@
             dark:bg-gray-700
           "
         >
-          MP means Match Points:
-          <br>
-          <%= @tournament.points_win %>
-          per win,
-          <%= @tournament.points_draw %>
-          per draw, <%= @tournament.points_loss %> per loss.
+          <%= t("standings.help.points", win: @tournament.points_win, draw: @tournament.points_draw, loss: @tournament.points_loss) %>
           <div class="tooltip-arrow" data-popper-arrow="true"></div>
         </div>
         <div
-          id="tooltip-mwp"
+          id="tooltip-owr"
           role="tooltip"
           class="
             absolute z-10 invisible inline-block px-3 py-2 text-sm
@@ -108,14 +106,11 @@
             dark:bg-gray-700
           "
         >
-          MW% means Match Win %:
-          <br>
-          Acquired Match Points divided by Attainable Match Points (with 100%
-          Match wins)
+          <%= t("standings.help.owr") %>
           <div class="tooltip-arrow" data-popper-arrow="true"></div>
         </div>
         <div
-          id="tooltip-oamwp"
+          id="tooltip-beaten"
           role="tooltip"
           class="
             absolute z-10 invisible inline-block px-3 py-2 text-sm
@@ -124,16 +119,11 @@
             dark:bg-gray-700
           "
         >
-          OAMW% means Opponent's Average Match Win %:
-          <br>
-          the Average of your Opponent's Match Win %, with a minimum
-          contribution cap of
-          <%= ((@tournament.points_draw / @tournament.points_win.to_f) * 100).round(2) %>
-          %
+          <%= t("standings.help.beaten") %>
           <div class="tooltip-arrow" data-popper-arrow="true"></div>
         </div>
         <div
-          id="tooltip-oamp"
+          id="tooltip-unique"
           role="tooltip"
           class="
             absolute z-10 invisible inline-block px-3 py-2 text-sm
@@ -142,9 +132,7 @@
             dark:bg-gray-700
           "
         >
-          OAMP means Opponent's Average Match Points:
-          <br>
-          the Average of your Opponent's Match Points.
+          <%= t("standings.help.unique") %>
           <div class="tooltip-arrow" data-popper-arrow="true"></div>
         </div>
         <div
@@ -170,10 +158,12 @@
       <% when 'registration_open', 'registration_closed' %>
         <%= render @tournament.event_participants.sort_by(&:name) %>
       <% else %>
-        <%= render @tournament.event_participants.sort_by { |p| [p.playing? ? 0 : 1, -p.rank_score, p.name] } %>
+        <% standings = @tournament.event_participants.sort_by { |p| [p.playing? ? 0 : 1, -p.rank_score, p.name] } %>
+        <%= render partial: "event_participants/event_participant", collection: standings, locals: { seat_five: seat_five?(standings) } %>
       <% end %>
     </tbody>
   </table>
+  <%= render "tournaments/standings_help", event: @tournament %>
 <% end %>
 
 <% content_for :footer do %>

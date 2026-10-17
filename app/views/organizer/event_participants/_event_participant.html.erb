@@ -34,15 +34,15 @@
     >
       <%= truncate(event_participant.name) %>
     </th>
-    <td class="px-5 py-4"><%= event_participant.match_points %></td>
+    <% columns = event_participant.standing_columns %>
+    <td class="px-5 py-4"><%= columns[:points] %></td>
     <td class="px-5 py-4">
-      <%= (event_participant.match_win_percentage * 100).round(2) %>%
+      <%= number_to_percentage(columns[:owr] * 100, precision: 1) %>
     </td>
-    <td class="px-5 py-4">
-      <%= (event_participant.opponents_average_match_win_percentage * 100).round(2) %>%
-    </td>
-    <td class="px-5 py-4">
-      <%= event_participant.opponents_average_match_points %>
+    <td class="px-5 py-4"><%= columns[:beaten] %></td>
+    <td class="px-5 py-4"><%= columns[:unique] %></td>
+    <td class="px-5 py-4 text-nowrap">
+      <%= seat_counts_label(columns[:seats], seat_five: local_assigns.fetch(:seat_five, false)) %>
     </td>
     <td class="px-5 py-4 text-nowrap">
       <%= event_participant.number_of_wins -%>
