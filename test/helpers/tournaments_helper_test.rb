@@ -32,6 +32,19 @@ class TournamentsHelperTest < ActionView::TestCase
     end
   end
 
+  test "structure suggestion counts only players still playing" do
+    t = TournamentBuilder.build(players: 25, organizer: event_organizers(:standard_organizer),
+                                state: :registration_open)
+    t.event_participants.first(2).each { |p| p.update_columns(dropped: true) } # rubocop:disable Rails/SkipsModelValidations
+    assert_equal "Suggested for 23 players: 4 swiss rounds, top 4", structure_suggestion(t.reload)
+  end
+
+  test "no structure suggestion below 4 players" do
+    assert_nil structure_suggestion(Tournament.new)
+    t = TournamentBuilder.build(players: 3, organizer: event_organizers(:standard_organizer), state: :registration_open)
+    assert_nil structure_suggestion(t)
+  end
+
   test "top cut options start with no cut, then every supported size" do
     assert_equal [["No cut", 0], ["Top 4", 4], ["Top 10", 10], ["Top 13", 13], ["Top 16", 16], ["Top 40", 40]],
                  top_cut_options

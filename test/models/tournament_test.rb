@@ -210,6 +210,32 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     assert_equal [3, 0], [tournament.reload.swiss_rounds_count, tournament.top_cut_size]
   end
 
+  test "dropped players do not count towards the suggested structure or its snapshot" do
+    tournament = TournamentBuilder.build(players: 25, organizer: event_organizers(:standard_organizer),
+                                         state: :registration_closed)
+    tournament.event_participants.first(2).each { |p| p.update_columns(dropped: true) } # rubocop:disable Rails/SkipsModelValidations
+    tournament.reload # 25 registered => top 10; 23 playing => top 4
+
+    assert_equal({ swiss_rounds: 4, top_cut_size: 4 }, tournament.suggested_structure)
+    assert_equal({ players: 4, pods: [1] }, tournament.rounds_info[:top])
+
+    tournament.update!(state: :swiss)
+    assert_equal [4, 4], [tournament.reload.swiss_rounds_count, tournament.top_cut_size]
+  end
+
+  test "a cut bigger than the players still playing is too big" do
+    tournament = TournamentBuilder.build(players: 17, organizer: event_organizers(:standard_organizer),
+                                         state: :registration_closed)
+    tournament.top_cut_size = 16
+    assert tournament.valid?, tournament.errors.full_messages.to_sentence
+
+    tournament.event_participants.first(2).each { |p| p.update_columns(dropped: true) } # rubocop:disable Rails/SkipsModelValidations
+    tournament.event_participants.reset
+    assert_not tournament.valid?
+    assert_includes tournament.errors[:top_cut_size],
+                    I18n.t("activerecord.errors.models.event.attributes.top_cut_size.too_big")
+  end
+
   # ===== VALIDATION TESTS =====
 
   test "requires name, start_time, end_time and event_organizer" do

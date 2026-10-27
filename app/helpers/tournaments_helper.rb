@@ -29,8 +29,11 @@ module TournamentsHelper
     [[t("organizer.no_cut"), 0]] + Tournaments::TopCut::SIZES.map { |size| [t("organizer.top_cut_option", size: size), size] }
   end
 
+  # nil below 4 players (no structure to suggest yet).
   def structure_suggestion(tournament)
-    players = tournament.event_participants.size
+    players = tournament.playing_participants_count
+    return if players < Tournament::PREFERRED_POD_SIZE
+
     suggested = Tournaments::Structure.suggested(players)
     if suggested[:top_cut_size].zero?
       t("organizer.structure_suggestion_no_cut", players: players, rounds: suggested[:swiss_rounds])

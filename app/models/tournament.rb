@@ -44,13 +44,12 @@ class Tournament < Event
   before_update :snapshot_structure, if: -> { will_save_change_to_state? && swiss? }
 
   def suggested_structure
-    Tournaments::Structure.suggested(event_participants.size)
+    Tournaments::Structure.suggested(playing_participants_count)
   end
 
   def rounds_info
-    suggested = suggested_structure
-    total = swiss_rounds_count || suggested[:swiss_rounds]
-    cut_size = top_cut_size || suggested[:top_cut_size]
+    total = swiss_rounds_count || suggested_structure[:swiss_rounds]
+    cut_size = top_cut_size || suggested_structure[:top_cut_size]
     cut = Tournaments::TopCut.for(cut_size) if cut_size.positive?
 
     {
@@ -125,7 +124,7 @@ class Tournament < Event
     return unless top_cut_size.to_i.positive? && TOP_CUT_CHECKED_STATES.include?(state)
     return unless Tournaments::TopCut::SIZES.include?(top_cut_size)
 
-    participants = event_participants.size
+    participants = playing_participants_count
     return if participants.zero? || Tournaments::TopCut.for(top_cut_size).valid_for?(participants)
 
     errors.add(:top_cut_size, :too_big)

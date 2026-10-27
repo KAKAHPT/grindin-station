@@ -42,6 +42,11 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
     UNLOCKED_POINTS_STATES.exclude?(state)
   end
 
+  # Registered players who have not dropped (from the loaded association when there is one).
+  def playing_participants_count
+    event_participants.loaded? ? event_participants.count(&:playing?) : event_participants.playing.count
+  end
+
   def available_states
     return self.class.states.slice(:draft) if new_record?
 
