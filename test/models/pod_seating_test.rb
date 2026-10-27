@@ -63,4 +63,13 @@ class PodSeatingTest < ActiveSupport::TestCase
     assert_equal 4, cut.seatings.count
     t.event_participants.each { |p| assert_equal 2, p.seat_counts.values.sum, "top cut seats do not count" }
   end
+
+  test "assigned_by is fair, ranked or manual" do
+    %w[fair ranked manual].each do |label|
+      assert_empty Seating.new(order: 1, assigned_by: label).tap(&:validate).errors[:assigned_by], label
+    end
+    seating = Seating.new(order: 1, assigned_by: "magic")
+    seating.validate
+    assert_includes seating.errors[:assigned_by], I18n.t("errors.messages.inclusion")
+  end
 end

@@ -10,6 +10,8 @@ module Organizer
 
       to_seating.event_participant_id, from_seating.event_participant_id =
         from_seating.event_participant_id, to_seating.event_participant_id
+      # The organiser chose these seats: no longer the fair-seating result, so its cost no longer applies.
+      [to_seating, from_seating].each { |seating| seating.assign_attributes(assigned_by: "manual", cost: nil) }
 
       Seating.transaction do
         to_seating.save!
