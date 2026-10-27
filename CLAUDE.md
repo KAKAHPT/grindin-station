@@ -54,9 +54,9 @@ Event (abstract base)
 - **Tournament Structure**: `Tournaments::Structure.suggested` proposes swiss rounds and top cut (Top 4/10/13/16/40) by player count; the organiser can change both before the swiss
 - **Scoring**: per-event points (`points_win`/`points_draw`/`points_loss`/`points_bye`, default 7/1/0/7), locked once the swiss starts
 - **Fair seats**: `Tournaments::SeatAssigner` gives seat 1 to whoever had it least, then the cheapest order; ties drawn from the event seed; audited in `seatings.assigned_by`/`cost`. Within equal points, `PlayerSorter.deal` spreads players across pods by the seat they need
-- **Rematch repair**: `Tournaments::RematchRepair` swaps players between pods while rematches decrease (same points group only in standard rounds)
+- **Rematch repair**: `Tournaments::RematchRepair` swaps players between pods while rematches decrease, nearest pods and closest points first; `CreatePodsJob` widens the allowed points gap (0, a draw, a win, two wins, …, any) only while rematches remain
 - **Pod Sizing**: Prefers 4-player pods, allows 3-5 players with sophisticated balancing
-- **Ghost Opponents**: Handles byes for Swiss rounds by injecting Ghost objects into opponent calculations
+- **Byes**: a bye scores `points_bye` but is not an opponent; byes do not count in opponents' win rate (OWR)
 - **Spread Matching**: Serpentine pod assignment for spread-based rounds
 - **Forced Pairing**: Rank-diff-based pairing with swap logic for forced rounds
 

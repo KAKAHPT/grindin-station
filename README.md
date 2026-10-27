@@ -51,7 +51,7 @@ Notas:
 ## Motor do torneio
 
 - **Pontos por evento.** Cada torneio guarda os seus pontos: vitória 7, empate 1, derrota 0, bye 7 (por omissão).
-  O organizador pode mudá-los até ao fecho das inscrições; quando o Swiss começa ficam bloqueados.
+  O organizador pode mudá-los até o Swiss começar; quando o Swiss começa ficam bloqueados.
 - **Rondas e cortes.** O formulário sugere rondas Swiss e corte pelo número de jogadores; o organizador pode
   mudar ambos antes do Swiss. Cortes possíveis: Top 4, 10, 13, 16 e 40 (ou sem corte).
 
@@ -68,8 +68,9 @@ Notas:
 - **Desempates fixos**, por esta ordem: pontos; taxa de vitória dos adversários (a taxa de cada adversário nunca conta
   abaixo da de um empate); adversários batidos; adversários únicos; sorteio fixo por jogador, semeado pelo evento.
 - **Reparação de reencontros.** Depois de emparelhar, trocam-se jogadores entre mesas enquanto o número de pares
-  repetidos descer. Nas rondas normais só se troca dentro do mesmo grupo de pontos; nas rondas spread e forced,
-  entre quaisquer pontos.
+  repetidos descer, primeiro com as mesas mais próximas e os jogadores de pontos mais próximos. Começa-se dentro do
+  mesmo grupo de pontos; a diferença permitida só alarga (um empate, uma vitória, duas vitórias, …, qualquer) enquanto
+  houver reencontros, por isso os líderes ficam nas primeiras mesas.
 - **Distribuição por necessidade de assento.** Dentro de cada grupo de jogadores com os mesmos pontos, ordena-se
   pelo assento de que cada um mais precisa (o menos usado entre 1–4) e distribui-se um por mesa, para que cada
   mesa tenha necessidades diferentes. A classificação (e o Top Cut) não muda.
