@@ -29,5 +29,13 @@ module Tournaments
       assert_equal 3, t.number_of_single_elimination_rounds
       assert_equal "Quarter-Finals", t.single_elimination_round_name(2)
     end
+
+    test "a tournament without a top cut raises a clear ArgumentError" do
+      t = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
+      t.update_columns(swiss_rounds_count: 1, top_cut_size: 0) # rubocop:disable Rails/SkipsModelValidations
+
+      error = assert_raises(ArgumentError) { t.rounds.create!(type: SingleEliminationRound, number: 2) }
+      assert_equal "tournament has no top cut", error.message
+    end
   end
 end

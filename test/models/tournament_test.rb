@@ -32,7 +32,7 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
   end
 
   test "available_states returns only valid transitions" do
-    tournament = events(:small_tournament)
+    tournament = events(:medium_tournament) # 6 players: top 4, so single elimination is on offer
 
     # From swiss state, should not include registration_open
     tournament.update!(state: :swiss)
@@ -41,6 +41,13 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     assert_includes available, :single_elimination, "Swiss should allow transition to single_elimination"
     assert_includes available, :finished, "Swiss should allow transition to finished"
     assert_includes available, :canceled, "Swiss should allow transition to canceled"
+  end
+
+  test "without a top cut the swiss can only finish or be canceled" do
+    tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
+    tournament.update_columns(top_cut_size: 0) # rubocop:disable Rails/SkipsModelValidations
+
+    assert_equal %w[finished canceled], tournament.available_states.keys
   end
 
   test "canceled state can be reached from most states" do

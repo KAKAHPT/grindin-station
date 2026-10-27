@@ -58,6 +58,9 @@ class Tournament < Event
     }
   end
 
+  # Without a top cut there is no single elimination stage to move to.
+  def available_states = rounds_info[:top] ? super : super.except(:single_elimination)
+
   def progress_percent
     total_rounds = number_of_swiss_rounds + number_of_single_elimination_rounds
     return 0 if total_rounds.zero?

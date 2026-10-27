@@ -4,6 +4,8 @@ module Tournaments
   # Job to create pods for a round
   class CreateSingleEliminationPodsJob < ApplicationJob
     def perform(round)
+      raise ArgumentError, "tournament has no top cut" unless round.event.rounds_info[:top]
+
       @round = round
       @players_to_advance, @players_by_rank, @players_to_eliminate = initialize_players
 
