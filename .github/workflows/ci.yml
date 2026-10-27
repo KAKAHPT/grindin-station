@@ -85,6 +85,16 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 25.9.0
+          cache: npm
+
+      # The Tailwind build imports flowbite/plugin from node_modules.
+      - name: Install JS packages
+        run: npm ci
+
       - name: Run tests
         env:
           RAILS_ENV: test
