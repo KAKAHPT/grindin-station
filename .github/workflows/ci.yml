@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [ main ]
+    branches: [ main, m0-m1 ]
 
 jobs:
   scan_ruby:
@@ -58,7 +58,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres
+        image: postgis/postgis:17-3.5
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -88,14 +88,16 @@ jobs:
       - name: Run tests
         env:
           RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432
+          # postgis:// keeps the postgis adapter (postgres:// would switch it to postgresql)
+          DATABASE_URL: postgis://postgres:postgres@localhost:5432
           # REDIS_URL: redis://localhost:6379/0
-        run: bin/rails db:test:prepare test test:system
+        # System tests run locally until M2 sets up a headless browser in CI.
+        run: bin/rails db:test:prepare test
 
       - name: Seat fairness simulation (regression gate)
         env:
           RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432
+          DATABASE_URL: postgis://postgres:postgres@localhost:5432
         run: bin/rails "grindin:simulate[500]"
 
       - name: Keep screenshots from failed system tests
