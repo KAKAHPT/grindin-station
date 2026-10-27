@@ -3,21 +3,23 @@
 module Tournaments
   # Suggested swiss rounds and top cut for a number of players (the organiser can change both before the swiss).
   module Structure
-    module_function
+    extend self
+
+    # player count range => [swiss rounds, top cut size]
+    SUGGESTIONS = {
+      ...4 => [0, 0],
+      4..5 => [3, 0],
+      6..7 => [3, 4],
+      8..23 => [4, 4],
+      24..31 => [4, 10],
+      32..39 => [4, 13],
+      40..63 => [5, 16],
+      64..127 => [6, 16],
+      128.. => [7, 40]
+    }.freeze
 
     def suggested(player_count)
-      swiss_rounds, top_cut_size =
-        case player_count
-        when ...4 then [0, 0]
-        when 4..5 then [3, 0]
-        when 6..7 then [3, 4]
-        when 8..23 then [4, 4]
-        when 24..31 then [4, 10]
-        when 32..39 then [4, 13]
-        when 40..63 then [5, 16]
-        when 64..127 then [6, 16]
-        else [7, 40]
-        end
+      swiss_rounds, top_cut_size = SUGGESTIONS.find { |range, _| range.cover?(player_count) }.last
       { swiss_rounds: swiss_rounds, top_cut_size: top_cut_size }
     end
   end

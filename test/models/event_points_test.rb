@@ -32,7 +32,8 @@ class EventPointsTest < ActiveSupport::TestCase
   end
 
   test "points stay editable before the swiss starts" do
-    t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer), state: :registration_closed)
+    t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                state: :registration_closed)
     t.points_win = 9
     assert t.valid?, t.errors.full_messages.to_sentence
   end

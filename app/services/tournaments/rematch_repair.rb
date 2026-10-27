@@ -17,31 +17,37 @@ module Tournaments
       @opponent_ids = @pods.flat_map(&:candidates).to_h { |player| [player.id, player.opponents.ids.to_set] }
 
       swaps = 0
-      swaps += 1 while swaps < MAX_SWAPS_PER_POD * @pods.size && apply_first_improving_swap!
+      while swaps < MAX_SWAPS_PER_POD * @pods.size && (swap = first_improving_swap)
+        swap!(*swap)
+        swaps += 1
+      end
 
-      @pods.sum { |pod| pod.candidates.combination(2).count { |a, b| met?(a, b) } }
+      rematch_pairs
     end
 
     private
 
-    def apply_first_improving_swap!
+    # [player, pod, other, other_pod] for the first swap that lowers the rematch count, or nil.
+    def first_improving_swap
       @pods.each do |pod|
         pod.candidates.each do |player|
           next if rematches(player, pod.candidates).zero?
 
-          @pods.each do |other_pod|
-            next if other_pod.equal?(pod)
-
-            other_pod.candidates.each do |other|
-              next unless swap_improves?(player, pod, other, other_pod)
-
-              swap!(player, pod, other, other_pod)
-              return true
-            end
-          end
+          swap = improving_swap_for(player, pod)
+          return swap if swap
         end
       end
-      false
+      nil
+    end
+
+    def improving_swap_for(player, pod)
+      @pods.each do |other_pod|
+        next if other_pod.equal?(pod)
+
+        other = other_pod.candidates.find { |candidate| swap_improves?(player, pod, candidate, other_pod) }
+        return [player, pod, other, other_pod] if other
+      end
+      nil
     end
 
     def swap_improves?(player, pod, other, other_pod)
@@ -57,12 +63,16 @@ module Tournaments
       other_pod.candidates[other_pod.candidates.index(other)] = player
     end
 
-    def rematches(player, players)
-      players.count { |p| met?(player, p) }
+    def rematch_pairs
+      @pods.sum { |pod| pod.candidates.combination(2).count { |player, other| met?(player, other) } }
     end
 
-    def met?(a, b)
-      @opponent_ids[a.id].include?(b.id)
+    def rematches(player, players)
+      players.count { |other| met?(player, other) }
+    end
+
+    def met?(player, other)
+      @opponent_ids[player.id].include?(other.id)
     end
   end
 end

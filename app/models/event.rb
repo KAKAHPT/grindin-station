@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Event < ApplicationRecord
+class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   belongs_to :circuit, optional: true
   belongs_to :event_organizer
   has_many :rounds, dependent: :destroy
@@ -39,7 +39,7 @@ class Event < ApplicationRecord
   after_save :geocode_address, if: -> { address_previously_changed? }
 
   def points_locked?
-    !UNLOCKED_POINTS_STATES.include?(state)
+    UNLOCKED_POINTS_STATES.exclude?(state)
   end
 
   def available_states

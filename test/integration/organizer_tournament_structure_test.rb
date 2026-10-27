@@ -4,7 +4,8 @@ require "test_helper"
 
 class OrganizerTournamentStructureTest < ActionDispatch::IntegrationTest
   setup do
-    post session_path, params: { session: { email_address: users(:organizer_user).email_address, password: "password123" } }
+    post session_path,
+         params: { session: { email_address: users(:organizer_user).email_address, password: "password123" } }
   end
 
   test "the form shows the suggestion and saves rounds, cut and round lengths" do

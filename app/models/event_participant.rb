@@ -85,10 +85,10 @@ class EventParticipant < ApplicationRecord
   # Byes have no seating, so they never count.
   def seat_counts
     counts = Seating.joins(pod: :round)
-                    .where(event_participant_id: id, rounds: { type: "SwissRound" })
-                    .where("rounds.finished_at IS NOT NULL OR rounds.published = TRUE")
-                    .group(:order).count
-    (1..5).to_h { |position| [position, counts.fetch(position, 0)] }
+      .where(event_participant_id: id, rounds: { type: "SwissRound" })
+      .where("rounds.finished_at IS NOT NULL OR rounds.published = TRUE")
+      .group(:order).count
+    (1..5).index_with { |position| counts.fetch(position, 0) }
   end
 
   def played_against?(another)
@@ -117,7 +117,7 @@ class EventParticipant < ApplicationRecord
     results.count { |result| result.is_a?(Loss) || result.is_a?(Penalty) }
   end
 
-  def match_points
+  def match_points # rubocop:disable Metrics/AbcSize -- one term per result type
     @match_points ||= (number_of_draws * event.points_draw) +
                       (number_of_wins * event.points_win) +
                       (number_of_losses * event.points_loss) +
@@ -131,24 +131,29 @@ class EventParticipant < ApplicationRecord
 
   # Average over swiss pairings (byes and the top cut excluded) of each opponent's points out of
   # their maximum, each term floored at a draw. 0.0 without opponents.
-  def opponents_win_rate
-    @opponents_win_rate ||= begin
-      floor = event.points_draw.to_f / event.points_win
-      rates = opponents.map do |opponent|
-        rounds = opponent.number_of_rounds_played
-        rounds.zero? ? floor : [opponent.match_points / (rounds * event.points_win).to_f, floor].max
+  def opponents_win_rate # rubocop:disable Metrics/AbcSize
+    @opponents_win_rate ||=
+      begin
+        floor = event.points_draw.to_f / event.points_win
+        rates =
+          opponents.map do |opponent|
+            rounds = opponent.number_of_rounds_played
+            rounds.zero? ? floor : [opponent.match_points / (rounds * event.points_win).to_f, floor].max
+          end
+        rates.empty? ? 0.0 : rates.sum / rates.size
       end
-      rates.empty? ? 0.0 : rates.sum / rates.size
-    end
   end
 
   # Distinct players at the swiss tables this participant won.
   def opponents_beaten
-    @opponents_beaten ||= begin
-      won_round_ids = results.select { |result| result.is_a?(Win) && result.round.is_a?(SwissRound) }.map(&:round_id)
-      won_pod_ids = pods.where(pods: { round_id: won_round_ids }).pluck("pods.id")
-      Seating.where(pod_id: won_pod_ids).where.not(event_participant_id: id).distinct.count(:event_participant_id)
-    end
+    @opponents_beaten ||=
+      begin
+        won_round_ids = results.select do |result|
+          result.is_a?(Win) && result.round.is_a?(SwissRound)
+        end.map(&:round_id)
+        won_pod_ids = pods.where(pods: { round_id: won_round_ids }).pluck("pods.id")
+        Seating.where(pod_id: won_pod_ids).where.not(event_participant_id: id).distinct.count(:event_participant_id)
+      end
   end
 
   # Distinct players faced in swiss rounds.
@@ -163,7 +168,7 @@ class EventParticipant < ApplicationRecord
 
   # Points, then opponents' win rate, then opponents beaten, then unique opponents, then the seeded salt.
   # Top cut advancements outrank everything.
-  def rank_score
+  def rank_score # rubocop:disable Metrics/AbcSize,Metrics/MethodLength -- one term per tiebreaker
     @rank_score ||=
       if event.is_a?(League)
         league_score.to_f

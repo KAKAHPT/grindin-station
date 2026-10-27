@@ -27,9 +27,9 @@ class LocaleTest < ActionDispatch::IntegrationTest
     assert_select "html[lang=en]"
   end
 
-  private
-
   PLURAL_KEYS = %i[zero one two few many other].freeze
+
+  private
 
   # A hash made only of plural forms counts as a single key: languages may translate a plain string as plural forms.
   def flatten_keys(hash, prefix = nil)

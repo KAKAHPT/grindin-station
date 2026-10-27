@@ -8,7 +8,7 @@ module Tournaments
       t = TournamentBuilder.build(players: 32, organizer: event_organizers(:standard_organizer))
       t.update_columns(swiss_rounds_count: 1, top_cut_size: 13) # rubocop:disable Rails/SkipsModelValidations
       t.rounds.create!(type: SwissRound, number: 1)
-      TournamentBuilder.play_round!(t, winners: (1..8).to_h { |n| [n, 0] })
+      TournamentBuilder.play_round!(t, winners: (1..8).index_with(0))
       # One swiss round leaves ties (the 8 winners score alike, as do the 24 losers) that the job breaks at random,
       # so seeds are compared by their pre-cut rank score rather than by id.
       score = t.event_participants.to_h { |p| [p.id, p.rank_score] }
@@ -17,7 +17,7 @@ module Tournaments
       assert_equal 3, cut.pods.count
       advanced = cut.results.where(type: "Advance").pluck(:event_participant_id)
       seated = cut.seatings.map(&:event_participant_id)
-      assert_equal [seeds.first], advanced.map { |id| score[id] }
+      assert_equal([seeds.first], advanced.map { |id| score[id] })
       assert_equal 19, cut.results.where(type: "Eliminated").count
       assert_equal seeds[1..12], seated.map { |id| score[id] }.sort.reverse
       assert_empty advanced & seated

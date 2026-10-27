@@ -21,9 +21,9 @@ class ApplicationController < ActionController::Base
   private
 
   # TODO(user locale): the user's saved preference (users.locale) takes priority here once the column exists.
-  def switch_locale(&)
+  def switch_locale(&block)
     requested = params[:locale].to_s.to_sym
     locale = I18n.available_locales.include?(requested) ? requested : I18n.default_locale
-    I18n.with_locale(locale, &)
+    I18n.with_locale(locale, &block)
   end
 end

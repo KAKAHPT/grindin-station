@@ -79,6 +79,6 @@ module Tournaments
       )
     end
 
-    def rate(&) = @players.count(&).fdiv(@players.size)
+    def rate(&block) = @players.count(&block).fdiv(@players.size)
   end
 end

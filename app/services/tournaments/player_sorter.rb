@@ -26,7 +26,7 @@ module Tournaments
     # most (their least-used of seats 1..4, lowest seat on ties), then by fewest seat-1s, keeping the incoming
     # order otherwise; then deal player k to pod k mod P, P = ceil(size / 4), so every pod gets a mix of needs.
     def self.deal(group, seat_counts)
-      pods = (group.size / PREFERRED_POD_SIZE.to_f).ceil
+      pods = group.size.ceildiv(PREFERRED_POD_SIZE)
       ranked = group.each_with_index.sort_by { |p, i| [needed_seat(seat_counts[p]), seat_counts[p][1], i] }
       ranked.map(&:first).each_with_index.group_by { |_, k| k % pods }.values.flat_map { |dealt| dealt.map(&:first) }
     end

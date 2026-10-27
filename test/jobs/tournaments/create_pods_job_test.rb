@@ -6,7 +6,7 @@ module Tournaments
   class CreatePodsJobTest < ActiveJob::TestCase
     test "17 players: two pods of 4 and three pods of 3, every player seated once" do
       t = TournamentBuilder.build(players: 17, organizer: event_organizers(:standard_organizer))
-      round = t.rounds.create!(type: SwissRound, number: 1)   # after_create builds the pods
+      round = t.rounds.create!(type: SwissRound, number: 1) # after_create builds the pods
       assert_equal [4, 4, 3, 3, 3], round.pods.order(:number).map(&:size)
       assert_equal 17, round.seatings.count
       assert_equal 17, round.seatings.map(&:event_participant_id).uniq.size
@@ -41,9 +41,10 @@ module Tournaments
       r2 = t.rounds.create!(type: SwissRound, number: 2)
       assert_equal :spread, t.rounds_info[:rounds][1][:swiss_round]
       assert_equal 20, r2.seatings.count
-      rematches = r2.pods.sum do |pod|
-        pod.event_participants.to_a.combination(2).count { |a, b| a.played_against?(b) }
-      end
+      rematches =
+        r2.pods.sum do |pod|
+          pod.event_participants.to_a.combination(2).count { |a, b| a.played_against?(b) }
+        end
       assert_equal 0, rematches
     end
   end

@@ -73,7 +73,7 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     tournament = events(:small_tournament) # 4 players
     rounds_info = tournament.rounds_info
 
-    assert_equal %i[standard spread standard], rounds_info[:rounds].map { |r| r[:swiss_round] }
+    assert_equal(%i[standard spread standard], rounds_info[:rounds].pluck(:swiss_round))
     assert_nil rounds_info[:top], "Should have no top cut for 4 players"
     assert_equal 3, tournament.number_of_swiss_rounds
     assert_equal 0, tournament.number_of_single_elimination_rounds
@@ -103,14 +103,14 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
   test "17 players: round 2 spreads and the last round is forced" do
     tournament = Tournament.find_by(slug: "large-tournament") # 17 players
 
-    assert_equal %i[standard spread standard forced], tournament.rounds_info[:rounds].map { |r| r[:swiss_round] }
+    assert_equal(%i[standard spread standard forced], tournament.rounds_info[:rounds].pluck(:swiss_round))
   end
 
   test "configured rounds and cut win over the suggestion; a cut of 0 means no top cut" do
     tournament = events(:standard_tournament) # 16 players, suggested 4 rounds + top 4
     tournament.swiss_rounds_count = 2
     tournament.top_cut_size = 10
-    assert_equal %i[standard standard], tournament.rounds_info[:rounds].map { |r| r[:swiss_round] }
+    assert_equal(%i[standard standard], tournament.rounds_info[:rounds].pluck(:swiss_round))
     assert_equal({ players: 10, pods: [2, 1] }, tournament.rounds_info[:top])
     assert_equal 2, tournament.number_of_single_elimination_rounds
 

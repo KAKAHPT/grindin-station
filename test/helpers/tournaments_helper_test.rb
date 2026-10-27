@@ -16,7 +16,8 @@ class TournamentsHelperTest < ActionView::TestCase
   end
 
   test "structure suggestion names the suggested rounds and cut" do
-    t = TournamentBuilder.build(players: 24, organizer: event_organizers(:standard_organizer), state: :registration_open)
+    t = TournamentBuilder.build(players: 24, organizer: event_organizers(:standard_organizer),
+                                state: :registration_open)
     assert_equal "Suggested for 24 players: 4 swiss rounds, top 10", structure_suggestion(t)
     I18n.with_locale(:pt) do
       assert_equal "Sugestão para 24 jogadores: 4 rondas Swiss, top 10", structure_suggestion(t)
