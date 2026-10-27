@@ -117,7 +117,7 @@ Alterações:
 
 ### 5.2 Emparelhamento Swiss
 - Herdado do Canivete: ordenação por pontos e desempates, pods por "standard" (adjacentes), "spread" (serpentina na 2ª ronda) e "forced" (última ronda, sem repetir adversários salvo impossibilidade). Pods de 3/5 conforme `bye_mode` (predefinição: pod de 3 nos últimos lugares, como a cEDH PT usa hoje); bye verdadeiro só se o organizador o escolher.
-- Regra: o histórico de assentos nunca altera os **grupos de pontos** (quem pode jogar com quem pelo Swiss). Dentro de um grupo de jogadores com os mesmos pontos, a ordem é ajustada para espalhar as necessidades de assento por mesas diferentes (Task 11, a confirmar pelo Kakah: alternativa é ordem pura por classificação, com 2,2 % / 85 %).
+- Regra: o histórico de assentos nunca altera os **grupos de pontos** (quem pode jogar com quem pelo Swiss). Dentro de um grupo de jogadores com os mesmos pontos, a ordem é ajustada para espalhar as necessidades de assento por mesas diferentes (decisão de 27-10-2026).
 - Antes de qualquer alteração, escrevem-se testes do comportamento atual (adjacência por pontos, não repetição, pods de 3/5, drops) e ficam verdes.
 
 ### 5.3 Assentos justos (Swiss) — `Tournaments::SeatAssigner`

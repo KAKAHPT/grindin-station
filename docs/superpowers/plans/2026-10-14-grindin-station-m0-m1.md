@@ -742,7 +742,7 @@ git add -A && git commit -m "feat: seat fairness simulator with CI gate"
 
 ---
 
-### Task 12: Replay do MidSeason 2026 contra a classificação do TopDeck
+### Task 12: Replay do MidSeason 2026 contra a classificação do TopDeck — SALTADA (decisão do utilizador, 27-10-2026)
 
 **Files:**
 - Create: `test/fixtures/files/midseason-2026-rounds.json` (feed `rounds` público do cedhpt.com: `https://cedhpt.com/api/topdeck.php?feed=rounds&tid=midseason-cedh-pt-cedh-european-championship-invitational`), `test/fixtures/files/midseason-2026-standings.json` (feed `standings`), `test/support/topdeck_replay.rb`
