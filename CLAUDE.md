@@ -13,6 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Testing**: 
   - `bin/rails test` (for unit tests)
   - `bin/rails test:system` (for system tests)
+- **Seat fairness simulation**: `bin/rails "grindin:simulate[2000]"` (fails if seat fairness regresses; CI runs it with 500)
 - **Code quality**:
   - `bin/rubocop` (Ruby linting with Rails Omakase configuration)
   - `bin/brakeman` (security analysis)
@@ -50,8 +51,10 @@ Event (abstract base)
 ### Key Business Logic
 
 - **Swiss System**: Uses spread matching and forced pairing strategies in `app/services/tournaments/strategies/`
-- **Tournament Structure**: Dynamic round generation based on player count thresholds (see `Tournament::PLAYERS_ROUNDS_THRESHOLDS`)
-- **Scoring**: 7 points per win, 1 point per draw, 0 points per loss
+- **Tournament Structure**: `Tournaments::Structure.suggested` proposes swiss rounds and top cut (Top 4/10/13/16/40) by player count; the organiser can change both before the swiss
+- **Scoring**: per-event points (`points_win`/`points_draw`/`points_loss`/`points_bye`, default 7/1/0/7), locked once the swiss starts
+- **Fair seats**: `Tournaments::SeatAssigner` gives seat 1 to whoever had it least, then the cheapest order; ties drawn from the event seed; audited in `seatings.assigned_by`/`cost`. Within equal points, `PlayerSorter.deal` spreads players across pods by the seat they need
+- **Rematch repair**: `Tournaments::RematchRepair` swaps players between pods while rematches decrease (same points group only in standard rounds)
 - **Pod Sizing**: Prefers 4-player pods, allows 3-5 players with sophisticated balancing
 - **Ghost Opponents**: Handles byes for Swiss rounds by injecting Ghost objects into opponent calculations
 - **Spread Matching**: Serpentine pod assignment for spread-based rounds
@@ -91,8 +94,8 @@ Infractions have a hierarchical enum structure:
 
 ### Scoring & Wagers
 
-- **Match Points**: `draws * 1 + wins * 7`
-- **Rank Score**: Hierarchical tiebreaker combining advancements, match points, match win percentage, opponent average match points, opponent average match win percentage
+- **Match Points**: wins, draws, losses and byes times the event's points
+- **Rank Score**: top cut advancements, then match points, then the fixed tiebreakers in order: opponents' win rate (each opponent floored at a draw), opponents beaten, unique opponents, and last a seeded salt (`tiebreak_salt`, from the event seed)
 - **League Scores (wagers)**: `Scoring::PointWager` starts all participants at 1000 points, calculates forward and reverse through rounds, and averages the two for the final `league_score`
 - Wager percentage per event determines what portion of each player's score is at risk
 
