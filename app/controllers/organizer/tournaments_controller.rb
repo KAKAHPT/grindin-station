@@ -27,11 +27,13 @@ module Organizer
     end
 
     def create
-      @tournament = Tournament.create(
-        tournament_params.merge(event_organizer: current_organizer)
-      )
+      @tournament = Tournament.new(tournament_params.merge(event_organizer: current_organizer))
 
-      redirect_to [:organizer, @tournament], notice: t("flash.notice.tournament_created")
+      if @tournament.save
+        redirect_to [:organizer, @tournament], notice: t("flash.notice.tournament_created")
+      else
+        render :new, status: :unprocessable_entity
+      end
     end
 
     def update
