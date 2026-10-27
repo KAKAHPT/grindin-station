@@ -3,7 +3,10 @@
 module Tournaments
   # Post-pairing pass over a round's in-memory pod candidates: swaps players between pods while the
   # total number of rematch pairs strictly decreases. Swapped players must be within max_point_gap
-  # match points of each other. Returns the number of rematch pairs left.
+  # match points of each other. Returns the number of rematch pairs left (an Integer).
+  # Nearest first: a player with a rematch looks at the closest pods (|i - j| ascending) and, inside a pod,
+  # at the candidates closest to them in match points. Callers widen max_point_gap step by step
+  # (CreatePodsJob#repair_rematches!) so a swap only crosses points groups when nothing closer fixes it.
   class RematchRepair
     MAX_SWAPS_PER_POD = 20
 
@@ -29,25 +32,31 @@ module Tournaments
 
     # [player, pod, other, other_pod] for the first swap that lowers the rematch count, or nil.
     def first_improving_swap
-      @pods.each do |pod|
+      @pods.each_with_index do |pod, index|
         pod.candidates.each do |player|
           next if rematches(player, pod.candidates).zero?
 
-          swap = improving_swap_for(player, pod)
+          swap = improving_swap_for(player, pod, index)
           return swap if swap
         end
       end
       nil
     end
 
-    def improving_swap_for(player, pod)
-      @pods.each do |other_pod|
-        next if other_pod.equal?(pod)
-
-        other = other_pod.candidates.find { |candidate| swap_improves?(player, pod, candidate, other_pod) }
+    def improving_swap_for(player, pod, index)
+      pods_by_distance(index).each do |other_pod|
+        other =
+          other_pod.candidates
+            .sort_by.with_index { |candidate, k| [(candidate.match_points - player.match_points).abs, k] }
+            .find { |candidate| swap_improves?(player, pod, candidate, other_pod) }
         return [player, pod, other, other_pod] if other
       end
       nil
+    end
+
+    # Every other pod, nearest table first (ties: the higher table).
+    def pods_by_distance(index)
+      (0...@pods.size).excluding(index).sort_by { |j| [(j - index).abs, j] }.map { |j| @pods[j] }
     end
 
     def swap_improves?(player, pod, other, other_pod)

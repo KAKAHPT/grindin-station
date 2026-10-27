@@ -47,5 +47,79 @@ module Tournaments
         end
       assert_equal 0, rematches
     end
+
+    # Forced-round scenario: the H players' pod order in rounds 1-3.
+    LOSER_ORDERS = [(0..11).to_a, [0, 4, 8, 1, 5, 9, 2, 6, 10, 3, 7, 11], [0, 5, 10, 3, 4, 9, 2, 7, 8, 1, 6, 11]].freeze
+    # Grid cell (x, y) => pod key per round: columns, rows, slope-1 lines (GF(4) addition is XOR).
+    GRID_LINES = [->(x, _) { x }, ->(_, y) { y }, ->(x, y) { x ^ y }].freeze
+
+    # 32 players, 4 rounds (round 4 is forced). Rounds 1-3 are scripted: leaders A1-A4 win pods 1-4 every round and
+    # never meet (21 points); group G (16 players, a 4x4 grid over GF(4)) draws in pods 5-8 along the columns, the
+    # rows and the slope-1 lines (3 points, each met 9 of the other 15; the slope-a lines are a rematch-free split);
+    # group H (12 players) loses to the leaders (0 points). Round 4 pairs G into pods 2-5 with rematches, while a
+    # rematch-free arrangement keeps A1-A4 in pod 1.
+    test "forced round: rematch repair keeps the leaders in pod 1 when a rematch-free pod 1 exists" do
+      t = TournamentBuilder.build(players: 32, organizer: event_organizers(:standard_organizer))
+      t.update_columns(swiss_rounds_count: 4) # rubocop:disable Rails/SkipsModelValidations -- round 4 of 4 is forced
+      leaders = script_forced_history!(t)
+      assert_equal :forced, t.rounds_info[:rounds][3][:swiss_round]
+
+      r4 = t.rounds.create!(type: SwissRound, number: 4)
+      pods = r4.pods.order(:number).map { |pod| pod.event_participants.to_a }
+
+      top4 = t.event_participants.reload.max_by(4, &:match_points).map(&:id).sort
+      assert_equal leaders.map(&:id).sort, top4
+      assert_equal top4, pods.first.map(&:id).sort, "pods: #{points_of(pods)}"
+      assert_equal(0, pods.sum { |pod| pod.combination(2).count { |a, b| a.played_against?(b) } })
+    end
+
+    private
+
+    # Plays rounds 1-3 as described above; returns the four leaders.
+    def script_forced_history!(tournament)
+      players = tournament.event_participants.order(:id).to_a
+      leaders = players.first(4)
+      grid = players[4, 16] # grid[4 * x + y] is cell (x, y)
+
+      GRID_LINES.each_with_index do |line, i|
+        pods = leader_pods(leaders, players.last(12), LOSER_ORDERS[i]) + drawn_grid_pods(grid, line)
+        play_scripted_round!(tournament, i + 1, pods)
+      end
+      leaders
+    end
+
+    def leader_pods(leaders, losers, order)
+      leaders.zip(order.map { |k| losers[k] }.each_slice(3)).map { |leader, rest| [[leader, *rest], leader] }
+    end
+
+    def drawn_grid_pods(grid, line)
+      keys = grid.each_index.map { |k| line.call(k / 4, k % 4) }
+      grid.zip(keys).group_by(&:last).sort.map { |_, cells| [cells.map(&:first), :draw] }
+    end
+
+    # Replaces the seatings the job built for round `number` with `pods` ([[players, winner | :draw], ...]).
+    def play_scripted_round!(tournament, number, pods)
+      round = tournament.rounds.create!(type: SwissRound, number: number)
+      Seating.where(pod_id: round.pod_ids).delete_all
+      round.pods.order(:number).zip(pods).each { |pod, (players, winner)| seat_and_score!(pod, players, winner) }
+      round.update_columns(finished_at: Time.current, published: true) # rubocop:disable Rails/SkipsModelValidations
+    end
+
+    def seat_and_score!(pod, players, winner)
+      players.each.with_index(1) do |player, order|
+        pod.seatings.create!(event_participant: player, order: order)
+        result_for(player, winner).create!(round: pod.round, event_participant: player)
+      end
+    end
+
+    def result_for(player, winner)
+      return Draw if winner == :draw
+
+      player == winner ? Win : Loss
+    end
+
+    def points_of(pods)
+      pods.map.with_index(1) { |pod, n| "P#{n}=#{pod.map(&:match_points).sort.reverse}" }.join(" ")
+    end
   end
 end
