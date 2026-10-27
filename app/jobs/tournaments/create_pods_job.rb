@@ -6,7 +6,7 @@ module Tournaments
     def perform(round)
       @round = round
       Tournaments::UnevenPodGenerator.new(@round).generate_pods!
-      @players_by_rank = Tournaments::PlayerSorter.new(@round).sorted_players
+      @players_by_rank = Tournaments::PlayerSorter.new(@round).paired_players
 
       match_according_to_strategy!
       Tournaments::RematchRepair.new(@round, max_point_gap: gap_for(load_strategy)).repair!
