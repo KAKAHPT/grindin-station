@@ -117,7 +117,7 @@ Alterações:
 
 ### 5.2 Emparelhamento Swiss
 - Herdado do Canivete: ordenação por pontos e desempates, pods por "standard" (adjacentes), "spread" (serpentina na 2ª ronda) e "forced" (última ronda, sem repetir adversários salvo impossibilidade). Pods de 3/5 conforme `bye_mode` (predefinição: pod de 3 nos últimos lugares, como a cEDH PT usa hoje); bye verdadeiro só se o organizador o escolher.
-- Regra nova obrigatória: o histórico de assentos **nunca** influencia quem joga com quem. Só influencia a ordem dentro da mesa.
+- Regra: o histórico de assentos nunca altera os **grupos de pontos** (quem pode jogar com quem pelo Swiss). Dentro de um grupo de jogadores com os mesmos pontos, a ordem é ajustada para espalhar as necessidades de assento por mesas diferentes (Task 11, a confirmar pelo Kakah: alternativa é ordem pura por classificação, com 2,2 % / 85 %).
 - Antes de qualquer alteração, escrevem-se testes do comportamento atual (adjacência por pontos, não repetição, pods de 3/5, drops) e ficam verdes.
 
 ### 5.3 Assentos justos (Swiss) — `Tournaments::SeatAssigner`
@@ -132,8 +132,10 @@ Algoritmo:
 5. Gravar em cada `seating` o custo e `assigned_by = "fair"`. O organizador pode alterar à mão (`manual`), e fica registado.
 6. Top Cut: `ranked` — seed mais alto no assento 1, e assim sucessivamente. Sem otimização.
 
-Garantias e medição:
-- Objetivo: ninguém fica sem o assento 1 num torneio de ≥ 4 rondas; diferença máxima entre contagens de qualquer assento de um jogador ≤ 1 em ≥ 99 % dos torneios simulados.
+Garantias e medição (medidas a 27-10-2026 em 2000 torneios simulados, 16–140 jogadores, 4–7 rondas):
+- Sorteio aleatório por mesa (o que o TopDeck faz): 21 % dos jogadores nunca vão ao assento 1; só 18 % terminam com diferença ≤ 1 entre assentos.
+- Grindin Station (assentos justos + distribuição por necessidade dentro de cada grupo de pontos): 1,1 % nunca vão ao assento 1 (0 % a partir de 6 rondas); 90 % terminam com diferença ≤ 1; pior caso 3.
+- Os alvos iniciais (≤ 1 % e 99 %) são inatingíveis escolhendo assentos mesa a mesa; ficam como aspiração em `docs/superpowers/notes/2026-10-27-seat-simulation.md`. A barreira do CI é de regressão: falha se os números piorarem face ao medido.
 - Tarefa `bin/rails grindin:simulate` corre 10 000 torneios aleatórios (16–140 jogadores, 4–7 rondas, resultados aleatórios com 30 % de empates) e imprime: % de jogadores sem assento 1, distribuição da diferença máxima, pior caso. Corre no CI e falha se o objetivo não for cumprido.
 - Standings públicos mostram, por jogador, "1·2·3·4: 2·1·1·1".
 
