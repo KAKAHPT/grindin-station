@@ -32,8 +32,8 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
     click_link "Organize Tournament"
 
     # Submit form with missing required fields
-    fill_in "Start time", with: Time.zone.now.tomorrow.strftime("%Y-%m-%dT%H:%M")
-    fill_in "End time", with: Time.zone.now.tomorrow.strftime("%Y-%m-%dT%H:%M")
+    fill_in "Start time", with: Time.zone.now.tomorrow.change(sec: 0)
+    fill_in "End time", with: Time.zone.now.tomorrow.change(sec: 0)
     click_button "Create Tournament"
 
     # The form should still be visible with Name field (validation error)
