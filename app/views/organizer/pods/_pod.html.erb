@@ -106,7 +106,8 @@
         <%= button_to t("rounds.win", seat: seating.order), [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Win", event_participant_id: seating.event_participant_id } }, form: { class: "hidden", data: { pod_result_target: "winForm", seat: seating.order } }, class: button_classes(:secondary, "w-full", size: :sm) %>
       <% end %>
     <% end %>
-    <% footer_cols = if !show_results then "grid-cols-[auto] justify-end"
+    <% footer_cols = if !show_results && time_called then "grid-cols-[auto_auto] justify-end"
+                     elsif !show_results then "grid-cols-[auto] justify-end"
                      elsif time_called then "grid-cols-[1fr_auto_auto]"
                      elsif staff_can_act then "grid-cols-[1fr_auto]"
                      else "grid-cols-1"

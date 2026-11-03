@@ -6,7 +6,8 @@ module RosterHelper
     ok: "text-accent bg-accent/[0.07]",
     warn: "text-warn bg-warn/[0.07]",
     bad: "text-danger bg-danger/[0.07]",
-    info: "text-info bg-info/[0.07]"
+    info: "text-info bg-info/[0.07]",
+    missing: "text-[#a3adb8] bg-[#a3adb8]/10 border border-dashed border-[#a3adb8]/45"
   }.freeze
 
   def desk_chip(tone, &block)
@@ -42,11 +43,11 @@ module RosterHelper
   def decklist_chip(participant)
     return desk_chip(:ok) { t("organizer.roster.decklist") } if participant.decklist.present?
 
-    desk_chip(:warn) { t("organizer.roster.no_decklist") }
+    desk_chip(:missing) { t("organizer.roster.no_decklist") }
   end
 
   def roster_no_decklist_count(event)
-    event.event_participants.count { |p| p.playing? && p.decklist.blank? }
+    event.event_participants.count { |p| p.playing? && !p.waitlisted? && p.decklist.blank? }
   end
 
   def payment_chip(participant)
