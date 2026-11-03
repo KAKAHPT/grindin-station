@@ -19,6 +19,6 @@ module Notify
   end
 
   def create_for(user_ids, kind:, subject:)
-    user_ids.compact.uniq.map { |user_id| Notification.create!(user_id: user_id, kind: kind, subject: subject) }
+    User.where(id: user_ids.compact.uniq).map { |user| Notification.create!(user: user, kind: kind, subject: subject) }
   end
 end

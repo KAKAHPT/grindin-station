@@ -194,7 +194,7 @@
         </h5>
       </div>
       <ul class="grow flex flex-col divide-y divide-line border-t border-line">
-        <% @round.byes.sort_by {|r| -r.event_participant.rank_score }.each do |result| %>
+        <% @round.ranked_byes.each do |result| %>
           <li class="px-4 h-8 flex items-center text-[13px]">
             <%= result_badge(result, result.event_participant) %>
           </li>

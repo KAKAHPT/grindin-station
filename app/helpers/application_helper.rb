@@ -21,7 +21,7 @@ module ApplicationHelper
   }.freeze
 
   def result_indicator(pod:, player:)
-    result = pod.results.find { |r| r.event_participant_id == player.id }
+    result = pod.current_results.find { |r| r.event_participant_id == player.id }
     if result.instance_of?(Advance) && pod.present?
       tag.span(class: RESULT_CLASSES[Win]) do
         concat icon(pod.round.last_single_elimination_round? ? "trophy" : "medal", class: "me-2")

@@ -33,7 +33,8 @@ module Results
     end
 
     def advance_highest_seed
-      seated = @pod.seatings.includes(:event_participant).sort_by(&:order).map(&:event_participant)
+      ranked = EventParticipant.standings_for(event).index_by(&:id)
+      seated = @pod.seatings.sort_by(&:order).map { |seating| ranked.fetch(seating.event_participant_id) }
       winner = seated.each_with_index.min_by { |participant, i| [-participant.rank_score, i] }.first
       Apply.call(pod: @pod, type: "Advance", winner: winner, by: @by)
     end

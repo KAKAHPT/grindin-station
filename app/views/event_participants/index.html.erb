@@ -30,7 +30,7 @@
 <% unless @standings_in_modal %>
   <h2 class="mb-3 font-display text-xl font-semibold"><%= t("play.nav.standings") %></h2>
 <% end %>
-<% if @tournament.event_participants.present? %>
+<% if @standings.any? %>
   <div class="<%= @standings_in_modal ? "-m-4 md:-m-5 overflow-x-auto" : "-mx-4 sm:mx-0 rounded-none sm:rounded-xl bg-surface border-y sm:border border-line shadow-card overflow-clip" %>">
   <%# In the narrow play column (a container) OWR, Beaten, Unique and Seats show only from 32rem up; the modal shows all. %>
   <% wide_only = @standings_in_modal ? "" : "hidden @lg:table-cell" %>
@@ -150,9 +150,9 @@
       <!-- TODO updated by turbo stream -->
       <% case @tournament.state %>
       <% when 'registration_open', 'registration_closed' %>
-        <%= render partial: "event_participants/event_participant", collection: @tournament.event_participants.sort_by(&:name), locals: { wide_only: wide_only, pad: pad } %>
+        <%= render partial: "event_participants/event_participant", collection: @standings.sort_by(&:name), locals: { wide_only: wide_only, pad: pad } %>
       <% else %>
-        <% standings = @tournament.event_participants.reject(&:waitlisted?).sort_by { |p| [p.playing? ? 0 : 1, -p.rank_score, p.name] } %>
+        <% standings = @standings.reject(&:waitlisted?).sort_by { |p| [p.playing? ? 0 : 1, -p.rank_score, p.name] } %>
         <%= render partial: "event_participants/event_participant", collection: standings, locals: { seat_five: seat_five?(standings), wide_only: wide_only, pad: pad } %>
       <% end %>
     </tbody>

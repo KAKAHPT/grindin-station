@@ -28,7 +28,8 @@ class RoundsController < ApplicationController
   end
 
   def load_pods(round)
-    round.pods.preload(seatings: { event_participant: { player: :user } })
+    round.pods.preload({ round: :results }, seatings: { event_participant: { player: :user } },
+                                            event_participants: { player: :user })
   end
 
   def load_users_map(pods)

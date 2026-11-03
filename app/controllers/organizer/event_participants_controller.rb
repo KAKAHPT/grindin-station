@@ -17,7 +17,7 @@ module Organizer
 
       case @event.state
       when "registration_open", "registration_closed"
-        @event_participants = @event.event_participants.includes(player: :user).joins(player: :user).order(:name)
+        @event_participants = roster_participants(@event).sort_by(&:name)
       else
         @event_participants = ranked_participants(@event)
       end
@@ -106,9 +106,16 @@ module Organizer
       [:organizer, event, :event_participants, { layout: "application" }]
     end
 
+    # Every participant with what the roster rows read (standings, infractions) preloaded.
+    def roster_participants(event)
+      participants = EventParticipant.standings_for(event)
+      ActiveRecord::Associations::Preloader.new(records: participants, associations: { player: :infractions }).call
+      participants
+    end
+
     # The standings with a rank each; the waitlist is not ranked and follows in waitlist order.
     def ranked_participants(event)
-      waitlist, ranked = event.event_participants.partition(&:waitlisted?)
+      waitlist, ranked = roster_participants(event).partition(&:waitlisted?)
       ranked =
         ranked.sort_by do |p|
           seats = p.seat_counts

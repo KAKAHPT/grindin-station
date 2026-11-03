@@ -9,6 +9,7 @@ class EventParticipantsController < ApplicationController
   # Inside the app's modal frame it stays a modal; opened as a page (e.g. from the player nav) it gets the play layout.
   def index
     @tournament = load_event
+    @standings = EventParticipant.standings_for(@tournament)
     @standings_in_modal = turbo_frame_request_id == "modal"
     @current_event = @tournament unless @standings_in_modal
     render layout: @standings_in_modal ? "modal" : "play"

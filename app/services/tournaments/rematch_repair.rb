@@ -17,7 +17,7 @@ module Tournaments
 
     def repair!
       @pods = @round.pods.to_a
-      @opponent_ids = @pods.flat_map(&:candidates).to_h { |player| [player.id, player.opponents.ids.to_set] }
+      @opponent_ids = @pods.flat_map(&:candidates).to_h { |player| [player.id, player.opponent_records.to_set(&:id)] }
 
       swaps = 0
       while swaps < MAX_SWAPS_PER_POD * @pods.size && (swap = first_improving_swap)

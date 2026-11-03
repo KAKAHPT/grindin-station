@@ -65,7 +65,16 @@ module Results
       current_for(participant)&.type == "Penalty" ? "Penalty" : type
     end
 
+    # The seated players' current results come in one query; anyone else (a penalty) is looked up alone.
     def current_for(participant)
+      @current ||=
+        begin
+          ids = @pod.seatings.map(&:event_participant_id)
+          found = Result.current.where(round: @round, event_participant_id: ids).index_by(&:event_participant_id)
+          ids.index_with { |id| found[id] }
+        end
+      return @current[participant.id] if @current.key?(participant.id)
+
       Result.current.find_by(round: @round, event_participant: participant)
     end
 

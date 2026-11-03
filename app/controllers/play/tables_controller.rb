@@ -15,7 +15,7 @@ module Play
     private
 
     def load_table # rubocop:disable Metrics/AbcSize -- one line per flag
-      @seatings = @pod.seatings.includes(event_participant: :player)
+      @seatings = @pod.seatings.includes(event_participant: { player: :user })
       @seat = @seatings.find { |s| s.event_participant_id == current_participant.id }.order
       @status = @pod.report_status
       @can_report = current_event.self_report_enabled && @status == :playing

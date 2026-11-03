@@ -10,7 +10,8 @@ module Tournaments
 
     # Ranking order (points and tiebreakers). Top cut decides who advances from this order, so it never changes.
     def sorted_players
-      players_by_rank = @round.event_participants.shuffle
+      ids = @round.event_participants.ids.to_set
+      players_by_rank = EventParticipant.standings_for(@round.event).select { |p| ids.include?(p.id) }.shuffle
       players_by_rank.sort_by.with_index { |p, i| [-p.rank_score, i] }
     end
 

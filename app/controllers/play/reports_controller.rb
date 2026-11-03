@@ -6,7 +6,7 @@ module Play
     before_action :load_pod
 
     def new
-      @seatings = @pod.seatings.includes(event_participant: :player)
+      @seatings = @pod.seatings.includes(event_participant: { player: :user })
     end
 
     def create

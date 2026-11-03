@@ -42,7 +42,7 @@
 
   <ol class="mt-2 grow flex flex-col divide-y divide-line/60 border-t border-line">
     <% pod.event_participants.each do |player| %>
-      <% won = pod.results.find { |r| r.event_participant_id == player.id }.class.in?([Win, Advance]) %>
+      <% won = pod.current_results.find { |r| r.event_participant_id == player.id }.class.in?([Win, Advance]) %>
       <% if show_results %>
         <li
           data-tooltip-placement="left"

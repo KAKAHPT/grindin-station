@@ -59,10 +59,11 @@ class Tournament < Event
   def available_states = rounds_info[:top] ? super : super.except(:single_elimination)
 
   def progress_percent
-    total_rounds = number_of_swiss_rounds + number_of_single_elimination_rounds
-    return 0 if total_rounds.zero?
+    finished = rounds.loaded? ? rounds.count(&:past?) : rounds.finished.count
+    return 0 if finished.zero?
 
-    (rounds.finished.count.to_f / total_rounds) * 100
+    total_rounds = number_of_swiss_rounds + number_of_single_elimination_rounds
+    total_rounds.zero? ? 0 : (finished.to_f / total_rounds) * 100
   end
 
   def number_of_swiss_rounds

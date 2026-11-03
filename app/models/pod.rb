@@ -33,11 +33,22 @@ class Pod < ApplicationRecord
   after_initialize -> { @candidates = [] }
 
   def open_judge_call?
+    return judge_calls.any? { |call| call.status.in?(%w[open acknowledged]) } if judge_calls.loaded?
+
     judge_calls.open_or_acknowledged.exists?
   end
 
+  # Current results of the seated players. #results depends on the pod and cannot be preloaded, so a
+  # page with many pods preloads round: :results and seatings, and they are read from there.
+  def current_results
+    return results unless association(:seatings).loaded? && round.association(:results).loaded?
+
+    seated = seatings.map(&:event_participant_id)
+    round.results.select { |result| seated.include?(result.event_participant_id) }
+  end
+
   def finished?
-    results.size == event_participants.size
+    current_results.size == seatings.size
   end
 
   def seated?(participant)
@@ -102,6 +113,6 @@ class Pod < ApplicationRecord
   end
 
   def seating_rng
-    Random.new(Digest::SHA256.hexdigest([event.seed.to_i, round.number, number].join("-")).to_i(16))
+    Random.new(Digest::SHA256.hexdigest([round.event.seed.to_i, round.number, number].join("-")).to_i(16))
   end
 end

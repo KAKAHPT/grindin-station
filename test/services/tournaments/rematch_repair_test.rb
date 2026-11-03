@@ -88,10 +88,10 @@ module Tournaments
       assert_equal 0, RematchRepair.new(round, max_point_gap: 0).repair!
     end
 
-    FakeOpponents = Struct.new(:ids)
+    FakeOpponent = Struct.new(:id)
     FakePlayer =
       Struct.new(:id, :match_points, :opponent_ids) do
-        def opponents = FakeOpponents.new(opponent_ids)
+        def opponent_records = opponent_ids.map { |id| FakeOpponent.new(id) }
       end
     FakePod = Struct.new(:candidates)
     FakeRound = Struct.new(:pods)

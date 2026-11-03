@@ -59,6 +59,7 @@ module Organizer
     private
 
     def roll_back(event, round)
+      ActiveRecord::Associations::Preloader.new(records: [round], associations: { pods: :seatings }).call
       round.destroy!
       event.rounds.reload.max_by(&:number).update!(finished_at: nil)
       event.update!(state: :swiss) if event.single_elimination? && event.rounds.none?(SingleEliminationRound)
@@ -102,7 +103,8 @@ module Organizer
     end
 
     def load_pods(round)
-      round.pods.preload(seatings: { event_participant: { player: :user } })
+      round.pods.preload(:event, :judge_calls, { round: :results }, seatings: { event_participant: { player: :user } },
+                                                                    event_participants: { player: :user })
     end
 
     def load_users_map(pods)

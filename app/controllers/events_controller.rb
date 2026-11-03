@@ -28,7 +28,7 @@ class EventsController < ApplicationController
     @tournaments = @tournaments.page params[:page]
     @leagues = @leagues.page params[:page]
 
-    @ongoing = Tournament.for_player(current_user&.player).ongoing +
-               League.for_player(current_user&.player).ongoing
+    @ongoing = Tournament.for_player(current_user&.player).ongoing.with_attached_cover.preload(:rounds) +
+               League.for_player(current_user&.player).ongoing.with_attached_cover.preload(:rounds)
   end
 end
