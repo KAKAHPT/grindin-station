@@ -121,12 +121,12 @@
     <% end %>
   </h1>
 
-  <div class="flex flex-wrap gap-4 pt-2 text-sm text-muted">
-    <%= link_to t("organizer.roster.all"), [:organizer, @event, :event_participants, { layout: "application", query: params[:query] }], class: params[:status].blank? ? "font-semibold text-ink underline decoration-accent underline-offset-4" : "hover:text-ink" %>
+  <div class="<%= PaletteHelper::SEGMENT_TRACK %> mt-3">
+    <%= link_to t("organizer.roster.all"), [:organizer, @event, :event_participants, { layout: "application", query: params[:query] }], class: segment_classes(params[:status].blank?) %>
     <% Organizer::EventParticipantsController::STATUSES.each do |status| %>
-      <%= link_to [:organizer, @event, :event_participants, { layout: "application", status: status, query: params[:query] }], class: params[:status] == status ? "font-semibold text-ink underline decoration-accent underline-offset-4" : "hover:text-ink" do %>
+      <%= link_to [:organizer, @event, :event_participants, { layout: "application", status: status, query: params[:query] }], class: segment_classes(params[:status] == status) do %>
         <%= t("organizer.roster.statuses.#{status}") %>
-        <span id="roster_count_<%= status %>" class="ms-1 px-2 rounded-full bg-surface border border-line text-ink"><%= @roster_counts[status.to_sym] %></span>
+        <span id="roster_count_<%= status %>" class="px-1.5 min-w-5 text-center rounded-md bg-ground/60 text-xs tabular text-muted"><%= @roster_counts[status.to_sym] %></span>
       <% end %>
     <% end %>
   </div>
@@ -167,9 +167,9 @@
 <% end %>
 
 <% if @event_participants.present? %>
-  <table
-    class="col-span-full text-md text-left rtl:text-right text-ink"
-  >
+  <div class="col-span-full <%= "bg-surface border border-line rounded-2xl shadow-card overflow-clip" if @layout_mode == "application" %>">
+  <div class="overflow-x-auto">
+  <table class="w-full text-sm text-left rtl:text-right text-ink">
     <% if @layout_mode == "modal" %>
       <caption
         class="
@@ -192,7 +192,7 @@
       </caption>
     <% end %>
     <thead
-      class="text-[11px] tracking-wide text-muted uppercase bg-surface"
+      class="sticky top-0 z-10 text-[11px] tracking-wide text-muted uppercase bg-surface-raised/95 backdrop-blur border-b border-line-strong"
     >
       <tr>
         <% case @event.state %>
@@ -201,28 +201,28 @@
         <% else %>
           <th
             scope="col"
-            class="px-5 py-3 text-center"
+            class="px-4 py-3 text-center"
             data-tooltip-target="tooltip-rank"
           >
             Rank
           </th>
           <th scope="col" class="px-5 py-3">Player</th>
-          <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-points">
+          <th scope="col" class="px-5 py-3 text-right" data-tooltip-target="tooltip-points">
             <%= t("standings.columns.points") %>
           </th>
-          <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-owr">
+          <th scope="col" class="px-5 py-3 text-right" data-tooltip-target="tooltip-owr">
             <%= t("standings.columns.owr") %>
           </th>
-          <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-beaten">
+          <th scope="col" class="px-5 py-3 text-right" data-tooltip-target="tooltip-beaten">
             <%= t("standings.columns.beaten") %>
           </th>
-          <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-unique">
+          <th scope="col" class="px-5 py-3 text-right" data-tooltip-target="tooltip-unique">
             <%= t("standings.columns.unique") %>
           </th>
           <th scope="col" class="px-5 py-3">
             <%= t("standings.columns.seats") %>
           </th>
-          <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-wld">
+          <th scope="col" class="px-5 py-3 text-right" data-tooltip-target="tooltip-wld">
             W-L-D
           </th>
           <div
@@ -317,11 +317,13 @@
         <% end %>
       </tr>
     </thead>
-    <tbody id="<%= dom_id(@event, :event_participants) %>">
+    <tbody id="<%= dom_id(@event, :event_participants) %>" class="divide-y divide-line/60">
       <% seat_five = !@event.state.in?(%w[registration_open registration_closed]) && seat_five?(@event_participants) %>
       <%= render partial: "organizer/event_participants/event_participant", collection: @event_participants, locals: { seat_five: seat_five, scorekeeper: scorekeeper } %>
     </tbody>
   </table>
+  </div>
+  </div>
 <% else %>
   No players found
 <% end %>

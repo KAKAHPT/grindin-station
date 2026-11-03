@@ -1,41 +1,41 @@
 <tr
   id="<%= dom_id(event_participant) %>"
-  class="<%= event_participant.playing? ? "" : "line-through text-muted" %> border-b border-line"
+  class="<%= event_participant.playing? ? "" : "line-through text-muted" %> h-12 odd:bg-white/[0.015] hover:bg-white/[0.04] transition-colors"
 >
   <% case @event.state %>
   <% when 'registration_open', 'registration_closed' %>
     <th
       scope="row"
       data-tooltip-target="tooltip-<%= event_participant.id %>"
-      class="px-5 py-4 font-semibold text-ink whitespace-nowrap"
+      class="px-5 py-2 font-semibold text-ink whitespace-nowrap"
     >
       <%= truncate(event_participant.name) %>
     </th>
   <% else %>
     <th
       scope="row"
-      class="px-5 py-4 text-center font-display font-semibold text-muted whitespace-nowrap"
+      class="px-4 py-2 text-center whitespace-nowrap"
     >
-      <%= event_participant.rank %>
+      <%= standings_rank(event_participant.rank, @event) %>
     </th>
     <th
       scope="row"
       data-tooltip-target="tooltip-<%= event_participant.id %>"
-      class="px-5 py-4 font-semibold text-ink whitespace-nowrap"
+      class="px-5 py-2 font-semibold text-ink whitespace-nowrap"
     >
       <%= truncate(event_participant.name) %>
     </th>
     <% columns = event_participant.standing_columns %>
-    <td class="px-5 py-4"><%= columns[:points] %></td>
-    <td class="px-5 py-4">
+    <td class="px-5 py-2 tabular text-right font-display font-semibold text-accent"><%= columns[:points] %></td>
+    <td class="px-5 py-2 tabular text-right">
       <%= number_to_percentage(columns[:owr] * 100, precision: 1) %>
     </td>
-    <td class="px-5 py-4"><%= columns[:beaten] %></td>
-    <td class="px-5 py-4"><%= columns[:unique] %></td>
-    <td class="px-5 py-4 text-nowrap">
-      <%= seat_counts_label(columns[:seats], seat_five: local_assigns.fetch(:seat_five, false)) %>
+    <td class="px-5 py-2 tabular text-right"><%= columns[:beaten] %></td>
+    <td class="px-5 py-2 tabular text-right"><%= columns[:unique] %></td>
+    <td class="px-5 py-2 text-nowrap">
+      <%= seat_pips(columns[:seats], seat_five: local_assigns.fetch(:seat_five, false)) %>
     </td>
-    <td class="px-5 py-4 text-nowrap">
+    <td class="px-5 py-2 tabular text-right text-nowrap">
       <%= event_participant.number_of_wins -%>
       &nbsp;-&nbsp;
       <%= event_participant.number_of_losses -%>
@@ -44,13 +44,13 @@
     </td>
   <% end %>
   <% if @layout_mode == "application" %>
-    <td class="px-5 py-3"><%= event_participant.checked_in_at ? l(event_participant.checked_in_at, format: "%H:%M") : "-" %></td>
-    <td class="px-5 py-3"><%= event_participant.paid? ? icon("check") : "-" %></td>
-    <td class="px-5 py-3"><%= event_participant.waitlisted? && event_participant.playing? ? event_participant.waitlist_position : "-" %></td>
-    <td class="px-5 py-3"><%= event_participant.dropped? ? t("organizer.roster.drop_reasons.#{event_participant.drop_reason || 'drop'}") : "-" %></td>
-    <td scope="col" class="px-5 py-3">
+    <td class="px-5 py-2"><%= event_participant.checked_in_at ? l(event_participant.checked_in_at, format: "%H:%M") : "-" %></td>
+    <td class="px-5 py-2"><%= event_participant.paid? ? icon("check") : "-" %></td>
+    <td class="px-5 py-2"><%= event_participant.waitlisted? && event_participant.playing? ? event_participant.waitlist_position : "-" %></td>
+    <td class="px-5 py-2"><%= event_participant.dropped? ? t("organizer.roster.drop_reasons.#{event_participant.drop_reason || 'drop'}") : "-" %></td>
+    <td class="px-5 py-2">
       <% if event_participant.number_of_infractions > 0 %>
-        <%= link_to [:organizer, event_participant.event, event_participant, :infractions], data: { turbo_frame: "modal" }, class: "inline-flex items-center px-4 py-2 text-sm font-semibold rounded-xl border border-line bg-surface text-ink hover:border-muted" do %>
+        <%= link_to [:organizer, event_participant.event, event_participant, :infractions], data: { turbo_frame: "modal" }, class: small_button_classes(:secondary) do %>
           View
           <span
             class="
@@ -65,31 +65,31 @@
         -
       <% end %>
     </td>
-    <td scope="col" class="px-5 py-3 text-right">
+    <td class="px-5 py-2 text-right">
       <div class="inline-flex items-center">
         <% unless scorekeeper %>
-        <%= link_to [:new, :organizer, @event, :infraction, { player_id: event_participant.player_id }], data: { turbo_frame: "modal" }, class: "inline-flex items-center px-4 py-2 me-2 rounded-xl border text-sm font-semibold bg-danger/10 text-danger border-danger/40 hover:bg-danger/20" do %>
+        <%= link_to [:new, :organizer, @event, :infraction, { player_id: event_participant.player_id }], data: { turbo_frame: "modal" }, class: small_button_classes(:danger) do %>
           <%= icon("gavel", class: "me-2") %>
           Record Infraction
         <% end %>
 
         <% if event_participant.playing? %>
           <% if event_participant.waitlisted? && !@event.points_locked? %>
-            <%= button_to [:promote, :organizer, @event, event_participant], method: :patch, class: "inline-flex items-center px-4 py-2 me-2 rounded-xl border text-sm font-semibold bg-accent text-ground border-accent hover:bg-accent/90" do %>
+            <%= button_to [:promote, :organizer, @event, event_participant], method: :patch, class: small_button_classes(:primary) do %>
               <%= icon("arrow-up", class: "me-2") %>
               <%= t("organizer.roster.promote") %>
             <% end %>
           <% end %>
-          <%= button_to [:drop, :organizer, @event, event_participant], method: :patch, params: { reason: "drop" }, data: { turbo_confirm: t("organizer.roster.confirm_drop", name: event_participant.name) }, class: "inline-flex items-center px-4 py-2 me-2 rounded-xl border text-sm font-semibold bg-danger/10 text-danger border-danger/40 hover:bg-danger/20" do %>
+          <%= button_to [:drop, :organizer, @event, event_participant], method: :patch, params: { reason: "drop" }, data: { turbo_confirm: t("organizer.roster.confirm_drop", name: event_participant.name) }, class: small_button_classes(:danger) do %>
             <%= icon("user-minus", class: "me-2") %>
             <%= t("organizer.roster.drop") %>
           <% end %>
-          <%= button_to [:drop, :organizer, @event, event_participant], method: :patch, params: { reason: "no_show" }, data: { turbo_confirm: t("organizer.roster.confirm_no_show", name: event_participant.name) }, class: "inline-flex items-center px-4 py-2 me-2 rounded-xl border text-sm font-semibold bg-danger/10 text-danger border-danger/40 hover:bg-danger/20" do %>
+          <%= button_to [:drop, :organizer, @event, event_participant], method: :patch, params: { reason: "no_show" }, data: { turbo_confirm: t("organizer.roster.confirm_no_show", name: event_participant.name) }, class: small_button_classes(:danger) do %>
             <%= icon("prohibit", class: "me-2") %>
             <%= t("organizer.roster.no_show") %>
           <% end %>
         <% else %>
-          <%= button_to [:organizer, @event, event_participant], method: :patch, params: { event_participant: { dropped: false } }, data: { turbo_confirm: t("organizer.roster.confirm_undo_drop", name: event_participant.name) }, class: "inline-flex items-center px-4 py-2 me-2 rounded-xl border text-sm font-semibold bg-accent text-ground border-accent hover:bg-accent/90" do %>
+          <%= button_to [:organizer, @event, event_participant], method: :patch, params: { event_participant: { dropped: false } }, data: { turbo_confirm: t("organizer.roster.confirm_undo_drop", name: event_participant.name) }, class: small_button_classes(:primary) do %>
             <%= icon("user-plus", class: "me-2") %>
             <%= t("organizer.roster.undo_drop") %>
           <% end %>
@@ -97,24 +97,24 @@
         <% end %>
 
         <% if event_participant.checked_in? %>
-          <%= button_to [:undo_check_in, :organizer, @event, event_participant], method: :patch, class: "inline-flex items-center px-4 py-2 me-2 rounded-xl border text-sm font-semibold bg-surface text-ink border-line hover:border-muted" do %>
+          <%= button_to [:undo_check_in, :organizer, @event, event_participant], method: :patch, class: small_button_classes(:secondary) do %>
             <%= icon("x", class: "me-2") %>
             <%= t("organizer.roster.undo_check_in") %>
           <% end %>
         <% else %>
-          <%= button_to [:check_in, :organizer, @event, event_participant], method: :patch, class: "inline-flex items-center px-4 py-2 me-2 rounded-xl border text-sm font-semibold bg-accent text-ground border-accent hover:bg-accent/90" do %>
+          <%= button_to [:check_in, :organizer, @event, event_participant], method: :patch, class: small_button_classes(:primary) do %>
             <%= icon("check", class: "me-2") %>
             <%= t("organizer.roster.check_in") %>
           <% end %>
         <% end %>
 
         <% if event_participant.paid? %>
-          <%= button_to [:mark_unpaid, :organizer, @event, event_participant], method: :patch, class: "inline-flex items-center px-4 py-2 me-2 rounded-xl border text-sm font-semibold bg-surface text-ink border-line hover:border-muted" do %>
+          <%= button_to [:mark_unpaid, :organizer, @event, event_participant], method: :patch, class: small_button_classes(:secondary) do %>
             <%= icon("x", class: "me-2") %>
             <%= t("organizer.roster.mark_unpaid") %>
           <% end %>
         <% else %>
-          <%= button_to [:mark_paid, :organizer, @event, event_participant], method: :patch, class: "inline-flex items-center px-4 py-2 me-2 rounded-xl border text-sm font-semibold bg-accent text-ground border-accent hover:bg-accent/90" do %>
+          <%= button_to [:mark_paid, :organizer, @event, event_participant], method: :patch, class: small_button_classes(:primary) do %>
             <%= icon("check", class: "me-2") %>
             <%= t("organizer.roster.mark_paid") %>
           <% end %>

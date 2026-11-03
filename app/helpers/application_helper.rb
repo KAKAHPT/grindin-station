@@ -11,18 +11,6 @@ module ApplicationHelper
     Draw => "#{RESULT_BASE} text-warn"
   }.freeze
 
-  BUTTON_BASE = "inline-flex min-h-[52px] items-center justify-center gap-2 px-5 rounded-xl border " \
-                "text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-accent/40"
-  BUTTON_KINDS = {
-    primary: "bg-accent text-ground border-accent hover:bg-accent/90",
-    secondary: "bg-surface text-ink border-line hover:border-muted",
-    danger: "bg-danger/10 text-danger border-danger/40 hover:bg-danger/20"
-  }.freeze
-
-  CHIP_TONES = {
-    accent: "text-accent", muted: "text-muted", warn: "text-warn", danger: "text-danger", ink: "text-ink"
-  }.freeze
-
   RESULT_ICONS = {
     Advance => "fast-forward",
     Win => "medal",
@@ -58,20 +46,6 @@ module ApplicationHelper
       "bg-#{color}-100", "text-#{color}-800",
       "dark:bg-#{color}-900", "dark:text-#{color}-300"
     ], &block)
-  end
-
-  # Palette A button: kind is :primary, :secondary or :danger; extra carries width/layout classes.
-  def button_classes(kind = :secondary, extra = nil)
-    [BUTTON_BASE, BUTTON_KINDS.fetch(kind), extra].compact.join(" ")
-  end
-
-  # Status chip: small dot plus uppercase label, coloured by tone (see CHIP_TONES).
-  def status_chip(tone, data: nil, &block)
-    tag.span(class: "inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide " \
-                    "#{CHIP_TONES.fetch(tone)}", data: data) do
-      concat tag.span(class: "size-1.5 rounded-full bg-current", "aria-hidden": true)
-      concat capture(&block)
-    end
   end
 
   def icon(name, options = nil)

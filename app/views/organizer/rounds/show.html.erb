@@ -78,25 +78,27 @@
       </li>
     </ol>
   </nav>
+  <ul class="<%= PaletteHelper::SEGMENT_TRACK %> mb-3">
+    <%= render partial: "round", collection: @round.event.rounds.sort_by(&:number) %>
+    <%= render "future_rounds" %>
+  </ul>
   <div class="flex flex-col gap-3 lg:flex-row lg:justify-between lg:items-center">
-    <ul class="flex flex-wrap items-center gap-y-2 text-sm font-medium text-center text-muted">
-      <%= link_to [:organizer, @round.event, :event_participants], data: {turbo_frame: "modal"}, class: "inline-flex items-center px-4 py-2.5 me-2 rounded-xl border border-line bg-surface text-ink hover:border-muted" do %>
+    <div class="flex flex-wrap items-center gap-2 text-sm font-medium">
+      <%= link_to [:organizer, @round.event, :event_participants], data: {turbo_frame: "modal"}, class: "inline-flex items-center h-10 px-4 rounded-xl border border-line bg-surface text-ink shadow-card hover:border-line-strong" do %>
         Standings
       <% end %>
-      <%= link_to t("rounds.print.pairings_link"), print_organizer_tournament_round_path(@round.event, @round), target: "_blank", rel: "noopener", class: "inline-flex items-center px-4 py-2.5 me-2 rounded-xl border border-line bg-surface text-ink hover:border-muted" %>
-      <%= link_to t("rounds.print.slips_link"), slips_organizer_tournament_round_path(@round.event, @round), target: "_blank", rel: "noopener", class: "inline-flex items-center px-4 py-2.5 me-2 rounded-xl border border-line bg-surface text-ink hover:border-muted" %>
-      <%= render partial: "round", collection: @round.event.rounds.sort_by(&:number) %>
-      <%= render "future_rounds" %>
-    </ul>
+      <%= link_to t("rounds.print.pairings_link"), print_organizer_tournament_round_path(@round.event, @round), target: "_blank", rel: "noopener", class: "inline-flex items-center h-10 px-4 rounded-xl border border-line bg-surface text-ink shadow-card hover:border-line-strong" %>
+      <%= link_to t("rounds.print.slips_link"), slips_organizer_tournament_round_path(@round.event, @round), target: "_blank", rel: "noopener", class: "inline-flex items-center h-10 px-4 rounded-xl border border-line bg-surface text-ink shadow-card hover:border-line-strong" %>
+    </div>
     <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
       <% if @round.published? %>
         <% if @round.started? %>
           <span
             data-action="click->round-timer#toggleFullscreen"
             class="
-              cursor-zoom-in font-display text-2xl font-semibold tabular-nums text-ink
+              cursor-zoom-in font-display text-2xl font-semibold tabular text-ink
               inline-flex items-center justify-center px-4 min-h-[52px] rounded-xl
-              bg-surface border border-line sm:me-2
+              bg-surface-raised border border-line shadow-card
             "
             data-controller="round-timer"
             data-round-timer-round-time-value="<%= @round.duration %>"
@@ -184,7 +186,7 @@
   <%= render @pods %>
   <% if @round.byes.present? %>
     <div
-      class="flex flex-col bg-surface border border-line rounded-2xl"
+      class="flex flex-col bg-surface border border-line rounded-2xl shadow-card overflow-clip"
     >
       <div class="flex justify-between items-center">
         <h5 class="px-5 pt-5 pb-3 font-display text-2xl font-semibold tracking-tight text-ink">
@@ -202,36 +204,36 @@
   <% end %>
 </div>
 
-<%= turbo_frame_tag "player_list", class: "col-span-full block p-0 bg-surface border border-line rounded-2xl overflow-hidden" do %>
+<%= turbo_frame_tag "player_list", class: "col-span-full block p-0 bg-surface border border-line rounded-2xl shadow-card overflow-clip" do %>
   <div class="relative overflow-x-auto sm:rounded-lg">
     <table
       class="w-full text-sm text-left rtl:text-right text-muted"
     >
       <thead
-        class="text-[11px] tracking-wide text-muted uppercase bg-ground"
+        class="sticky top-0 z-10 text-[11px] tracking-wide text-muted uppercase bg-surface-raised/95 backdrop-blur border-b border-line-strong"
       >
         <tr>
           <th scope="col" class="px-6 py-3 text-left">Player</th>
-          <th scope="col" class="px-6 py-3 text-center">Pod</th>
+          <th scope="col" class="px-6 py-3 text-right">Pod</th>
           <th scope="col" class="px-6 py-3 text-right">Seat</th>
         </tr>
       </thead>
       <tbody>
         <% @users_map.keys.sort_by { |k| @users_map[k][:name] }.each.with_index do |k, i| %>
           <tr
-            class="border-b border-line last:border-b-0"
+            class="h-12 border-b border-line/60 last:border-b-0 odd:bg-white/[0.015] hover:bg-white/[0.04]"
           >
             <td
               scope="row"
               data-tooltip-target="tooltip-pairings-<%= k %>"
-              class="px-6 py-4 text-left font-medium text-ink whitespace-nowrap"
+              class="px-6 py-3 text-left font-semibold text-ink whitespace-nowrap"
             >
               <%= truncate(@users_map[k][:name]) %>
             </td>
-            <td class="px-6 py-4 text-center">
+            <td class="px-6 py-3 tabular text-right">
               <%= link_to @users_map[k][:pod], "#pod_#{@users_map[k][:pod_id]}", target: "_top", data: { controller: 'scroller'}, class: "text-accent hover:underline" %>
             </td>
-            <td class="px-6 py-4 text-right"><%= @users_map[k][:seating] %></td>
+            <td class="px-6 py-3 tabular text-right"><%= @users_map[k][:seating] %></td>
             <div
               id="tooltip-pairings-<%= k %>"
               role="tooltip"

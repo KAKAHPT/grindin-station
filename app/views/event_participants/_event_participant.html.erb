@@ -1,31 +1,31 @@
 <tr
   id="<%= dom_id(event_participant) %>"
-  class="<%= event_participant.playing? ? "" : "line-through text-muted" %> border-b border-line"
+  class="<%= event_participant.playing? ? "" : "line-through text-muted" %> h-12 odd:bg-white/[0.015] hover:bg-white/[0.04] transition-colors"
 >
   <th
     scope="row"
-    class="px-5 py-4 text-center font-display font-semibold text-muted whitespace-nowrap"
+    class="px-4 py-2 text-center whitespace-nowrap"
   >
-    <%= event_participant_iteration.index+1 %>
+    <%= standings_rank(event_participant_iteration.index + 1, @tournament) %>
   </th>
   <th
     scope="row"
     data-tooltip-target="tooltip-<%= event_participant.id %>"
-    class="px-5 py-4 font-semibold text-ink whitespace-nowrap"
+    class="px-5 py-2 font-semibold text-ink whitespace-nowrap"
   >
     <%= truncate(event_participant.name) %>
   </th>
   <% columns = event_participant.standing_columns %>
-  <td class="px-5 py-4"><%= columns[:points] %></td>
-  <td class="px-5 py-4">
+  <td class="px-5 py-2 tabular text-right font-display font-semibold text-accent"><%= columns[:points] %></td>
+  <td class="px-5 py-2 tabular text-right">
     <%= number_to_percentage(columns[:owr] * 100, precision: 1) %>
   </td>
-  <td class="px-5 py-4"><%= columns[:beaten] %></td>
-  <td class="px-5 py-4"><%= columns[:unique] %></td>
-  <td class="px-5 py-4 text-nowrap">
-    <%= seat_counts_label(columns[:seats], seat_five: local_assigns.fetch(:seat_five, false)) %>
+  <td class="px-5 py-2 tabular text-right"><%= columns[:beaten] %></td>
+  <td class="px-5 py-2 tabular text-right"><%= columns[:unique] %></td>
+  <td class="px-5 py-2 text-nowrap">
+    <%= seat_pips(columns[:seats], seat_five: local_assigns.fetch(:seat_five, false)) %>
   </td>
-  <td class="px-5 py-4 text-nowrap">
+  <td class="px-5 py-2 tabular text-right text-nowrap">
     <%= event_participant.number_of_wins -%>
     &nbsp;-&nbsp;
     <%= event_participant.number_of_losses -%>

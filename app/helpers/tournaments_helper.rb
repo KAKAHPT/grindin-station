@@ -88,6 +88,27 @@ module TournamentsHelper
     seats.values_at(*(1..(seat_five ? 5 : 4))).join("·")
   end
 
+  # One bar per seat, lit when the player has sat there; the counts go in the title / aria-label.
+  def seat_pips(seats, seat_five: false)
+    label = seat_counts_label(seats, seat_five: seat_five)
+    tag.span(class: "inline-flex gap-1 align-middle", title: label, "aria-label": label, role: "img") do
+      seats.values_at(*(1..(seat_five ? 5 : 4))).each do |count|
+        concat tag.span(class: ["h-1.5 w-4 rounded-full", count.to_i.positive? ? "bg-accent" : "bg-line"])
+      end
+    end
+  end
+
+  # Ranks inside the top cut sit in an accent disc; the rest are muted text.
+  def standings_rank(rank, tournament)
+    cut = tournament.top_cut_size.to_i
+    if cut.positive? && rank <= cut
+      tag.span(rank, class: "inline-flex size-7 items-center justify-center rounded-full bg-accent/15 " \
+                            "text-accent font-display text-sm font-semibold")
+    else
+      tag.span(rank, class: "inline-flex size-7 items-center justify-center text-muted font-display text-sm")
+    end
+  end
+
   # True when anyone in the list sat in seat 5 of a swiss pod.
   def seat_five?(participants)
     participants.any? { |participant| participant.seat_counts[5].positive? }

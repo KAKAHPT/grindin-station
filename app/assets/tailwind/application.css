@@ -14,7 +14,9 @@
 @theme {
   --color-ground: #111315;
   --color-surface: #1b1e22;
+  --color-surface-raised: #22262b;
   --color-line: #2a2f36;
+  --color-line-strong: #343a43;
   --color-ink: #eef0f2;
   --color-muted: #8b949e;
   --color-accent: #2dd4bf;
@@ -23,6 +25,48 @@
 
   --font-display: "Sora", sans-serif;
   --font-body: "Manrope", sans-serif;
+
+  --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 8px 24px -12px rgb(0 0 0 / 0.6);
+  --shadow-raised: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 40px -16px rgb(0 0 0 / 0.7), 0 1px 2px rgb(0 0 0 / 0.5);
+}
+
+@layer base {
+  body {
+    background-image: radial-gradient(80% 50% at 50% -10%, rgb(45 212 191 / 0.06), transparent);
+    background-repeat: no-repeat;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line);
+    border-radius: 9999px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
 .markdown {

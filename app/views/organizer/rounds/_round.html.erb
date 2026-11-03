@@ -1,13 +1,10 @@
-<li class="me-2">
+<li>
   <% if @round == round %>
-    <span
-      class="inline-block px-4 py-2.5 rounded-xl text-ground bg-accent font-semibold active"
-      aria-current="page"
-    >
+    <span class="<%= segment_classes(true) %> active" aria-current="page">
       <%= round.display_name %>
     </span>
   <% else %>
-    <%= link_to [:organizer, round.event, round.becomes(Round)], class: "inline-block px-4 py-2.5 rounded-xl hover:text-ink hover:bg-surface" do %>
+    <%= link_to [:organizer, round.event, round.becomes(Round)], class: segment_classes(false) do %>
       <%= round.display_name %>
     <% end %>
   <% end %>

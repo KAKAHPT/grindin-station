@@ -30,41 +30,35 @@
   <h2 class="mb-3 font-display text-xl font-semibold"><%= t("play.nav.standings") %></h2>
 <% end %>
 <% if @tournament.event_participants.present? %>
-  <div class="<%= @standings_in_modal ? "-m-4 md:-m-5" : "-mx-4 overflow-x-auto" %>">
-  <table
-    class="
-      col-span-full w-full text-md text-left rtl:text-right
-      text-ink bg-ground tabular-nums
-    "
-  >
-    <thead
-      class="text-[11px] tracking-wide text-muted uppercase bg-surface"
-    >
+  <div class="<%= @standings_in_modal ? "-m-4 md:-m-5 overflow-x-auto" : "-mx-4 sm:mx-0 rounded-none sm:rounded-2xl bg-surface border-y sm:border border-line shadow-card overflow-clip" %>">
+  <div class="overflow-x-auto">
+  <table class="w-full text-sm text-left rtl:text-right text-ink">
+    <thead class="sticky top-0 z-10 text-[11px] tracking-wide text-muted uppercase bg-surface-raised/95 backdrop-blur border-b border-line-strong">
       <tr>
         <th
           scope="col"
-          class="px-5 py-3 text-center"
+          class="px-4 py-3 text-center"
           data-tooltip-target="tooltip-rank"
         >
           Rank
         </th>
         <th scope="col" class="px-5 py-3">Player</th>
-        <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-points">
+        <th scope="col" class="px-5 py-3 text-right" data-tooltip-target="tooltip-points">
           <%= t("standings.columns.points") %>
         </th>
-        <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-owr">
+        <th scope="col" class="px-5 py-3 text-right" data-tooltip-target="tooltip-owr">
           <%= t("standings.columns.owr") %>
         </th>
-        <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-beaten">
+        <th scope="col" class="px-5 py-3 text-right" data-tooltip-target="tooltip-beaten">
           <%= t("standings.columns.beaten") %>
         </th>
-        <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-unique">
+        <th scope="col" class="px-5 py-3 text-right" data-tooltip-target="tooltip-unique">
           <%= t("standings.columns.unique") %>
         </th>
         <th scope="col" class="px-5 py-3">
           <%= t("standings.columns.seats") %>
         </th>
-        <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-wld">
+        <th scope="col" class="px-5 py-3 text-right" data-tooltip-target="tooltip-wld">
           W-L-D
         </th>
 
@@ -147,7 +141,7 @@
         </div>
       </tr>
     </thead>
-    <tbody id="<%= dom_id(@tournament, :event_participants) %>">
+    <tbody id="<%= dom_id(@tournament, :event_participants) %>" class="divide-y divide-line/60">
       <!-- TODO updated by turbo stream -->
       <% case @tournament.state %>
       <% when 'registration_open', 'registration_closed' %>
@@ -158,6 +152,7 @@
       <% end %>
     </tbody>
   </table>
+  </div>
   </div>
   <%= render "tournaments/standings_help", event: @tournament %>
 <% end %>

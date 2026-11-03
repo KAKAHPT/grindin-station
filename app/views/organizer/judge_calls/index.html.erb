@@ -5,19 +5,19 @@
   </h1>
 <% end %>
 
-<div class="col-span-full p-5 bg-surface border border-line rounded-2xl">
+<div class="col-span-full p-5 bg-surface border border-line rounded-2xl shadow-card">
   <h2 class="mb-2 font-display text-lg font-semibold text-ink"><%= t("organizer.judge_calls.active") %></h2>
-  <ul class="divide-y divide-line">
+  <ul class="divide-y divide-line/60">
     <%= render partial: "judge_call", collection: @active_calls, locals: { tournament: @tournament } %>
   </ul>
   <% if @active_calls.empty? %>
-    <p class="py-3 text-muted"><%= t("organizer.judge_calls.empty") %></p>
+    <p class="py-6 px-4 text-center text-muted border border-dashed border-line rounded-xl"><%= t("organizer.judge_calls.empty") %></p>
   <% end %>
 
   <% if @closed_calls.any? %>
     <details class="mt-4">
       <summary class="cursor-pointer text-sm font-medium text-muted hover:text-ink"><%= t("organizer.judge_calls.closed", count: Organizer::JudgeCallsController::CLOSED_SHOWN) %></summary>
-      <ul class="divide-y divide-line">
+      <ul class="divide-y divide-line/60 text-muted">
         <%= render partial: "judge_call", collection: @closed_calls, locals: { tournament: @tournament } %>
       </ul>
     </details>
