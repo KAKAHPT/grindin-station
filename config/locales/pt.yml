@@ -301,6 +301,7 @@ pt:
   auth:
     continue_with_google: "Continuar com Google"
     continue_with_discord: "Continuar com Discord"
+    email_unverified: "Entra com a tua palavra-passe e depois liga o %{provider} na tua conta."
     oauth_failed: "Não foi possível entrar com essa conta. Tenta novamente ou usa o e-mail e a palavra-passe."
     or: "ou"
   passwords_mailer:

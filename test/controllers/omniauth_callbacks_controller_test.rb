@@ -5,7 +5,8 @@ require "test_helper"
 class OmniauthCallbacksControllerTest < ActionDispatch::IntegrationTest
   setup do
     OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
-      provider: "google_oauth2", uid: "g-123", info: { email: "player1@example.com", name: "Player One" }
+      provider: "google_oauth2", uid: "g-123", info: { email: "player1@example.com", name: "Player One" },
+      extra: { raw_info: { email: "player1@example.com", email_verified: true } }
     )
   end
 
@@ -18,6 +19,18 @@ class OmniauthCallbacksControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_url
     assert cookies[:session_id].present?
     assert_equal users(:player_one), Identity.find_by(uid: "g-123").user
+  end
+
+  test "unverified e-mail of an existing account is refused without a session" do
+    OmniAuth.config.mock_auth[:google_oauth2].extra.raw_info.email_verified = false
+
+    assert_no_difference [-> { Session.count }, -> { Identity.count }] do
+      post "/auth/google_oauth2"
+      follow_redirect!
+    end
+
+    assert_redirected_to new_session_path
+    assert_equal I18n.t("auth.email_unverified", provider: "Google"), flash[:alert]
   end
 
   test "failure redirects to the sign in page with an alert" do

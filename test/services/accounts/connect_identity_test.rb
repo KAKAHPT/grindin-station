@@ -4,8 +4,14 @@ require "test_helper"
 
 module Accounts
   class ConnectIdentityTest < ActiveSupport::TestCase
-    def auth(uid: "g-1", email: "player1@example.com", name: "Player One")
-      OmniAuth::AuthHash.new(provider: "google_oauth2", uid: uid, info: { email: email, name: name })
+    def auth(uid: "g-1", email: "player1@example.com", name: "Player One", verified: true)
+      OmniAuth::AuthHash.new(provider: "google_oauth2", uid: uid, info: { email: email, name: name },
+                             extra: { raw_info: { email: email, email_verified: verified } })
+    end
+
+    def discord_auth(verified:)
+      OmniAuth::AuthHash.new(provider: "discord", uid: "d-1", info: { email: "player1@example.com", name: "p1" },
+                             extra: { raw_info: { email: "player1@example.com", verified: verified } })
     end
 
     test "identidade conhecida devolve o seu user" do
@@ -48,6 +54,31 @@ module Accounts
         assert_equal current, user
         assert_equal current, Identity.find_by(provider: "google_oauth2", uid: "g-1").user
       end
+    end
+
+    test "e-mail não verificado de conta existente recusa sem criar identidade" do
+      assert_no_difference [-> { User.count }, -> { Identity.count }] do
+        assert_raises(ConnectIdentity::UnverifiedEmail) { ConnectIdentity.call(auth: auth(verified: false)) }
+        assert_raises(ConnectIdentity::UnverifiedEmail) { ConnectIdentity.call(auth: discord_auth(verified: false)) }
+      end
+    end
+
+    test "discord verificado liga à conta existente" do
+      assert_equal users(:player_one), ConnectIdentity.call(auth: discord_auth(verified: true))
+    end
+
+    test "e-mail não verificado sem conta existente cria user novo" do
+      assert_difference -> { User.count } => 1, -> { Identity.count } => 1 do
+        user = ConnectIdentity.call(auth: auth(email: "fresh@example.com", verified: false))
+
+        assert_equal "fresh@example.com", user.email_address
+      end
+    end
+
+    test "e-mail não verificado com current_user liga a esse user" do
+      current = users(:player_three)
+
+      assert_equal current, ConnectIdentity.call(auth: auth(verified: false), current_user: current)
     end
   end
 end

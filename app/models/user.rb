@@ -21,9 +21,6 @@ class User < ApplicationRecord
   validates :email_address, presence: true, uniqueness: true
   validates :name, presence: true
 
-  # Accounts deleted through anonymisation (the anonymized_at column arrives in M3 Task 2).
-  scope :anonymized, -> { where.not(anonymized_at: nil) }
-
   def compute_key
     Digest::MD5.hexdigest(email_address + name)
   end

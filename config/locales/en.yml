@@ -301,6 +301,7 @@ en:
   auth:
     continue_with_google: "Continue with Google"
     continue_with_discord: "Continue with Discord"
+    email_unverified: "Sign in with your password, then link %{provider} in your account."
     oauth_failed: "Could not sign you in with that account. Try again or use your e-mail and password."
     or: "or"
   passwords_mailer:
