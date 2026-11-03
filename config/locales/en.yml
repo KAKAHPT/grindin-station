@@ -142,6 +142,7 @@ en:
     submit: "Submit"
     call_judge: "Call a judge"
     judge_called: "Judge called"
+    judge_requested: "Judge requested"
     confirm: "Confirm"
     contest: "Contest"
     contest_reason: "Why do you contest the result?"

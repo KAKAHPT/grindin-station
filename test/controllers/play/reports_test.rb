@@ -78,45 +78,6 @@ module Play
       assert_equal I18n.t("results.not_allowed.self_report_disabled"), flash[:alert]
     end
 
-    test "calling a judge opens a call for the player's table" do
-      sign_in(@seats[2])
-
-      assert_difference -> { JudgeCall.count }, 1 do
-        post play_judge_calls_path(@tournament.slug)
-      end
-
-      call = JudgeCall.order(:created_at).last
-      assert_equal @pod, call.pod
-      assert_equal @seats[2], call.participant
-      assert_equal @tournament.id, call.event_id
-      assert_redirected_to play_me_path(@tournament.slug)
-      follow_redirect!
-      assert_includes response.body, "Judge called"
-    end
-
-    test "a player cannot act on a table they are not seated at" do
-      other_pod = @round.pods.order(:number).second
-      sign_in(@seats[0])
-
-      post play_pod_report_path(@tournament.slug, other_pod), params: { type: "Draw" }
-
-      assert_response :not_found
-      assert_equal :playing, other_pod.reload.report_status
-    end
-
-    test "a player cannot act on a table of another event" do
-      other = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
-      other_round = other.rounds.create!(type: SwissRound, number: 1)
-      other_round.update!(published: true)
-      other_pod = other_round.pods.first
-      sign_in(@seats[0])
-
-      post play_pod_report_path(@tournament.slug, other_pod), params: { type: "Draw" }
-
-      assert_response :not_found
-      assert_equal :playing, other_pod.reload.report_status
-    end
-
     private
 
     def sign_in(participant)

@@ -18,7 +18,6 @@ module Play
       @seatings = @pod.seatings.includes(event_participant: :player)
       @seat = @seatings.find { |s| s.event_participant_id == current_participant.id }.order
       @status = @pod.report_status
-      @judge_called = @pod.open_judge_call?
       @can_report = current_event.self_report_enabled && @status == :playing
       @can_confirm = current_event.self_report_enabled && %i[pending review].include?(@status) &&
                      !@pod.confirmations.key?(current_participant.id) &&

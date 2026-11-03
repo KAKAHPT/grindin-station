@@ -142,6 +142,7 @@ pt:
     submit: "Submeter"
     call_judge: "Chamar um juiz"
     judge_called: "Juiz chamado"
+    judge_requested: "Juiz pedido"
     confirm: "Confirmar"
     contest: "Contestar"
     contest_reason: "Porque contestas o resultado?"
