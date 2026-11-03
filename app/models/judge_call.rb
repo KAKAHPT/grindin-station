@@ -17,6 +17,7 @@ class JudgeCall < ApplicationRecord
   validates :reason, presence: true
   validates :status, inclusion: { in: STATUSES }
   validate :stays_closed, if: -> { status_in_database == "closed" && has_changes_to_save? }
+  validate :acknowledged_from_open, if: -> { acknowledged? && will_save_change_to_acknowledged_at? }
 
   STATUSES.each { |status| define_method(:"#{status}?") { self.status == status } }
 
@@ -31,6 +32,11 @@ class JudgeCall < ApplicationRecord
   end
 
   private
+
+  # Only an open call can be acknowledged (not a second time).
+  def acknowledged_from_open
+    errors.add(:status, :invalid) unless status_in_database == "open"
+  end
 
   # A closed call is final: no reopening, no second close.
   def stays_closed

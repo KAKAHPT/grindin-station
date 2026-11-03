@@ -38,6 +38,14 @@ class JudgeCallTest < ActiveSupport::TestCase
     assert_raises(ActiveRecord::RecordInvalid) { call.close!(by: @judge) }
   end
 
+  test "an acknowledged call cannot be acknowledged again" do
+    call = JudgeCall.create!(event: @tournament, reason: "x")
+    call.acknowledge!(by: @judge)
+
+    assert_raises(ActiveRecord::RecordInvalid) { call.acknowledge!(by: users(:player_one)) }
+    assert_equal @judge, call.reload.acknowledged_by
+  end
+
   test "needs a reason and a known status" do
     assert_not JudgeCall.new(event: @tournament, reason: "").valid?
     assert_not JudgeCall.new(event: @tournament, reason: "x", status: "lost").valid?

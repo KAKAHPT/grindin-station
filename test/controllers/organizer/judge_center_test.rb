@@ -40,6 +40,36 @@ module Organizer
       assert_equal @users["judge"], @call.acknowledged_by
     end
 
+    test "acknowledging an already acknowledged call redirects with an alert" do
+      @call.acknowledge!(by: @users["organizer"])
+      sign_in_as("judge")
+      patch acknowledge_organizer_tournament_judge_call_path(@tournament, @call)
+
+      assert_redirected_to organizer_tournament_judge_calls_path(@tournament)
+      assert_equal I18n.t("flash.alert.judge_call_closed"), flash[:alert]
+      assert_equal @users["organizer"], @call.reload.acknowledged_by
+    end
+
+    test "acting on a closed call redirects with an alert" do
+      @call.close!(by: @users["organizer"])
+      sign_in_as("judge")
+      patch close_organizer_tournament_judge_call_path(@tournament, @call)
+
+      assert_redirected_to organizer_tournament_judge_calls_path(@tournament)
+      assert_equal I18n.t("flash.alert.judge_call_closed"), flash[:alert]
+    end
+
+    test "the organizer index runs no judge call query per tournament" do
+      2.times do
+        JudgeCall.create!(event: TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer)),
+                          reason: "x")
+      end
+      sign_in_as("organizer")
+
+      assert_no_queries_match(/judge_calls/) { get organizer_root_path }
+      assert_response :success
+    end
+
     test "a scorekeeper is turned away" do
       sign_in_as("scorekeeper")
       get organizer_tournament_judge_calls_path(@tournament)

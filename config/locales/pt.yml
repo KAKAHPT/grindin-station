@@ -173,7 +173,7 @@ pt:
       registration_closed: "Inscrições fechadas: o torneio já começou."
       registration_full: "Inscrições esgotadas."
       staff_user_not_found: "Não há nenhum utilizador com esse e-mail. Tem de se registar primeiro."
-      judge_call_closed: "Essa chamada de juiz já está fechada."
+      judge_call_closed: "Essa chamada de juiz já foi tratada."
       not_authorized_circuit: "Não tens permissão para gerir o circuito selecionado"
       not_authorized_league: "Não tens permissão para gerir a liga selecionada"
       not_authorized_tournament: "Não tens permissão para gerir o torneio selecionado"

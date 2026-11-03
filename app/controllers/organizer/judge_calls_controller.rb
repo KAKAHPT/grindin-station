@@ -25,11 +25,10 @@ module Organizer
     private
 
     def transition(event, notice)
-      call = load_call
-      return redirect_to(judge_center_path, alert: t("flash.alert.judge_call_closed")) if call.closed?
-
-      call.public_send(event, by: current_user)
+      load_call.public_send(event, by: current_user)
       redirect_to judge_center_path, notice: t(notice)
+    rescue ActiveRecord::RecordInvalid
+      redirect_to judge_center_path, alert: t("flash.alert.judge_call_closed")
     end
 
     def load_call
