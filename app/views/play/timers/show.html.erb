@@ -1,0 +1,12 @@
+<p class="event"><%= @event.name %></p>
+<% if @round&.started_at && @round.finished_at.nil? %>
+  <h1 class="round"><%= @round.display_name %></h1>
+  <p class="clock" data-controller="big-timer"
+     data-big-timer-started-at-value="<%= @round.started_at.iso8601(3) %>"
+     data-big-timer-minutes-value="<%= @minutes %>"></p>
+<% elsif @round&.finished_at %>
+  <h1 class="round"><%= @round.display_name %></h1>
+  <p class="clock"><%= t("timer.closed") %></p>
+<% else %>
+  <p class="clock" style="font-size: 8vh"><%= t("timer.waiting") %></p>
+<% end %>

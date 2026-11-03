@@ -151,6 +151,9 @@ en:
       confirmed: "Result confirmed."
       contested: "Result contested. A judge has been called."
       judge_called: "A judge has been called."
+  timer:
+    waiting: "Waiting for the next round"
+    closed: "Round closed"
   results:
     timeout_confirm: "Time called: the table is decided by the event's time rule. Continue?"
     timeout_applied:

@@ -151,6 +151,9 @@ pt:
       confirmed: "Resultado confirmado."
       contested: "Resultado contestado. Foi chamado um juiz."
       judge_called: "Foi chamado um juiz."
+  timer:
+    waiting: "À espera da próxima ronda"
+    closed: "Ronda fechada"
   results:
     timeout_confirm: "Tempo chamado: a mesa é decidida pela regra de tempo do evento. Continuar?"
     timeout_applied:
