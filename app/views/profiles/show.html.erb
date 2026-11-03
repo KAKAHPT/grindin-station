@@ -1,0 +1,39 @@
+<% content_for :title, @user.display_name %>
+<section class="p-5 rounded-2xl bg-surface border border-line shadow-raised">
+  <div class="flex items-center gap-4">
+    <% if @user.avatar.attached? %>
+      <%= image_tag url_for(@user.avatar.variant(:thumb)), alt: "", class: "size-16 shrink-0 rounded-full object-cover border border-line" %>
+    <% else %>
+      <span data-profile-initials aria-hidden="true"
+            class="inline-flex size-16 shrink-0 items-center justify-center rounded-full bg-surface-raised border border-line font-display text-xl font-semibold text-muted"><%= profile_initials(@user) %></span>
+    <% end %>
+    <div class="min-w-0 flex-1">
+      <h1 class="font-display text-xl font-semibold truncate"><%= @user.display_name %></h1>
+      <p class="text-sm text-muted truncate">@<%= @user.handle %></p>
+      <% if @user.country.present? %>
+        <p data-profile-country class="text-sm text-muted"><%= country_name(@user.country) %></p>
+      <% end %>
+    </div>
+    <button type="button" disabled title="<%= t("profiles.coming_soon") %>"
+            class="shrink-0 px-3 py-1.5 rounded-lg border border-line text-sm text-muted opacity-60 cursor-not-allowed"><%= t("profiles.follow") %></button>
+  </div>
+  <% if @user.bio.present? %>
+    <div data-profile-bio class="mt-4 text-sm text-ink/90 space-y-2 break-words"><%= simple_format(@user.bio) %></div>
+  <% end %>
+</section>
+
+<section class="mt-6">
+  <h2 class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted"><%= t("profiles.events") %></h2>
+  <% if @history.any? %>
+    <ol class="divide-y divide-line/60 rounded-2xl bg-surface border border-line">
+      <%= render partial: "profiles/event_row", collection: @history, as: :row %>
+    </ol>
+  <% else %>
+    <p class="p-4 rounded-2xl bg-surface border border-line text-sm text-muted"><%= t("profiles.no_events") %></p>
+  <% end %>
+</section>
+
+<section data-profile-comments class="mt-6 p-4 rounded-2xl border border-dashed border-line text-sm text-muted">
+  <h2 class="mb-1 text-[11px] font-semibold uppercase tracking-wide"><%= t("profiles.comments") %></h2>
+  <p><%= t("profiles.comments_soon") %></p>
+</section>

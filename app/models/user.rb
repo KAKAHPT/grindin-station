@@ -51,6 +51,16 @@ class User < ApplicationRecord
     password_set || identities.size > 1
   end
 
+  # public: anyone; participants: the user or a signed-in player of one of their events; private: the user only.
+  def profile_visible_to?(viewer)
+    return false if anonymized?
+    return true if visibility == "public"
+    return false if viewer.nil?
+    return true if viewer.id == id
+
+    visibility == "participants" && shares_event_with?(viewer)
+  end
+
   def display_name
     anonymized? ? I18n.t("accounts.removed_player") : name
   end
@@ -102,6 +112,11 @@ class User < ApplicationRecord
     suffix = 1
     candidate = "#{base}-#{suffix += 1}" while User.exists?(handle: candidate)
     self.handle = candidate
+  end
+
+  def shares_event_with?(other)
+    events_of = ->(user) { EventParticipant.joins(:player).where(players: { user_id: user.id }).select(:event_id) }
+    events_of.call(other).exists?(event_id: events_of.call(self))
   end
 
   def avatar_type_and_size

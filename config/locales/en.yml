@@ -55,6 +55,7 @@ en:
         confirmation_timeout_minutes: "Confirmation timeout (minutes)"
         waitlist_enabled: "Waitlist when full"
         show_commanders_in_standings: "Show commanders in standings"
+        show_decklists: "Show decklists on player profiles"
         top_cut_timeout_rule: "If a top cut game times out"
       event_participant:
         accepted_terms: "I have read and accepted the rules for this event."
@@ -355,3 +356,29 @@ en:
   passwords_mailer:
     reset:
       subject: "Reset your password"
+  profiles:
+    sign_in: "Sign in"
+    follow: "Follow"
+    coming_soon: "Coming soon"
+    events: "Events"
+    no_events: "No finished events yet."
+    position: "%{ordinal} of %{total}"
+    decklist: "Decklist"
+    comments: "Comments"
+    comments_soon: "Comments are coming soon."
+    countries:
+      PT: "Portugal"
+      ES: "Spain"
+      BR: "Brazil"
+      FR: "France"
+      GB: "United Kingdom"
+      US: "United States"
+      DE: "Germany"
+      IT: "Italy"
+      NL: "Netherlands"
+      BE: "Belgium"
+      IE: "Ireland"
+      CH: "Switzerland"
+      AO: "Angola"
+      MZ: "Mozambique"
+      CV: "Cape Verde"

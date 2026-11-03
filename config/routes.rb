@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   resources :registrations, only: %i[new create]
   resource :account, only: %i[show update destroy]
   delete "/account/identities/:id" => "accounts#unlink_identity", as: :unlink_identity
+  get "/p/:handle", to: "profiles#show", as: :profile, constraints: { handle: /[a-z0-9-]+/ }
 
   resources :tournaments, only: %i[index show] do
     resources :rounds do

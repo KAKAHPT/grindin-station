@@ -27,6 +27,19 @@ module Play
       assert_select "nav[data-play-nav]"
     end
 
+    test "the header links the player's own name to a public profile only" do
+      user = @me.player.user
+      sign_in(@me)
+
+      get play_me_path(@tournament.slug)
+      assert_select "[data-play-player] a[href=?]", profile_path(user.handle), text: user.name
+
+      user.update!(visibility: "private")
+      get play_me_path(@tournament.slug)
+      assert_select "[data-play-player] a", count: 0
+      assert_select "[data-play-player]", text: user.name
+    end
+
     test "commanders show only when the event allows it" do
       @me.update!(decklist: "Kinnan, Bonder Prodigy")
       sign_in(@me)

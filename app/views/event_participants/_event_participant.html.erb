@@ -14,7 +14,7 @@
     data-tooltip-target="tooltip-<%= event_participant.id %>"
     class="<%= pad %> py-0.5 font-semibold text-ink whitespace-nowrap"
   >
-    <span class="<%= "block max-w-[7.5rem] truncate @lg:max-w-none" if local_assigns[:wide_only].present? %>"><%= truncate(event_participant.name) %></span>
+    <span class="<%= "block max-w-[7.5rem] truncate @lg:max-w-none" if local_assigns[:wide_only].present? %>"><%= profile_link(event_participant.player.user, truncate(event_participant.name)) %></span>
   </th>
   <% columns = event_participant.standing_columns %>
   <td class="<%= pad %> py-0.5 tabular text-right font-display text-[12px] font-semibold text-accent"><%= columns[:points] %></td>

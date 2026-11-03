@@ -14,7 +14,10 @@
   </head>
   <body class="min-h-screen bg-ground text-ink font-body antialiased">
     <header class="sticky top-0 z-20 px-4 py-3 border-b border-line bg-surface/90 backdrop-blur shadow-card">
-      <p class="text-[11px] font-semibold uppercase tracking-wide text-muted"><%= t("app.name") %></p>
+      <div class="flex items-baseline justify-between gap-3">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-muted"><%= t("app.name") %></p>
+        <p data-play-player class="text-xs text-muted truncate"><%= profile_link(current_user) %></p>
+      </div>
       <h1 class="font-display text-lg font-semibold truncate"><%= current_event.name %></h1>
     </header>
 

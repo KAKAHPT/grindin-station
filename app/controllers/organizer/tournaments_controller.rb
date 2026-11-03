@@ -88,6 +88,7 @@ module Organizer
                       confirmation_timeout_minutes
                       waitlist_enabled
                       show_commanders_in_standings
+                      show_decklists
                       top_cut_timeout_rule
                     ])
     end
