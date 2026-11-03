@@ -2,8 +2,10 @@
 
 module Organizer
   class RoundsController < OrganizerController
-    allow_roles :organizer, :judge, :scorekeeper, only: :show
-    allow_roles :organizer, except: :show
+    allow_roles :organizer, :judge, :scorekeeper, only: %i[show print slips]
+    allow_roles :organizer, except: %i[show print slips]
+
+    layout "print", only: %i[print slips]
 
     def show
       event = load_tournament
@@ -13,6 +15,14 @@ module Organizer
       return if params[:query].blank?
 
       @users_map.filter! { |_, v| v[:name].downcase.include?(params[:query].downcase) }
+    end
+
+    def print
+      load_printable
+    end
+
+    def slips
+      load_printable
     end
 
     def update
@@ -47,6 +57,12 @@ module Organizer
     end
 
     private
+
+    def load_printable
+      @event = load_tournament
+      @round = load_round(@event)
+      @pods = @round.pods.order(:number).preload(seatings: { event_participant: { player: :user } })
+    end
 
     def load_pairings
       @pods = load_pods(@round)

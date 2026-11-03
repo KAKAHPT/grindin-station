@@ -1,0 +1,12 @@
+<ol class="seats">
+  <% pod.seatings.sort_by(&:order).each do |seating| %>
+    <% participant = seating.event_participant %>
+    <li>
+      <span class="seat-no"><%= seating.order %></span>
+      <span class="seat-name"><%= participant.name %></span>
+      <% if event.show_commanders_in_standings && participant.decklist.present? %>
+        <span class="seat-commander"><%= participant.decklist %></span>
+      <% end %>
+    </li>
+  <% end %>
+</ol>

@@ -1,0 +1,26 @@
+body.print-page { background: #fff; color: #000; font-family: system-ui, sans-serif; margin: 0; padding: 12mm; }
+.print-heading h1 { font-size: 20pt; margin: 0; }
+.print-heading p { margin: 2pt 0; }
+.print-heading .generated { font-size: 9pt; color: #444; }
+.table-group { columns: 2; column-gap: 10mm; margin-top: 6mm; }
+.table { break-inside: avoid; border: 1px solid #000; padding: 3mm; margin-bottom: 4mm; }
+.table h2, .slip h2 { font-size: 13pt; margin: 0 0 2mm; }
+.seats { list-style: none; margin: 0; padding: 0; font-size: 10pt; }
+.seats li { display: flex; flex-wrap: wrap; gap: 2mm; padding: 0.5mm 0; }
+.seat-no { width: 5mm; font-weight: 700; }
+.seat-commander { flex-basis: 100%; padding-left: 7mm; font-size: 8pt; color: #333; }
+.slip-page { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 1fr); gap: 4mm; }
+.slip { border: 1px dashed #000; padding: 4mm; break-inside: avoid; display: flex; flex-direction: column; }
+.slip-round { font-size: 8pt; margin: 0 0 2mm; color: #333; }
+.qr { width: 28mm; margin: 3mm auto 1mm; }
+.qr svg { width: 100%; height: auto; }
+.slip-url { font-size: 7pt; text-align: center; margin: 0; word-break: break-all; }
+
+@media print {
+  @page { size: A4; margin: 12mm; }
+  body.print-page { padding: 0; }
+  .table-group { break-after: page; page-break-after: always; }
+  .table-group:last-child { break-after: auto; page-break-after: auto; }
+  .slip-page { height: 270mm; break-after: page; page-break-after: always; }
+  .slip-page:last-child { break-after: auto; page-break-after: auto; }
+}

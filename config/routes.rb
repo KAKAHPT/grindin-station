@@ -63,6 +63,10 @@ Rails.application.routes.draw do
         resources :infractions, only: %i[index destroy]
       end
       resources :rounds do
+        member do
+          get :print
+          get :slips
+        end
         resources :seatings, only: [] do
           patch :swap, on: :collection
         end
@@ -82,6 +86,10 @@ Rails.application.routes.draw do
         resources :infractions, only: %i[index destroy]
       end
       resources :rounds do
+        member do
+          get :print
+          get :slips
+        end
         resources :seatings, only: [] do
           patch :swap, on: :collection
         end

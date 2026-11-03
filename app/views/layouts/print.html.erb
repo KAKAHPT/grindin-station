@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+  <head>
+    <title><%= @event.name %> · <%= @round.display_name %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "print", media: "all" %>
+  </head>
+  <body class="print-page">
+    <%= yield %>
+  </body>
+</html>

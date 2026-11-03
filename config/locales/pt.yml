@@ -173,6 +173,13 @@ pt:
       nothing_to_contest: "Ainda não há resultado para contestar."
       reason_required: "Indica porque contestas o resultado."
   rounds:
+    print:
+      pairings_link: "Imprimir emparelhamentos"
+      slips_link: "Imprimir slips"
+      table: "Mesa"
+      generated_at: "Gerado em"
+      pairings_title: "Emparelhamentos"
+      slips_title: "Slips de mesa"
     close: "Fechar ronda"
     closed: "Ronda fechada."
     cannot_close: "A ronda ainda não pode ser fechada: as mesas %{tables} não têm resultado, estão em disputa ou têm um juiz chamado."
