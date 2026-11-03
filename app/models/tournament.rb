@@ -31,9 +31,6 @@ class Tournament < Event
     canceled: [:canceled]
   }.with_indifferent_access.freeze
 
-  # States from which the top cut must fit the field (players can no longer register).
-  TOP_CUT_CHECKED_STATES = %w[registration_closed swiss single_elimination finished].freeze
-
   validates :top_cut_size, inclusion: { in: [0] + Tournaments::TopCut::SIZES }, allow_nil: true
   validates :swiss_rounds_count, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_nil: true
   validates :round_minutes, :top_cut_round_minutes, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
@@ -124,7 +121,7 @@ class Tournament < Event
   end
 
   def top_cut_fits_the_field
-    return unless top_cut_size.to_i.positive? && TOP_CUT_CHECKED_STATES.include?(state)
+    return unless top_cut_size.to_i.positive? && top_cut_checked?
     return unless Tournaments::TopCut::SIZES.include?(top_cut_size)
 
     participants = playing_participants_count
@@ -132,4 +129,8 @@ class Tournament < Event
 
     errors.add(:top_cut_size, :too_big)
   end
+
+  # The cut must fit the playing field while registration is closed and when the swiss starts; once it is
+  # running the structure is locked, so later drops must not make the record invalid.
+  def top_cut_checked? = registration_closed? || (swiss? && will_save_change_to_state?)
 end

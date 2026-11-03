@@ -243,6 +243,32 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
                     I18n.t("activerecord.errors.models.event.attributes.top_cut_size.too_big")
   end
 
+  test "drops after the swiss started do not lock the tournament behind the top cut check" do
+    tournament = TournamentBuilder.build(players: 17, organizer: event_organizers(:standard_organizer),
+                                         state: :registration_closed)
+    tournament.update!(top_cut_size: 16)
+    tournament.update!(state: :swiss)
+    tournament.event_participants.first(2).each { |p| p.update_columns(dropped: true) } # rubocop:disable Rails/SkipsModelValidations
+    tournament.reload
+
+    assert tournament.valid?, tournament.errors.full_messages.to_sentence
+    tournament.update!(description: "x")
+    tournament.update!(state: :finished)
+    assert tournament.reload.finished?
+  end
+
+  test "the cut must fit the playing field when the swiss starts" do
+    tournament = TournamentBuilder.build(players: 17, organizer: event_organizers(:standard_organizer),
+                                         state: :registration_closed)
+    tournament.update!(top_cut_size: 16)
+    tournament.event_participants.first(2).each { |p| p.update_columns(dropped: true) } # rubocop:disable Rails/SkipsModelValidations
+    tournament.reload
+
+    assert_not tournament.update(state: :swiss)
+    assert_includes tournament.errors[:top_cut_size],
+                    I18n.t("activerecord.errors.models.event.attributes.top_cut_size.too_big")
+  end
+
   # ===== VALIDATION TESTS =====
 
   test "requires name, start_time, end_time and event_organizer" do
