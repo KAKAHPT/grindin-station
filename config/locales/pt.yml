@@ -72,6 +72,32 @@ pt:
         organizer: "Organizador"
         judge: "Juiz"
         scorekeeper: "Scorekeeper"
+    roster:
+      all: "Todos"
+      statuses:
+        enrolled: "Inscritos"
+        checked_in: "Check-in feito"
+        waitlisted: "Lista de espera"
+        dropped: "Desistências"
+      columns:
+        check_in: "Check-in"
+        paid: "Pago"
+        waitlist: "Lista de espera"
+        drop_reason: "Desistiu"
+      drop_reasons:
+        drop: "Desistência"
+        no_show: "Não compareceu"
+      check_in: "Check-in"
+      undo_check_in: "Anular check-in"
+      mark_paid: "Pago"
+      mark_unpaid: "Anular pagamento"
+      drop: "Desistir"
+      no_show: "Não compareceu"
+      undo_drop: "Anular desistência"
+      promote: "Promover"
+      confirm_drop: "Retirar %{name} do torneio?"
+      confirm_no_show: "Marcar %{name} como não comparecido?"
+      confirm_undo_drop: "Voltar a inscrever %{name}?"
   standings:
     columns:
       points: "Pts"
@@ -92,6 +118,9 @@ pt:
       next: "Seguinte"
   flash:
     notice:
+      registration_waitlisted: "O evento está cheio: estás em %{position}.º lugar na lista de espera."
+      participant_dropped: "%{name} desistiu!"
+      participant_promoted: "%{name} saiu da lista de espera!"
       staff_added: "%{name} adicionado ao staff."
       staff_removed: "Removido do staff."
       registration_successful: "Inscrição concluída com sucesso!"
@@ -118,6 +147,8 @@ pt:
       signed_in: "Iniciaste sessão."
       signed_out: "Terminaste a sessão."
     alert:
+      registration_closed: "Inscrições fechadas: o torneio já começou."
+      registration_full: "Inscrições esgotadas."
       staff_user_not_found: "Não há nenhum utilizador com esse e-mail. Tem de se registar primeiro."
       not_authorized_circuit: "Não tens permissão para gerir o circuito selecionado"
       not_authorized_league: "Não tens permissão para gerir a liga selecionada"

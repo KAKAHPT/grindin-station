@@ -3,7 +3,7 @@
 # Model representing a round in the tournament
 class Round < ApplicationRecord
   belongs_to :event, counter_cache: true
-  has_many :event_participants, -> { playing.not_eliminated }, through: :event
+  has_many :event_participants, -> { enrolled.not_eliminated }, through: :event
   has_many :pods, dependent: :destroy
   has_many :seatings, through: :pods
   has_many :results, dependent: :destroy

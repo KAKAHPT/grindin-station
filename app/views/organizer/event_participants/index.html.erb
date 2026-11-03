@@ -121,11 +121,22 @@
     <% end %>
   </h1>
 
+  <div class="flex flex-wrap gap-4 pt-2 text-sm text-gray-700 dark:text-gray-300">
+    <%= link_to t("organizer.roster.all"), [:organizer, @event, :event_participants, { layout: "application", query: params[:query] }], class: params[:status].blank? ? "font-semibold underline" : "hover:underline" %>
+    <% Organizer::EventParticipantsController::STATUSES.each do |status| %>
+      <%= link_to [:organizer, @event, :event_participants, { layout: "application", status: status, query: params[:query] }], class: params[:status] == status ? "font-semibold underline" : "hover:underline" do %>
+        <%= t("organizer.roster.statuses.#{status}") %>
+        <span id="roster_count_<%= status %>" class="ms-1 px-2 rounded-full bg-gray-200 dark:bg-gray-700"><%= @roster_counts[status.to_sym] %></span>
+      <% end %>
+    <% end %>
+  </div>
+
   <div class="pt-2">
     <label for="table-search" class="sr-only">Search</label>
     <div class="relative mt-1">
       <%= form_tag [:organizer, @event, :event_participants], data: { turbo_frame: "player_list" }, method: "get", remote: true do %>
         <%= hidden_field_tag :layout, "application" %>
+        <%= hidden_field_tag :status, params[:status] if params[:status].present? %>
         <div
           class="
             absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3
@@ -305,6 +316,10 @@
           </div>
         <% end %>
         <% if @layout_mode == "application" %>
+          <th scope="col" class="px-5 py-3"><%= t("organizer.roster.columns.check_in") %></th>
+          <th scope="col" class="px-5 py-3"><%= t("organizer.roster.columns.paid") %></th>
+          <th scope="col" class="px-5 py-3"><%= t("organizer.roster.columns.waitlist") %></th>
+          <th scope="col" class="px-5 py-3"><%= t("organizer.roster.columns.drop_reason") %></th>
           <th scope="col" class="px-5 py-3">
             Infractions
           </th>

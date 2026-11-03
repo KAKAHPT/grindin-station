@@ -25,7 +25,12 @@ class EventParticipant < ApplicationRecord
     }, class_name: "EventParticipant", through: :pods, source: :event_participants
   )
 
+  DROP_REASONS = %w[drop no_show].freeze
+
   scope :playing, -> { where(dropped: false) }
+  # Playing and holding a place: counted against the cap and paired.
+  scope :enrolled, -> { playing.where(waitlisted: false) }
+  scope :waitlist, -> { playing.where(waitlisted: true).order(:waitlist_position) }
   scope :not_eliminated, lambda {
     where(
       <<~SQL.squish
@@ -43,6 +48,7 @@ class EventParticipant < ApplicationRecord
   attribute :player_email, :string
   attribute :player_name, :string
   attribute :accepted_terms, :boolean, default: false
+  validates :drop_reason, inclusion: { in: DROP_REASONS }, allow_nil: true
   validate on: :create do
     errors.add(:accepted_terms, "Must accept the terms and conditions") unless accepted_terms?
   end
@@ -62,6 +68,8 @@ class EventParticipant < ApplicationRecord
   delegate :name, to: :player
 
   before_save :reset_rank_score_cache, if: -> { league_score_previously_changed? }
+  before_save :stamp_check_in, if: -> { checked_in_changed? }
+  before_save :stamp_drop, if: -> { dropped_changed? }
   after_update :rebuild_round, if: -> { dropped_previously_changed? }
 
   def initialize(attributes = nil)
@@ -75,6 +83,25 @@ class EventParticipant < ApplicationRecord
 
   def playing?
     !dropped
+  end
+
+  def enrolled?
+    playing? && !waitlisted?
+  end
+
+  # Roster filter states: enrolled, checked_in, waitlisted, dropped.
+  def roster_status?(status)
+    case status
+    when "enrolled" then enrolled?
+    when "checked_in" then enrolled? && checked_in?
+    when "waitlisted" then playing? && waitlisted?
+    when "dropped" then dropped?
+    end
+  end
+
+  # Takes a place off the waitlist (the caller renumbers the rest).
+  def promote!
+    update!(waitlisted: false, waitlist_position: nil)
   end
 
   def obfuscated_key
@@ -201,6 +228,20 @@ class EventParticipant < ApplicationRecord
   end
 
   private
+
+  def stamp_check_in
+    self.checked_in_at = checked_in ? Time.current : nil
+  end
+
+  def stamp_drop
+    if dropped
+      self.dropped_at ||= Time.current
+      self.drop_reason ||= "drop"
+    else
+      self.dropped_at = nil
+      self.drop_reason = nil
+    end
+  end
 
   def reset_rank_score_cache
     @rank_score = nil

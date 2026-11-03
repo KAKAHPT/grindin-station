@@ -53,6 +53,10 @@
     </td>
   <% end %>
   <% if @layout_mode == "application" %>
+    <td class="px-5 py-3"><%= event_participant.checked_in_at ? l(event_participant.checked_in_at, format: "%H:%M") : "-" %></td>
+    <td class="px-5 py-3"><%= event_participant.paid? ? icon("check") : "-" %></td>
+    <td class="px-5 py-3"><%= event_participant.waitlisted? && event_participant.playing? ? event_participant.waitlist_position : "-" %></td>
+    <td class="px-5 py-3"><%= event_participant.dropped? ? t("organizer.roster.drop_reasons.#{event_participant.drop_reason || 'drop'}") : "-" %></td>
     <td scope="col" class="px-5 py-3">
       <% if event_participant.number_of_infractions > 0 %>
         <%= link_to [:organizer, event_participant.event, event_participant, :infractions], data: { turbo_frame: "modal" }, class: "inline-flex items-center px-5 py-2.5 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" do %>
@@ -79,39 +83,49 @@
         <% end %>
 
         <% if event_participant.playing? %>
-          <%= button_to [:organizer, @event, event_participant], params: { event_participant: { dropped: true } }, data: { turbo_confirm: "Are you sure you wish to drop #{event_participant.name}?" }, class: "text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900" do %>
+          <% if event_participant.waitlisted? && !@event.points_locked? %>
+            <%= button_to [:promote, :organizer, @event, event_participant], method: :patch, class: "text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-900" do %>
+              <%= icon("arrow-up", class: "me-2") %>
+              <%= t("organizer.roster.promote") %>
+            <% end %>
+          <% end %>
+          <%= button_to [:drop, :organizer, @event, event_participant], method: :patch, params: { reason: "drop" }, data: { turbo_confirm: t("organizer.roster.confirm_drop", name: event_participant.name) }, class: "text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900" do %>
             <%= icon("user-minus", class: "me-2") %>
-            Drop
+            <%= t("organizer.roster.drop") %>
+          <% end %>
+          <%= button_to [:drop, :organizer, @event, event_participant], method: :patch, params: { reason: "no_show" }, data: { turbo_confirm: t("organizer.roster.confirm_no_show", name: event_participant.name) }, class: "text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900" do %>
+            <%= icon("prohibit", class: "me-2") %>
+            <%= t("organizer.roster.no_show") %>
           <% end %>
         <% else %>
-          <%= button_to [:organizer, @event, event_participant], params: { event_participant: { dropped: false } }, data: { turbo_confirm: "Are you sure you wish to re-enroll #{event_participant.name}?" }, class: "text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-900" do %>
+          <%= button_to [:organizer, @event, event_participant], method: :patch, params: { event_participant: { dropped: false } }, data: { turbo_confirm: t("organizer.roster.confirm_undo_drop", name: event_participant.name) }, class: "text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-900" do %>
             <%= icon("user-plus", class: "me-2") %>
-            Undo Drop
+            <%= t("organizer.roster.undo_drop") %>
           <% end %>
         <% end %>
         <% end %>
 
         <% if event_participant.checked_in? %>
-          <%= button_to [:organizer, @event, event_participant], params: { event_participant: { checked_in: false } }, class: "text-white bg-gray-700 hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-900" do %>
+          <%= button_to [:undo_check_in, :organizer, @event, event_participant], method: :patch, class: "text-white bg-gray-700 hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-900" do %>
             <%= icon("x", class: "me-2") %>
-            Undo Check-in
+            <%= t("organizer.roster.undo_check_in") %>
           <% end %>
         <% else %>
-          <%= button_to [:organizer, @event, event_participant], params: { event_participant: { checked_in: true } }, class: "text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-900" do %>
+          <%= button_to [:check_in, :organizer, @event, event_participant], method: :patch, class: "text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-900" do %>
             <%= icon("check", class: "me-2") %>
-            Check-in
+            <%= t("organizer.roster.check_in") %>
           <% end %>
         <% end %>
 
         <% if event_participant.paid? %>
-          <%= button_to [:organizer, @event, event_participant], params: { event_participant: { paid: false } }, class: "text-white bg-gray-700 hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-900" do %>
+          <%= button_to [:mark_unpaid, :organizer, @event, event_participant], method: :patch, class: "text-white bg-gray-700 hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-900" do %>
             <%= icon("x", class: "me-2") %>
-            Undo Paid
+            <%= t("organizer.roster.mark_unpaid") %>
           <% end %>
         <% else %>
-          <%= button_to [:organizer, @event, event_participant], params: { event_participant: { paid: true } }, class: "text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-900" do %>
+          <%= button_to [:mark_paid, :organizer, @event, event_participant], method: :patch, class: "text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-900" do %>
             <%= icon("check", class: "me-2") %>
-            Paid
+            <%= t("organizer.roster.mark_paid") %>
           <% end %>
         <% end %>
       </div>

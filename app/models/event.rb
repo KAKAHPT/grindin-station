@@ -53,9 +53,23 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
     UNLOCKED_POINTS_STATES.exclude?(state)
   end
 
-  # Registered players who have not dropped (from the loaded association when there is one).
+  # Registered players who have not dropped and are off the waitlist (from the loaded association when there is one).
   def playing_participants_count
-    event_participants.loaded? ? event_participants.count(&:playing?) : event_participants.playing.count
+    event_participants.loaded? ? event_participants.count(&:enrolled?) : event_participants.enrolled.count
+  end
+
+  def promote_from_waitlist!(participant)
+    with_lock do
+      participant.promote!
+      renumber_waitlist!
+    end
+  end
+
+  # Closes the gaps in the waitlist positions: 1, 2, 3...
+  def renumber_waitlist!
+    event_participants.waitlist.each.with_index(1) do |participant, position|
+      participant.update!(waitlist_position: position) unless participant.waitlist_position == position
+    end
   end
 
   def available_states
@@ -100,12 +114,12 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
     participants_range&.begin || 0
   end
 
+  # Postgres stores int4range canonically as [min, max + 1), so a read-back range excludes its end.
   def maximum_participants
-    if participants_range&.end == Float::INFINITY || participants_range&.end.nil?
-      Float::INFINITY
-    else
-      participants_range&.end
-    end
+    range_end = participants_range&.end
+    return Float::INFINITY if range_end.nil? || range_end == Float::INFINITY
+
+    participants_range.exclude_end? ? range_end - 1 : range_end
   end
 
   def name_with_dates

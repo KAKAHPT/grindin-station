@@ -39,6 +39,9 @@ Rails.application.routes.draw do
       resources :staff, only: %i[index create destroy]
       resources :infractions, only: %i[new create]
       resources :event_participants do
+        member do
+          %i[check_in undo_check_in mark_paid mark_unpaid drop promote].each { |action| patch action }
+        end
         resources :infractions, only: %i[index destroy]
       end
       resources :rounds do

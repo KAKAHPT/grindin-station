@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
 module Organizer
-  class EventParticipantsController < OrganizerController
+  class EventParticipantsController < OrganizerController # rubocop:disable Metrics/ClassLength
     layout "modal"
+    DESK_ACTIONS = %i[update check_in undo_check_in mark_paid mark_unpaid].freeze
+    STATUSES = %w[enrolled checked_in waitlisted dropped].freeze
+
     allow_roles :organizer, :judge, :scorekeeper, only: :index
-    allow_roles :organizer, :scorekeeper, only: :update
-    allow_roles :organizer, except: %i[index update]
+    allow_roles :organizer, :scorekeeper, only: DESK_ACTIONS
+    allow_roles :organizer, except: [:index, *DESK_ACTIONS]
 
     SCOREKEEPER_ATTRIBUTES = %w[checked_in paid].freeze
 
@@ -34,6 +37,9 @@ module Organizer
         end
       end
 
+      @roster_counts = roster_counts(@event)
+      @event_participants = filter_by_status(@event_participants)
+
       if params[:query].present?
         @event_participants =
           @event_participants.select do |p|
@@ -54,6 +60,10 @@ module Organizer
 
     def create
       @event_participant = EventParticipant.new(event: load_tournament)
+      if @event_participant.event.points_locked?
+        return redirect_to roster_path(@event_participant.event), alert: t("flash.alert.registration_closed")
+      end
+
       @event_participant.attributes = event_participant_params
 
       if @event_participant.save
@@ -74,9 +84,53 @@ module Organizer
                   notice: "#{@event_participant.name} #{@event_participant.dropped? ? 'dropped' : 'updated'}!"
     end
 
+    def check_in = desk_update(checked_in: true)
+    def undo_check_in = desk_update(checked_in: false)
+    def mark_paid = desk_update(paid: true)
+    def mark_unpaid = desk_update(paid: false)
+
+    def drop
+      @event = load_tournament
+      participant = load_event_participant(@event)
+      Registrations::Drop.call(participant: participant, by: current_user,
+                               reason: params[:reason] == "no_show" ? "no_show" : "drop")
+      redirect_to roster_path(@event), notice: t("flash.notice.participant_dropped", name: participant.name)
+    end
+
+    def promote
+      @event = load_tournament
+      participant = load_event_participant(@event)
+      return redirect_to roster_path(@event), alert: t("flash.alert.registration_closed") if @event.points_locked?
+
+      @event.promote_from_waitlist!(participant)
+      redirect_to roster_path(@event), notice: t("flash.notice.participant_promoted", name: participant.name)
+    end
+
     def destroy; end
 
     private
+
+    def desk_update(attributes)
+      @event = load_tournament
+      participant = load_event_participant(@event)
+      participant.update!(attributes)
+      redirect_to roster_path(@event), notice: t("flash.notice.update_successful")
+    end
+
+    def roster_path(event)
+      [:organizer, event, :event_participants, { layout: "application" }]
+    end
+
+    def roster_counts(event)
+      participants = event.event_participants.to_a
+      STATUSES.index_with { |status| participants.count { |p| p.roster_status?(status) } }.symbolize_keys
+    end
+
+    def filter_by_status(participants)
+      return participants unless STATUSES.include?(params[:status])
+
+      participants.select { |p| p.roster_status?(params[:status]) }
+    end
 
     def load_tournament
       Tournament.staffed_by(current_user).find params[:tournament_id]

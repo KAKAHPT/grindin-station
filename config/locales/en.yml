@@ -72,6 +72,32 @@ en:
         organizer: "Organizer"
         judge: "Judge"
         scorekeeper: "Scorekeeper"
+    roster:
+      all: "All"
+      statuses:
+        enrolled: "Enrolled"
+        checked_in: "Checked in"
+        waitlisted: "Waitlist"
+        dropped: "Dropped"
+      columns:
+        check_in: "Check-in"
+        paid: "Paid"
+        waitlist: "Waitlist"
+        drop_reason: "Dropped"
+      drop_reasons:
+        drop: "Drop"
+        no_show: "No-show"
+      check_in: "Check-in"
+      undo_check_in: "Undo Check-in"
+      mark_paid: "Paid"
+      mark_unpaid: "Undo Paid"
+      drop: "Drop"
+      no_show: "No-show"
+      undo_drop: "Undo Drop"
+      promote: "Promote"
+      confirm_drop: "Drop %{name}?"
+      confirm_no_show: "Mark %{name} as a no-show?"
+      confirm_undo_drop: "Re-enroll %{name}?"
   standings:
     columns:
       points: "Pts"
@@ -92,6 +118,9 @@ en:
       next: "Next"
   flash:
     notice:
+      registration_waitlisted: "The event is full: you are number %{position} on the waitlist."
+      participant_dropped: "%{name} dropped!"
+      participant_promoted: "%{name} promoted from the waitlist!"
       staff_added: "%{name} added to the staff."
       staff_removed: "Removed from the staff."
       registration_successful: "Registration successful!"
@@ -118,6 +147,8 @@ en:
       signed_in: "You have been signed in."
       signed_out: "You have been signed out."
     alert:
+      registration_closed: "Registration closed: the tournament has started."
+      registration_full: "Registration full."
       staff_user_not_found: "No user with that e-mail. They must sign up first."
       not_authorized_circuit: "Not authorized to manage the selected circuit"
       not_authorized_league: "Not authorized to manage the selected league"
