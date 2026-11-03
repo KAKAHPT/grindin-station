@@ -7,9 +7,9 @@ export default class extends Controller {
       e.stopPropagation();
       e.preventDefault();
       targetElement.scrollIntoView();
-      targetElement.classList.add("transition-all", "ring-8", "ring-purple-700");
+      targetElement.classList.add("transition-all", "ring-8", "ring-accent");
       setTimeout(() => {
-        targetElement.classList.remove("ring-8", "ring-purple-700");
+        targetElement.classList.remove("ring-8", "ring-accent");
       }, 500);
       
     });
