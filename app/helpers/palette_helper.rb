@@ -41,6 +41,14 @@ module PaletteHelper
     "#{SMALL_BUTTON_BASE} #{SMALL_BUTTON_KINDS.fetch(kind)}"
   end
 
+  ICON_BUTTON = "inline-flex size-9 items-center justify-center rounded-lg border border-line text-muted " \
+                "hover:text-ink hover:border-muted transition-colors"
+
+  # Icon-only row action; danger ones turn red on hover. The label goes in title + sr-only text.
+  def icon_button_classes(danger: false)
+    danger ? "#{ICON_BUTTON} hover:!text-danger hover:!border-danger/40" : ICON_BUTTON
+  end
+
   def segment_classes(active)
     "#{SEGMENT_ITEM} #{active ? SEGMENT_ACTIVE : SEGMENT_IDLE}"
   end

@@ -197,32 +197,32 @@
       <tr>
         <% case @event.state %>
         <% when 'registration_open', 'registration_closed' %>
-          <th scope="col" class="px-5 py-3">Name</th>
+          <th scope="col" class="px-2.5 py-3 whitespace-nowrap">Name</th>
         <% else %>
           <th
             scope="col"
-            class="px-4 py-3 text-center"
+            class="px-2.5 py-3 whitespace-nowrap text-center"
             data-tooltip-target="tooltip-rank"
           >
             Rank
           </th>
-          <th scope="col" class="px-5 py-3">Player</th>
-          <th scope="col" class="px-5 py-3 text-right" data-tooltip-target="tooltip-points">
+          <th scope="col" class="px-2.5 py-3 whitespace-nowrap">Player</th>
+          <th scope="col" class="px-2.5 py-3 whitespace-nowrap text-right" data-tooltip-target="tooltip-points">
             <%= t("standings.columns.points") %>
           </th>
-          <th scope="col" class="px-5 py-3 text-right" data-tooltip-target="tooltip-owr">
+          <th scope="col" class="px-2.5 py-3 whitespace-nowrap text-right" data-tooltip-target="tooltip-owr">
             <%= t("standings.columns.owr") %>
           </th>
-          <th scope="col" class="px-5 py-3 text-right" data-tooltip-target="tooltip-beaten">
+          <th scope="col" class="px-2.5 py-3 whitespace-nowrap text-right" data-tooltip-target="tooltip-beaten">
             <%= t("standings.columns.beaten") %>
           </th>
-          <th scope="col" class="px-5 py-3 text-right" data-tooltip-target="tooltip-unique">
+          <th scope="col" class="px-2.5 py-3 whitespace-nowrap text-right" data-tooltip-target="tooltip-unique">
             <%= t("standings.columns.unique") %>
           </th>
-          <th scope="col" class="px-5 py-3">
+          <th scope="col" class="px-2.5 py-3 whitespace-nowrap">
             <%= t("standings.columns.seats") %>
           </th>
-          <th scope="col" class="px-5 py-3 text-right" data-tooltip-target="tooltip-wld">
+          <th scope="col" class="px-2.5 py-3 whitespace-nowrap text-right" data-tooltip-target="tooltip-wld">
             W-L-D
           </th>
           <div
@@ -304,14 +304,14 @@
           </div>
         <% end %>
         <% if @layout_mode == "application" %>
-          <th scope="col" class="px-5 py-3"><%= t("organizer.roster.columns.check_in") %></th>
-          <th scope="col" class="px-5 py-3"><%= t("organizer.roster.columns.paid") %></th>
-          <th scope="col" class="px-5 py-3"><%= t("organizer.roster.columns.waitlist") %></th>
-          <th scope="col" class="px-5 py-3"><%= t("organizer.roster.columns.drop_reason") %></th>
-          <th scope="col" class="px-5 py-3">
-            Infractions
+          <th scope="col" class="px-2.5 py-3 whitespace-nowrap"><%= t("organizer.roster.columns.check_in") %></th>
+          <th scope="col" class="px-2.5 py-3 whitespace-nowrap"><%= t("organizer.roster.columns.paid") %></th>
+          <th scope="col" class="px-2.5 py-3 whitespace-nowrap"><%= t("organizer.roster.columns.waitlist") %></th>
+          <th scope="col" class="px-2.5 py-3 whitespace-nowrap"><%= t("organizer.roster.columns.drop_reason") %></th>
+          <th scope="col" class="px-2.5 py-3 whitespace-nowrap text-right" title="Infractions">
+            <%= icon("gavel", class: "text-sm") %><span class="sr-only">Infractions</span>
           </th>
-          <th scope="col" class="px-5 py-3 text-right">
+          <th scope="col" class="px-2.5 py-3 whitespace-nowrap text-right">
             <span class="sr-only">Actions</span>
           </th>
         <% end %>
