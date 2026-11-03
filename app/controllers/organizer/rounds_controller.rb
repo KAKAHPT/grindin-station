@@ -43,20 +43,26 @@ module Organizer
       end
     end
 
+    # Round 1 cannot be undone: the state machine has no way back from swiss to registration_closed.
     def destroy
       event = load_tournament
-      load_round(event).destroy
-      event.rounds.max_by(&:number).update(finished_at: nil)
-
-      if event.single_elimination? && event.rounds.none?(SingleEliminationRound)
-        event.update(state: :swiss)
+      round = load_round(event)
+      if round.number == 1
+        return redirect_to [:organizer, event, round.becomes(Round)], alert: t("rounds.cannot_undo_first")
       end
 
+      Round.transaction { roll_back(event, round) }
       redirect_to [:organizer, event, event.rounds.max_by(&:number).becomes(Round)],
                   notice: t("flash.notice.round_rollback")
     end
 
     private
+
+    def roll_back(event, round)
+      round.destroy!
+      event.rounds.reload.max_by(&:number).update!(finished_at: nil)
+      event.update!(state: :swiss) if event.single_elimination? && event.rounds.none?(SingleEliminationRound)
+    end
 
     def load_printable
       @event = load_tournament

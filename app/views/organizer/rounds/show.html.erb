@@ -132,7 +132,7 @@
         <% end %>
       <% end %>
 
-      <% if !@round.past? %>
+      <% if !@round.past? && @round.number > 1 %>
         <%= button_to [:organizer, @round.event, @round.becomes(Round)], method: :delete, data: {turbo_confirm: t("rounds.undo_confirm")}, form_class: "w-full sm:w-auto", class: button_classes(:danger, "w-full sm:w-auto", size: :sm) do %>
           <%= icon("arrow-counter-clockwise", class: "me-2") %>
           <%= t("rounds.undo") %>
