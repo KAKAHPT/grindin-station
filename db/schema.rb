@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_03_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_03_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -187,12 +187,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_120000) do
   create_table "results", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.uuid "event_participant_id"
+    t.uuid "recorded_by_user_id"
     t.uuid "round_id"
+    t.uuid "superseded_by_id"
     t.string "type", null: false
     t.datetime "updated_at", null: false
-    t.index ["event_participant_id", "round_id"], name: "index_results_on_event_participant_id_and_round_id", unique: true
+    t.index ["event_participant_id", "round_id"], name: "index_results_current_on_participant_and_round", unique: true, where: "(superseded_by_id IS NULL)"
     t.index ["event_participant_id"], name: "index_results_on_event_participant_id"
+    t.index ["recorded_by_user_id"], name: "index_results_on_recorded_by_user_id"
     t.index ["round_id"], name: "index_results_on_round_id"
+    t.index ["superseded_by_id"], name: "index_results_on_superseded_by_id"
   end
 
   create_table "rooms", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -266,7 +270,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_120000) do
   add_foreign_key "players", "users"
   add_foreign_key "pods", "rounds"
   add_foreign_key "results", "event_participants"
+  add_foreign_key "results", "results", column: "superseded_by_id", on_delete: :nullify, deferrable: :deferred
   add_foreign_key "results", "rounds"
+  add_foreign_key "results", "users", column: "recorded_by_user_id", on_delete: :nullify
   add_foreign_key "rooms", "events"
   add_foreign_key "rounds", "events"
   add_foreign_key "seatings", "event_participants"

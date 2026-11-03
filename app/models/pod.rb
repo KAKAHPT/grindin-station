@@ -7,7 +7,7 @@ class Pod < ApplicationRecord
   has_many :seatings, -> { order(order: :asc) }, dependent: :destroy, inverse_of: :pod
   has_many :event_participants, through: :seatings
   has_many :results, lambda { |pod|
-    unscope(where: { rounds: :finished_at }).where(results: { round_id: pod.round_id })
+    unscope(where: { rounds: :finished_at }).where(results: { round_id: pod.round_id, superseded_by_id: nil })
   }, through: :event_participants
 
   has_many :players, through: :event_participants

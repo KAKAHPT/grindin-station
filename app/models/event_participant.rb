@@ -5,7 +5,9 @@ class EventParticipant < ApplicationRecord
   belongs_to :event, counter_cache: true
   belongs_to :player
 
-  has_many :results, -> { publishable }, dependent: :destroy, inverse_of: :event_participant
+  # Scoring reads current results only; superseded rows (corrections to closed rounds) are audit.
+  has_many :results, -> { publishable.current }, dependent: nil, inverse_of: :event_participant
+  has_many :all_results, class_name: "Result", dependent: :destroy, inverse_of: :event_participant
   has_many :seatings, -> { publishable }, dependent: :destroy
   has_many :pods, -> { publishable }, through: :seatings
   has_many(
@@ -39,6 +41,7 @@ class EventParticipant < ApplicationRecord
           from results
           where results.event_participant_id = event_participants.id
             and results.type = 'Eliminated'
+            and results.superseded_by_id is null
         )
       SQL
     )

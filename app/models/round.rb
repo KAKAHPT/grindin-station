@@ -6,7 +6,8 @@ class Round < ApplicationRecord
   has_many :event_participants, -> { enrolled.not_eliminated }, through: :event
   has_many :pods, dependent: :destroy
   has_many :seatings, through: :pods
-  has_many :results, dependent: :destroy
+  has_many :results, -> { current }, dependent: nil, inverse_of: :round
+  has_many :all_results, class_name: "Result", dependent: :destroy, inverse_of: :round
 
   scope :published, -> { where(published: true) }
   scope :finished, -> { where.not(finished_at: nil) }

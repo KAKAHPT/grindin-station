@@ -78,9 +78,9 @@ class Infraction < ApplicationRecord
   def remove_associated_penalty
     return if pod.blank? || event.blank?
 
-    Penalty.destroy_by(round: pod.round,
-                       event_participant: EventParticipant.find_by(
-                         event: event, player: player
-                       ))
+    Penalty.current.destroy_by(round: pod.round,
+                               event_participant: EventParticipant.find_by(
+                                 event: event, player: player
+                               ))
   end
 end

@@ -98,6 +98,9 @@ pt:
       confirm_drop: "Retirar %{name} do torneio?"
       confirm_no_show: "Marcar %{name} como não comparecido?"
       confirm_undo_drop: "Voltar a inscrever %{name}?"
+  results:
+    later_round_warning: "Já há uma ronda posterior publicada: esta correção altera a classificação a partir da qual foi emparelhada."
+    confirm_correction: "Compreendo, aplicar a correção"
   standings:
     columns:
       points: "Pts"

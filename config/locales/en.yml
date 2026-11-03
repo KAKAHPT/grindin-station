@@ -98,6 +98,9 @@ en:
       confirm_drop: "Drop %{name}?"
       confirm_no_show: "Mark %{name} as a no-show?"
       confirm_undo_drop: "Re-enroll %{name}?"
+  results:
+    later_round_warning: "A later round is already published: this correction changes standings it was paired from."
+    confirm_correction: "I understand, apply the correction"
   standings:
     columns:
       points: "Pts"
