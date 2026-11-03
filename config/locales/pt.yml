@@ -49,7 +49,7 @@ pt:
     no_cut: "Sem corte"
     top_cut_option: "Top %{size}"
     day_of_event: "Dia do evento"
-    confirmation_help: "Quem tem de confirmar um resultado reportado, e quanto tempo até ser aceite automaticamente."
+    confirmation_help: "Quem tem de confirmar um resultado reportado, e quanto tempo esperar até um resultado por confirmar ir para revisão do staff (nunca é aceite automaticamente)."
     result_confirmation_options:
       none: "Sem confirmação (o vencedor reporta)"
       one: "Um outro jogador confirma"
@@ -119,6 +119,17 @@ pt:
   results:
     later_round_warning: "Já há uma ronda posterior publicada: esta correção altera a classificação a partir da qual foi emparelhada."
     confirm_correction: "Compreendo, aplicar a correção"
+    not_allowed:
+      self_report_disabled: "Neste evento os jogadores não podem reportar resultados."
+      not_seated: "Não estás sentado nesta mesa."
+      already_finished: "Esta mesa já tem resultado."
+      disputed: "O resultado desta mesa está em disputa; um juiz vai resolver."
+      invalid_type: "Reporta uma vitória ou um empate."
+      invalid_winner: "Escolhe o vencedor entre os jogadores desta mesa."
+      already_confirmed: "Já confirmaste este resultado."
+      nothing_pending: "Não há nenhum resultado reportado para confirmar."
+      nothing_to_contest: "Ainda não há resultado para contestar."
+      reason_required: "Indica porque contestas o resultado."
   standings:
     columns:
       points: "Pts"

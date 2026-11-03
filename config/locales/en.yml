@@ -49,7 +49,7 @@ en:
     no_cut: "No cut"
     top_cut_option: "Top %{size}"
     day_of_event: "Day of the event"
-    confirmation_help: "Who must confirm a reported result, and how long before it is accepted automatically."
+    confirmation_help: "Who must confirm a reported result, and how long to wait before an unconfirmed result goes to staff for review (it is never accepted automatically)."
     result_confirmation_options:
       none: "No confirmation (winner reports)"
       one: "One other player confirms"
@@ -119,6 +119,17 @@ en:
   results:
     later_round_warning: "A later round is already published: this correction changes standings it was paired from."
     confirm_correction: "I understand, apply the correction"
+    not_allowed:
+      self_report_disabled: "Players cannot report results at this event."
+      not_seated: "You are not seated at this table."
+      already_finished: "This table already has a result."
+      disputed: "This table's result is disputed; a judge will sort it out."
+      invalid_type: "Report a win or a draw."
+      invalid_winner: "Pick the winner from this table."
+      already_confirmed: "You already confirmed this result."
+      nothing_pending: "There is no reported result to confirm."
+      nothing_to_contest: "There is no result to contest yet."
+      reason_required: "Say why you contest the result."
   standings:
     columns:
       points: "Pts"

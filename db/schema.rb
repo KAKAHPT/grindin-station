@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_03_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_03_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -201,9 +201,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_140000) do
   end
 
   create_table "pods", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.jsonb "confirmations", default: {}, null: false
     t.datetime "created_at", null: false
+    t.boolean "disputed", default: false, null: false
     t.integer "extra_time", default: 0, null: false
     t.integer "number", null: false
+    t.jsonb "pending_result"
+    t.datetime "reported_at"
+    t.uuid "reported_by_participant_id"
+    t.datetime "review_requested_at"
     t.uuid "round_id"
     t.integer "size", default: 4
     t.datetime "updated_at", null: false
@@ -300,6 +306,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_140000) do
   add_foreign_key "judge_calls", "users", column: "acknowledged_by_user_id", on_delete: :nullify
   add_foreign_key "notifications", "users"
   add_foreign_key "players", "users"
+  add_foreign_key "pods", "event_participants", column: "reported_by_participant_id", on_delete: :nullify
   add_foreign_key "pods", "rounds"
   add_foreign_key "results", "event_participants"
   add_foreign_key "results", "results", column: "superseded_by_id", on_delete: :nullify, deferrable: :deferred

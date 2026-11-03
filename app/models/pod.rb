@@ -13,6 +13,8 @@ class Pod < ApplicationRecord
   has_many :players, through: :event_participants
   has_many :users, through: :players
   has_many :judge_calls, dependent: :nullify
+  belongs_to :reported_by, class_name: "EventParticipant", foreign_key: :reported_by_participant_id,
+                           optional: true, inverse_of: false
 
   scope :publishable, -> { joins(:round).where.not(rounds: { finished_at: nil }) }
 
@@ -36,6 +38,26 @@ class Pod < ApplicationRecord
 
   def finished?
     results.size == event_participants.size
+  end
+
+  def seated?(participant)
+    participant.present? && seatings.exists?(event_participant_id: participant.id)
+  end
+
+  # :disputed, :completed (current results for every seat), :review (confirmation timed out),
+  # :pending (a reported result awaiting confirmations) or :playing.
+  def report_status
+    if disputed? then :disputed
+    elsif finished? then :completed
+    elsif review_requested_at then :review
+    elsif pending_result then :pending
+    else :playing
+    end
+  end
+
+  # Used when staff reports the pod: drops any player report, its confirmations and dispute.
+  def clear_report_state!
+    update!(pending_result: nil, confirmations: {}, disputed: false, review_requested_at: nil)
   end
 
   def force_candidate(candidate)
