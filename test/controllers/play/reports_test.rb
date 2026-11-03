@@ -23,6 +23,21 @@ module Play
       assert_select "button", text: "Submit"
     end
 
+    test "a top-cut report page offers no draw" do
+      @tournament.update_columns(swiss_rounds_count: 1, top_cut_size: 4) # rubocop:disable Rails/SkipsModelValidations
+      TournamentBuilder.play_round!(@tournament, winners: { 1 => 0, 2 => 0 })
+      cut = @tournament.rounds.create!(type: SingleEliminationRound, number: 2)
+      cut.update!(published: true)
+      pod = cut.pods.sole
+      sign_in(pod.event_participants.first)
+
+      get play_pod_report_new_path(@tournament.slug, pod)
+
+      assert_response :success
+      assert_select "button", text: "Draw", count: 0
+      assert_select "button", text: "Submit"
+    end
+
     test "with no confirmation a report completes the table" do
       @tournament.update!(result_confirmation: "none")
       sign_in(@seats[0])

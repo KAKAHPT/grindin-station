@@ -106,15 +106,16 @@
         <%= button_to t("rounds.win", seat: seating.order), [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Win", event_participant_id: seating.event_participant_id } }, form: { class: "hidden", data: { pod_result_target: "winForm", seat: seating.order } }, class: button_classes(:secondary, "w-full", size: :sm) %>
       <% end %>
     <% end %>
-    <% footer_cols = if !show_results && time_called then "grid-cols-[auto_auto] justify-end"
-                     elsif !show_results then "grid-cols-[auto] justify-end"
+    <% draw_allowed = show_results && !pod.round.is_a?(SingleEliminationRound) %>
+    <% footer_cols = if !draw_allowed && time_called then "grid-cols-[auto_auto] justify-end"
+                     elsif !draw_allowed then "grid-cols-[auto] justify-end"
                      elsif time_called then "grid-cols-[1fr_auto_auto]"
                      elsif staff_can_act then "grid-cols-[1fr_auto]"
                      else "grid-cols-1"
                      end %>
     <%= tag.div class: ["grid gap-2", footer_cols],
                 data: { pod_result_target: ("draw" if show_results) } do %>
-      <% if show_results %>
+      <% if draw_allowed %>
         <%= button_to t("rounds.draw"), [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Draw" } }, form_class: "contents", class: button_classes(:secondary, "w-full", size: :sm) %>
       <% end %>
       <% if staff_can_act %>

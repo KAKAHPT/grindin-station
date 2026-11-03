@@ -17,8 +17,10 @@
     <%= f.button t("play.submit"), class: button_classes(:primary, "mt-4 w-full") %>
   <% end %>
 
-  <%= form_with url: play_pod_report_path(current_event.slug, @pod, locale: params[:locale]), class: "mt-3" do |f| %>
-    <%= hidden_field_tag :type, "Draw" %>
-    <%= f.button t("play.draw"), class: button_classes(:secondary, "w-full") %>
+  <% unless @pod.round.is_a?(SingleEliminationRound) %>
+    <%= form_with url: play_pod_report_path(current_event.slug, @pod, locale: params[:locale]), class: "mt-3" do |f| %>
+      <%= hidden_field_tag :type, "Draw" %>
+      <%= f.button t("play.draw"), class: button_classes(:secondary, "w-full") %>
+    <% end %>
   <% end %>
 </section>

@@ -197,6 +197,7 @@ pt:
       nothing_pending: "Não há nenhum resultado reportado para confirmar."
       nothing_to_contest: "Ainda não há resultado para contestar."
       reason_required: "Indica porque contestas o resultado."
+      draw_in_top_cut: "No top cut não há empates: escolhe quem passa."
   rounds:
     print:
       pairings_link: "Imprimir emparelhamentos"

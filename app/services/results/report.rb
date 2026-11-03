@@ -39,6 +39,7 @@ module Results
       refuse("already_finished") if @pod.finished?
       refuse("disputed") if @pod.disputed?
       refuse("invalid_type") unless TYPES.include?(@type)
+      refuse("draw_in_top_cut") if @type == "Draw" && @pod.round.is_a?(SingleEliminationRound)
       refuse("invalid_winner") if @type == "Win" && !@pod.seated?(@winner)
       refuse("already_confirmed") if @pod.pending_result && @pod.confirmations.key?(@participant.id)
     end

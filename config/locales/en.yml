@@ -197,6 +197,7 @@ en:
       nothing_pending: "There is no reported result to confirm."
       nothing_to_contest: "There is no result to contest yet."
       reason_required: "Say why you contest the result."
+      draw_in_top_cut: "There are no draws in the top cut: pick the player who advances."
   rounds:
     print:
       pairings_link: "Print pairings"

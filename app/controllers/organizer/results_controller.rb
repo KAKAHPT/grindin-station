@@ -6,31 +6,27 @@ module Organizer
     allow_roles :organizer, :judge, only: :timeout
 
     def new
-      @tournament = load_tournament
-      @round = load_round(@tournament)
-      @pod = load_pod(@round)
+      load_pod_context
       @result = Result.new(round: @round)
       @warning = correction_warning
     end
 
     def create
-      @tournament = load_tournament
-      @round = load_round(@tournament)
-      @pod = load_pod(@round)
+      load_pod_context
       event_participant = load_participant(@pod) if result_params[:event_participant_id].present?
       return render_confirmation if unconfirmed_correction?
 
       submit(event_participant)
       redirect_to [:organizer, @tournament, @round.becomes(Round)], notice: t("flash.notice.result_submitted")
+    rescue Results::NotAllowed => e
+      refuse_result(e)
     rescue StandardError => e
       redirect_to [:organizer, @tournament, @round.becomes(Round)], alert: e
     end
 
     # "Time called" on a top-cut table: applies the event's timeout rule.
     def timeout
-      @tournament = load_tournament
-      @round = load_round(@tournament)
-      @pod = load_pod(@round)
+      load_pod_context
       rule = @tournament.top_cut_timeout_rule
       Pod.transaction do
         Results::Timeout.call(pod: @pod, by: current_user)
@@ -42,6 +38,19 @@ module Organizer
     end
 
     private
+
+    def load_pod_context
+      @tournament = load_tournament
+      @round = load_round(@tournament)
+      @pod = load_pod(@round)
+    end
+
+    def refuse_result(error)
+      flash.now[:alert] = t("results.not_allowed.#{error.message}")
+      @result = Result.new(round: @round)
+      @warning = correction_warning
+      render :new, status: :unprocessable_content
+    end
 
     def timeout_message(error)
       error.is_a?(Results::NotAllowed) ? t("results.not_allowed.#{error.message}") : error.message

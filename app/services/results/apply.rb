@@ -17,10 +17,18 @@ module Results
       :later_round_published if round.event.rounds.where("number > ?", round.number).exists?(published: true)
     end
 
+    # The top cut has no wins or draws: a win there is an Advance (the others are eliminated), a draw is refused.
+    def self.type_for(round, type)
+      return type unless round.is_a?(SingleEliminationRound)
+      raise NotAllowed, "draw_in_top_cut" if type == "Draw"
+
+      type == "Win" ? "Advance" : type
+    end
+
     def initialize(pod:, type:, winner:, by:)
       @pod = pod
       @round = pod.round
-      @type = type
+      @type = self.class.type_for(@round, type)
       @winner = winner
       @by = by
     end
@@ -38,7 +46,7 @@ module Results
 
     # { participant => result type } for the touched seats. A Penalty already on a seat stays.
     def assignments
-      raise "Must select a winner" if @type == "Win" && @winner.blank?
+      raise "Must select a winner" if @type.in?(%w[Win Advance]) && @winner.blank?
 
       case @type
       when "Advance" then others.index_with("Eliminated").merge(@winner => "Advance")

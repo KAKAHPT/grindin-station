@@ -2,17 +2,18 @@
 
 require "application_system_test_case"
 
-# Flow 3: the organizer marks every table, closes both swiss rounds, makes the cut and calls time on the final.
+# Flow 3: the organizer marks every table, closes both swiss rounds, makes the Top 16, taps the winner of each
+# cut table (they advance, the rest are eliminated) and calls time on the final.
 class CloseRoundAndCutTest < ApplicationSystemTestCase
   setup do
     @tournament = TournamentBuilder.build(players: 16, organizer: event_organizers(:standard_organizer))
-    @tournament.update_columns(swiss_rounds_count: 2, top_cut_size: 4) # rubocop:disable Rails/SkipsModelValidations
+    @tournament.update_columns(swiss_rounds_count: 2, top_cut_size: 16) # rubocop:disable Rails/SkipsModelValidations
     @tournament.update!(top_cut_timeout_rule: "highest_seed_advances")
     @round = @tournament.rounds.create!(type: SwissRound, number: 1)
     @round.update!(published: true, started_at: Time.current)
   end
 
-  test "close round guard, round 2, make cut with ranked seats, time called advances the highest seed" do # rubocop:disable Metrics/BlockLength
+  test "close round guard, round 2, cut winners advance, ranked final seats, time called advances the top seed" do # rubocop:disable Metrics/BlockLength
     sign_in_as(users(:organizer_user))
     visit organizer_tournament_round_path(@tournament, @round)
 
@@ -43,8 +44,26 @@ class CloseRoundAndCutTest < ApplicationSystemTestCase
     assert_text I18n.t("flash.notice.tournament_advanced")
     assert_predicate @tournament.reload, :single_elimination?
 
-    final = @tournament.rounds.find_by!(type: "SingleEliminationRound")
+    cut = @tournament.rounds.find_by!(type: "SingleEliminationRound")
+    click_button "Publish"
+    assert_text I18n.t("flash.notice.round_published")
+    click_button "Start"
+    assert_text I18n.t("flash.notice.round_started")
+    cut_pods = cut.pods.order(:number).to_a
+    within(pod_card(cut_pods.first)) { assert_no_button "Draw" }
+    advanced =
+      cut_pods.map do |cut_pod|
+        mark_winner(cut_pod, seat: 4)
+        cut_pod.seatings.find_by!(order: 4).event_participant_id
+      end
+    assert_equal advanced.sort, Result.current.where(round: cut, type: "Advance").pluck(:event_participant_id).sort
+    assert_equal 12, Result.current.where(round: cut, type: "Eliminated").count
+
+    click_button "Close round"
+    assert_text I18n.t("rounds.next_round_created")
+    final = @tournament.rounds.where(type: "SingleEliminationRound").find_by!(number: cut.number + 1)
     pod = final.pods.sole
+    assert_equal advanced.sort, pod.seatings.map(&:event_participant_id).sort
     seated = pod.seatings.order(:order).map(&:event_participant)
     assert_equal seated.sort_by { |p| -p.rank_score }.map(&:id), seated.map(&:id), "top-cut seats follow the standings"
 
