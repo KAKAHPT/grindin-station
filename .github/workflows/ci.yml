@@ -101,8 +101,7 @@ jobs:
           # postgis:// keeps the postgis adapter (postgres:// would switch it to postgresql)
           DATABASE_URL: postgis://postgres:postgres@localhost:5432
           # REDIS_URL: redis://localhost:6379/0
-        # System tests run locally until M2 sets up a headless browser in CI.
-        run: bin/rails db:test:prepare test
+        run: bin/rails db:test:prepare test test:system
 
       - name: Seat fairness simulation (regression gate)
         env:

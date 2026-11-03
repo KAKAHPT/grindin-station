@@ -133,7 +133,7 @@ Uses Solid Queue for job processing:
 
 ### Testing
 
-- Minitest with system tests using Capybara/Selenium (Firefox)
+- Minitest with system tests using Capybara/Selenium (headless Chrome)
 - SimpleCov for coverage reporting with parallel worker support
 - WebMock for HTTP stubbing in tests
 - Fixtures in `test/fixtures/` with sample tournament data

@@ -16,9 +16,7 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
     assert_no_button "Open Registrations"
 
     # Cancel requires a confirm dialog
-    cancel_btn = find("button", text: "Cancel", wait: 5)
-    cancel_btn.click
-    accept_confirm
+    accept_confirm { click_button "Cancel" }
     assert_text "Tournament updated successfully"
 
     tournament.reload
@@ -65,7 +63,7 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
     visit organizer_tournament_path("non-existent-id")
 
     assert_current_path organizer_root_path
-    assert_text "Not authorized to manage the selected tournament"
+    assert_text I18n.t("flash.alert.not_allowed")
   end
 
   test "handles double result submission gracefully" do
@@ -147,15 +145,5 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
 
     assert_selector "img[alt='Cover image for Medium Tournament']"
     assert_selector "img[alt='Cover image for Standard League']"
-  end
-
-  private
-
-  def sign_in_as(user)
-    visit root_path
-    visit new_session_path
-    fill_in "session_email_address", with: user.email_address
-    fill_in "session_password", with: "password123"
-    click_button "Sign in"
   end
 end

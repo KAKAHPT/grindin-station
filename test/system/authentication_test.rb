@@ -197,14 +197,4 @@ class AuthenticationTest < ApplicationSystemTestCase
     assert_no_text "Log in"
     assert_text "Logout"
   end
-
-  private
-
-  def sign_in_as(user)
-    visit root_path
-    visit new_session_path
-    fill_in "session_email_address", with: user.email_address
-    fill_in "session_password", with: "password123"
-    click_button "Sign in"
-  end
 end
