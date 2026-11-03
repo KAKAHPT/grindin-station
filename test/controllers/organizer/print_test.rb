@@ -16,14 +16,13 @@ module Organizer
       get print_organizer_tournament_round_path(@tournament, @round)
 
       assert_response :success
-      body = response.body
       assert_operator @pods.size, :>, 0
-      assert_equal @pods.size, body.scan('class="table"').size
+      assert_select ".table", @pods.size
       @pods.each do |pod|
-        assert_includes body, "Table #{pod.number}"
         names = pod.seatings.order(:order).map { |s| s.event_participant.name }
-        positions = names.map { |n| body.index(ERB::Util.html_escape(n)) }
-        assert_equal positions.sort, positions
+        assert_select ".table h2", text: "Table #{pod.number}" do |h2|
+          assert_equal names, h2.first.parent.css(".seat-name").map { |n| n.text.strip }
+        end
       end
     end
 

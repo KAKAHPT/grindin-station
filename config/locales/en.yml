@@ -179,7 +179,6 @@ en:
       table: "Table"
       generated_at: "Generated at"
       pairings_title: "Pairings"
-      slips_title: "Table slips"
     close: "Close round"
     closed: "Round closed."
     cannot_close: "The round cannot be closed yet: tables %{tables} have no result, a dispute or an open judge call."

@@ -4,7 +4,7 @@
   <p class="generated"><%= t("rounds.print.generated_at") %> <%= l(Time.current, format: :short) %></p>
 </header>
 
-<% @pods.each_slice(20) do |group| %>
+<% @pods.each_slice(12) do |group| %>
   <section class="table-group">
     <% group.each do |pod| %>
       <div class="table">
