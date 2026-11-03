@@ -35,6 +35,21 @@ module Results
       assert_equal first, @old.reload.review_requested_at
     end
 
+    test "each event's own timeout applies" do
+      patient = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+      patient.update!(result_confirmation: "one", confirmation_timeout_minutes: 30)
+      slow = patient.rounds.create!(type: SwissRound, number: 1).pods.first
+      travel_to(10.minutes.ago) do
+        Report.call(pod: @old, participant: @old_reporter, type: "Draw")
+        Report.call(pod: slow, participant: slow.event_participants.first, type: "Draw")
+      end
+
+      ExpirePendingJob.perform_now
+
+      assert_equal :review, @old.reload.report_status
+      assert_equal :pending, slow.reload.report_status
+    end
+
     test "is scheduled every minute in production (development runs jobs inline, no recurring block)" do
       config = YAML.load_file(Rails.root.join("config/recurring.yml"))
 

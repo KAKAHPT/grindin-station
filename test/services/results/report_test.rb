@@ -70,7 +70,9 @@ module Results
       assert_equal :disputed, @pod.report_status
       assert_empty @pod.results
       call = JudgeCall.find_by(pod: @pod)
-      assert_equal "Conflicting result reports", call.reason
+      seat = ->(p) { @pod.seatings.find_by(event_participant: p).order }
+      assert_equal "Conflicting result reports: seat #{seat.call(@seats[0])} says Win by #{@seats[2].name}; " \
+                   "seat #{seat.call(@seats[3])} says Draw", call.reason
       assert_equal @seats[3], call.participant
     end
 
@@ -103,6 +105,28 @@ module Results
       assert_raises(NotAllowed) { Report.call(pod: @pod, participant: @seats[0], type: "Win") }
       assert_raises(NotAllowed) { Report.call(pod: @pod, participant: @seats[0], type: "Win", winner: outsider) }
       assert_empty @pod.reload.results
+    end
+
+    test "a report on a disputed pod is refused" do
+      @t.update!(result_confirmation: "one")
+      Report.call(pod: @pod, participant: @seats[0], type: "Draw")
+      Report.call(pod: @pod, participant: @seats[1], type: "Win", winner: @seats[1])
+
+      error = assert_raises(NotAllowed) { Report.call(pod: @pod, participant: @seats[2], type: "Draw") }
+      assert_equal "disputed", error.message
+      assert_equal 1, JudgeCall.where(pod: @pod).count
+    end
+
+    test "a player who already confirmed cannot report again" do
+      @t.update!(result_confirmation: "all")
+      Report.call(pod: @pod, participant: @seats[0], type: "Draw")
+
+      error =
+        assert_raises(NotAllowed) do
+          Report.call(pod: @pod, participant: @seats[0], type: "Win", winner: @seats[0])
+        end
+      assert_equal "already_confirmed", error.message
+      assert_not @pod.reload.disputed?
     end
   end
 end

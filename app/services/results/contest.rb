@@ -19,9 +19,9 @@ module Results
         @pod.lock!
         check!
         @pod.update!(disputed: true)
-        call = JudgeCalls::Open.call(event: @pod.event, pod: @pod, participant: @participant,
-                                     reason: "Result contested: #{@reason}")
-        Notify.participants(@pod, kind: "result_contested", subject: call)
+        judge_call = JudgeCalls::Open.call(event: @pod.event, pod: @pod, participant: @participant,
+                                           reason: "Result contested: #{@reason}")
+        Notify.participants(@pod, kind: "result_contested", subject: judge_call)
         @pod
       end
     end
@@ -29,6 +29,7 @@ module Results
     private
 
     def check!
+      refuse("self_report_disabled") unless @pod.event.self_report_enabled
       refuse("not_seated") unless @pod.seated?(@participant)
       refuse("disputed") if @pod.disputed?
       refuse("nothing_to_contest") unless @pod.pending_result || @pod.finished?

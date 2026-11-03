@@ -25,8 +25,11 @@ module Results
 
     private
 
-    def check!
+    # A staff result entered while the report was pending wins: the stale pending is never applied.
+    def check! # rubocop:disable Metrics/AbcSize -- one line per guard
+      refuse("self_report_disabled") unless @pod.event.self_report_enabled
       refuse("not_seated") unless @pod.seated?(@participant)
+      refuse("already_finished") if @pod.finished?
       refuse("disputed") if @pod.disputed?
       refuse("nothing_pending") if @pod.pending_result.nil?
       refuse("already_confirmed") if @pod.confirmations.key?(@participant.id)
@@ -42,7 +45,10 @@ module Results
 
     def apply!
       pending = @pod.pending_result
-      winner = @pod.event_participants.find(pending["winner_id"]) if pending["type"] == "Win"
+      if pending["type"] == "Win"
+        winner = @pod.event_participants.find_by(id: pending["winner_id"])
+        refuse("invalid_winner") if winner.nil?
+      end
       Apply.call(pod: @pod, type: pending["type"], winner: winner, by: nil)
       @pod.update!(pending_result: nil, review_requested_at: nil)
     end

@@ -72,5 +72,49 @@ module Results
       assert_raises(NotAllowed) { Confirm.call(pod: pod, participant: seats[2]) }
       assert_equal 4, Result.where(round: pod.round).count
     end
+
+    test "a staff result entered while pending wins: the stale pending is never applied" do
+      pod, seats = pod_of(4, "one")
+      Report.call(pod: pod, participant: seats[0], type: "Win", winner: seats[0])
+      staff = users(:organizer_user)
+      Apply.call(pod: pod, type: "Win", winner: seats[3], by: staff)
+
+      error = assert_raises(NotAllowed) { Confirm.call(pod: pod, participant: seats[1]) }
+      assert_equal "already_finished", error.message
+      assert_equal %w[Win], Result.current.where(event_participant: seats[3]).pluck(:type)
+      assert_equal [staff.id], pod.results.map(&:recorded_by_user_id).uniq
+    end
+
+    test "confirming with self-reporting disabled is refused" do
+      pod, seats = pod_of(4, "one")
+      Report.call(pod: pod, participant: seats[0], type: "Draw")
+      pod.event.update!(self_report_enabled: false)
+
+      error = assert_raises(NotAllowed) { Confirm.call(pod: pod, participant: seats[1]) }
+      assert_equal "self_report_disabled", error.message
+    end
+
+    test "a pending winner who is no longer seated is refused, nothing applied" do
+      pod, seats = pod_of(4, "one")
+      Report.call(pod: pod, participant: seats[0], type: "Win", winner: seats[3])
+      pod.seatings.find_by!(event_participant: seats[3]).destroy!
+
+      error = assert_raises(NotAllowed) { Confirm.call(pod: pod.reload, participant: seats[1]) }
+      assert_equal "invalid_winner", error.message
+      assert_empty Result.where(round: pod.round)
+    end
+
+    test "confirming a pod in review applies it and clears the review request" do
+      pod, seats = pod_of(4, "one")
+      travel_to(10.minutes.ago) { Report.call(pod: pod, participant: seats[0], type: "Draw") }
+      ExpirePendingJob.perform_now
+      assert_equal :review, pod.reload.report_status
+
+      Confirm.call(pod: pod, participant: seats[1])
+
+      pod.reload
+      assert_equal :completed, pod.report_status
+      assert_nil pod.review_requested_at
+    end
   end
 end

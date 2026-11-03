@@ -66,7 +66,20 @@ module Results
     def dispute
       @pod.update!(disputed: true)
       JudgeCalls::Open.call(event: @pod.event, pod: @pod, participant: @participant,
-                            reason: "Conflicting result reports")
+                            reason: "Conflicting result reports: #{conflict}")
+    end
+
+    # "seat 1 says Win by Ana; seat 3 says Draw": the pending claim first, then this one.
+    def conflict
+      first = @pod.event_participants.find_by(id: @pod.reported_by_participant_id)
+      [claim(first, @pod.pending_result), claim(@participant, payload)].join("; ")
+    end
+
+    def claim(reporter, result)
+      seat = @pod.seatings.find_by(event_participant_id: reporter&.id)&.order
+      said = result["type"]
+      said += " by #{@pod.event_participants.find_by(id: result['winner_id'])&.name}" if said == "Win"
+      "seat #{seat || '?'} says #{said}"
     end
   end
 end

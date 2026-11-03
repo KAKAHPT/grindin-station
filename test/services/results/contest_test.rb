@@ -35,6 +35,25 @@ module Results
 
       assert_equal :disputed, @pod.reload.report_status
       assert_empty @pod.results
+      call = JudgeCall.find_by!(pod: @pod)
+      assert_equal(@pod.users.map(&:id).sort,
+                   Notification.where(kind: "result_contested", subject: call).pluck(:user_id).sort)
+    end
+
+    test "a blank reason is refused" do
+      Report.call(pod: @pod, participant: @seats[0], type: "Draw")
+
+      error = assert_raises(NotAllowed) { Contest.call(pod: @pod, participant: @seats[1], reason: " ") }
+      assert_equal "reason_required", error.message
+      assert_not @pod.reload.disputed?
+    end
+
+    test "contesting with self-reporting disabled is refused" do
+      Report.call(pod: @pod, participant: @seats[0], type: "Draw")
+      @t.update!(self_report_enabled: false)
+
+      error = assert_raises(NotAllowed) { Contest.call(pod: @pod, participant: @seats[1], reason: "x") }
+      assert_equal "self_report_disabled", error.message
     end
 
     test "nothing to contest while playing, and only seated players may contest" do
