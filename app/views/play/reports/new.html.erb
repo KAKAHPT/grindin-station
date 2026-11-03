@@ -1,24 +1,24 @@
-<section class="p-4 rounded-lg bg-white dark:bg-gray-800">
-  <h2 class="font-semibold"><%= t("play.report_result") %></h2>
-  <p class="text-sm text-gray-500 dark:text-gray-400"><%= t("play.tables.table") %> <%= @pod.number %></p>
+<section class="p-5 rounded-2xl bg-surface border border-line">
+  <h2 class="font-display text-xl font-semibold"><%= t("play.report_result") %></h2>
+  <p class="text-[11px] font-semibold uppercase tracking-wide text-muted"><%= t("play.tables.table") %> <%= @pod.number %></p>
 
   <%= form_with url: play_pod_report_path(current_event.slug, @pod, locale: params[:locale]), class: "mt-4" do |f| %>
     <%= hidden_field_tag :type, "Win" %>
     <fieldset class="space-y-2">
-      <legend class="text-sm mb-2"><%= t("play.reports.who_won") %></legend>
+      <legend class="text-sm text-muted mb-2"><%= t("play.reports.who_won") %></legend>
       <% @seatings.each do |seating| %>
         <% participant = seating.event_participant %>
-        <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-300 dark:border-gray-600">
-          <%= radio_button_tag :winner_id, participant.id, participant.id == current_participant.id %>
-          <span><%= seating.order %>. <%= participant.name %></span>
+        <label class="flex items-center gap-3 min-h-[52px] px-4 rounded-xl border border-line bg-ground has-[:checked]:border-accent">
+          <%= radio_button_tag :winner_id, participant.id, participant.id == current_participant.id, class: "text-accent bg-surface border-line focus:ring-accent" %>
+          <span><span class="font-display font-semibold text-muted"><%= seating.order %></span> <%= participant.name %></span>
         </label>
       <% end %>
     </fieldset>
-    <%= f.button t("play.submit"), class: "mt-4 w-full py-3 rounded-lg bg-gray-900 text-white font-medium dark:bg-white dark:text-gray-900" %>
+    <%= f.button t("play.submit"), class: button_classes(:primary, "mt-4 w-full") %>
   <% end %>
 
   <%= form_with url: play_pod_report_path(current_event.slug, @pod, locale: params[:locale]), class: "mt-3" do |f| %>
     <%= hidden_field_tag :type, "Draw" %>
-    <%= f.button t("play.draw"), class: "w-full py-3 rounded-lg border border-gray-300 dark:border-gray-600 font-medium" %>
+    <%= f.button t("play.draw"), class: button_classes(:secondary, "w-full") %>
   <% end %>
 </section>

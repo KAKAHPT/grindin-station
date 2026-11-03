@@ -1,27 +1,30 @@
-<section class="p-4 rounded-lg bg-white dark:bg-gray-800">
-  <p class="text-sm text-gray-500 dark:text-gray-400"><%= t("play.tables.round", number: current_round.number) %></p>
-  <div class="mt-2 grid grid-cols-2 gap-2 text-center">
-    <div class="p-3 rounded-lg bg-gray-100 dark:bg-gray-700">
-      <p class="text-xs uppercase text-gray-500 dark:text-gray-400"><%= t("play.tables.table") %></p>
-      <p data-table-number class="text-3xl font-bold"><%= @pod.number %></p>
+<section class="p-5 rounded-2xl bg-surface border border-line">
+  <div class="flex items-center justify-between gap-3">
+    <p class="text-[11px] font-semibold uppercase tracking-wide text-muted"><%= t("play.tables.round", number: current_round.number) %></p>
+    <%= status_chip(pod_status_tone(@status), data: { report_status: true }) { t("play.status.#{@status}") } %>
+  </div>
+  <div class="mt-4 grid grid-cols-2 gap-3 text-center">
+    <div class="py-5 rounded-xl bg-ground border border-line">
+      <p class="text-[11px] font-semibold uppercase tracking-wide text-muted"><%= t("play.tables.table") %></p>
+      <p data-table-number class="font-display text-6xl font-bold leading-none mt-2 text-ink"><%= @pod.number %></p>
     </div>
-    <div class="p-3 rounded-lg bg-gray-100 dark:bg-gray-700">
-      <p class="text-xs uppercase text-gray-500 dark:text-gray-400"><%= t("play.tables.seat") %></p>
-      <p data-seat-number class="text-3xl font-bold"><%= @seat %></p>
+    <div class="py-5 rounded-xl bg-ground border border-accent/40">
+      <p class="text-[11px] font-semibold uppercase tracking-wide text-muted"><%= t("play.tables.seat") %></p>
+      <p data-seat-number class="font-display text-6xl font-bold leading-none mt-2 text-accent"><%= @seat %></p>
     </div>
   </div>
 
-  <ol class="mt-4 divide-y divide-gray-200 dark:divide-gray-700">
+  <ol class="mt-5 divide-y divide-line border-t border-line">
     <% @seatings.each do |seating| %>
       <% participant = seating.event_participant %>
       <% me = participant.id == current_participant.id %>
-      <%= tag.li data: { me: (true if me) }, class: ["py-2 flex gap-3", ("font-semibold" if me)] do %>
-        <span class="w-6 text-gray-500 dark:text-gray-400"><%= seating.order %></span>
-        <span class="flex-1">
+      <%= tag.li data: { me: (true if me) }, class: ["py-3 flex items-center gap-3", ("font-semibold" if me)] do %>
+        <span class="w-6 font-display font-semibold <%= me ? "text-accent" : "text-muted" %>"><%= seating.order %></span>
+        <span class="flex-1 min-w-0">
           <%= participant.name %>
-          <% if me %><span class="ms-1 text-xs px-2 py-0.5 rounded bg-gray-900 text-white dark:bg-white dark:text-gray-900"><%= t("play.tables.you") %></span><% end %>
+          <% if me %><span class="ms-1 text-[11px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-md bg-accent/15 text-accent"><%= t("play.tables.you") %></span><% end %>
           <% if current_event.show_commanders_in_standings && participant.decklist.present? %>
-            <span class="block text-xs font-normal text-gray-500 dark:text-gray-400"><%= participant.decklist %></span>
+            <span class="block text-xs font-normal text-muted"><%= participant.decklist %></span>
           <% end %>
         </span>
       <% end %>
@@ -29,24 +32,22 @@
   </ol>
 </section>
 
-<section class="mt-4 p-4 rounded-lg bg-white dark:bg-gray-800">
-  <p data-report-status class="font-medium"><%= t("play.status.#{@status}") %></p>
-
+<section class="mt-4 flex flex-col gap-3">
   <% if @can_report %>
     <%= link_to t("play.report_result"), play_pod_report_new_path(current_event.slug, @pod, locale: params[:locale]),
-                class: "mt-3 block w-full py-3 rounded-lg bg-gray-900 text-white text-center font-medium dark:bg-white dark:text-gray-900" %>
+                class: button_classes(:primary, "w-full") %>
   <% end %>
 
   <% if @can_confirm %>
     <%= button_to t("play.confirm"), play_pod_confirm_path(current_event.slug, @pod, locale: params[:locale]),
-                  class: "mt-3 w-full py-3 rounded-lg bg-gray-900 text-white font-medium dark:bg-white dark:text-gray-900" %>
+                  class: button_classes(:primary, "w-full") %>
   <% end %>
 
   <% if @can_contest %>
-    <%= form_with url: play_pod_contest_path(current_event.slug, @pod, locale: params[:locale]), class: "mt-3 flex gap-2" do |f| %>
+    <%= form_with url: play_pod_contest_path(current_event.slug, @pod, locale: params[:locale]), class: "flex gap-2" do |f| %>
       <%= f.text_field :reason, required: true, placeholder: t("play.contest_reason"), "aria-label": t("play.contest_reason"),
-                       class: "flex-1 rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-sm" %>
-      <%= f.button t("play.contest"), class: "px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 font-medium" %>
+                       class: "flex-1 min-h-[52px] rounded-xl bg-surface border-line text-ink placeholder:text-muted text-sm focus:ring-accent focus:border-accent" %>
+      <%= f.button t("play.contest"), class: button_classes(:secondary) %>
     <% end %>
   <% end %>
 </section>

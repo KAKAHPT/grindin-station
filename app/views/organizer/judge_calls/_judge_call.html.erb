@@ -1,23 +1,21 @@
-<% chip = { "open" => "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-            "acknowledged" => "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-            "closed" => "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300" } %>
+<% tone = { "open" => :warn, "acknowledged" => :ink, "closed" => :muted } %>
 <li class="flex flex-wrap items-center justify-between gap-3 py-3" id="<%= dom_id(judge_call) %>">
   <div>
-    <p class="font-medium text-gray-900 dark:text-white">
+    <p class="font-display font-semibold text-ink">
       <%= judge_call.pod ? t("organizer.judge_calls.table", number: judge_call.pod.number) : t("organizer.judge_calls.no_table") %>
       ·
       <%= judge_call.participant&.player&.name || t("organizer.judge_calls.no_player") %>
     </p>
-    <p class="text-sm text-gray-700 dark:text-gray-300"><%= judge_call.reason %></p>
-    <p class="text-xs text-gray-500 dark:text-gray-400"><%= t("organizer.judge_calls.ago", time: time_ago_in_words(judge_call.created_at)) %></p>
+    <p class="text-sm text-ink"><%= judge_call.reason %></p>
+    <p class="text-xs text-muted"><%= t("organizer.judge_calls.ago", time: time_ago_in_words(judge_call.created_at)) %></p>
   </div>
   <span class="flex items-center gap-3">
-    <span class="px-2.5 py-0.5 text-xs font-medium rounded-full <%= chip.fetch(judge_call.status) %>"><%= t("organizer.judge_calls.statuses.#{judge_call.status}") %></span>
+    <%= status_chip(tone.fetch(judge_call.status)) { t("organizer.judge_calls.statuses.#{judge_call.status}") } %>
     <% if judge_call.open? %>
-      <%= button_to t("organizer.judge_calls.acknowledge"), acknowledge_organizer_tournament_judge_call_path(tournament, judge_call), method: :patch, class: "text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 rounded-lg px-3 py-2" %>
+      <%= button_to t("organizer.judge_calls.acknowledge"), acknowledge_organizer_tournament_judge_call_path(tournament, judge_call), method: :patch, class: button_classes(:primary) %>
     <% end %>
     <% unless judge_call.closed? %>
-      <%= button_to t("organizer.judge_calls.close"), close_organizer_tournament_judge_call_path(tournament, judge_call), method: :patch, class: "text-sm font-medium text-white bg-gray-700 hover:bg-gray-800 rounded-lg px-3 py-2" %>
+      <%= button_to t("organizer.judge_calls.close"), close_organizer_tournament_judge_call_path(tournament, judge_call), method: :patch, class: button_classes(:secondary) %>
     <% end %>
   </span>
 </li>

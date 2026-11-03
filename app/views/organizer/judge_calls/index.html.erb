@@ -1,29 +1,29 @@
 <%= content_for :sub_navigation do %>
-  <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
+  <h1 class="font-display text-xl font-semibold text-ink sm:text-2xl">
     <%= t("organizer.judge_calls.title", event: @tournament.name) %>
-    <%= link_to t("organizer.judge_calls.back"), [:organizer, @tournament], class: "float-right text-sm font-medium text-blue-700 hover:underline dark:text-blue-500" %>
+    <%= link_to t("organizer.judge_calls.back"), [:organizer, @tournament], class: "float-right font-body text-sm font-medium text-accent hover:underline" %>
   </h1>
 <% end %>
 
-<div class="col-span-full p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800">
-  <h2 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white"><%= t("organizer.judge_calls.active") %></h2>
-  <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+<div class="col-span-full p-5 bg-surface border border-line rounded-2xl">
+  <h2 class="mb-2 font-display text-lg font-semibold text-ink"><%= t("organizer.judge_calls.active") %></h2>
+  <ul class="divide-y divide-line">
     <%= render partial: "judge_call", collection: @active_calls, locals: { tournament: @tournament } %>
   </ul>
   <% if @active_calls.empty? %>
-    <p class="py-3 text-gray-500 dark:text-gray-400"><%= t("organizer.judge_calls.empty") %></p>
+    <p class="py-3 text-muted"><%= t("organizer.judge_calls.empty") %></p>
   <% end %>
 
   <% if @closed_calls.any? %>
     <details class="mt-4">
-      <summary class="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300"><%= t("organizer.judge_calls.closed", count: Organizer::JudgeCallsController::CLOSED_SHOWN) %></summary>
-      <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+      <summary class="cursor-pointer text-sm font-medium text-muted hover:text-ink"><%= t("organizer.judge_calls.closed", count: Organizer::JudgeCallsController::CLOSED_SHOWN) %></summary>
+      <ul class="divide-y divide-line">
         <%= render partial: "judge_call", collection: @closed_calls, locals: { tournament: @tournament } %>
       </ul>
     </details>
   <% end %>
 
   <p class="mt-4">
-    <%= link_to t("organizer.judge_calls.infractions"), organizer_tournament_event_participants_path(@tournament, layout: "application"), class: "text-sm font-medium text-blue-700 hover:underline dark:text-blue-500" %>
+    <%= link_to t("organizer.judge_calls.infractions"), organizer_tournament_event_participants_path(@tournament, layout: "application"), class: "text-sm font-medium text-accent hover:underline" %>
   </p>
 </div>

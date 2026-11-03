@@ -21,13 +21,17 @@ module TournamentsHelper
     canceled: { name: "Cancel", icon: "trash" }
   }.with_indifferent_access.freeze
 
-  POD_STATUS_COLORS = {
-    playing: "blue", pending: "yellow", review: "yellow", disputed: "red", completed: "green"
+  POD_STATUS_TONES = {
+    playing: :ink, pending: :muted, review: :muted, disputed: :danger, completed: :accent
   }.freeze
+
+  def pod_status_tone(status)
+    POD_STATUS_TONES.fetch(status)
+  end
 
   def pod_status_chip(pod)
     status = pod.report_status
-    badge(color: POD_STATUS_COLORS.fetch(status)) { t("rounds.status.#{status}") }
+    status_chip(pod_status_tone(status)) { t("rounds.status.#{status}") }
   end
 
   # Seat (seating order) of each participant at the pod, by participant id.

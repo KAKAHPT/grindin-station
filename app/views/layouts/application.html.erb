@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="<%= I18n.locale %>">
+<html lang="<%= I18n.locale %>" class="dark">
   <head>
     <title><%= t("app.name") %></title>
 
@@ -8,15 +8,18 @@
 
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@600;700&display=swap">
     <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css", integrity: "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=", crossorigin: "anonymous", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/light/style.css", integrity: "sha256-8uWWmfqu7ifantuG3Rj17TvVET2z5OOI/dI6/K8wiGU=", crossorigin: "anonymous", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
-  <body class="bg-gray-50 dark:bg-gray-900">
-    <header class="fixed z-30 w-full bg-white dark:bg-gray-800">
-      <nav class="border-b border-gray-200 dark:border-gray-700 py-3 px-4">
+  <body class="bg-ground text-ink font-body antialiased">
+    <header class="fixed z-30 w-full bg-surface">
+      <nav class="border-b border-line py-3 px-4">
         <div class="flex justify-between items-center max-w-screen-2xl mx-auto">
           <div class="flex justify-start items-center">
             <button
@@ -24,11 +27,8 @@
               aria-expanded="true"
               aria-controls="sidebar"
               class="
-                p-2 text-gray-600 rounded cursor-pointer lg:hidden
-                hover:text-gray-900 hover:bg-gray-100 focus:bg-gray-100
-                dark:focus:bg-gray-700 focus:ring-2 focus:ring-gray-100
-                dark:focus:ring-gray-700 dark:text-gray-400
-                dark:hover:bg-gray-700 dark:hover:text-white
+                p-2 text-muted rounded cursor-pointer lg:hidden
+                hover:text-ink hover:bg-line focus:ring-2 focus:ring-line
               "
             >
               <svg
@@ -59,11 +59,11 @@
               </svg>
             </button>
             <%= link_to root_url, class: "flex ml-2 md:mr-24" do %>
-              <%= icon("knife", class: "text-2xl mr-3 dark:text-white self-center") %>
+              <%= icon("knife", class: "text-2xl mr-3 text-accent self-center") %>
               <strong
                 class="
-                  self-center text-xl font-semibold sm:text-2xl
-                  whitespace-nowrap dark:text-white
+                  self-center font-display text-xl font-semibold sm:text-2xl
+                  whitespace-nowrap text-ink
                 "
               >
                 <%= t("app.name") %>
@@ -71,43 +71,32 @@
             <% end %>
           </div>
           <div class="flex justify-between items-center lg:order-2">
-            <%= button_tag(
-              type: "button",
-              class: "text-xl me-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg p-2.5 flex items-center",
-              data: { controller: "dark-mode", action: "click->dark-mode#toggle" }
-              ) do %>
-              <%= icon('moon', class: 'dark:hidden') %>
-              <%= icon('sun', class: 'hidden dark:inline') %>
-            <% end %>
-
             <% if current_user&.staff? %>
-              <%= link_to organizer_path_builder, class: "me-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 flex items-center" do %>
+              <%= link_to organizer_path_builder, class: "me-2 text-muted hover:text-ink hover:bg-line focus:outline-none focus:ring-2 focus:ring-line rounded-lg text-sm p-2.5 flex items-center" do %>
                 <%= label_tag "to_mode", class: "inline-flex items-center cursor-pointer" do %>
                   <%= check_box_tag "to_mode", "", organizer_mode?, class: "sr-only peer" %>
                   <div
                     class="
-                      relative w-11 h-6 bg-gray-200 peer-focus:outline-none
-                      peer-focus:ring-4 peer-focus:ring-blue-300
-                      dark:peer-focus:ring-blue-800 rounded-full peer
-                      dark:bg-gray-700 peer-checked:after:translate-x-full
+                      relative w-11 h-6 bg-line peer-focus:outline-none
+                      peer-focus:ring-2 peer-focus:ring-accent/40 rounded-full peer
+                      peer-checked:after:translate-x-full
                       rtl:peer-checked:after:-translate-x-full
-                      peer-checked:after:border-white after:content-['']
+                      peer-checked:after:border-ground after:content-['']
                       after:absolute after:top-[2px] after:start-[2px]
-                      after:bg-white after:border-gray-300 after:border
+                      after:bg-ink after:border-line after:border
                       after:rounded-full after:h-5 after:w-5
-                      after:transition-all dark:border-gray-600
-                      peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600
+                      after:transition-all peer-checked:bg-accent
                     "
                   ></div>
-                  <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Organizer mode</span>
+                  <span class="ms-3 text-sm font-medium text-ink">Organizer mode</span>
                 <% end %>
               <% end %>
             <% end %>
 
             <% if authenticated? %>
-              <%= link_to 'Logout', session_path(Current.session), data: { "turbo-method": :delete }, class: "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5" %>
+              <%= link_to 'Logout', session_path(Current.session), data: { "turbo-method": :delete }, class: "text-muted hover:text-ink hover:bg-line focus:outline-none focus:ring-2 focus:ring-line rounded-lg text-sm p-2.5" %>
             <% else %>
-              <%= link_to new_session_path, data: { turbo_frame: "modal" }, class: "inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900" do %>
+              <%= link_to new_session_path, data: { turbo_frame: "modal" }, class: "inline-flex justify-center items-center py-3 px-5 text-base font-semibold text-center text-ground rounded-xl bg-accent hover:bg-accent/90 focus:ring-2 focus:ring-accent/40" do %>
                 Log in
                 <%= icon("arrow-right", class:"ml-2") %>
               <% end %>
@@ -121,11 +110,11 @@
         <%= render partial: key, object: flash[key] %>
       <% end %>
     <% end %>
-    <div class="flex pt-20 overflow-hidden bg-gray-50 dark:bg-gray-900">
+    <div class="flex pt-20 overflow-hidden bg-ground">
       <div
         class="
           relative w-full max-w-screen-2xl mx-auto h-full overflow-y-auto
-          bg-gray-50 dark:bg-gray-900
+          bg-ground
         "
       >
         <main>
@@ -150,7 +139,7 @@
             md:py-10
           "
         >
-          <div class="container mx-auto text-center text-zinc-400 text-xs">
+          <div class="container mx-auto text-center text-muted text-xs">
             <%= t("app.name") %> is open-source software. Contribute here:
             <%= icon("github-logo") %>
             <%= link_to 'Github', 'https://github.com/KAKAHPT/grindin-station', class: 'underline', target: '_blank' %>

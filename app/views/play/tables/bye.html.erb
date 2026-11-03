@@ -1,5 +1,5 @@
-<section class="p-4 rounded-lg bg-white dark:bg-gray-800 text-center">
-  <p class="text-sm text-gray-500 dark:text-gray-400"><%= t("play.tables.round", number: current_round.number) %></p>
-  <p class="font-medium"><%= t("play.tables.bye") %></p>
+<section class="p-5 rounded-2xl bg-surface border border-line text-center">
+  <p class="text-[11px] font-semibold uppercase tracking-wide text-muted"><%= t("play.tables.round", number: current_round.number) %></p>
+  <p class="mt-2 font-display text-xl font-semibold"><%= t("play.tables.bye") %></p>
 </section>
 <%= render "play/tables/judge_button", called: judge_called? %>

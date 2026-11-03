@@ -1,6 +1,8 @@
 <% if local_assigns[:called] %>
-  <p data-judge-called class="mt-4 p-3 rounded-lg bg-yellow-50 text-yellow-800 text-center text-sm"><%= t("play.judge_called") %></p>
+  <p data-judge-called class="mt-3 flex min-h-[52px] items-center justify-center gap-2 rounded-xl border border-warn/40 bg-warn/10 text-warn text-sm font-semibold">
+    <span class="size-1.5 rounded-full bg-current" aria-hidden="true"></span><%= t("play.judge_called") %>
+  </p>
 <% else %>
   <%= button_to t("play.call_judge"), play_judge_calls_path(current_event.slug, locale: params[:locale]),
-                class: "mt-4 w-full py-3 rounded-lg border border-gray-300 dark:border-gray-600 font-medium" %>
+                form_class: "mt-3", class: button_classes(:secondary, "w-full") %>
 <% end %>

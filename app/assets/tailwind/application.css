@@ -10,6 +10,21 @@
 
 @source "../javascript/**/*.js";
 
+/* Palette A (Grindin Station visual identity) */
+@theme {
+  --color-ground: #111315;
+  --color-surface: #1b1e22;
+  --color-line: #2a2f36;
+  --color-ink: #eef0f2;
+  --color-muted: #8b949e;
+  --color-accent: #2dd4bf;
+  --color-warn: #fbbf24;
+  --color-danger: #f87171;
+
+  --font-display: "Sora", sans-serif;
+  --font-body: "Manrope", sans-serif;
+}
+
 .markdown {
   @apply py-3;
 
