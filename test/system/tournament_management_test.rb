@@ -14,8 +14,8 @@ class TournamentManagementTest < ApplicationSystemTestCase
     fill_in "Description", with: "The biggest tournament of the year"
     fill_in "Maximum participants", with: "32"
     fill_in "Address", with: "Lisboa, Portugal"
-    fill_in "Start time", with: Time.zone.now.tomorrow.strftime("%Y-%m-%dT%H:%M")
-    fill_in "End time", with: Time.zone.now.tomorrow.strftime("%Y-%m-%dT%H:%M")
+    fill_in "Start time", with: Time.zone.now.tomorrow.change(sec: 0)
+    fill_in "End time", with: Time.zone.now.tomorrow.change(sec: 0)
 
     click_button "Create Tournament"
     assert_text I18n.t("flash.notice.tournament_created")

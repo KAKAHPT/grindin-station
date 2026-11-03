@@ -15,8 +15,8 @@ class TournamentLifecycleTest < ApplicationSystemTestCase
     fill_in "Description", with: "A test tournament for system testing"
     fill_in "Maximum participants", with: "16"
     fill_in "Address", with: "Porto, Portugal"
-    fill_in "Start time", with: Time.zone.now.tomorrow.strftime("%Y-%m-%dT%H:%M")
-    fill_in "End time", with: Time.zone.now.tomorrow.strftime("%Y-%m-%dT%H:%M")
+    fill_in "Start time", with: Time.zone.now.tomorrow.change(sec: 0)
+    fill_in "End time", with: Time.zone.now.tomorrow.change(sec: 0)
 
     click_button "Create Tournament"
     assert_text I18n.t("flash.notice.tournament_created")
