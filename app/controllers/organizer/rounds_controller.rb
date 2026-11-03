@@ -47,11 +47,11 @@ module Organizer
     def destroy
       event = load_tournament
       round = load_round(event)
-      if round.number == 1
-        return redirect_to [:organizer, event, round.becomes(Round)], alert: t("rounds.cannot_undo_first")
-      end
       if round.number != event.rounds.maximum(:number)
         return redirect_to [:organizer, event, round.becomes(Round)], alert: t("rounds.cannot_undo_older")
+      end
+      if round.number == 1
+        return redirect_to [:organizer, event, round.becomes(Round)], alert: t("rounds.cannot_undo_first")
       end
 
       Round.transaction { roll_back(event, round) }
