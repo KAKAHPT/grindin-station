@@ -201,6 +201,8 @@ pt:
     time_called: "Tempo chamado"
     player_wins: "%{name} wins"
     cancel: "Cancelar"
+    undo: "Anular ronda"
+    undo_confirm: "Anular esta ronda? As mesas e resultados desaparecem."
     extra_time_added: "Tempo extra adicionado à mesa %{table}."
   standings:
     columns:

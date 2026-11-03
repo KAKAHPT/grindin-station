@@ -133,9 +133,9 @@
       <% end %>
 
       <% if !@round.past? %>
-        <%= button_to [:organizer, @round.event, @round.becomes(Round)], method: :delete, data: {turbo_confirm: "Are you sure you want to destroy this round?"}, form_class: "w-full sm:w-auto", class: button_classes(:danger, "w-full sm:w-auto") do %>
-          <%= icon("radioactive", class: "me-2") %>
-          Destroy
+        <%= button_to [:organizer, @round.event, @round.becomes(Round)], method: :delete, data: {turbo_confirm: t("rounds.undo_confirm")}, form_class: "w-full sm:w-auto", class: button_classes(:danger, "w-full sm:w-auto") do %>
+          <%= icon("arrow-counter-clockwise", class: "me-2") %>
+          <%= t("rounds.undo") %>
         <% end %>
       <% end %>
     </div>

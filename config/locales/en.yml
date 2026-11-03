@@ -201,6 +201,8 @@ en:
     time_called: "Time called"
     player_wins: "%{name} wins"
     cancel: "Cancel"
+    undo: "Undo round"
+    undo_confirm: "Undo this round? Its tables and results will be removed."
     extra_time_added: "Extra time added to table %{table}."
   standings:
     columns:
