@@ -27,6 +27,27 @@ class EventParticipantsStandingsTest < ActionDispatch::IntegrationTest
     assert_select "p", text: I18n.t("standings.help.beaten", locale: :pt)
   end
 
+  test "public standings render before any round is published" do
+    tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+    tournament.rounds.create!(type: SwissRound, number: 1)
+
+    get tournament_event_participants_path(tournament)
+
+    assert_response :success
+  end
+
+  test "waitlisted players are not ranked in the standings" do
+    waiting = @tournament.event_participants.create!(player_name: "Espera Um", accepted_terms: true,
+                                                     player_email: "espera-#{SecureRandom.hex(3)}@example.com")
+    waiting.update_columns(waitlisted: true, waitlist_position: 1) # rubocop:disable Rails/SkipsModelValidations
+
+    get tournament_event_participants_path(@tournament)
+
+    assert_response :success
+    assert_select "tbody tr", 8
+    assert_select "tbody", text: /Espera Um/, count: 0
+  end
+
   private
 
   def assert_standings_headers(locale)

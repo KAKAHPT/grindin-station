@@ -3,9 +3,10 @@
   Participants
 <% end %>
 
+<% latest_published = @tournament.rounds.published.max_by(&:number) %>
 <% content_for :close do %>
-  <% if @tournament.rounds.present? %>
-    <%= link_to [@tournament, @tournament.rounds.published.max_by(&:number).becomes(Round)], class: "ms-auto #{icon_button_classes}" do %>
+  <% if latest_published %>
+    <%= link_to [@tournament, latest_published.becomes(Round)], class: "ms-auto #{icon_button_classes}" do %>
       <svg
         class="w-3 h-3"
         aria-hidden="true"
@@ -151,7 +152,7 @@
       <% when 'registration_open', 'registration_closed' %>
         <%= render partial: "event_participants/event_participant", collection: @tournament.event_participants.sort_by(&:name), locals: { wide_only: wide_only, pad: pad } %>
       <% else %>
-        <% standings = @tournament.event_participants.sort_by { |p| [p.playing? ? 0 : 1, -p.rank_score, p.name] } %>
+        <% standings = @tournament.event_participants.reject(&:waitlisted?).sort_by { |p| [p.playing? ? 0 : 1, -p.rank_score, p.name] } %>
         <%= render partial: "event_participants/event_participant", collection: standings, locals: { seat_five: seat_five?(standings), wide_only: wide_only, pad: pad } %>
       <% end %>
     </tbody>
@@ -162,8 +163,8 @@
 <% end %>
 
 <% content_for :footer do %>
-  <% if @tournament.rounds.present? %>
-    <%= link_to [@tournament, @tournament.rounds.published.max_by(&:number).becomes(Round)], class: "ms-3 #{small_button_classes(:secondary)}" do %>
+  <% if latest_published %>
+    <%= link_to [@tournament, latest_published.becomes(Round)], class: "ms-3 #{small_button_classes(:secondary)}" do %>
       Close
     <% end %>
   <% end %>

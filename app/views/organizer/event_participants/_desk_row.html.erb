@@ -1,5 +1,5 @@
 <% participant = desk_row %>
-<% standings = local_assigns.fetch(:standings, false) %>
+<% standings = local_assigns.fetch(:standings, false) && !participant.waitlisted? %>
 <% stats_id = dom_id(participant, :stats) %>
 <tr
   id="<%= dom_id(participant) %>"

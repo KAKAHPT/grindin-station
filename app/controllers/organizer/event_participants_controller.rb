@@ -19,22 +19,7 @@ module Organizer
       when "registration_open", "registration_closed"
         @event_participants = @event.event_participants.includes(player: :user).joins(player: :user).order(:name)
       else
-        @event_participants =
-          @event.event_participants.sort_by do |p|
-            seat_counts = p.seat_counts
-            [
-              p.playing? ? 0 : 1,
-              -p.rank_score,
-              -seat_counts[4],
-              -seat_counts[3],
-              -seat_counts[2],
-              -seat_counts[1],
-              p.name
-            ]
-          end
-        @event_participants.each.with_index do |p, i|
-          p.rank = i + 1
-        end
+        @event_participants = ranked_participants(@event)
       end
 
       @roster_counts = roster_counts(@event)
@@ -119,6 +104,18 @@ module Organizer
 
     def roster_path(event)
       [:organizer, event, :event_participants, { layout: "application" }]
+    end
+
+    # The standings with a rank each; the waitlist is not ranked and follows in waitlist order.
+    def ranked_participants(event)
+      waitlist, ranked = event.event_participants.partition(&:waitlisted?)
+      ranked =
+        ranked.sort_by do |p|
+          seats = p.seat_counts
+          [p.playing? ? 0 : 1, -p.rank_score, -seats[4], -seats[3], -seats[2], -seats[1], p.name]
+        end
+      ranked.each.with_index(1) { |p, rank| p.rank = rank }
+      ranked + waitlist.sort_by { |p| p.waitlist_position.to_i }
     end
 
     def roster_counts(event)

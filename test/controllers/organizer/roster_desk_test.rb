@@ -29,5 +29,24 @@ module Organizer
       assert_select "tbody span", text: /\A\s*No decklist\s*\z/, count: 3
       assert_select "#roster_count_no_decklist", "3"
     end
+
+    test "a waitlisted player is listed with their waitlist position, not a rank" do
+      waiting = @tournament.event_participants.create!(player_name: "Espera Um", accepted_terms: true,
+                                                       player_email: "espera-#{SecureRandom.hex(3)}@example.com")
+      waiting.update_columns(waitlisted: true, waitlist_position: 1) # rubocop:disable Rails/SkipsModelValidations
+
+      get organizer_tournament_event_participants_path(@tournament)
+
+      assert_response :success
+      ranks = css_select("tbody tr[id^=event_participant_] th:first-child").map { |th| th.text.strip }
+      assert_equal %w[1 2 3 4], ranks.first(4)
+      assert_select "##{ActionView::RecordIdentifier.dom_id(waiting)} th:first-child", text: "Waitlist #1"
+
+      get organizer_tournament_event_participants_path(@tournament, layout: "application", status: "waitlisted")
+
+      assert_select "tbody tr[id^=event_participant_]", 1
+      assert_select "##{ActionView::RecordIdentifier.dom_id(waiting)} td", text: "–", minimum: 3
+      assert_select "#roster_count_waitlisted", "1"
+    end
   end
 end

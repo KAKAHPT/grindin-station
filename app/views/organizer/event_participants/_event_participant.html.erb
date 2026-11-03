@@ -16,7 +16,7 @@
       scope="row"
       class="px-2.5 py-1 text-center whitespace-nowrap"
     >
-      <span class="tabular text-muted"><%= event_participant.rank %></span>
+      <span class="tabular text-muted"><%= event_participant.rank || t("organizer.roster.desk.waitlist", position: event_participant.waitlist_position) %></span>
     </th>
     <th
       scope="row"
