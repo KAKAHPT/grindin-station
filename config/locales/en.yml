@@ -116,6 +116,40 @@ en:
       confirm_drop: "Drop %{name}?"
       confirm_no_show: "Mark %{name} as a no-show?"
       confirm_undo_drop: "Re-enroll %{name}?"
+  play:
+    not_a_participant: "Only players in this event can open that page."
+    nav:
+      my_table: "My table"
+      standings: "Standings"
+      event: "Event"
+    tables:
+      round: "Round %{number}"
+      table: "Table"
+      seat: "Seat"
+      you: "You"
+      waiting: "Waiting for pairings"
+      bye: "You have a bye this round"
+    status:
+      playing: "Playing"
+      pending: "Waiting for confirmation"
+      review: "Waiting for confirmation"
+      disputed: "Disputed: a judge is on the way"
+      completed: "Completed"
+    reports:
+      who_won: "Who won?"
+    report_result: "Report result"
+    draw: "Draw"
+    submit: "Submit"
+    call_judge: "Call a judge"
+    judge_called: "Judge called"
+    confirm: "Confirm"
+    contest: "Contest"
+    contest_reason: "Why do you contest the result?"
+    notices:
+      reported: "Result reported."
+      confirmed: "Result confirmed."
+      contested: "Result contested. A judge has been called."
+      judge_called: "A judge has been called."
   results:
     later_round_warning: "A later round is already published: this correction changes standings it was paired from."
     confirm_correction: "I understand, apply the correction"

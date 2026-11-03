@@ -29,6 +29,17 @@ Rails.application.routes.draw do
     end
   end
 
+  scope "/t/:slug", module: :play, as: :play do
+    get "me", to: "tables#show"
+    resources :pods, only: [] do
+      get "report/new", to: "reports#new"
+      post "report", to: "reports#create"
+      post "confirm", to: "reports#confirm"
+      post "contest", to: "reports#contest"
+    end
+    resources :judge_calls, only: :create
+  end
+
   resources :events, only: %i[index]
   resources :circuits, only: %i[index show]
 

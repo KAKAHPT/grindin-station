@@ -116,6 +116,40 @@ pt:
       confirm_drop: "Retirar %{name} do torneio?"
       confirm_no_show: "Marcar %{name} como não comparecido?"
       confirm_undo_drop: "Voltar a inscrever %{name}?"
+  play:
+    not_a_participant: "Só os jogadores deste evento podem abrir essa página."
+    nav:
+      my_table: "A minha mesa"
+      standings: "Classificação"
+      event: "Evento"
+    tables:
+      round: "Ronda %{number}"
+      table: "Mesa"
+      seat: "Lugar"
+      you: "Tu"
+      waiting: "À espera dos emparelhamentos"
+      bye: "Tens bye nesta ronda"
+    status:
+      playing: "A jogar"
+      pending: "À espera de confirmação"
+      review: "À espera de confirmação"
+      disputed: "Contestado: um juiz vem a caminho"
+      completed: "Concluído"
+    reports:
+      who_won: "Quem ganhou?"
+    report_result: "Reportar resultado"
+    draw: "Draw"
+    submit: "Submeter"
+    call_judge: "Chamar um juiz"
+    judge_called: "Juiz chamado"
+    confirm: "Confirmar"
+    contest: "Contestar"
+    contest_reason: "Porque contestas o resultado?"
+    notices:
+      reported: "Resultado reportado."
+      confirmed: "Resultado confirmado."
+      contested: "Resultado contestado. Foi chamado um juiz."
+      judge_called: "Foi chamado um juiz."
   results:
     later_round_warning: "Já há uma ronda posterior publicada: esta correção altera a classificação a partir da qual foi emparelhada."
     confirm_correction: "Compreendo, aplicar a correção"

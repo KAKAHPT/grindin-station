@@ -1,0 +1,54 @@
+<section class="p-4 rounded-lg bg-white dark:bg-gray-800">
+  <p class="text-sm text-gray-500 dark:text-gray-400"><%= t("play.tables.round", number: current_round.number) %></p>
+  <div class="mt-2 grid grid-cols-2 gap-2 text-center">
+    <div class="p-3 rounded-lg bg-gray-100 dark:bg-gray-700">
+      <p class="text-xs uppercase text-gray-500 dark:text-gray-400"><%= t("play.tables.table") %></p>
+      <p data-table-number class="text-3xl font-bold"><%= @pod.number %></p>
+    </div>
+    <div class="p-3 rounded-lg bg-gray-100 dark:bg-gray-700">
+      <p class="text-xs uppercase text-gray-500 dark:text-gray-400"><%= t("play.tables.seat") %></p>
+      <p data-seat-number class="text-3xl font-bold"><%= @seat %></p>
+    </div>
+  </div>
+
+  <ol class="mt-4 divide-y divide-gray-200 dark:divide-gray-700">
+    <% @seatings.each do |seating| %>
+      <% participant = seating.event_participant %>
+      <% me = participant.id == current_participant.id %>
+      <%= tag.li data: { me: (true if me) }, class: ["py-2 flex gap-3", ("font-semibold" if me)] do %>
+        <span class="w-6 text-gray-500 dark:text-gray-400"><%= seating.order %></span>
+        <span class="flex-1">
+          <%= participant.name %>
+          <% if me %><span class="ms-1 text-xs px-2 py-0.5 rounded bg-gray-900 text-white dark:bg-white dark:text-gray-900"><%= t("play.tables.you") %></span><% end %>
+          <% if current_event.show_commanders_in_standings && participant.decklist.present? %>
+            <span class="block text-xs font-normal text-gray-500 dark:text-gray-400"><%= participant.decklist %></span>
+          <% end %>
+        </span>
+      <% end %>
+    <% end %>
+  </ol>
+</section>
+
+<section class="mt-4 p-4 rounded-lg bg-white dark:bg-gray-800">
+  <p data-report-status class="font-medium"><%= t("play.status.#{@status}") %></p>
+
+  <% if @can_report %>
+    <%= link_to t("play.report_result"), play_pod_report_new_path(current_event.slug, @pod, locale: params[:locale]),
+                class: "mt-3 block w-full py-3 rounded-lg bg-gray-900 text-white text-center font-medium dark:bg-white dark:text-gray-900" %>
+  <% end %>
+
+  <% if @can_confirm %>
+    <%= button_to t("play.confirm"), play_pod_confirm_path(current_event.slug, @pod, locale: params[:locale]),
+                  class: "mt-3 w-full py-3 rounded-lg bg-gray-900 text-white font-medium dark:bg-white dark:text-gray-900" %>
+  <% end %>
+
+  <% if @can_contest %>
+    <%= form_with url: play_pod_contest_path(current_event.slug, @pod, locale: params[:locale]), class: "mt-3 flex gap-2" do |f| %>
+      <%= f.text_field :reason, required: true, placeholder: t("play.contest_reason"), "aria-label": t("play.contest_reason"),
+                       class: "flex-1 rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-sm" %>
+      <%= f.button t("play.contest"), class: "px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 font-medium" %>
+    <% end %>
+  <% end %>
+</section>
+
+<%= render "play/tables/judge_button", called: @judge_called %>

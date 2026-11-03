@@ -1,0 +1,6 @@
+<% if local_assigns[:called] %>
+  <p data-judge-called class="mt-4 p-3 rounded-lg bg-yellow-50 text-yellow-800 text-center text-sm"><%= t("play.judge_called") %></p>
+<% else %>
+  <%= button_to t("play.call_judge"), play_judge_calls_path(current_event.slug, locale: params[:locale]),
+                class: "mt-4 w-full py-3 rounded-lg border border-gray-300 dark:border-gray-600 font-medium" %>
+<% end %>
