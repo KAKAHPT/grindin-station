@@ -91,6 +91,28 @@ pt:
         acknowledged: "Aceite"
         closed: "Fechada"
     roster:
+      desk:
+        checked_in: "Check-in feito"
+        not_checked_in: "Sem check-in"
+        paid: "Pago"
+        unpaid: "Por pagar"
+        waitlist: "Lista de espera #%{position}"
+        dropped: "Desistiu"
+        dropped_round: "Desistiu R%{round}"
+      counters:
+        enrolled: "inscritos"
+        checked_in: "com check-in"
+        unpaid: "por pagar"
+        waitlisted: "em espera"
+        dropped: "desistências"
+      stats:
+        beaten: "Batidos"
+        unique: "Únicos"
+        seats: "Lugares"
+        check_in: "Check-in"
+        infractions: "Infrações"
+        show: "Ver estatísticas"
+      column_desk: "Balcão"
       all: "Todos"
       statuses:
         enrolled: "Inscritos"

@@ -96,11 +96,11 @@ module Organizer
       assert_select "#roster_count_dropped", "1"
 
       get organizer_tournament_event_participants_path(@tournament, layout: "application", status: "waitlisted")
-      assert_select "tbody tr", 1
+      assert_select "tbody tr[id^=event_participant_]", 1
       assert_select "tbody tr##{ActionView::RecordIdentifier.dom_id(participants[2])}"
 
       get organizer_tournament_event_participants_path(@tournament, layout: "application", status: "checked_in")
-      assert_select "tbody tr", 1
+      assert_select "tbody tr[id^=event_participant_]", 1
       assert_select "tbody tr##{ActionView::RecordIdentifier.dom_id(participants[0])}"
     end
 

@@ -91,6 +91,28 @@ en:
         acknowledged: "Acknowledged"
         closed: "Closed"
     roster:
+      desk:
+        checked_in: "Checked in"
+        not_checked_in: "Not checked in"
+        paid: "Paid"
+        unpaid: "Unpaid"
+        waitlist: "Waitlist #%{position}"
+        dropped: "Dropped"
+        dropped_round: "Dropped R%{round}"
+      counters:
+        enrolled: "enrolled"
+        checked_in: "checked in"
+        unpaid: "unpaid"
+        waitlisted: "waitlist"
+        dropped: "dropped"
+      stats:
+        beaten: "Beaten"
+        unique: "Unique"
+        seats: "Seats"
+        check_in: "Check-in"
+        infractions: "Infractions"
+        show: "Show stats"
+      column_desk: "Desk"
       all: "All"
       statuses:
         enrolled: "Enrolled"
