@@ -37,5 +37,17 @@ module Organizer
       assert_equal users(:organizer_user).id, current.recorded_by_user_id
       assert_equal 8, Result.where(round: @round).count
     end
+
+    test "a staff result locks the pod" do
+      locks = []
+      lock_spy = ->(*, payload) { locks << payload[:sql] if payload[:sql].match?(/FROM "pods".*FOR UPDATE/) }
+      ActiveSupport::Notifications.subscribed(lock_spy, "sql.active_record") do
+        post organizer_tournament_round_pod_results_path(@t, @round, @pod),
+             params: { result: { type: "Draw" }, confirm: "1" }
+      end
+
+      assert_redirected_to organizer_tournament_round_path(@t, @round)
+      assert_equal 1, locks.size
+    end
   end
 end

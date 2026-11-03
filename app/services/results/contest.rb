@@ -28,9 +28,10 @@ module Results
 
     private
 
-    def check!
+    def check! # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity -- one line per guard
       refuse("self_report_disabled") unless @pod.event.self_report_enabled
       refuse("not_seated") unless @pod.seated?(@participant)
+      refuse("round_closed") if @pod.round.finished_at.present? || @pod.event.finished?
       refuse("disputed") if @pod.disputed?
       refuse("nothing_to_contest") unless @pod.pending_result || @pod.finished?
       refuse("reason_required") if @reason.blank?

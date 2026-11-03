@@ -45,6 +45,15 @@ module Results
       assert_equal "already_finished", error.message
     end
 
+    test "a second replay call adds no more time" do
+      @t.update_columns(top_cut_timeout_rule: "replay", top_cut_round_minutes: 90) # rubocop:disable Rails/SkipsModelValidations
+      Results::Timeout.call(pod: @pod, by: users(:organizer_user))
+
+      error = assert_raises(Results::NotAllowed) { Results::Timeout.call(pod: @pod.reload, by: users(:organizer_user)) }
+      assert_equal "time_already_called", error.message
+      assert_equal 45, @pod.reload.extra_time
+    end
+
     private
 
     def cut_tournament

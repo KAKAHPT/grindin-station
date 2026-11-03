@@ -80,5 +80,19 @@ module Results
       assert_not @pod.disputed?
       assert_nil @pod.review_requested_at
     end
+
+    test "a closed round or a finished event cannot be contested" do
+      Report.call(pod: @pod, participant: @seats[0], type: "Win", winner: @seats[0])
+      @pod.round.update_columns(finished_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
+
+      error = assert_raises(NotAllowed) { Contest.call(pod: @pod.reload, participant: @seats[1], reason: "Late") }
+      assert_equal "round_closed", error.message
+
+      @pod.round.update_columns(finished_at: nil) # rubocop:disable Rails/SkipsModelValidations
+      @t.update_column(:state, :finished) # rubocop:disable Rails/SkipsModelValidations
+      error = assert_raises(NotAllowed) { Contest.call(pod: @pod.reload, participant: @seats[1], reason: "Late") }
+      assert_equal "round_closed", error.message
+      assert_not @pod.reload.disputed?
+    end
   end
 end

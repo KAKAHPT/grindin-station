@@ -198,6 +198,8 @@ pt:
       nothing_to_contest: "Ainda não há resultado para contestar."
       reason_required: "Indica porque contestas o resultado."
       draw_in_top_cut: "No top cut não há empates: escolhe quem passa."
+      round_closed: "Esta ronda está fechada: pede a um juiz para corrigir o resultado."
+      time_already_called: "O tempo já foi chamado nesta mesa; aguarda revisão do staff."
   rounds:
     print:
       pairings_link: "Imprimir emparelhamentos"

@@ -64,7 +64,7 @@ module Organizer
     # A staff result overrides the players' report: their pending result, confirmations and dispute
     # are dropped and the table's open judge calls are closed.
     def submit(event_participant)
-      Pod.transaction do
+      @pod.with_lock do
         Events::SubmitResultJob.perform_now(
           type: result_params[:type],
           event_participant: event_participant, round: @round, pod: @pod, by: current_user

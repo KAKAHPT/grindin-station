@@ -198,6 +198,8 @@ en:
       nothing_to_contest: "There is no result to contest yet."
       reason_required: "Say why you contest the result."
       draw_in_top_cut: "There are no draws in the top cut: pick the player who advances."
+      round_closed: "This round is closed: ask a judge to correct the result."
+      time_already_called: "Time was already called at this table; it is waiting for staff review."
   rounds:
     print:
       pairings_link: "Print pairings"

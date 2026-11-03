@@ -39,7 +39,10 @@ module Results
       Apply.call(pod: @pod, type: "Advance", winner: winner, by: @by)
     end
 
+    # Once per table: a pod already waiting for staff review gets no more time.
     def replay
+      raise NotAllowed, "time_already_called" if @pod.review_requested_at.present?
+
       @pod.update!(extra_time: @pod.extra_time + (event.top_cut_round_minutes / 2), review_requested_at: Time.current)
     end
   end
