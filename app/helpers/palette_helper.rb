@@ -2,30 +2,30 @@
 
 # Palette A building blocks shared by the tournament-day pages: buttons, chips, segmented controls, seat squares.
 module PaletteHelper
-  BUTTON_BASE = "inline-flex min-h-[52px] items-center justify-center gap-2 px-5 rounded-xl border " \
-                "text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-accent/40"
-  BUTTON_KINDS = {
-    primary: "bg-accent text-ground border-accent hover:bg-accent/90",
-    secondary: "bg-surface text-ink border-line hover:bg-surface-raised hover:border-line-strong",
-    danger: "bg-danger/10 text-danger border-danger/40 hover:bg-danger/20"
-  }.freeze
+  LABEL = "font-display text-[13px] font-semibold tracking-[0.01em]"
 
-  # Small row action (roster check in, paid, drop...): ghost button, 36 px.
-  SMALL_BUTTON_BASE = "inline-flex h-9 items-center px-3 me-2 rounded-lg border text-sm font-semibold transition-colors"
-  SMALL_BUTTON_KINDS = {
-    primary: "bg-accent/10 text-accent border-accent/30 hover:bg-accent/20",
-    secondary: "bg-transparent text-ink border-line hover:bg-surface-raised hover:border-line-strong",
-    danger: "bg-transparent text-danger border-danger/30 hover:bg-danger/10"
-  }.freeze
+  # Large button (48 px). Material lives in the .btn-* component classes of application.css.
+  BUTTON_BASE = "btn inline-flex h-12 items-center justify-center gap-2 px-5 rounded-md whitespace-nowrap " \
+                "#{LABEL}".freeze
+  BUTTON_KINDS = { primary: "btn-primary", secondary: "btn-secondary", danger: "btn-danger" }.freeze
+
+  # Small button (36 px): toolbars, card headers, modal footers.
+  SMALL_BUTTON_BASE = "btn inline-flex h-9 items-center justify-center gap-1.5 px-3 rounded-md whitespace-nowrap " \
+                      "#{LABEL}".freeze
+  SMALL_BUTTON_KINDS = { primary: "btn-primary", secondary: "btn-secondary", danger: "btn-danger" }.freeze
+
+  # Icon-only row action (36 px square).
+  ICON_BUTTON = "btn btn-ghost inline-flex size-9 items-center justify-center rounded-md"
 
   # Segmented control (round tabs, roster filters).
-  SEGMENT_TRACK = "inline-flex flex-wrap items-center gap-1 p-1 rounded-xl bg-surface-raised border border-line"
-  SEGMENT_ITEM = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-  SEGMENT_ACTIVE = "bg-surface shadow-card text-ink"
+  SEGMENT_TRACK = "inline-flex flex-wrap items-center gap-0.5 p-0.5 rounded-md bg-surface-raised border border-line"
+  SEGMENT_ITEM = "inline-flex items-center gap-1.5 h-8 px-3 rounded-[4px] border border-transparent " \
+                 "transition-colors #{LABEL}".freeze
+  SEGMENT_ACTIVE = "segment-active"
   SEGMENT_IDLE = "text-muted hover:text-ink"
 
   # 28x28 seat number square (pod cards, player table list).
-  SEAT_SQUARE = "inline-flex size-7 shrink-0 items-center justify-center rounded-md bg-surface-raised " \
+  SEAT_SQUARE = "inline-flex size-7 shrink-0 items-center justify-center rounded-[4px] bg-surface-raised " \
                 "font-display text-sm font-semibold"
 
   CHIP_TONES = {
@@ -41,12 +41,9 @@ module PaletteHelper
     "#{SMALL_BUTTON_BASE} #{SMALL_BUTTON_KINDS.fetch(kind)}"
   end
 
-  ICON_BUTTON = "inline-flex size-9 items-center justify-center rounded-lg border border-line text-muted " \
-                "hover:text-ink hover:border-muted transition-colors"
-
   # Icon-only row action; danger ones turn red on hover. The label goes in title + sr-only text.
   def icon_button_classes(danger: false)
-    danger ? "#{ICON_BUTTON} hover:!text-danger hover:!border-danger/40" : ICON_BUTTON
+    danger ? "#{ICON_BUTTON} btn-ghost-danger" : ICON_BUTTON
   end
 
   def segment_classes(active)

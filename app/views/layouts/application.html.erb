@@ -96,7 +96,7 @@
             <% if authenticated? %>
               <%= link_to 'Logout', session_path(Current.session), data: { "turbo-method": :delete }, class: "text-muted hover:text-ink hover:bg-line focus:outline-none focus:ring-2 focus:ring-line rounded-lg text-sm p-2.5" %>
             <% else %>
-              <%= link_to new_session_path, data: { turbo_frame: "modal" }, class: "inline-flex justify-center items-center py-3 px-5 text-base font-semibold text-center text-ground rounded-xl bg-accent hover:bg-accent/90 focus:ring-2 focus:ring-accent/40" do %>
+              <%= link_to new_session_path, data: { turbo_frame: "modal" }, class: small_button_classes(:primary) do %>
                 Log in
                 <%= icon("arrow-right", class:"ml-2") %>
               <% end %>

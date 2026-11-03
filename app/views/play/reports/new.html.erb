@@ -8,7 +8,7 @@
       <legend class="text-sm text-muted mb-2"><%= t("play.reports.who_won") %></legend>
       <% @seatings.each do |seating| %>
         <% participant = seating.event_participant %>
-        <label class="flex items-center gap-3 min-h-[52px] px-4 rounded-xl bg-surface-raised border border-line has-[:checked]:border-accent/60 has-[:checked]:bg-accent/[0.08]">
+        <label class="flex items-center gap-3 min-h-12 px-4 rounded-md bg-surface-raised border border-line has-[:checked]:border-accent/60 has-[:checked]:bg-accent/[0.08]">
           <%= radio_button_tag :winner_id, participant.id, participant.id == current_participant.id, class: "text-accent bg-surface border-line focus:ring-accent" %>
           <span><span class="font-display font-semibold text-muted"><%= seating.order %></span> <%= participant.name %></span>
         </label>

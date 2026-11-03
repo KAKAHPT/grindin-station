@@ -84,11 +84,11 @@
   </ul>
   <div class="flex flex-col gap-3 lg:flex-row lg:justify-between lg:items-center">
     <div class="flex flex-wrap items-center gap-2 text-sm font-medium">
-      <%= link_to [:organizer, @round.event, :event_participants], data: {turbo_frame: "modal"}, class: "inline-flex items-center h-10 px-4 rounded-xl border border-line bg-surface text-ink shadow-card hover:border-line-strong" do %>
+      <%= link_to [:organizer, @round.event, :event_participants], data: {turbo_frame: "modal"}, class: small_button_classes(:secondary) do %>
         Standings
       <% end %>
-      <%= link_to t("rounds.print.pairings_link"), print_organizer_tournament_round_path(@round.event, @round), target: "_blank", rel: "noopener", class: "inline-flex items-center h-10 px-4 rounded-xl border border-line bg-surface text-ink shadow-card hover:border-line-strong" %>
-      <%= link_to t("rounds.print.slips_link"), slips_organizer_tournament_round_path(@round.event, @round), target: "_blank", rel: "noopener", class: "inline-flex items-center h-10 px-4 rounded-xl border border-line bg-surface text-ink shadow-card hover:border-line-strong" %>
+      <%= link_to t("rounds.print.pairings_link"), print_organizer_tournament_round_path(@round.event, @round), target: "_blank", rel: "noopener", class: small_button_classes(:secondary) %>
+      <%= link_to t("rounds.print.slips_link"), slips_organizer_tournament_round_path(@round.event, @round), target: "_blank", rel: "noopener", class: small_button_classes(:secondary) %>
     </div>
     <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
       <% if @round.published? %>
@@ -97,7 +97,7 @@
             data-action="click->round-timer#toggleFullscreen"
             class="
               cursor-zoom-in font-display text-2xl font-semibold tabular text-ink
-              inline-flex items-center justify-center px-4 min-h-[52px] rounded-xl
+              inline-flex items-center justify-center px-4 h-12 rounded-md
               bg-surface-raised border border-line shadow-card
             "
             data-controller="round-timer"
@@ -173,7 +173,7 @@
             />
           </svg>
         </div>
-        <%= text_field_tag :query, params[:query], placeholder: "Search for players", class: "block py-2.5 ps-10 text-sm text-ink border border-line rounded-xl w-full sm:w-80 bg-surface placeholder:text-muted focus:ring-accent focus:border-accent" %>
+        <%= text_field_tag :query, params[:query], placeholder: "Search for players", class: "block h-10 ps-10 text-sm text-ink border border-line rounded-md w-full sm:w-80 bg-surface placeholder:text-muted focus:ring-accent focus:border-accent" %>
       <% end %>
     </div>
   </div>

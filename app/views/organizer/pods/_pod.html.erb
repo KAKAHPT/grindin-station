@@ -20,7 +20,7 @@
       </div>
     </div>
     <% if pod.round.started? %>
-      <%= link_to [:new, :organizer, pod.event, pod.round.becomes(Round), pod, :result], data: {turbo_frame: "modal"}, class: "shrink-0 inline-flex items-center h-9 px-3 text-sm font-semibold rounded-lg border border-line text-muted hover:text-ink hover:bg-surface-raised hover:border-line-strong" do %>
+      <%= link_to [:new, :organizer, pod.event, pod.round.becomes(Round), pod, :result], data: {turbo_frame: "modal"}, class: "shrink-0 #{small_button_classes(:secondary)}" do %>
         <%= icon("hand-deposit", class: "me-1") %>
         <% if pod.finished? %>
           Change

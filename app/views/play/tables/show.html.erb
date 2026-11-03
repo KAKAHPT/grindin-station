@@ -46,7 +46,7 @@
   <% if @can_contest %>
     <%= form_with url: play_pod_contest_path(current_event.slug, @pod, locale: params[:locale]), class: "flex gap-2" do |f| %>
       <%= f.text_field :reason, required: true, placeholder: t("play.contest_reason"), "aria-label": t("play.contest_reason"),
-                       class: "flex-1 min-h-[52px] rounded-xl bg-surface border-line text-ink placeholder:text-muted text-sm focus:ring-accent focus:border-accent" %>
+                       class: "flex-1 h-12 rounded-md bg-surface border-line text-ink placeholder:text-muted text-sm focus:ring-accent focus:border-accent" %>
       <%= f.button t("play.contest"), class: button_classes(:secondary) %>
     <% end %>
   <% end %>
