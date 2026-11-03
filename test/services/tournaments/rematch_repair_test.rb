@@ -69,6 +69,33 @@ module Tournaments
       assert_equal RematchRepair::MAX_SWAPS_PER_POD * 2, repair.swaps
     end
 
+    test "a weaker player is moved before the leader when either resolves the rematch" do
+      # L met c; c met e, f and g. Moving L or c out of pod 1 both fix L-c; c is the one who should go.
+      points = { L: 15, a: 9, b: 9, c: 8, d: 8, e: 8, f: 8, g: 8, h: 1, i: 1, j: 1, k: 1 }
+      players = points.to_h { |name, score| [name, FakePlayer.new(name, score, [])] }
+      { L: %i[c], c: %i[L e f g], e: %i[c], f: %i[c], g: %i[c] }.each do |name, met|
+        players[name].opponent_ids.concat(met)
+      end
+      pods = [%i[L a b c], %i[d e f g], %i[h i j k]].map { |names| FakePod.new(players.values_at(*names)) }
+      round = FakeRound.new(pods)
+
+      [0, 1, 7, 14, Float::INFINITY].each do |gap|
+        break if RematchRepair.new(round, max_point_gap: gap).repair!.zero?
+      end
+
+      seated = pods.map { |pod| pod.candidates.map(&:id) }
+      assert_equal [%i[L a b h], %i[d e f g], %i[c i j k]], seated
+      assert_equal 0, RematchRepair.new(round, max_point_gap: 0).repair!
+    end
+
+    FakeOpponents = Struct.new(:ids)
+    FakePlayer =
+      Struct.new(:id, :match_points, :opponent_ids) do
+        def opponents = FakeOpponents.new(opponent_ids)
+      end
+    FakePod = Struct.new(:candidates)
+    FakeRound = Struct.new(:pods)
+
     private
 
     # Round 1 of 8 players (pod 1: one winner, pod 2: a draw), then an unsaved round 2 whose pods hold

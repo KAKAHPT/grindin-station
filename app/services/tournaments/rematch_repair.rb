@@ -31,9 +31,10 @@ module Tournaments
     private
 
     # [player, pod, other, other_pod] for the first swap that lowers the rematch count, or nil.
+    # Lowest-ranked first inside a pod, so a weaker player moves before a stronger one when either would do.
     def first_improving_swap
       @pods.each_with_index do |pod, index|
-        pod.candidates.each do |player|
+        pod.candidates.reverse_each do |player|
           next if rematches(player, pod.candidates).zero?
 
           swap = improving_swap_for(player, pod, index)
