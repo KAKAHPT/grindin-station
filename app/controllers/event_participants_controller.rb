@@ -2,12 +2,16 @@
 
 class EventParticipantsController < ApplicationController
   skip_before_action :require_authentication, only: %i[index]
+  helper_method :current_event
   rescue_from(Registrations::Closed) { redirect_to load_event, alert: t("flash.alert.registration_closed") }
   rescue_from(Registrations::Full) { redirect_to load_event, alert: t("flash.alert.registration_full") }
 
+  # Inside the app's modal frame it stays a modal; opened as a page (e.g. from the player nav) it gets the play layout.
   def index
     @tournament = load_event
-    render layout: "modal"
+    @standings_in_modal = turbo_frame_request_id == "modal"
+    @current_event = @tournament unless @standings_in_modal
+    render layout: @standings_in_modal ? "modal" : "play"
   end
 
   def new
@@ -49,6 +53,8 @@ class EventParticipantsController < ApplicationController
   end
 
   private
+
+  attr_reader :current_event
 
   # Before the swiss the registration is removed and the waitlist moves up; afterwards it is a drop.
   def cancel_registration(participant)

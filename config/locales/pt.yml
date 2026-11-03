@@ -195,7 +195,7 @@ pt:
     confirmed: "Confirmado: %{seats}"
     disputed: "Em disputa — precisa do staff"
     win: "Lugar %{seat} ganha"
-    draw: "Empate"
+    draw: "Draw"
     extra_time: "+%{minutes} min"
     add_extra_time: "+5 min"
     time_called: "Tempo chamado"

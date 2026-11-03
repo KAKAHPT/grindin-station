@@ -26,6 +26,27 @@ class BrandingTest < ActionDispatch::IntegrationTest
     assert_no_match(/bg-(purple|orange)-/, response.body)
   end
 
+  test "the standings page opened as a page gets the full play layout" do
+    tournament = build_round_tournament
+    get tournament_event_participants_path(tournament)
+
+    assert_response :success
+    assert_includes response.body, "<html"
+    assert_select "body.bg-ground"
+    assert_select "nav[data-play-nav]"
+    assert_select "turbo-frame#modal", count: 0
+  end
+
+  test "the standings page inside the modal frame stays a modal" do
+    tournament = build_round_tournament
+    get tournament_event_participants_path(tournament), headers: { "Turbo-Frame" => "modal" }
+
+    assert_response :success
+    assert_select "turbo-frame#modal"
+    assert_select "[class~=bg-ground]"
+    assert_not_includes response.body, "<html"
+  end
+
   test "the organizer round, roster and judge center pages have no purple or orange" do
     tournament = build_round_tournament
     round = tournament.rounds.first
