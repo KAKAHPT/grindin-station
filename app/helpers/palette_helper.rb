@@ -7,7 +7,7 @@ module PaletteHelper
   # Large button (48 px). Material lives in the .btn-* component classes of application.css.
   BUTTON_BASE = "btn inline-flex h-12 items-center justify-center gap-2 px-5 rounded-md whitespace-nowrap " \
                 "#{LABEL}".freeze
-  BUTTON_KINDS = { primary: "btn-primary", secondary: "btn-secondary", danger: "btn-danger" }.freeze
+  BUTTON_KINDS = { primary: "btn-primary", secondary: "btn-secondary", danger: "btn-danger", ghost: "btn-ghost" }.freeze
 
   # Small button (36 px): toolbars, card headers, modal footers.
   SMALL_BUTTON_BASE = "btn inline-flex h-9 items-center justify-center gap-1.5 px-3 rounded-md whitespace-nowrap " \
@@ -32,7 +32,7 @@ module PaletteHelper
     accent: "text-accent", muted: "text-muted", warn: "text-warn", danger: "text-danger", ink: "text-ink"
   }.freeze
 
-  # Palette A button: kind is :primary, :secondary or :danger; extra carries width/layout classes.
+  # Palette A button: kind is :primary, :secondary, :danger or :ghost; extra carries width/layout classes.
   def button_classes(kind = :secondary, extra = nil)
     [BUTTON_BASE, BUTTON_KINDS.fetch(kind), extra].compact.join(" ")
   end

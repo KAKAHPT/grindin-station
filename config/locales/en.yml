@@ -199,6 +199,8 @@ en:
     extra_time: "+%{minutes} min"
     add_extra_time: "+5 min"
     time_called: "Time called"
+    player_wins: "%{name} wins"
+    cancel: "Cancel"
     extra_time_added: "Extra time added to table %{table}."
   standings:
     columns:
