@@ -19,9 +19,20 @@ module Organizer
       end
     end
 
-    test "the rounds page is open to the organizer and the judge only" do
-      expected = { "organizer" => 200, "judge" => 200, "scorekeeper" => 302 }
+    test "the rounds page is open to every role" do
+      expected = { "organizer" => 200, "judge" => 200, "scorekeeper" => 200 }
       assert_matrix(expected) { get organizer_tournament_round_path(@tournament, @round) }
+    end
+
+    test "publishing, starting and finishing a round is for the organizer only" do
+      ROLES.each do |role|
+        sign_in_as(role)
+        patch organizer_tournament_round_path(@tournament, @round), params: { round: { action: "publish" } }
+
+        expected = role == "organizer" ? organizer_tournament_round_path(@tournament, @round) : organizer_root_path
+        assert_redirected_to expected, role
+      end
+      assert @round.reload.published?
     end
 
     test "editing the tournament is for the organizer only" do
@@ -39,6 +50,16 @@ module Organizer
         assert_equal role != "judge", @participant.reload.checked_in?, role
         assert_redirected_to organizer_root_path if role == "judge"
       end
+    end
+
+    test "a scorekeeper sees the player list without drop, add or infraction buttons" do
+      sign_in_as("scorekeeper")
+      get organizer_tournament_event_participants_path(@tournament, layout: "application")
+
+      assert_response :success
+      assert_includes response.body, "Check-in"
+      assert_not_includes response.body, "Record Infraction"
+      assert_not_includes response.body, "Add player"
     end
 
     test "a scorekeeper can only change check-in and paid" do

@@ -72,6 +72,7 @@
     </td>
     <td scope="col" class="px-5 py-3 text-right">
       <div class="inline-flex items-center">
+        <% unless scorekeeper %>
         <%= link_to [:new, :organizer, @event, :infraction, { player_id: event_participant.player_id }], data: { turbo_frame: "modal" }, class: "text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900" do %>
           <%= icon("gavel", class: "me-2") %>
           Record Infraction
@@ -87,6 +88,7 @@
             <%= icon("user-plus", class: "me-2") %>
             Undo Drop
           <% end %>
+        <% end %>
         <% end %>
 
         <% if event_participant.checked_in? %>

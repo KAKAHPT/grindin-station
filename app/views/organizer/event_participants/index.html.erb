@@ -1,3 +1,4 @@
+<% scorekeeper = current_user.staff_role_for(@event) == "scorekeeper" %>
 <% content_for :title do %>
   <%= @event.name %>
   Participants
@@ -112,9 +113,11 @@
     Participants (
     <%= @event.event_participants_count %>
     )
-    <%= link_to [:new, :organizer, @event, :event_participant], data: {turbo_frame: "modal"}, class: "float-right text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" do %>
-      <%= icon("plus", class: "me-2") %>
-      Add player
+    <% unless scorekeeper %>
+      <%= link_to [:new, :organizer, @event, :event_participant], data: {turbo_frame: "modal"}, class: "float-right text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" do %>
+        <%= icon("plus", class: "me-2") %>
+        Add player
+      <% end %>
     <% end %>
   </h1>
 
@@ -313,7 +316,7 @@
     </thead>
     <tbody id="<%= dom_id(@event, :event_participants) %>">
       <% seat_five = !@event.state.in?(%w[registration_open registration_closed]) && seat_five?(@event_participants) %>
-      <%= render partial: "organizer/event_participants/event_participant", collection: @event_participants, locals: { seat_five: seat_five } %>
+      <%= render partial: "organizer/event_participants/event_participant", collection: @event_participants, locals: { seat_five: seat_five, scorekeeper: scorekeeper } %>
     </tbody>
   </table>
 <% else %>

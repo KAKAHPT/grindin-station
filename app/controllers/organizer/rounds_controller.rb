@@ -2,8 +2,8 @@
 
 module Organizer
   class RoundsController < OrganizerController
-    allow_roles :organizer, :judge, only: %i[show update]
-    allow_roles :organizer, except: %i[show update]
+    allow_roles :organizer, :judge, :scorekeeper, only: :show
+    allow_roles :organizer, except: :show
 
     def show
       event = load_tournament

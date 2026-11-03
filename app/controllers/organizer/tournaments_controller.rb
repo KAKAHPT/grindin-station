@@ -3,7 +3,7 @@
 module Organizer
   class TournamentsController < OrganizerController
     before_action :require_organizer!, only: %i[new create]
-    before_action :require_owner!, only: %i[edit update]
+    allow_roles :organizer, only: %i[edit update]
     allow_roles :organizer, :judge, :scorekeeper, only: :show
 
     def index
@@ -27,7 +27,7 @@ module Organizer
     end
 
     def edit
-      @tournament = Tournament.for_organizer(current_organizer).find params[:id]
+      @tournament = Tournament.staffed_by(current_user).find params[:id]
     end
 
     def create
@@ -41,7 +41,7 @@ module Organizer
     end
 
     def update
-      @tournament = Tournament.for_organizer(current_organizer).find params[:id]
+      @tournament = Tournament.staffed_by(current_user).find params[:id]
       @tournament.attributes = tournament_params
 
       if @tournament.save
