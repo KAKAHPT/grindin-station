@@ -27,11 +27,17 @@ module Organizer
 
     private
 
+    # A staff result overrides the players' report: their pending result, confirmations and dispute
+    # are dropped and the table's open judge calls are closed.
     def submit(event_participant)
-      Events::SubmitResultJob.perform_now(
-        type: result_params[:type],
-        event_participant: event_participant, round: @round, pod: @pod, by: current_user
-      )
+      Pod.transaction do
+        Events::SubmitResultJob.perform_now(
+          type: result_params[:type],
+          event_participant: event_participant, round: @round, pod: @pod, by: current_user
+        )
+        @pod.clear_report_state!
+        @pod.judge_calls.open_or_acknowledged.find_each { |call| call.close!(by: current_user) }
+      end
     end
 
     # Correcting a closed round once a later round is out needs an explicit confirm.

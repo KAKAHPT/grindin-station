@@ -21,6 +21,34 @@ module TournamentsHelper
     canceled: { name: "Cancel", icon: "trash" }
   }.with_indifferent_access.freeze
 
+  POD_STATUS_COLORS = {
+    playing: "blue", pending: "yellow", review: "yellow", disputed: "red", completed: "green"
+  }.freeze
+
+  def pod_status_chip(pod)
+    status = pod.report_status
+    badge(color: POD_STATUS_COLORS.fetch(status)) { t("rounds.status.#{status}") }
+  end
+
+  # Seat (seating order) of each participant at the pod, by participant id.
+  def pod_seats(pod)
+    pod.seatings.to_h { |seating| [seating.event_participant_id, seating.order] }
+  end
+
+  # "Reported by seat 2 · 14:05", nil when no player reported.
+  def pod_reported_line(pod)
+    seat = pod_seats(pod)[pod.reported_by_participant_id]
+    return if seat.nil? || pod.reported_at.nil?
+
+    t("rounds.reported_by", seat: seat, time: l(pod.reported_at, format: "%H:%M"))
+  end
+
+  # "Confirmed: 1, 3" for the seats that confirmed the pending report.
+  def pod_confirmed_line(pod)
+    seats = pod_seats(pod).values_at(*pod.confirmations.keys).compact.sort
+    t("rounds.confirmed", seats: seats.join(", ")) if seats.any?
+  end
+
   def currency_options
     EventOrganizer::CURRENCIES.keys.map { |c| [CURRENCY_SYMBOLS[c], c] }
   end

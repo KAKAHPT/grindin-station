@@ -30,6 +30,15 @@ class Round < ApplicationRecord
     finished_at.present?
   end
 
+  # Pods holding the round open: no result yet, a disputed result, or a judge call still open.
+  def blocking_pods
+    pods.sort_by(&:number).reject { |pod| pod.report_status == :completed && !pod.open_judge_call? }
+  end
+
+  def closable?
+    blocking_pods.empty?
+  end
+
   def advance_tournament!
     # No-op default. Override in subclasses (SwissRound, SingleEliminationRound).
   end

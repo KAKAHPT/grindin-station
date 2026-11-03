@@ -27,6 +27,29 @@
       <% end %>
     <% end %>
   </div>
+  <div class="px-6 pb-2 text-sm text-gray-700 dark:text-gray-400 flex flex-col gap-1">
+    <div class="flex flex-wrap items-center gap-1">
+      <%= pod_status_chip(pod) %>
+      <% if pod.open_judge_call? %>
+        <%= badge(color: "red") { t("rounds.judge_called") } %>
+      <% end %>
+      <% if pod.extra_time.positive? %>
+        <%= badge(color: "purple") { t("rounds.extra_time", minutes: pod.extra_time) } %>
+      <% end %>
+      <% if pod.round.started? && !pod.round.past? && %w[organizer judge].include?(staff_role) %>
+        <%= button_to t("rounds.add_extra_time"), [:extra_time, :organizer, pod.event, pod.round.becomes(Round), pod], method: :patch, class: "text-xs px-2 py-0.5 rounded border border-purple-700 text-purple-700 hover:bg-purple-700 hover:text-white dark:border-purple-500 dark:text-purple-400" %>
+      <% end %>
+    </div>
+    <% if (reported = pod_reported_line(pod)) %>
+      <span><%= reported %></span>
+    <% end %>
+    <% if %i[pending review].include?(pod.report_status) && (confirmed = pod_confirmed_line(pod)) %>
+      <span><%= confirmed %></span>
+    <% end %>
+    <% if pod.report_status == :disputed %>
+      <span class="font-medium text-red-700 dark:text-red-400"><%= t("rounds.disputed") %></span>
+    <% end %>
+  </div>
   <ol
     class="
       font-normal text-gray-700 dark:text-gray-400 grow flex flex-col
@@ -69,4 +92,12 @@
       </div>
     <% end %>
   </ol>
+  <% if pod.round.started? && !pod.round.past? && pod.report_status != :completed %>
+    <div class="px-6 py-3 flex flex-wrap gap-2 border-t border-gray-200 dark:border-gray-700">
+      <% pod.seatings.each do |seating| %>
+        <%= button_to t("rounds.win", seat: seating.order), [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Win", event_participant_id: seating.event_participant_id } }, class: "text-xs px-2 py-1 rounded border border-green-700 text-green-700 hover:bg-green-700 hover:text-white dark:border-green-500 dark:text-green-400" %>
+      <% end %>
+      <%= button_to t("rounds.draw"), [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Draw" } }, class: "text-xs px-2 py-1 rounded border border-yellow-600 text-yellow-700 hover:bg-yellow-600 hover:text-white dark:border-yellow-400 dark:text-yellow-300" %>
+    </div>
+  <% end %>
 </div>

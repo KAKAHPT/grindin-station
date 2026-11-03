@@ -66,6 +66,7 @@ Rails.application.routes.draw do
           patch :swap, on: :collection
         end
         resources :pods do
+          patch :extra_time, on: :member
           resources :results
           resources :infractions, only: %i[new create]
         end

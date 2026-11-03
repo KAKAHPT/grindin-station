@@ -8,8 +8,7 @@ module Organizer
     def show
       event = load_tournament
       @round = load_round(event)
-      @pods = load_pods(@round)
-      @users_map = load_users_map(@pods)
+      load_pairings
 
       return if params[:query].blank?
 
@@ -27,10 +26,10 @@ module Organizer
       when "start"
         @round.update(started_at: Time.zone.now)
         redirect_to [:organizer, @round.event, @round.becomes(Round)], notice: t("flash.notice.round_started")
-      when "finish"
-        @round.update(finished_at: Time.zone.now)
-        redirect_to [:organizer, event, event.rounds.max_by(&:number).becomes(Round)],
-                    notice: t("flash.notice.round_finished")
+      when "close"
+        close_round(event)
+      else
+        head :unprocessable_content
       end
     end
 
@@ -48,6 +47,25 @@ module Organizer
     end
 
     private
+
+    def load_pairings
+      @pods = load_pods(@round)
+      @users_map = load_users_map(@pods)
+    end
+
+    # Closing sets finished_at, which advances a swiss round to the next (unpublished) one.
+    def close_round(event)
+      unless @round.closable?
+        flash.now[:alert] = t("rounds.cannot_close", tables: @round.blocking_pods.map(&:number).join(", "))
+        load_pairings
+        return render :show, status: :unprocessable_content
+      end
+
+      @round.update(finished_at: Time.zone.now)
+      latest = event.rounds.reload.max_by(&:number)
+      notice = latest == @round ? t("rounds.closed") : t("rounds.next_round_created")
+      redirect_to [:organizer, event, latest.becomes(Round)], notice: notice
+    end
 
     def round_params
       params.expect(round: [:action])

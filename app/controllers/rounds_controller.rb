@@ -17,25 +17,7 @@ class RoundsController < ApplicationController
     @users_map.filter! { |_, v| v[:name].downcase.include?(params[:query].downcase) }
   end
 
-  def update
-    event = load_event
-    @round = load_round(event)
-
-    case round_params[:action]
-    when "start"
-      @round.update(started_at: Time.zone.now)
-      redirect_to [@round.event, @round.becomes(Round)], notice: t("flash.notice.round_started")
-    when "finish"
-      @round.update(finished_at: Time.zone.now)
-      redirect_to event, notice: t("flash.notice.round_finished")
-    end
-  end
-
   private
-
-  def round_params
-    params.expect(round: [:action])
-  end
 
   def load_event
     Tournament.find params[:tournament_id]
