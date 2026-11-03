@@ -3,7 +3,7 @@
 module Organizer
   # The event owner names who works the event and in which role.
   class StaffController < OrganizerController
-    before_action :require_owner!
+    require_owner
 
     def index
       @tournament = load_tournament

@@ -2,17 +2,57 @@
 
 module Organizer
   class OrganizerController < ApplicationController
+    # Fail closed: an action runs only if a macro below declared how it is authorized.
+    class_attribute :authorization_rules, instance_accessor: false, default: []
+
     before_action :authorize_user!
+    before_action :require_declared_action!
     helper_method :staff_role
 
-    # Lets only these event roles through, e.g. `allow_roles :organizer, :judge, only: :show`.
-    def self.allow_roles(*roles, **)
-      before_action(-> { require_role(*roles) }, **)
+    class << self
+      # Lets only these event roles through, e.g. `allow_roles :organizer, :judge, only: :show`.
+      def allow_roles(*roles, **)
+        declare_authorized(**)
+        before_action(-> { require_role(*roles) }, **)
+      end
+
+      def require_owner(**)
+        declare_authorized(**)
+        before_action(:require_owner!, **)
+      end
+
+      def require_organizer(**)
+        declare_authorized(**)
+        before_action(:require_organizer!, **)
+      end
+
+      # Open to anyone let in by authorize_user! (each action scopes its own data).
+      def public_actions(*actions)
+        declare_authorized(only: actions)
+      end
+
+      def action_declared?(action)
+        authorization_rules.any? do |only, except|
+          (only.nil? || only.include?(action)) && except.exclude?(action)
+        end
+      end
+
+      private
+
+      def declare_authorized(only: nil, except: nil)
+        self.authorization_rules += [[only && Array(only).map(&:to_s), Array(except).map(&:to_s)]]
+      end
     end
 
     # Owns events or works one as staff; everything else is checked per event.
     def authorize_user!
       redirect_to root_url, alert: t("flash.alert.not_allowed") unless current_user.staff?
+    end
+
+    def require_declared_action!
+      return if self.class.action_declared?(action_name)
+
+      redirect_to organizer_root_url, alert: t("flash.alert.not_allowed")
     end
 
     def require_role(*roles)
@@ -46,7 +86,9 @@ module Organizer
     def role_event
       return @role_event if defined?(@role_event)
 
-      @role_event = Event.find_by(id: params[:tournament_id] || params[:id])
+      # Path parameters only: a query or body tournament_id must not pick the event checked.
+      path = request.path_parameters
+      @role_event = Event.find_by(id: path[:tournament_id] || path[:id])
     end
   end
 end

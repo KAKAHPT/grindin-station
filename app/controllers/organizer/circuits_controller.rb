@@ -2,7 +2,7 @@
 
 module Organizer
   class CircuitsController < OrganizerController
-    before_action :require_organizer!
+    require_organizer
 
     def index
       @circuits = Circuit.for_organizer(current_organizer).preload(:tournaments)

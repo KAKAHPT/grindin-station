@@ -2,7 +2,7 @@
 
 module Organizer
   class LeaguesController < OrganizerController
-    before_action :require_organizer!
+    require_organizer
 
     def index
       @leagues = League

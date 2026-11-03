@@ -2,7 +2,8 @@
 
 module Organizer
   class TournamentsController < OrganizerController
-    before_action :require_organizer!, only: %i[new create]
+    public_actions :index
+    require_organizer only: %i[new create]
     allow_roles :organizer, only: %i[edit update]
     allow_roles :organizer, :judge, :scorekeeper, only: :show
 
