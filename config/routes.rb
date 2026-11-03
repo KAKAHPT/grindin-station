@@ -37,6 +37,12 @@ Rails.application.routes.draw do
 
     resources :tournaments do
       resources :staff, only: %i[index create destroy]
+      resources :judge_calls, only: %i[index] do
+        member do
+          patch :acknowledge
+          patch :close
+        end
+      end
       resources :infractions, only: %i[new create]
       resources :event_participants do
         member do

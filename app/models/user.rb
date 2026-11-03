@@ -13,6 +13,7 @@ class User < ApplicationRecord
   has_one :player, dependent: :nullify
   has_one :event_organizer, dependent: :nullify
   has_many :event_staff, class_name: "EventStaff", dependent: :destroy
+  has_many :notifications, dependent: :destroy
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 

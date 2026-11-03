@@ -12,6 +12,7 @@ class Pod < ApplicationRecord
 
   has_many :players, through: :event_participants
   has_many :users, through: :players
+  has_many :judge_calls, dependent: :nullify
 
   scope :publishable, -> { joins(:round).where.not(rounds: { finished_at: nil }) }
 
@@ -28,6 +29,10 @@ class Pod < ApplicationRecord
   )
 
   after_initialize -> { @candidates = [] }
+
+  def open_judge_call?
+    judge_calls.open_or_acknowledged.exists?
+  end
 
   def finished?
     results.size == event_participants.size

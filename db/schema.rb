@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_03_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_03_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -164,6 +164,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_130000) do
     t.index ["pod_id"], name: "index_infractions_on_pod_id"
   end
 
+  create_table "judge_calls", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "acknowledged_at"
+    t.uuid "acknowledged_by_user_id"
+    t.datetime "closed_at"
+    t.datetime "created_at", null: false
+    t.uuid "event_id", null: false
+    t.uuid "event_participant_id"
+    t.uuid "pod_id"
+    t.text "reason"
+    t.string "status", default: "open", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "status"], name: "index_judge_calls_on_event_id_and_status"
+    t.index ["pod_id"], name: "index_judge_calls_on_pod_id"
+  end
+
+  create_table "notifications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "kind", null: false
+    t.datetime "read_at"
+    t.uuid "subject_id"
+    t.string "subject_type"
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["subject_type", "subject_id"], name: "index_notifications_on_subject"
+    t.index ["user_id", "read_at"], name: "index_notifications_on_user_id_and_read_at"
+  end
+
   create_table "players", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "key", null: false
@@ -267,6 +294,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_130000) do
   add_foreign_key "infractions", "events"
   add_foreign_key "infractions", "players"
   add_foreign_key "infractions", "pods"
+  add_foreign_key "judge_calls", "event_participants", on_delete: :nullify
+  add_foreign_key "judge_calls", "events"
+  add_foreign_key "judge_calls", "pods", on_delete: :nullify
+  add_foreign_key "judge_calls", "users", column: "acknowledged_by_user_id", on_delete: :nullify
+  add_foreign_key "notifications", "users"
   add_foreign_key "players", "users"
   add_foreign_key "pods", "rounds"
   add_foreign_key "results", "event_participants"
