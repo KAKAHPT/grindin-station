@@ -2,14 +2,19 @@
 
 require "test_helper"
 
-# chromedriver reports a node replaced by a Turbo render as UnknownError ("Node with given id does not belong
-# to the document") rather than StaleElementReferenceError; let Capybara retry it like a stale element.
+# chromedriver 156 reports an element replaced by a Turbo render as UnknownError ("Node with given id does not
+# belong to the document"), not StaleElementReferenceError: retry only those; any other UnknownError raises at once.
 module RetryDetachedNodes
-  def invalid_element_errors
-    super + [Selenium::WebDriver::Error::UnknownError]
+  DETACHED = /does not belong to the document|stale|detached|not attached/i
+
+  def catch_error?(error, errors = nil)
+    return true if super
+    return false unless error.is_a?(Selenium::WebDriver::Error::UnknownError) && DETACHED.match?(error.message)
+
+    errors.nil? || errors.include?(Selenium::WebDriver::Error::StaleElementReferenceError)
   end
 end
-Capybara::Selenium::Driver.prepend(RetryDetachedNodes)
+Capybara::Node::Base.prepend(RetryDetachedNodes)
 
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   # Chrome's password manager flags the fixtures' "password123" as leaked and its dialog swallows every

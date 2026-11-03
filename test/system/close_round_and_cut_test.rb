@@ -70,7 +70,7 @@ class CloseRoundAndCutTest < ApplicationSystemTestCase
   def mark_winner(pod, seat:)
     name = pod.seatings.find_by!(order: seat).event_participant.name
     within(pod_card(pod)) do
-      find("[role=button][data-name='#{name}']").click
+      find("li[role=button]") { |row| row["data-name"] == name }.click
       click_button "#{name} wins"
     end
     assert_text I18n.t("flash.notice.result_submitted")
