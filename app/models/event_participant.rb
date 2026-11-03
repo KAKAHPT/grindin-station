@@ -147,6 +147,12 @@ class EventParticipant < ApplicationRecord
     results.count { |result| result.is_a?(Loss) || result.is_a?(Penalty) }
   end
 
+  # Share of real games won: wins / (wins + losses + draws). Byes (Advance) count in neither; nil before any game.
+  def win_rate
+    games = number_of_wins + number_of_losses + number_of_draws
+    games.zero? ? nil : number_of_wins.fdiv(games)
+  end
+
   def match_points # rubocop:disable Metrics/AbcSize -- one term per result type
     @match_points ||= (number_of_draws * event.points_draw) +
                       (number_of_wins * event.points_win) +

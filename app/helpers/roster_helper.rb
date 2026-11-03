@@ -19,7 +19,7 @@ module RosterHelper
 
   # The chips shown in the Desk column for one participant: attendance, then payment.
   def desk_chips(participant, event)
-    safe_join([attendance_chip(participant, event), payment_chip(participant)], " ")
+    safe_join([attendance_chip(participant, event), payment_chip(participant), decklist_chip(participant)], " ")
   end
 
   def attendance_chip(participant, event)
@@ -37,6 +37,16 @@ module RosterHelper
     desk_chip(:bad) do
       round ? t("organizer.roster.desk.dropped_round", round: round) : t("organizer.roster.desk.dropped")
     end
+  end
+
+  def decklist_chip(participant)
+    return desk_chip(:ok) { t("organizer.roster.decklist") } if participant.decklist.present?
+
+    desk_chip(:warn) { t("organizer.roster.no_decklist") }
+  end
+
+  def roster_no_decklist_count(event)
+    event.event_participants.count { |p| p.playing? && p.decklist.blank? }
   end
 
   def payment_chip(participant)

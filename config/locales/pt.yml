@@ -91,6 +91,8 @@ pt:
         acknowledged: "Aceite"
         closed: "Fechada"
     roster:
+      decklist: "Decklist"
+      no_decklist: "Sem decklist"
       desk:
         checked_in: "Check-in feito"
         not_checked_in: "Sem check-in"
@@ -103,6 +105,7 @@ pt:
         enrolled: "inscritos"
         checked_in: "com check-in"
         unpaid: "por pagar"
+        no_decklist: "sem decklist"
         waitlisted: "em espera"
         dropped: "desistências"
       stats:
@@ -228,6 +231,7 @@ pt:
     extra_time_added: "Tempo extra adicionado à mesa %{table}."
   standings:
     columns:
+      win_rate: "Win %"
       points: "Pts"
       owr: "OWR"
       beaten: "Batidos"
@@ -235,6 +239,7 @@ pt:
       seats: "Assentos"
     order_tooltip: "Pts > OWR > Batidos > Únicos > sorteio com semente"
     help:
+      win_rate: "Win %: percentagem de jogos ganhos (sem byes). Não é critério de desempate."
       points: "Pontos de match: %{win} por vitória, %{draw} por empate, %{loss} por derrota."
       owr: "Win rate dos adversários: a média dos pontos dos teus adversários sobre o máximo de cada um, com um mínimo igual a um empate."
       beaten: "Adversários batidos: jogadores distintos nas mesas que ganhaste."

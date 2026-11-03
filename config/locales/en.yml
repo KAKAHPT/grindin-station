@@ -91,6 +91,8 @@ en:
         acknowledged: "Acknowledged"
         closed: "Closed"
     roster:
+      decklist: "Decklist"
+      no_decklist: "No decklist"
       desk:
         checked_in: "Checked in"
         not_checked_in: "Not checked in"
@@ -103,6 +105,7 @@ en:
         enrolled: "enrolled"
         checked_in: "checked in"
         unpaid: "unpaid"
+        no_decklist: "no decklist"
         waitlisted: "waitlist"
         dropped: "dropped"
       stats:
@@ -228,6 +231,7 @@ en:
     extra_time_added: "Extra time added to table %{table}."
   standings:
     columns:
+      win_rate: "Win %"
       points: "Pts"
       owr: "OWR"
       beaten: "Beaten"
@@ -235,6 +239,7 @@ en:
       seats: "Seats"
     order_tooltip: "Pts > OWR > Beaten > Unique > seeded draw"
     help:
+      win_rate: "Win %: share of games won (byes excluded). Not a tiebreaker."
       points: "Match points: %{win} per win, %{draw} per draw, %{loss} per loss."
       owr: "Opponents' win rate: the average of your opponents' points out of their maximum, floored at a draw."
       beaten: "Opponents beaten: distinct players at the tables you won."

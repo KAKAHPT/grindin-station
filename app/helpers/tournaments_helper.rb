@@ -103,15 +103,9 @@ module TournamentsHelper
     end
   end
 
-  # Ranks inside the top cut sit in an accent disc; the rest are muted text.
-  def standings_rank(rank, tournament)
-    cut = tournament.top_cut_size.to_i
-    if cut.positive? && rank <= cut
-      tag.span(rank, class: "inline-flex size-6 items-center justify-center rounded-full bg-accent/15 " \
-                            "text-accent font-display text-[12px] font-semibold")
-    else
-      tag.span(rank, class: "inline-flex size-6 items-center justify-center text-muted font-display text-[12px]")
-    end
+  # "66.7%", or "–" before the player has a real game.
+  def win_rate_label(rate)
+    rate.nil? ? "–" : number_to_percentage(rate * 100, precision: 1)
   end
 
   # True when anyone in the list sat in seat 5 of a swiss pod.
