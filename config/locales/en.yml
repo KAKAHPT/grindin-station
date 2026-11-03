@@ -298,6 +298,11 @@ en:
       password_reset_link_invalid: "Password reset link is invalid or has expired."
       try_again_later: "Try again later."
       invalid_credentials: "Try another email address or password."
+  auth:
+    continue_with_google: "Continue with Google"
+    continue_with_discord: "Continue with Discord"
+    oauth_failed: "Could not sign you in with that account. Try again or use your e-mail and password."
+    or: "or"
   passwords_mailer:
     reset:
       subject: "Reset your password"

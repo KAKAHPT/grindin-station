@@ -2,6 +2,8 @@
 
 Rails.application.routes.draw do
   resource :session
+  get "/auth/:provider/callback", to: "omniauth_callbacks#create", as: :omniauth_callback
+  get "/auth/failure", to: "omniauth_callbacks#failure", as: :omniauth_failure
   resources :passwords, param: :token
   resources :registrations, only: %i[new create]
 

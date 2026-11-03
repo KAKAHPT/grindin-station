@@ -298,6 +298,11 @@ pt:
       password_reset_link_invalid: "A ligação para repor a palavra-passe é inválida ou expirou."
       try_again_later: "Tenta novamente mais tarde."
       invalid_credentials: "Tenta outro e-mail ou outra palavra-passe."
+  auth:
+    continue_with_google: "Continuar com Google"
+    continue_with_discord: "Continuar com Discord"
+    oauth_failed: "Não foi possível entrar com essa conta. Tenta novamente ou usa o e-mail e a palavra-passe."
+    or: "ou"
   passwords_mailer:
     reset:
       subject: "Repõe a tua palavra-passe"

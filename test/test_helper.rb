@@ -21,6 +21,9 @@ require_relative "support/tournament_builder"
 # Allow WebMock to work with Selenium for system tests
 WebMock.disable_net_connect!(allow_localhost: true)
 
+# Sign in with Google / Discord never leaves the process in tests.
+OmniAuth.config.test_mode = true
+
 module ActiveSupport
   class TestCase
     # Run tests in parallel with specified workers
@@ -42,6 +45,10 @@ module ActiveSupport
       # NOTE: Ensure Event is loaded; sometimes resetting counters
       # on a model here can trigger early loading.
       Event.reset_counters if defined?(Event)
+    end
+
+    teardown do
+      OmniAuth.config.mock_auth.except!(:google_oauth2, :discord)
     end
   end
 end
