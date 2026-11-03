@@ -4,6 +4,12 @@ en:
   activerecord:
     errors:
       models:
+        user:
+          current_password_invalid: "Current password is incorrect"
+          attributes:
+            avatar:
+              content_type: "must be a JPEG, PNG or WebP image"
+              too_big: "must be 2 MB or smaller"
         event:
           attributes:
             points_win:
@@ -24,6 +30,17 @@ en:
               locked: "cannot change once the tournament has started"
               too_big: "is bigger than the number of players"
     attributes:
+      user:
+        name: "Name"
+        email_address: "E-mail"
+        handle: "Handle"
+        country: "Country (2-letter code)"
+        bio: "Bio"
+        visibility: "Profile visibility"
+        avatar: "Avatar"
+        password: "Password"
+        password_confirmation: "Confirm new password"
+        current_password: "Current password"
       event:
         points_win: "Points for a win"
         points_draw: "Points for a draw"
@@ -298,6 +315,37 @@ en:
       password_reset_link_invalid: "Password reset link is invalid or has expired."
       try_again_later: "Try again later."
       invalid_credentials: "Try another email address or password."
+  accounts:
+    nav: "Account"
+    removed_player: "Removed player"
+    show:
+      title: "Your account"
+      profile: "Profile"
+      avatar_hint: "JPEG, PNG or WebP, up to 2 MB."
+      handle_hint: "3 to 30 lowercase letters, digits or hyphens. Used in your public profile address."
+      visibility:
+        public: "Public"
+        participants: "Only players of my events"
+        private: "Private"
+      password: "Password"
+      password_not_set: "You signed up with Google or Discord. Set a password to also sign in with your e-mail."
+      new_password: "New password"
+      save: "Save changes"
+      identities: "Linked sign-ins"
+      no_identities: "No Google or Discord account linked."
+      unlink: "Unlink"
+      unlink_hint: "Set a password or link another account before unlinking this one."
+      delete_title: "Delete account"
+      delete_explanation: "Your name, e-mail, avatar and linked sign-ins are removed. Your past results stay in the events under \"Removed player\". This cannot be undone."
+      delete_prompt: "Type \"%{word}\" to confirm"
+      delete_word: "delete"
+      delete_button: "Delete my account"
+    flash:
+      updated: "Account updated."
+      unlinked: "Sign-in unlinked."
+      unlink_refused: "You need a password or another linked sign-in before unlinking this one."
+      confirmation_mismatch: "The confirmation word did not match. Your account was not deleted."
+      deleted: "Your account was deleted."
   auth:
     continue_with_google: "Continue with Google"
     continue_with_discord: "Continue with Discord"

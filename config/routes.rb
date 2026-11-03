@@ -6,6 +6,8 @@ Rails.application.routes.draw do
   get "/auth/failure", to: "omniauth_callbacks#failure", as: :omniauth_failure
   resources :passwords, param: :token
   resources :registrations, only: %i[new create]
+  resource :account, only: %i[show update destroy]
+  delete "/account/identities/:id" => "accounts#unlink_identity", as: :unlink_identity
 
   resources :tournaments, only: %i[index show] do
     resources :rounds do

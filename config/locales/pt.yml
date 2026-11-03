@@ -4,6 +4,12 @@ pt:
   activerecord:
     errors:
       models:
+        user:
+          current_password_invalid: "A palavra-passe atual está incorreta"
+          attributes:
+            avatar:
+              content_type: "tem de ser uma imagem JPEG, PNG ou WebP"
+              too_big: "tem de ter 2 MB ou menos"
         event:
           attributes:
             points_win:
@@ -24,6 +30,17 @@ pt:
               locked: "não pode mudar depois de o torneio começar"
               too_big: "é maior do que o número de jogadores"
     attributes:
+      user:
+        name: "Nome"
+        email_address: "E-mail"
+        handle: "Identificador"
+        country: "País (código de 2 letras)"
+        bio: "Bio"
+        visibility: "Visibilidade do perfil"
+        avatar: "Avatar"
+        password: "Palavra-passe"
+        password_confirmation: "Confirmar nova palavra-passe"
+        current_password: "Palavra-passe atual"
       event:
         points_win: "Pontos por vitória"
         points_draw: "Pontos por empate"
@@ -298,6 +315,37 @@ pt:
       password_reset_link_invalid: "A ligação para repor a palavra-passe é inválida ou expirou."
       try_again_later: "Tenta novamente mais tarde."
       invalid_credentials: "Tenta outro e-mail ou outra palavra-passe."
+  accounts:
+    nav: "Conta"
+    removed_player: "Jogador removido"
+    show:
+      title: "A tua conta"
+      profile: "Perfil"
+      avatar_hint: "JPEG, PNG ou WebP, até 2 MB."
+      handle_hint: "3 a 30 letras minúsculas, algarismos ou hífenes. Usado no endereço do teu perfil público."
+      visibility:
+        public: "Público"
+        participants: "Só jogadores dos meus eventos"
+        private: "Privado"
+      password: "Palavra-passe"
+      password_not_set: "Registaste-te com Google ou Discord. Define uma palavra-passe para também entrares com o teu e-mail."
+      new_password: "Nova palavra-passe"
+      save: "Guardar alterações"
+      identities: "Contas ligadas"
+      no_identities: "Nenhuma conta Google ou Discord ligada."
+      unlink: "Desligar"
+      unlink_hint: "Define uma palavra-passe ou liga outra conta antes de desligar esta."
+      delete_title: "Eliminar conta"
+      delete_explanation: "O teu nome, e-mail, avatar e contas ligadas são removidos. Os teus resultados passados ficam nos eventos como \"Jogador removido\". Não é possível desfazer."
+      delete_prompt: "Escreve \"%{word}\" para confirmar"
+      delete_word: "eliminar"
+      delete_button: "Eliminar a minha conta"
+    flash:
+      updated: "Conta atualizada."
+      unlinked: "Conta desligada."
+      unlink_refused: "Precisas de uma palavra-passe ou de outra conta ligada antes de desligar esta."
+      confirmation_mismatch: "A palavra de confirmação não coincide. A tua conta não foi eliminada."
+      deleted: "A tua conta foi eliminada."
   auth:
     continue_with_google: "Continuar com Google"
     continue_with_discord: "Continuar com Discord"

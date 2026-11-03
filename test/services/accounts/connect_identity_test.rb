@@ -34,6 +34,10 @@ module Accounts
       end
     end
 
+    test "user criado por OAuth fica sem palavra-passe definida" do
+      assert_not ConnectIdentity.call(auth: auth(email: "new@example.com", name: "New Person")).password_set
+    end
+
     test "e-mail novo cria user e player" do
       assert_difference -> { User.count } => 1, -> { Player.count } => 1, -> { Identity.count } => 1 do
         user = ConnectIdentity.call(auth: auth(email: "new@example.com", name: "New Person"))

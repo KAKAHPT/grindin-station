@@ -38,7 +38,7 @@ module Accounts
 
     def self.create_user(info)
       User.create!(email_address: info.email, name: info.name.presence || info.email.to_s.split("@").first,
-                   password: SecureRandom.base58(32))
+                   password: SecureRandom.base58(32), password_set: false)
     end
 
     def self.link(user, auth)

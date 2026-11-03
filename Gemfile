@@ -25,6 +25,7 @@ gem "turbo-rails"
 gem "stimulus-rails"
 gem "tailwindcss-rails", "~> 4.6"
 gem "commonmarker"
+gem "image_processing", "~> 1.2"
 gem "reactionview", "~> 0.4.0"
 gem "herb", force_ruby_platform: RUBY_PLATFORM.include?("darwin")
 

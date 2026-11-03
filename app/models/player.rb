@@ -10,7 +10,7 @@ class Player < ApplicationRecord
   validates :key, presence: true
 
   def name
-    user&.name || "Anonymous ##{key&.first(4)}"
+    user&.display_name || "Anonymous ##{key&.first(4)}"
   end
 
   def participant?(event)
