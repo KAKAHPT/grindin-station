@@ -15,6 +15,8 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   POINT_ATTRIBUTES = %i[points_win points_draw points_loss points_bye].freeze
   UNLOCKED_POINTS_STATES = %w[draft registration_open registration_closed].freeze
+  RESULT_CONFIRMATIONS = %w[none one all].freeze
+  TOP_CUT_TIMEOUT_RULES = %w[highest_seed_advances replay].freeze
 
   scope :for_organizer, ->(organizer) { where(event_organizer: organizer) }
   scope :past, -> { where(end_time: ...Time.current) }
@@ -32,6 +34,9 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   validates :points_win, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
   validates :points_draw, :points_loss, :points_bye, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validate :points_locked_after_start, on: :update
+  validates :result_confirmation, inclusion: { in: RESULT_CONFIRMATIONS }
+  validates :top_cut_timeout_rule, inclusion: { in: TOP_CUT_TIMEOUT_RULES }
+  validates :confirmation_timeout_minutes, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
 
   before_validation :populate_slug
 

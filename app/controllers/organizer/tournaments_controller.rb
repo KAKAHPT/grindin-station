@@ -78,6 +78,12 @@ module Organizer
                       top_cut_size
                       round_minutes
                       top_cut_round_minutes
+                      self_report_enabled
+                      result_confirmation
+                      confirmation_timeout_minutes
+                      waitlist_enabled
+                      show_commanders_in_standings
+                      top_cut_timeout_rule
                     ])
     end
   end

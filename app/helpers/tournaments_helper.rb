@@ -29,6 +29,14 @@ module TournamentsHelper
     [[t("organizer.no_cut"), 0]] + Tournaments::TopCut::SIZES.map { |size| [t("organizer.top_cut_option", size: size), size] }
   end
 
+  def result_confirmation_options
+    Event::RESULT_CONFIRMATIONS.map { |value| [t("organizer.result_confirmation_options.#{value}"), value] }
+  end
+
+  def top_cut_timeout_rule_options
+    Event::TOP_CUT_TIMEOUT_RULES.map { |value| [t("organizer.top_cut_timeout_rule_options.#{value}"), value] }
+  end
+
   # nil below 4 players (no structure to suggest yet).
   def structure_suggestion(tournament)
     players = tournament.playing_participants_count

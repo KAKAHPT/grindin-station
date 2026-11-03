@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_17_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_03_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -92,6 +92,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_120000) do
   create_table "events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.text "address"
     t.uuid "circuit_id"
+    t.integer "confirmation_timeout_minutes", default: 5, null: false
     t.datetime "created_at", null: false
     t.integer "currency"
     t.text "description"
@@ -108,20 +109,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_120000) do
     t.integer "points_win", default: 7, null: false
     t.decimal "price"
     t.text "prizes"
+    t.string "result_confirmation", default: "none", null: false
     t.integer "round_minutes", default: 80, null: false
     t.integer "rounds_count", default: 0, null: false
     t.text "rules"
     t.text "schedule"
     t.integer "seed"
+    t.boolean "self_report_enabled", default: true, null: false
+    t.boolean "show_commanders_in_standings", default: false, null: false
     t.string "slug", null: false
     t.datetime "start_time"
     t.integer "state", default: 0, null: false
     t.integer "swiss_rounds_count"
     t.integer "top_cut_round_minutes", default: 150, null: false
     t.integer "top_cut_size"
+    t.string "top_cut_timeout_rule", default: "highest_seed_advances", null: false
     t.string "type", default: "Tournament", null: false
     t.datetime "updated_at", null: false
     t.decimal "wager_percentage", precision: 5, scale: 2
+    t.boolean "waitlist_enabled", default: false, null: false
     t.index ["circuit_id"], name: "index_events_on_circuit_id"
     t.index ["event_organizer_id"], name: "index_events_on_event_organizer_id"
     t.index ["location"], name: "index_events_on_location", using: :gist

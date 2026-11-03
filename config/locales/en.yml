@@ -33,6 +33,12 @@ en:
         top_cut_size: "Top cut"
         round_minutes: "Swiss round length (minutes)"
         top_cut_round_minutes: "Top cut round length (minutes)"
+        self_report_enabled: "Players report their own results"
+        result_confirmation: "Result confirmation"
+        confirmation_timeout_minutes: "Confirmation timeout (minutes)"
+        waitlist_enabled: "Waitlist when full"
+        show_commanders_in_standings: "Show commanders in standings"
+        top_cut_timeout_rule: "If a top cut game times out"
       event_participant:
         accepted_terms: "I have read and accepted the rules for this event."
   organizer:
@@ -42,6 +48,15 @@ en:
     structure_use_suggestion: "Suggested"
     no_cut: "No cut"
     top_cut_option: "Top %{size}"
+    day_of_event: "Day of the event"
+    confirmation_help: "Who must confirm a reported result, and how long before it is accepted automatically."
+    result_confirmation_options:
+      none: "No confirmation (winner reports)"
+      one: "One other player confirms"
+      all: "Everyone confirms"
+    top_cut_timeout_rule_options:
+      highest_seed_advances: "Highest seed advances"
+      replay: "Replay with half the time"
   standings:
     columns:
       points: "Pts"

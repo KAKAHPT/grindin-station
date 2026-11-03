@@ -33,6 +33,12 @@ pt:
         top_cut_size: "Corte"
         round_minutes: "Duração da ronda Swiss (minutos)"
         top_cut_round_minutes: "Duração da ronda do corte (minutos)"
+        self_report_enabled: "Os jogadores reportam os próprios resultados"
+        result_confirmation: "Confirmação de resultados"
+        confirmation_timeout_minutes: "Tempo limite de confirmação (minutos)"
+        waitlist_enabled: "Lista de espera quando cheio"
+        show_commanders_in_standings: "Mostrar comandantes na classificação"
+        top_cut_timeout_rule: "Se um jogo do corte esgotar o tempo"
       event_participant:
         accepted_terms: "Li e aceito as regras deste evento."
   organizer:
@@ -42,6 +48,15 @@ pt:
     structure_use_suggestion: "Sugerido"
     no_cut: "Sem corte"
     top_cut_option: "Top %{size}"
+    day_of_event: "Dia do evento"
+    confirmation_help: "Quem tem de confirmar um resultado reportado, e quanto tempo até ser aceite automaticamente."
+    result_confirmation_options:
+      none: "Sem confirmação (o vencedor reporta)"
+      one: "Um outro jogador confirma"
+      all: "Todos confirmam"
+    top_cut_timeout_rule_options:
+      highest_seed_advances: "O melhor seed avança"
+      replay: "Repetição com metade do tempo"
   standings:
     columns:
       points: "Pts"
