@@ -2,6 +2,9 @@
 
 module Organizer
   class RoundsController < OrganizerController
+    allow_roles :organizer, :judge, only: %i[show update]
+    allow_roles :organizer, except: %i[show update]
+
     def show
       event = load_tournament
       @round = load_round(event)
@@ -51,7 +54,7 @@ module Organizer
     end
 
     def load_tournament
-      Tournament.for_organizer(current_organizer).find params[:tournament_id]
+      Tournament.staffed_by(current_user).find params[:tournament_id]
     end
 
     def load_round(tournament)

@@ -80,7 +80,7 @@
               <%= icon('sun', class: 'hidden dark:inline') %>
             <% end %>
 
-            <% if current_user&.organizer? %>
+            <% if current_user&.staff? %>
               <%= link_to organizer_path_builder, class: "me-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 flex items-center" do %>
                 <%= label_tag "to_mode", class: "inline-flex items-center cursor-pointer" do %>
                   <%= check_box_tag "to_mode", "", organizer_mode?, class: "sr-only peer" %>

@@ -3,8 +3,10 @@
 module Organizer
   class InfractionsController < OrganizerController
     layout "modal"
+    allow_roles :organizer, :judge
+
     def index
-      @event_participant = EventParticipant.find(params[:event_participant_id])
+      @event_participant = load_tournament.event_participants.find(params[:event_participant_id])
       @infractions = Infraction.where(
         player_id: @event_participant.player_id,
         event_id: @event_participant.event_id
@@ -57,11 +59,11 @@ module Organizer
     end
 
     def load_pod
-      Pod.where(id: params[:pod_id]).first
+      load_tournament.pods.find_by(id: params[:pod_id])
     end
 
     def load_tournament
-      Tournament.where(id: params[:tournament_id]).first
+      Tournament.staffed_by(current_user).find params[:tournament_id]
     end
   end
 end

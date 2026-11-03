@@ -8,6 +8,7 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   has_many :infractions, dependent: :destroy
   has_many :rooms, dependent: :destroy
   has_many :pods, through: :rounds
+  has_many :event_staff, class_name: "EventStaff", dependent: :destroy
 
   PREFERRED_POD_SIZE = 4
   SMALLER_POD_SIZE = 3
@@ -19,6 +20,11 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   TOP_CUT_TIMEOUT_RULES = %w[highest_seed_advances replay].freeze
 
   scope :for_organizer, ->(organizer) { where(event_organizer: organizer) }
+  # Events the user owns (through their EventOrganizer) or works as staff.
+  scope :staffed_by, lambda { |user|
+    staffed = where(id: EventStaff.where(user_id: user.id).select(:event_id))
+    user.event_organizer ? for_organizer(user.event_organizer).or(staffed) : staffed
+  }
   scope :past, -> { where(end_time: ...Time.current) }
   scope :upcoming, -> { where(start_time: Time.current..) }
   scope :for_player, ->(player) { joins(:event_participants).where(event_participants: { player: player }) }

@@ -2,14 +2,18 @@
 
 module Organizer
   class TournamentsController < OrganizerController
+    before_action :require_organizer!, only: %i[new create]
+    before_action :require_owner!, only: %i[edit update]
+    allow_roles :organizer, :judge, :scorekeeper, only: :show
+
     def index
-      @tournaments = Tournament.with_attached_cover.where.not(state: :canceled).for_organizer(current_organizer).preload(:rounds)
+      @tournaments = Tournament.with_attached_cover.where.not(state: :canceled).staffed_by(current_user).preload(:rounds)
     end
 
     def show
       @tournament =
         Tournament
-          .for_organizer(current_organizer)
+          .staffed_by(current_user)
           .preload(
             rounds: :pods,
             event_participants: { player: :user }

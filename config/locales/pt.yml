@@ -57,6 +57,21 @@ pt:
     top_cut_timeout_rule_options:
       highest_seed_advances: "O melhor seed avança"
       replay: "Repetição com metade do tempo"
+    staff:
+      link: "Staff"
+      title: "Staff de %{event}"
+      back: "Voltar ao evento"
+      owner: "Dono"
+      empty: "Ainda sem staff."
+      email: "E-mail"
+      role: "Papel"
+      add: "Adicionar"
+      remove: "Remover"
+      confirm_remove: "Remover %{name} do staff?"
+      roles:
+        organizer: "Organizador"
+        judge: "Juiz"
+        scorekeeper: "Scorekeeper"
   standings:
     columns:
       points: "Pts"
@@ -77,6 +92,8 @@ pt:
       next: "Seguinte"
   flash:
     notice:
+      staff_added: "%{name} adicionado ao staff."
+      staff_removed: "Removido do staff."
       registration_successful: "Inscrição concluída com sucesso!"
       update_successful: "Atualização concluída com sucesso!"
       registration_canceled: "Inscrição cancelada!"
@@ -101,6 +118,7 @@ pt:
       signed_in: "Iniciaste sessão."
       signed_out: "Terminaste a sessão."
     alert:
+      staff_user_not_found: "Não há nenhum utilizador com esse e-mail. Tem de se registar primeiro."
       not_authorized_circuit: "Não tens permissão para gerir o circuito selecionado"
       not_authorized_league: "Não tens permissão para gerir a liga selecionada"
       not_authorized_tournament: "Não tens permissão para gerir o torneio selecionado"

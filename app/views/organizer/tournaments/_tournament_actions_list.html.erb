@@ -1,6 +1,8 @@
-<%= link_to [:edit, :organizer, tournament], class: 'inline-flex justify-center items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-orange-700 hover:bg-orange-800 focus:ring-4 focus:ring-orange-300 dark:focus:ring-orange-900', data: {turbo_frame: "modal"} do %>
-  <%= icon("pencil", class: "mr-2") %>
-  Edit
+<% if current_user.organizer?(tournament) %>
+  <%= link_to [:edit, :organizer, tournament], class: 'inline-flex justify-center items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-orange-700 hover:bg-orange-800 focus:ring-4 focus:ring-orange-300 dark:focus:ring-orange-900', data: {turbo_frame: "modal"} do %>
+    <%= icon("pencil", class: "mr-2") %>
+    Edit
+  <% end %>
 <% end %>
 
 <% unless tournament.draft? %>
@@ -10,7 +12,7 @@
   <% end %>
 <% end %>
 
-<% if tournament.rounds.select(&:published?).present? %>
+<% if tournament.rounds.select(&:published?).present? && %w[organizer judge].include?(current_user.staff_role_for(tournament)) %>
   <%= link_to [:organizer, tournament, tournament.rounds.select(&:published?).max_by(&:number).becomes(Round)], class: "inline-flex justify-center items-center px-3 py-2 text-sm font-medium text-center text-gray-900 rounded-lg border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-800" do %>
     <%= icon("tree-structure", class: "mr-2") %>
     Bracket

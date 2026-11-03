@@ -12,6 +12,7 @@ class User < ApplicationRecord
 
   has_one :player, dependent: :nullify
   has_one :event_organizer, dependent: :nullify
+  has_many :event_staff, class_name: "EventStaff", dependent: :destroy
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
@@ -37,6 +38,18 @@ class User < ApplicationRecord
 
   def organizer?(event = nil)
     event_organizer.present? && (event.blank? || event_organizer.events.include?(event))
+  end
+
+  # "organizer" for the event's owner, else the staff row's role, else nil.
+  def staff_role_for(event)
+    return "organizer" if event.event_organizer&.user_id == id
+
+    event_staff.find_by(event: event)&.role
+  end
+
+  # Owns events or works at least one as staff: may enter the organizer area.
+  def staff?
+    organizer? || event_staff.exists?
   end
 
   def player?(event = nil)

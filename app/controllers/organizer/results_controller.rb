@@ -2,6 +2,8 @@
 
 module Organizer
   class ResultsController < OrganizerController
+    allow_roles :organizer, :judge, :scorekeeper
+
     def new
       @tournament = load_tournament
       @round = load_round(@tournament)
@@ -27,7 +29,7 @@ module Organizer
     private
 
     def load_tournament
-      Tournament.for_organizer(current_organizer).find params[:tournament_id]
+      Tournament.staffed_by(current_user).find params[:tournament_id]
     end
 
     def load_round(tournament)

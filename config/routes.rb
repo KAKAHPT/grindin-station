@@ -36,6 +36,7 @@ Rails.application.routes.draw do
     root "tournaments#index"
 
     resources :tournaments do
+      resources :staff, only: %i[index create destroy]
       resources :infractions, only: %i[new create]
       resources :event_participants do
         resources :infractions, only: %i[index destroy]

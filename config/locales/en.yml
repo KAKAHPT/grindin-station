@@ -57,6 +57,21 @@ en:
     top_cut_timeout_rule_options:
       highest_seed_advances: "Highest seed advances"
       replay: "Replay with half the time"
+    staff:
+      link: "Staff"
+      title: "Staff for %{event}"
+      back: "Back to the event"
+      owner: "Owner"
+      empty: "No staff yet."
+      email: "E-mail"
+      role: "Role"
+      add: "Add"
+      remove: "Remove"
+      confirm_remove: "Remove %{name} from the staff?"
+      roles:
+        organizer: "Organizer"
+        judge: "Judge"
+        scorekeeper: "Scorekeeper"
   standings:
     columns:
       points: "Pts"
@@ -77,6 +92,8 @@ en:
       next: "Next"
   flash:
     notice:
+      staff_added: "%{name} added to the staff."
+      staff_removed: "Removed from the staff."
       registration_successful: "Registration successful!"
       update_successful: "Update successful!"
       registration_canceled: "Registration canceled!"
@@ -101,6 +118,7 @@ en:
       signed_in: "You have been signed in."
       signed_out: "You have been signed out."
     alert:
+      staff_user_not_found: "No user with that e-mail. They must sign up first."
       not_authorized_circuit: "Not authorized to manage the selected circuit"
       not_authorized_league: "Not authorized to manage the selected league"
       not_authorized_tournament: "Not authorized to manage the selected tournament"

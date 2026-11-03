@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_03_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_03_110000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -87,6 +87,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_100000) do
     t.datetime "updated_at", null: false
     t.index ["event_id"], name: "index_event_participants_on_event_id"
     t.index ["player_id"], name: "index_event_participants_on_player_id"
+  end
+
+  create_table "event_staff", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.uuid "event_id", null: false
+    t.string "role", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["event_id", "user_id"], name: "index_event_staff_on_event_id_and_user_id", unique: true
+    t.index ["event_id"], name: "index_event_staff_on_event_id"
+    t.index ["user_id"], name: "index_event_staff_on_user_id"
   end
 
   create_table "events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -241,6 +252,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_100000) do
   add_foreign_key "event_organizers", "users"
   add_foreign_key "event_participants", "events"
   add_foreign_key "event_participants", "players"
+  add_foreign_key "event_staff", "events"
+  add_foreign_key "event_staff", "users"
   add_foreign_key "events", "circuits"
   add_foreign_key "infractions", "events"
   add_foreign_key "infractions", "players"

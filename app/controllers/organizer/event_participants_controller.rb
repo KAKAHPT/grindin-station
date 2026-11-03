@@ -3,6 +3,11 @@
 module Organizer
   class EventParticipantsController < OrganizerController
     layout "modal"
+    allow_roles :organizer, :judge, :scorekeeper, only: :index
+    allow_roles :organizer, :scorekeeper, only: :update
+    allow_roles :organizer, except: %i[index update]
+
+    SCOREKEEPER_ATTRIBUTES = %w[checked_in paid].freeze
 
     def index
       @event = load_tournament
@@ -63,7 +68,7 @@ module Organizer
       @event = load_tournament
       @event_participant = load_event_participant(@event)
 
-      @event_participant.update(event_participant_params)
+      @event_participant.update(update_params)
       # TODO: stay in place or fix the updated item
       redirect_to [:organizer, @event, :event_participants, { layout: "application" }],
                   notice: "#{@event_participant.name} #{@event_participant.dropped? ? 'dropped' : 'updated'}!"
@@ -74,11 +79,16 @@ module Organizer
     private
 
     def load_tournament
-      Tournament.for_organizer(current_organizer).find params[:tournament_id]
+      Tournament.staffed_by(current_user).find params[:tournament_id]
     end
 
     def load_event_participant(tournament)
       tournament.event_participants.find(params[:id])
+    end
+
+    # Scorekeepers only check players in and mark them paid.
+    def update_params
+      staff_role == "scorekeeper" ? event_participant_params.slice(*SCOREKEEPER_ATTRIBUTES) : event_participant_params
     end
 
     def event_participant_params

@@ -2,6 +2,8 @@
 
 module Organizer
   class LeaguesController < OrganizerController
+    before_action :require_organizer!
+
     def index
       @leagues = League
         .with_attached_cover
