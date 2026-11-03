@@ -152,6 +152,10 @@ en:
       contested: "Result contested. A judge has been called."
       judge_called: "A judge has been called."
   results:
+    timeout_confirm: "Time called: the table is decided by the event's time rule. Continue?"
+    timeout_applied:
+      highest_seed_advances: "Time called — highest seed advances"
+      replay: "Time called — replay with half the time"
     later_round_warning: "A later round is already published: this correction changes standings it was paired from."
     confirm_correction: "I understand, apply the correction"
     not_allowed:
@@ -185,6 +189,7 @@ en:
     draw: "Draw"
     extra_time: "+%{minutes} min"
     add_extra_time: "+5 min"
+    time_called: "Time called"
     extra_time_added: "Extra time added to table %{table}."
   standings:
     columns:

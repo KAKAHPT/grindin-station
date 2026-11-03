@@ -152,6 +152,10 @@ pt:
       contested: "Resultado contestado. Foi chamado um juiz."
       judge_called: "Foi chamado um juiz."
   results:
+    timeout_confirm: "Tempo chamado: a mesa é decidida pela regra de tempo do evento. Continuar?"
+    timeout_applied:
+      highest_seed_advances: "Tempo chamado — o melhor seed avança"
+      replay: "Tempo chamado — repetição com metade do tempo"
     later_round_warning: "Já há uma ronda posterior publicada: esta correção altera a classificação a partir da qual foi emparelhada."
     confirm_correction: "Compreendo, aplicar a correção"
     not_allowed:
@@ -185,6 +189,7 @@ pt:
     draw: "Empate"
     extra_time: "+%{minutes} min"
     add_extra_time: "+5 min"
+    time_called: "Tempo chamado"
     extra_time_added: "Tempo extra adicionado à mesa %{table}."
   standings:
     columns:

@@ -39,6 +39,9 @@
       <% if pod.round.started? && !pod.round.past? && %w[organizer judge].include?(staff_role) %>
         <%= button_to t("rounds.add_extra_time"), [:extra_time, :organizer, pod.event, pod.round.becomes(Round), pod], method: :patch, class: "text-xs px-2 py-0.5 rounded border border-purple-700 text-purple-700 hover:bg-purple-700 hover:text-white dark:border-purple-500 dark:text-purple-400" %>
       <% end %>
+      <% if pod.round.is_a?(SingleEliminationRound) && pod.round.started? && !pod.finished? && %w[organizer judge].include?(staff_role) %>
+        <%= button_to t("rounds.time_called"), timeout_organizer_tournament_round_pod_results_path(pod.event, pod.round.becomes(Round), pod), method: :post, data: { turbo_confirm: t("results.timeout_confirm") }, class: "text-xs px-2 py-0.5 rounded border border-red-700 text-red-700 hover:bg-red-700 hover:text-white dark:border-red-500 dark:text-red-400" %>
+      <% end %>
     </div>
     <% if (reported = pod_reported_line(pod)) %>
       <span><%= reported %></span>

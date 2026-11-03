@@ -2,7 +2,8 @@
 
 module Organizer
   class ResultsController < OrganizerController
-    allow_roles :organizer, :judge, :scorekeeper
+    allow_roles :organizer, :judge, :scorekeeper, except: :timeout
+    allow_roles :organizer, :judge, only: :timeout
 
     def new
       @tournament = load_tournament
@@ -25,7 +26,31 @@ module Organizer
       redirect_to [:organizer, @tournament, @round.becomes(Round)], alert: e
     end
 
+    # "Time called" on a top-cut table: applies the event's timeout rule.
+    def timeout
+      @tournament = load_tournament
+      @round = load_round(@tournament)
+      @pod = load_pod(@round)
+      rule = @tournament.top_cut_timeout_rule
+      Pod.transaction do
+        Results::Timeout.call(pod: @pod, by: current_user)
+        close_out_table if rule == "highest_seed_advances"
+      end
+      redirect_to [:organizer, @tournament, @round.becomes(Round)], notice: t("results.timeout_applied.#{rule}")
+    rescue ArgumentError, Results::NotAllowed => e
+      redirect_to [:organizer, @tournament, @round.becomes(Round)], alert: timeout_message(e)
+    end
+
     private
+
+    def timeout_message(error)
+      error.is_a?(Results::NotAllowed) ? t("results.not_allowed.#{error.message}") : error.message
+    end
+
+    def close_out_table
+      @pod.clear_report_state!
+      @pod.judge_calls.open_or_acknowledged.find_each { |call| call.close!(by: current_user) }
+    end
 
     # A staff result overrides the players' report: their pending result, confirmations and dispute
     # are dropped and the table's open judge calls are closed.
@@ -35,8 +60,7 @@ module Organizer
           type: result_params[:type],
           event_participant: event_participant, round: @round, pod: @pod, by: current_user
         )
-        @pod.clear_report_state!
-        @pod.judge_calls.open_or_acknowledged.find_each { |call| call.close!(by: current_user) }
+        close_out_table
       end
     end
 

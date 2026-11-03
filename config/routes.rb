@@ -67,7 +67,9 @@ Rails.application.routes.draw do
         end
         resources :pods do
           patch :extra_time, on: :member
-          resources :results
+          resources :results do
+            post :timeout, on: :collection
+          end
           resources :infractions, only: %i[new create]
         end
       end
