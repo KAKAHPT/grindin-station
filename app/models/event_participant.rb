@@ -221,9 +221,10 @@ class EventParticipant < ApplicationRecord
   end
 
   def rebuild_round
-    return unless event.swiss? && !event.rounds.max_by(&:number).published
+    latest = event.rounds.max_by(&:number)
+    return unless event.swiss? && latest && !latest.published
 
-    event.rounds.max_by(&:number).destroy
+    latest.destroy
     Tournaments::StartSwissRoundJob.perform_now(event.reload)
   end
 

@@ -42,17 +42,24 @@ class EventParticipantsController < ApplicationController
   def destroy
     @event = load_event
     @destroyed_participant = load_participant(@event)
-
-    # TODO: message for this
-    return if !@event.registration_open? && !@event.registration_closed?
-
-    @destroyed_participant.destroy
+    cancel_registration(@destroyed_participant)
     @event_participant = EventParticipant.new
 
     redirect_to @event, notice: t("flash.notice.registration_canceled")
   end
 
   private
+
+  # Before the swiss the registration is removed and the waitlist moves up; afterwards it is a drop.
+  def cancel_registration(participant)
+    return Registrations::Drop.call(participant: participant, by: current_user) if @event.points_locked?
+
+    @event.with_lock do
+      freed_place = participant.enrolled?
+      participant.destroy
+      @event.fill_from_waitlist!(freed_place: freed_place)
+    end
+  end
 
   def terms_accepted?
     @event_participant.validate

@@ -12,16 +12,9 @@ module Registrations
         frees_a_place = participant.enrolled?
         participant.update!(dropped: true, dropped_at: Time.current, drop_reason: reason,
                             waitlisted: false, waitlist_position: nil)
-        fill_from_waitlist(event, frees_a_place) unless event.points_locked?
+        event.fill_from_waitlist!(freed_place: frees_a_place) unless event.points_locked?
       end
       participant
     end
-
-    def self.fill_from_waitlist(event, frees_a_place)
-      event.event_participants.waitlist.first&.promote! if frees_a_place
-      event.renumber_waitlist!
-    end
-
-    private_class_method :fill_from_waitlist
   end
 end

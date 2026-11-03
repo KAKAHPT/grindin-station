@@ -156,7 +156,54 @@ module Organizer
       assert_response :unprocessable_entity
     end
 
+    test "an enrolled player cancelling before the swiss lets the first on the waitlist in" do
+      first, second = waitlist_players
+      leaving = @tournament.event_participants.enrolled.first
+      leaving.player.user.update!(password: "password123")
+      sign_in_user(leaving.player.user)
+
+      assert_difference -> { EventParticipant.count }, -1 do
+        delete tournament_event_participant_path(@tournament, leaving)
+      end
+      assert_redirected_to tournament_path(@tournament)
+      assert_not first.reload.waitlisted?
+      assert_equal 1, second.reload.waitlist_position
+    end
+
+    test "a waitlisted player cancelling promotes no one and closes the gap" do
+      first, second = waitlist_players
+      sign_in_user(users(:player_one))
+
+      delete tournament_event_participant_path(@tournament, first)
+
+      assert_not EventParticipant.exists?(first.id)
+      assert second.reload.waitlisted?
+      assert_equal 1, second.waitlist_position
+      assert_equal 4, @tournament.reload.playing_participants_count
+    end
+
+    test "cancelling after the swiss started is a drop" do
+      @tournament.update_column(:state, "swiss") # rubocop:disable Rails/SkipsModelValidations
+      leaving = @tournament.event_participants.first
+      leaving.player.user.update!(password: "password123")
+      sign_in_user(leaving.player.user)
+
+      assert_no_difference -> { EventParticipant.count } do
+        delete tournament_event_participant_path(@tournament, leaving)
+      end
+      leaving.reload
+      assert leaving.dropped?
+      assert_equal "drop", leaving.drop_reason
+    end
+
     private
+
+    # Fills the 4-player event and puts players one and two on its waitlist.
+    def waitlist_players
+      @tournament.update_column(:state, "registration_open") # rubocop:disable Rails/SkipsModelValidations
+      @tournament.reload.update!(maximum_participants: 4, waitlist_enabled: true)
+      %i[player_one player_two].map { |name| Registrations::Enroll.call(event: @tournament, player: players(name)) }
+    end
 
     def assert_refused
       assert_redirected_to organizer_root_path

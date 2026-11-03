@@ -80,11 +80,48 @@ module Registrations
       assert_not_includes rebuilt.seatings.map(&:event_participant_id), dropped.id
     end
 
+    test "dropping a waitlisted player promotes no one and closes the gap" do
+      tournament = full_tournament_with_waitlist(3)
+      first, second, third = tournament.event_participants.waitlist.to_a
+
+      Drop.call(participant: second, by: @organizer)
+
+      assert first.reload.waitlisted?
+      assert_equal 1, first.waitlist_position
+      assert_equal 2, third.reload.waitlist_position
+      assert_not second.reload.waitlisted?
+      assert_nil second.waitlist_position
+      assert_equal 4, tournament.reload.playing_participants_count
+    end
+
+    test "promoting from the middle of the waitlist renumbers the rest" do
+      tournament = full_tournament_with_waitlist(3)
+      first, second, third = tournament.event_participants.waitlist.to_a
+
+      tournament.promote_from_waitlist!(second)
+
+      assert_not second.reload.waitlisted?
+      assert_equal [1, 2], [first.reload.waitlist_position, third.reload.waitlist_position]
+    end
+
     test "rejects an unknown reason" do
       participant = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
                                             state: :registration_closed).event_participants.first
 
       assert_raises(ActiveRecord::RecordInvalid) { Drop.call(participant: participant, reason: "bored", by: @organizer) }
+    end
+
+    private
+
+    # Four enrolled players (the cap) and `waiting` on the waitlist (players one, two, three...).
+    def full_tournament_with_waitlist(waiting)
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_open)
+      tournament.update!(maximum_participants: 4, waitlist_enabled: true)
+      %i[player_one player_two player_three].first(waiting).each do |name|
+        Enroll.call(event: tournament, player: players(name))
+      end
+      tournament
     end
   end
 end

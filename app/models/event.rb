@@ -65,6 +65,12 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
     end
   end
 
+  # After a place is freed (freed_place) the first on the waitlist takes it; positions are then closed up.
+  def fill_from_waitlist!(freed_place:)
+    event_participants.waitlist.first&.promote! if freed_place
+    renumber_waitlist!
+  end
+
   # Closes the gaps in the waitlist positions: 1, 2, 3...
   def renumber_waitlist!
     event_participants.waitlist.each.with_index(1) do |participant, position|
