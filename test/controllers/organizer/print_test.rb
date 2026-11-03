@@ -21,7 +21,7 @@ module Organizer
       @pods.each do |pod|
         names = pod.seatings.order(:order).map { |s| s.event_participant.name }
         assert_select ".table h2", text: "Table #{pod.number}" do |h2|
-          assert_equal names, h2.first.parent.css(".seat-name").map { |n| n.text.strip }
+          assert_equal(names, h2.first.parent.css(".seat-name").map { |n| n.text.strip })
         end
       end
     end
