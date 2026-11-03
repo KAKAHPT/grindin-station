@@ -115,12 +115,21 @@ Infractions have a hierarchical enum structure:
 - **Herb**: ERB template engine with JSX-like syntax support (includes `reactionview` gem for validation)
 - **Phosphor Icons**: Icon library via CDN
 
+### Tournament Day
+
+- **Play namespace** (`Play::`, `/t/:slug/...`): player-facing `me` (table), report/confirm/contest per pod, judge calls, round timer
+- **Staff roles**: `event_staff` (`organizer`/`judge`/`scorekeeper`); gate actions with `allow_roles` in `Organizer::OrganizerController`
+- **Helpers**: `PaletteHelper` (palette A buttons, chips, seat squares; dark only), `RosterHelper` (roster desk counters and rows)
+- **Stimulus**: `pod_result` (tap a row to pick the winner, then confirm), `row_expander` (expandable roster stats)
+- **Printing**: `GET /organizer/{tournaments,leagues}/:id/rounds/:id/print` (12 pods per A4) and `/slips` (6 QR slips per A4)
+
 ### Background Jobs
 
 Uses Solid Queue for job processing:
 - **Tournaments**: `StartSwissRoundJob`, `StartSingleEliminationRoundJob`, `FinishTournamentJob`, `CreatePodsJob`, `CreateSingleEliminationPodsJob`, `FinishRoundJob`
 - **Leagues**: `StartPlayRoundJob`, `StartFinalsRoundJob`, `FinishLeagueJob`, `CreatePickupPodJob`
 - **Events**: `GeocodeJob`, `SubmitResultJob`
+- **Results**: `Results::ExpirePendingJob` (recurring, every minute): pending results unconfirmed after `confirmation_timeout_minutes` go to staff review, never auto-accepted
 - **Circuits**: `UpdateStandingsJob`
 
 ### Database
@@ -138,6 +147,7 @@ Uses Solid Queue for job processing:
 - WebMock for HTTP stubbing in tests
 - Fixtures in `test/fixtures/` with sample tournament data
 - Service tests in `test/services/`
+- Tournament-day flows (self-report/confirm/contest, judge calls, round close/cut/undo, roster, printing) have controller tests plus system tests
 - Run with parallel workers: `bin/rails test` (uses `:number_of_processors` workers)
 
 ## Code Conventions
