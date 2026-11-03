@@ -232,6 +232,7 @@ pt:
     undo: "Anular ronda"
     undo_confirm: "Anular esta ronda? As mesas e resultados desaparecem."
     cannot_undo_first: "A primeira ronda não pode ser anulada."
+    cannot_undo_older: "Só a última ronda pode ser anulada."
     extra_time_added: "Tempo extra adicionado à mesa %{table}."
   standings:
     columns:

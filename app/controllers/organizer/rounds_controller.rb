@@ -50,6 +50,9 @@ module Organizer
       if round.number == 1
         return redirect_to [:organizer, event, round.becomes(Round)], alert: t("rounds.cannot_undo_first")
       end
+      if round.number != event.rounds.maximum(:number)
+        return redirect_to [:organizer, event, round.becomes(Round)], alert: t("rounds.cannot_undo_older")
+      end
 
       Round.transaction { roll_back(event, round) }
       redirect_to [:organizer, event, event.rounds.max_by(&:number).becomes(Round)],

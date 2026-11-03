@@ -24,6 +24,18 @@ module Organizer
       assert_nil @round.reload.finished_at
     end
 
+    test "an older round cannot be undone while a later one exists" do
+      TournamentBuilder.play_round!(@t, winners: { 1 => 0, 2 => 0 })
+      round2 = @t.rounds.create!(type: SwissRound, number: 2)
+
+      delete organizer_tournament_round_path(@t, @round)
+
+      assert_redirected_to organizer_tournament_round_path(@t, @round)
+      assert_equal I18n.t("rounds.cannot_undo_older"), flash[:alert]
+      assert Round.exists?(@round.id)
+      assert Round.exists?(round2.id)
+    end
+
     test "the only round cannot be undone and offers no undo button" do
       get organizer_tournament_round_path(@t, @round)
       assert_select "button", text: I18n.t("rounds.undo"), count: 0
