@@ -97,6 +97,9 @@ Teste manual em telemóvel real (iOS e Android), por fazer:
   sem `SMTP_ADDRESS` não saem e-mails).
 - **Primeiro deploy.** Com o DNS a apontar para o VPS: GitHub, Actions, Deploy, Run workflow, `command: setup`.
   Instala o Docker, arranca a base, constrói e envia a imagem e faz o primeiro deploy.
+- **Organizador.** Nunca correr `db:seed` em produção (cria organizadores com palavra-passe conhecida; o
+  `db/seeds.rb` aborta em produção). Criar a conta no site e promovê-la a organizador:
+  `ssh root@$GS_VPS_HOST "docker exec -e EMAIL='tu@exemplo.pt' \$(docker ps -q -f label=service=grindin-station -f label=role=web) bin/rails runner 'EventOrganizer.find_or_create_by!(user: User.find_by!(email_address: ENV.fetch(\"EMAIL\")))'"`.
 - **Deploy contínuo.** Cada push para `main` com a CI verde (que agora também constrói a imagem) corre `kamal deploy`.
 - **Backups.** `bin/backup` corre todos os dias às 04:00 (cron, `config/backup.cron`), guarda 14 dumps e copia para
   fora do VPS se `RCLONE_REMOTE` estiver definido. `bin/restore <ficheiro>` repõe um dump (pede confirmação).

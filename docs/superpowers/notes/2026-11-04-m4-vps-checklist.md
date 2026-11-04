@@ -52,8 +52,18 @@ O workflow usa `environment: production`; os segredos podem estar no environment
       accessory `db` (o `init.sql` cria as 4 bases), constrói e envia a imagem para `ghcr.io` e faz o primeiro deploy.
 - [ ] Ver os logs da base: na máquina local, com as mesmas variáveis exportadas (`GS_VPS_HOST`, `GS_DOMAIN`), `bin/kamal accessory logs db`
       — ou `ssh root@$GS_VPS_HOST 'docker logs grindin-station-db'`.
-- [ ] Seeds: `ssh root@$GS_VPS_HOST 'docker exec $(docker ps -q -f label=service=grindin-station -f label=role=web) bin/rails db:seed'`
-      (ou `bin/kamal app exec 'bin/rails db:seed'` a partir de uma máquina com as variáveis exportadas; não precisa de Docker local).
+- [ ] **Nunca correr `db:seed` em produção** (os seeds criam organizadores com palavra-passe conhecida; `db/seeds.rb`
+      aborta se `RAILS_ENV=production`).
+- [ ] Criar o organizador real: criar a conta no site (`https://$GS_DOMAIN/registrations/new`), depois promovê-la
+      (trocar `tu@exemplo.pt` pelo e-mail com que te registaste):
+
+      ```sh
+      ssh root@$GS_VPS_HOST "docker exec -e EMAIL='tu@exemplo.pt' \$(docker ps -q -f label=service=grindin-station -f label=role=web) bin/rails runner 'EventOrganizer.find_or_create_by!(user: User.find_by!(email_address: ENV.fetch(\"EMAIL\")))'"
+      ```
+
+      (Ou, numa máquina com as variáveis exportadas, sem Docker local:
+      `EMAIL=tu@exemplo.pt; bin/kamal app exec -i --reuse "bin/rails runner 'EventOrganizer.find_or_create_by!(user: User.find_by!(email_address: \"$EMAIL\"))'"`.)
+      Depois disso essa conta já pode criar eventos.
 - [ ] `curl -fsS https://$GS_DOMAIN/up` → 200 com certificado válido.
 - [ ] Iniciar sessão, criar um evento de teste, carregar um avatar (confirma `libvips` e o volume `grindin_storage`).
 - [ ] A partir daqui, cada push para `main` com CI verde (incluindo o job `docker`) faz `bin/kamal deploy` automaticamente.
