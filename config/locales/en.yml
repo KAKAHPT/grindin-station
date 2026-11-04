@@ -165,7 +165,7 @@ en:
       events:
         one: "1 event"
         other: "%{count} events"
-      organized_by_html: "Organized by %{name}"
+      organized_by: "Organized by %{name}"
       leagues: "Leagues (%{count})"
       tournaments: "Tournaments (%{count})"
       no_events: "No events in this circuit yet."

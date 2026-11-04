@@ -15,6 +15,7 @@ module Organizer
       get organizer_circuit_path(circuit)
 
       assert_response :success
+      assert_select "p", text: "Organized by #{users(:organizer_user).name}"
       assert_select "tbody tr", 2
       assert_select "tbody tr:first-child td", text: players(:player_two).name
       assert_select "tbody tr:first-child td", text: "12"
