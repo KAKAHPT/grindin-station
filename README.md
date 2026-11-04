@@ -81,6 +81,29 @@ Teste manual em telemóvel real (iOS e Android), por fazer:
 4. Abrir a classificação (`/t/<slug>/standings`).
 5. Abrir o próprio perfil (`/p/<handle>`).
 
+## Produção
+
+- **Arquitectura.** Kamal 2 num VPS: imagem Docker em `ghcr.io/kakahpt/grindin-station`, kamal-proxy com HTTPS
+  Let's Encrypt, Postgres/PostGIS como accessory preso a `127.0.0.1` (volume de dados e `config/postgres/init.sql`
+  que cria as 4 bases), Active Storage no volume `/rails/storage` e Solid Queue dentro do Puma. Saúde em `/up`.
+- **Feeds para o OBS.** `https://<domínio>/api/v1/events/<slug>/standings`, `.../rounds` e `.../info`: JSON público,
+  cache de 30 s, CORS aberto, sem decklists, rondas do corte como "Top N", `seats` como objecto e `timerEnd` no `info`.
+  O kit tem de mudar três coisas: `const API` passa a `https://<domínio>/api/v1/events/<slug>/` com o nome do feed
+  como caminho (em vez de `?feed=`); o relógio lê `roundTime`/`timerEnd` em vez de `start/clock` por ronda; `seats`
+  é um objecto, por isso usar `Object.values(pl.seats)`.
+- **Segredos (GitHub, environment `production`).** Obrigatórios: `GS_VPS_HOST`, `GS_DOMAIN`, `RAILS_MASTER_KEY`,
+  `POSTGRES_PASSWORD` (só hex: `openssl rand -hex 32`) e `SSH_PRIVATE_KEY`. Opcionais: `SSH_KNOWN_HOSTS`, OAuth
+  (`GOOGLE_*`, `DISCORD_*`) e SMTP (`SMTP_ADDRESS`, `SMTP_PORT`, `SMTP_DOMAIN`, `SMTP_USER_NAME`, `SMTP_PASSWORD`;
+  sem `SMTP_ADDRESS` não saem e-mails).
+- **Primeiro deploy.** Com o DNS a apontar para o VPS: GitHub, Actions, Deploy, Run workflow, `command: setup`.
+  Instala o Docker, arranca a base, constrói e envia a imagem e faz o primeiro deploy.
+- **Deploy contínuo.** Cada push para `main` com a CI verde (que agora também constrói a imagem) corre `kamal deploy`.
+- **Backups.** `bin/backup` corre todos os dias às 04:00 (cron, `config/backup.cron`), guarda 14 dumps e copia para
+  fora do VPS se `RCLONE_REMOTE` estiver definido. `bin/restore <ficheiro>` repõe um dump (pede confirmação).
+- **Por verificar.** Sem VPS e sem Docker no Mac, nada disto foi corrido a sério: `docker build`, Let's Encrypt,
+  `init.sql`, workflow, cron e restore. Passos e checklist em
+  [`docs/superpowers/notes/2026-11-04-m4-vps-checklist.md`](docs/superpowers/notes/2026-11-04-m4-vps-checklist.md).
+
 ## Setup no macOS
 
 Testado em macOS (Apple Silicon) com `mise` e PostgreSQL 17 + PostGIS do Homebrew,
