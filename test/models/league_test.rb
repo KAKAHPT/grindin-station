@@ -14,6 +14,13 @@ class LeagueTest < ActiveSupport::TestCase
     assert_includes League.states, "canceled"
   end
 
+  test "a league cannot be 1v1" do
+    league = leagues(:standard_league)
+    league.format = "one_v_one"
+    assert_not league.valid?
+    assert_includes league.errors[:format], "is not included in the list"
+  end
+
   test "league transitions from draft to registration_open" do
     league = leagues(:standard_league)
     league.update!(state: "draft")

@@ -15,7 +15,7 @@ module Tournaments
     end
 
     def call
-      raise ArgumentError, "round #{@round.number} already has pods" if @round.pods.any?
+      raise ArgumentError, "round #{@round.number} already has pods or results" if already_paired?
 
       players = ranked_players
       bye = bye_player(players)
@@ -29,6 +29,9 @@ module Tournaments
     end
 
     private
+
+    # Pods, or a leftover bye result, mean the round was paired: a second call would hand out a second bye.
+    def already_paired? = @round.pods.any? || @round.all_results.exists?
 
     # Active participants, best first; ids break the (salted, so unlikely) rank ties.
     def ranked_players

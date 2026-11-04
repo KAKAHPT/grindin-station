@@ -322,6 +322,13 @@ class EventParticipant < ApplicationRecord
       end
   end
 
+  # 1v1 rank score without the top cut advancements: the swiss seed the bracket was built from.
+  def one_v_one_seed_score # rubocop:disable Metrics/AbcSize -- one term per tiebreaker
+    (match_points * (10**17)) +
+      ((opponents_match_win_rate * 10_000).round * (10**12)) + ((game_win_rate * 10_000).round * (10**8)) +
+      ((opponents_game_win_rate * 10_000).round * (10**4)) + tiebreak_salt
+  end
+
   # The readable tiebreakers, for the standings views.
   def standing_columns
     if event.one_v_one?
@@ -349,12 +356,8 @@ class EventParticipant < ApplicationRecord
 
   private
 
-  # Points, then OMW, GW, OGW (percentages x 10 000, rounded), then the salt. Advancements outrank everything.
-  def one_v_one_score # rubocop:disable Metrics/AbcSize -- one term per tiebreaker
-    (number_of_advancements * (10**21)) + (match_points * (10**17)) +
-      ((opponents_match_win_rate * 10_000).round * (10**12)) + ((game_win_rate * 10_000).round * (10**8)) +
-      ((opponents_game_win_rate * 10_000).round * (10**4)) + tiebreak_salt
-  end
+  # Advancements outrank the seed score (points, OMW, GW, OGW, then the salt).
+  def one_v_one_score = (number_of_advancements * (10**21)) + one_v_one_seed_score
 
   def average_rate(records, rate)
     return RATE_FLOOR if records.empty?

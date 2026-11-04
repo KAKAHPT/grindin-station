@@ -55,6 +55,43 @@ module Tournaments
       assert_equal 2, mixed, "only the pair-down crosses groups (6 v 3, then the odd 3-point group's 3 v 0)"
     end
 
+    test "with repair on, the 12-player pair-down crosses groups only where it must (6 v 3, then 3 v 0)" do
+      t = build(12, rounds: 5)
+      2.times do |i|
+        round = t.rounds.create!(type: SwissRound, number: i + 1)
+        TournamentBuilder.play_1v1_round!(t, scores: round.pods.pluck(:number).index_with([2, 0]))
+      end
+      points = standings(t).to_h { |player| [player.id, player.match_points] }
+      round = t.rounds.create!(type: SwissRound, number: 3)
+      crossed = pairs(round).map { |pair| pair.map { |id| points[id] }.sort.reverse }.reject { |a, b| a == b }
+      assert_equal [[3, 0], [6, 3]], crossed.sort
+      assert_equal 0, RematchRepair.new(round, max_point_gap: 0).repair!
+    end
+
+    test "a non-last round pairs inside a group in random order, not top-down" do
+      t = build(8, rounds: 4)
+      round = t.rounds.create!(type: SwissRound, number: 1)
+      TournamentBuilder.play_1v1_round!(t, scores: round.pods.pluck(:number).index_with([2, 0]))
+      random =
+        (1..6).any? do |seed|
+          t.update_columns(seed: seed) # rubocop:disable Rails/SkipsModelValidations
+          t.rounds.find_by(number: 2)&.destroy!
+          top_down = standings(t).map(&:id).each_slice(2).map(&:sort)
+          pairs(repair_free_round(t.reload, 2)).map(&:sort) != top_down
+        end
+      assert random, "six seeds all paired the groups top-down"
+    end
+
+    test "when everyone already had a bye, the lowest-ranked player gets it" do
+      t = build(3, rounds: 4)
+      rng = Random.new(5)
+      3.times { |i| play!(t, t.rounds.create!(type: SwissRound, number: i + 1), rng) }
+      assert(standings(t).all? { |player| player.number_of_byes == 1 })
+      lowest = standings(t).last
+      round = t.rounds.create!(type: SwissRound, number: 4)
+      assert_equal [lowest.id], round.byes.pluck(:event_participant_id)
+    end
+
     test "the last swiss round pairs each group top-down: rank 1 plays rank 2" do
       t = build(8, rounds: 3)
       2.times do |i|
@@ -96,6 +133,14 @@ module Tournaments
       t = build(4, rounds: 2)
       round = t.rounds.create!(type: SwissRound, number: 1)
       assert_raises(ArgumentError) { OneVOnePairer.call(round) }
+    end
+
+    test "raises when only a bye is left on the round" do
+      t = build(5, rounds: 2)
+      round = t.rounds.create!(type: SwissRound, number: 1)
+      round.pods.destroy_all
+      assert_equal 1, round.all_results.count
+      assert_raises(ArgumentError) { OneVOnePairer.call(round.reload) }
     end
 
     private
