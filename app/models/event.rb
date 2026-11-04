@@ -64,9 +64,11 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   after_update :perform_state_based_actions, if: -> { state_previously_changed? }
   after_save :geocode_address, if: -> { address_previously_changed? }
 
-  def one_v_one? = format == "one_v_one"
+  # read_attribute: a record loaded against a schema without the column (or a stale schema cache) would otherwise
+  # fall through to Kernel#format and raise "too few arguments".
+  def one_v_one? = read_attribute(:format) == "one_v_one"
 
-  def multiplayer? = format == "multiplayer"
+  def multiplayer? = read_attribute(:format) == "multiplayer"
 
   def points_locked?
     UNLOCKED_POINTS_STATES.exclude?(state)
