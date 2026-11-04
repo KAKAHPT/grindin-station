@@ -88,9 +88,7 @@
   </ul>
   <div class="flex flex-col gap-3 lg:flex-row lg:justify-between lg:items-center">
     <div class="flex flex-wrap items-center gap-2 text-sm font-medium">
-      <%= link_to [:organizer, @round.event, :event_participants], data: {turbo_frame: "modal"}, class: small_button_classes(:secondary) do %>
-        Standings
-      <% end %>
+      <%= link_to "Standings", play_standings_path(@round.event.slug), target: "_blank", rel: "noopener", class: small_button_classes(:secondary) %>
       <%= link_to t("rounds.print.pairings_link"), print_organizer_tournament_round_path(@round.event, @round), target: "_blank", rel: "noopener", class: small_button_classes(:secondary) %>
       <%= link_to t("rounds.print.slips_link"), slips_organizer_tournament_round_path(@round.event, @round), target: "_blank", rel: "noopener", class: small_button_classes(:secondary) %>
     </div>
@@ -153,7 +151,7 @@
   <div class="py-2">
     <label for="table-search" class="sr-only">Search</label>
     <div class="relative mt-1">
-      <%= form_tag [:organizer, @round.event, @round.becomes(Round)], data: { turbo_frame: "player_list" }, method: "get", remote: true do %>
+      <div data-controller="pod-filter">
         <div
           class="
             absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3
@@ -176,8 +174,8 @@
             />
           </svg>
         </div>
-        <%= text_field_tag :query, params[:query], placeholder: "Search for players", class: "block h-10 ps-10 text-sm text-ink border border-line rounded-md w-full sm:w-80 bg-surface placeholder:text-muted focus:ring-accent focus:border-accent" %>
-      <% end %>
+        <%= text_field_tag :query, nil, id: "table-search", type: "search", autocomplete: "off", placeholder: "Search for players", data: { action: "input->pod-filter#filter", pod_filter_target: "input" }, class: "block h-10 ps-10 text-sm text-ink border border-line rounded-md w-full sm:w-80 bg-surface placeholder:text-muted focus:ring-accent focus:border-accent" %>
+      </div>
     </div>
   </div>
 </div>
@@ -206,55 +204,3 @@
     </div>
   <% end %>
 </div>
-
-<%= turbo_frame_tag "player_list", class: "col-span-full block p-0 bg-surface border border-line rounded-2xl shadow-card overflow-clip" do %>
-  <div class="relative overflow-x-auto sm:rounded-lg">
-    <table
-      class="w-full text-sm text-left rtl:text-right text-muted"
-    >
-      <thead
-        class="sticky top-0 z-10 text-[10.5px] tracking-wide text-muted uppercase bg-surface-raised/95 backdrop-blur border-b border-line-strong"
-      >
-        <tr>
-          <th scope="col" class="px-4 py-2 text-left">Player</th>
-          <th scope="col" class="px-4 py-2 text-right">Pod</th>
-          <th scope="col" class="px-4 py-2 text-right">Seat</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @users_map.keys.sort_by { |k| @users_map[k][:name] }.each.with_index do |k, i| %>
-          <tr
-            class="h-[34px] text-[12px] border-b border-line/60 last:border-b-0 odd:bg-white/[0.015] hover:bg-white/[0.04]"
-          >
-            <td
-              scope="row"
-              data-tooltip-target="tooltip-pairings-<%= k %>"
-              class="px-4 py-1 text-left font-semibold text-ink whitespace-nowrap"
-            >
-              <%= truncate(@users_map[k][:name]) %>
-            </td>
-            <td class="px-4 py-1 tabular text-right">
-              <%= link_to @users_map[k][:pod], "#pod_#{@users_map[k][:pod_id]}", target: "_top", data: { controller: 'scroller'}, class: "text-accent hover:underline" %>
-            </td>
-            <td class="px-4 py-1 tabular text-right"><%= @users_map[k][:seating] %></td>
-            <div
-              id="tooltip-pairings-<%= k %>"
-              role="tooltip"
-              class="
-                absolute z-10 invisible inline-block px-3 py-2 text-sm
-                font-medium text-ink transition-opacity duration-300
-                bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
-              "
-            >
-              <%= @users_map[k][:name] %>
-              <br>
-
-              <%= @users_map[k][:tp].obfuscated_key %>
-              <div class="tooltip-arrow" data-popper-arrow="true"></div>
-            </div>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
-<% end %>
