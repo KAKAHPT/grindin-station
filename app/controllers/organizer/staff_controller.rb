@@ -32,7 +32,8 @@ module Organizer
     end
 
     def load_tournament
-      @load_tournament ||= Tournament.for_organizer(current_organizer).find(params.expect(:tournament_id))
+      @load_tournament ||= Tournament.for_organizer(current_organizer).with_attached_cover
+        .find(params.expect(:tournament_id))
     end
 
     def staff_path

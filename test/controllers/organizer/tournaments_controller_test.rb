@@ -195,7 +195,9 @@ module Organizer
       get edit_organizer_tournament_path(tournament)
 
       assert_select "turbo-frame#modal form", 0
-      assert_select "[data-settings] .form-section", %w[Event Structure Results].size
+      assert_select "[data-settings] .form-section" do |sections|
+        assert_equal(%w[Event Structure Results], sections.map { |section| section.text.strip })
+      end
       assert_select "[data-danger-zone] button", text: "Cancel event"
       assert_select "[data-settings] .field input.field-input[name='tournament[name]']"
     end
@@ -211,6 +213,52 @@ module Organizer
 
       assert_select "[data-tabs] .tab", 3
       assert_select "[data-event-header] input[name='tournament[state]']", 0
+    end
+
+    test "a judge sees Overview, Roster, Rounds and Judge Center, and no Staff or Settings" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+      user = User.create!(name: "Judge", email_address: "judge-#{SecureRandom.hex(3)}@example.com",
+                          password: "password123")
+      EventStaff.create!(event: tournament, user: user, role: "judge")
+      sign_in(user)
+
+      get organizer_tournament_path(tournament)
+
+      assert_select "[data-tabs] .tab", 4
+      assert_select "[data-tabs] .tab", text: /Overview|Roster|Rounds|Judge Center/, count: 4
+      assert_select "[data-tabs] .tab", text: /Staff|Settings/, count: 0
+    end
+
+    test "a tournament with no rounds shows the Rounds tab disabled" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_open)
+
+      get organizer_tournament_path(tournament)
+
+      assert_select "[data-tabs] span.tab-off[aria-disabled=true]", text: "Rounds"
+      assert_select "[data-tabs] a.tab", text: "Rounds", count: 0
+    end
+
+    test "a finished tournament's Rounds tab links to the last round" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+      tournament.rounds.create!(type: SwissRound, number: 1)
+      later = tournament.rounds.create!(type: SwissRound, number: 2)
+      tournament.update_columns(state: Tournament.states[:finished]) # rubocop:disable Rails/SkipsModelValidations
+
+      get organizer_tournament_path(tournament)
+
+      assert_select "[data-tabs] a[href=?]", organizer_tournament_round_path(tournament, later), text: "Rounds"
+    end
+
+    test "registration_closed with no swiss rounds offers single elimination in the header" do
+      tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_closed, format: "one_v_one")
+      tournament.update_columns(swiss_rounds_count: 0, top_cut_size: 4) # rubocop:disable Rails/SkipsModelValidations
+
+      get organizer_tournament_path(tournament)
+
+      assert_select "[data-event-header] form input[name='tournament[state]'][value=single_elimination]"
+      assert_select "[data-event-header] input[name='tournament[state]'][value=swiss]", 0
     end
 
     private

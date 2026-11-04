@@ -12,7 +12,7 @@ module OrganizerOverviewHelper
       unpaid: roster_unpaid_count(tournament), no_decklist: roster_no_decklist_count(tournament) }
   end
 
-  # The last events at the tournament: judge calls, enrolments, check-ins and decklists, newest first,
+  # The last events at the tournament: judge calls, enrolments and check-ins, newest first,
   # as [text, time]. Participants come loaded; judge calls take one query (plus their pods).
   def tournament_lately(tournament)
     calls = tournament.judge_calls.includes(:pod).order(created_at: :desc).limit(LATELY_SHOWN).map { |c| call_event(c) }
@@ -30,18 +30,11 @@ module OrganizerOverviewHelper
   def participant_events(participants)
     participants.flat_map do |p|
       [[lately_text(:enrolled, p), p.created_at],
-       ([lately_text(:checked_in, p), p.checked_in_at] if p.checked_in_at),
-       ([lately_text(:decklist, p), p.updated_at] if decklist_changed?(p))].compact
+       ([lately_text(:checked_in, p), p.checked_in_at] if p.checked_in_at)].compact
     end
   end
 
   def lately_text(kind, participant) = t("organizer.overview.lately.#{kind}", name: participant.name)
-
-  # No decklist timestamp: a decklist changed after enrolment shows at the participant's last change.
-  def decklist_changed?(participant)
-    participant.decklist.present? && participant.updated_at > participant.created_at + 1.minute &&
-      participant.updated_at != participant.checked_in_at
-  end
 
   # "7 / 1 / 0 · bye 7"
   def tournament_points_line(tournament)

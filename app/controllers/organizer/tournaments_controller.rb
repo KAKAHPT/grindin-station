@@ -26,6 +26,7 @@ module Organizer
       @tournament =
         Tournament
           .staffed_by(current_user)
+          .with_attached_cover
           .preload(
             rounds: :pods,
             event_participants: { player: :user }
@@ -39,7 +40,7 @@ module Organizer
     end
 
     def edit
-      @tournament = Tournament.staffed_by(current_user).find params[:id]
+      @tournament = Tournament.staffed_by(current_user).with_attached_cover.find params[:id]
     end
 
     def create
@@ -53,7 +54,7 @@ module Organizer
     end
 
     def update
-      @tournament = Tournament.staffed_by(current_user).find params[:id]
+      @tournament = Tournament.staffed_by(current_user).with_attached_cover.find params[:id]
       # The format is chosen at creation only (the model refuses a change too).
       @tournament.attributes = tournament_params.except(:format)
 

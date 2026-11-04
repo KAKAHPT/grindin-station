@@ -137,7 +137,7 @@ module Organizer
     end
 
     def load_tournament
-      Tournament.staffed_by(current_user).find params[:tournament_id]
+      Tournament.staffed_by(current_user).with_attached_cover.find params[:tournament_id]
     end
 
     def load_event_participant(tournament)
