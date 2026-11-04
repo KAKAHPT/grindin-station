@@ -35,6 +35,15 @@ module Organizer
       end
     end
 
+    test "a closed round's clock says how long it took, not 00:00" do
+      @round.update_columns(started_at: 75.minutes.ago, finished_at: 75.minutes.ago + 72.minutes + 5.seconds) # rubocop:disable Rails/SkipsModelValidations
+      get organizer_tournament_round_path(@tournament, @round)
+
+      assert_select "[data-controller=round-timer]", text: /Finished in 72:05/
+      I18n.with_locale(:pt) { get organizer_tournament_round_path(@tournament, @round, locale: :pt) }
+      assert_select "[data-controller=round-timer]", text: /Terminou em 72:05/
+    end
+
     test "a completed pod is not tappable" do
       TournamentBuilder.play_round!(@tournament, winners: { @pod.number => 0 })
       get organizer_tournament_round_path(@tournament, @round)

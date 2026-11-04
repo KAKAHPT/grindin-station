@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static values = { startedAt: String, finishedAt: String, roundTime: Number };
+  static values = { startedAt: String, finishedAt: String, roundTime: Number, finishedLabel: String };
   connect() {
     this.fullscreen = false;
     const started_at = new Date(this.startedAtValue);
@@ -20,7 +20,7 @@ export default class extends Controller {
         <svg class="w-2.5 h-2.5 me-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
           <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm3.982 13.982a1 1 0 0 1-1.414 0l-3.274-3.274A1.012 1.012 0 0 1 9 10V6a1 1 0 0 1 2 0v3.586l2.982 2.982a1 1 0 0 1 0 1.414Z"/>
         </svg>
-        Finished in ${minutes}:${seconds < 10 ? "0" + seconds : seconds}
+        ${this.finishedLabelValue.replace("%{time}", `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`)}
         `;
     }
   }
@@ -29,13 +29,13 @@ export default class extends Controller {
     const ellapsed = ~~((Date.now() - started_at) / 1000);
     const remaining = this.roundTimeValue == 0 ? ellapsed : this.roundTimeValue - ellapsed;
 
-    // Time is up: stop at 0:00 in red instead of counting into negatives.
+    // Time is up: stop at 00:00 in red instead of counting into negatives.
     if (remaining < 0) {
       this.element.classList.add("!text-red-400", "font-black");
-      this.element.textContent = "0:00";
+      this.element.textContent = "00:00";
       return;
     }
-    const minutes = ~~(remaining / 60);
+    const minutes = String(~~(remaining / 60)).padStart(2, "0");
     const seconds = remaining % 60;
     this.element.textContent = `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
   }

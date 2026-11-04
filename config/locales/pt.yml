@@ -289,6 +289,7 @@ pt:
     change_result: "Alterar resultado"
     insert_result: "Inserir resultado"
     player_wins: "%{name} ganha"
+    finished_in: "Terminou em %{time}"
     cancel: "Cancelar"
     undo: "Anular ronda"
     undo_confirm: "Anular esta ronda? As mesas e resultados desaparecem."
