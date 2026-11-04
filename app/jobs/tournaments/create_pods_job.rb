@@ -4,6 +4,8 @@ module Tournaments
   # Job to create pods for a round
   class CreatePodsJob < ApplicationJob
     def perform(round)
+      return Tournaments::OneVOnePairer.call(round) if round.event.one_v_one?
+
       @round = round
       Tournaments::UnevenPodGenerator.new(@round).generate_pods!
       @players_by_rank = Tournaments::PlayerSorter.new(@round).paired_players

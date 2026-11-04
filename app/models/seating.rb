@@ -8,7 +8,7 @@ class Seating < ApplicationRecord
 
   scope :publishable, -> { joins(:round).where.not(rounds: { finished_at: nil }) }
 
-  ASSIGNED_BY = %w[fair ranked manual].freeze
+  ASSIGNED_BY = %w[fair ranked manual random].freeze
 
   validates :order, presence: true
   validates :assigned_by, inclusion: { in: ASSIGNED_BY }
