@@ -26,6 +26,7 @@ class PasswordsController < ApplicationController
 
   def update
     if @user.update(params.permit(:password, :password_confirmation).merge(password_set: true))
+      @user.sessions.destroy_all
       redirect_to new_session_path, notice: t("flash.notice.password_reset")
     else
       redirect_to edit_password_path(params[:token]), alert: t("flash.alert.passwords_no_match")
