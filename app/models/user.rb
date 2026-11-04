@@ -35,6 +35,7 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
   normalizes :country, with: ->(c) { c.strip.upcase.presence }
 
   validates :email_address, presence: true, uniqueness: true
+  validates :email_address, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
   validates :name, presence: true
   validates :handle, format: { with: HANDLE_FORMAT }, uniqueness: true, allow_nil: true
   validates :handle, presence: true, unless: :anonymized?
@@ -79,12 +80,17 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
     anonymized? ? I18n.t("accounts.removed_player") : name
   end
 
+  # The separator keeps "a@x.com" + "bc" and "a@x.comb" + "c" apart.
   def compute_key
-    Digest::MD5.hexdigest(email_address + name)
+    Digest::MD5.hexdigest("#{email_address}\0#{name}")
   end
 
+  # Adopts an unowned player with this key (one created before the user signed up); a player that
+  # belongs to someone else is never taken over, the new user gets its own.
   def initialize_player
-    self.player = Player.find_or_initialize_by(key: compute_key)
+    key = compute_key
+    unowned = Player.find_by(key: key, user_id: nil)
+    self.player = unowned || Player.new(key: free_key(key))
     player.save
   end
 
@@ -93,7 +99,7 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
   end
 
   def update_key
-    player.update(key: compute_key)
+    player&.update(key: free_key(compute_key))
   end
 
   def organizer?(event = nil)
@@ -154,6 +160,11 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
       self.handle = nil
       retry
     end
+  end
+
+  # The key, or the key with a random suffix when another player already holds it.
+  def free_key(key)
+    Player.where(key: key).where.not(id: player&.id).exists? ? "#{key}-#{SecureRandom.hex(4)}" : key
   end
 
   def shares_event_with?(other)
