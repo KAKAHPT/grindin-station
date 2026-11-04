@@ -107,6 +107,25 @@ class PodBroadcastTest < ActiveSupport::TestCase
     assert_no_turbo_stream_broadcasts table_stream(@seated.first)
   end
 
+  test "undoing a round pushes every participant the reopened round's table" do
+    @round.update!(published: true, started_at: Time.current)
+    @round.update_columns(finished_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
+    @tournament.rounds.create!(type: SwissRound, number: 2).update!(published: true)
+    clear_enqueued_jobs
+
+    perform_enqueued_jobs do
+      Round.transaction do
+        @tournament.rounds.find_by!(number: 2).destroy!
+        @round.reload.update!(finished_at: nil)
+      end
+    end
+
+    @round.event_participants.each do |participant|
+      assert_turbo_stream_broadcasts table_stream(participant), count: 1
+    end
+    assert_match(/data-seat-number[^>]*>2</, capture_turbo_stream_broadcasts(table_stream(@seated.second)).sole.to_html)
+  end
+
   private
 
   def table_stream(participant, locale = :en)

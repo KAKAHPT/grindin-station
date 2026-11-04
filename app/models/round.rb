@@ -68,10 +68,11 @@ class Round < ApplicationRecord
 
   private
 
-  # Publishing, starting or closing reloads the staff round pages; publishing also pushes every table.
+  # Publishing, starting or closing reloads the staff round pages. Publishing, or reopening after the
+  # next round was undone, also pushes every table.
   def broadcast_live
-    Live::BroadcastRoundJob.perform_later(self, tables: saved_change_to_published?(to: true),
-                                                request_id: Turbo.current_request_id)
+    tables = saved_change_to_published?(to: true) || saved_change_to_finished_at?(to: nil)
+    Live::BroadcastRoundJob.perform_later(self, tables: tables, request_id: Turbo.current_request_id)
   end
 
   def round_finished
