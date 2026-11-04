@@ -45,6 +45,19 @@ class QueryBudgetTest < ActionDispatch::IntegrationTest
     assert_queries_under(60, "public pairings, closed round") { get play_pairings_path(@t.slug, round: 1) }
   end
 
+  test "pairings and standings for a signed-in enrolled player run under 60 queries" do
+    @t.rounds.create!(type: SwissRound, number: 2).update!(published: true)
+    player = @t.rounds.find_by!(number: 2).seatings.first.event_participant.player.user
+    player.update!(password: "password123")
+    delete session_path
+    post session_path, params: { session: { email_address: player.email_address, password: "password123" } }
+
+    assert_queries_under(60, "public pairings (player)") { get play_pairings_path(@t.slug) }
+    assert_select "[data-my-table]", count: 1
+    assert_queries_under(60, "public standings (player)") { get play_standings_path(@t.slug) }
+    assert_select "tr[data-me]", count: 1
+  end
+
   test "public event page with a waitlist runs under 60 queries" do
     10.times do |i|
       user = User.create!(name: "Espera #{i}", email_address: "espera-#{i}-#{SecureRandom.hex(3)}@example.com",

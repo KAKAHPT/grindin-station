@@ -40,11 +40,6 @@
     </td>
     <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right"><%= columns[:beaten] %></td>
     <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right"><%= columns[:unique] %></td>
-    <% if local_assigns.fetch(:seats, true) %>
-      <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 text-nowrap">
-        <%= seat_grid(columns[:seats], seat_five: local_assigns.fetch(:seat_five, false)) %>
-      </td>
-    <% end %>
   <% end %>
   <td class="<%= pad %> py-0.5 tabular text-right text-nowrap">
     <% wld = [event_participant.number_of_wins, event_participant.number_of_losses, event_participant.number_of_draws] %>

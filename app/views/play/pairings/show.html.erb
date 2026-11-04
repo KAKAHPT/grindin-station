@@ -34,7 +34,7 @@
       <label class="relative block w-full sm:w-72">
         <span class="sr-only"><%= t("play.pairings.search") %></span>
         <svg aria-hidden="true" class="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/></svg>
-        <input type="search" autocomplete="off" data-pairings-search placeholder="<%= t("play.pairings.search") %>"
+        <input type="search" id="pairings-search" autocomplete="off" data-pairings-search data-turbo-permanent placeholder="<%= t("play.pairings.search") %>"
                data-pod-filter-target="input" data-action="input->pod-filter#filter" class="field-input ps-8">
       </label>
     </div>
@@ -52,6 +52,9 @@
         <% @byes.each do |bye| %>
           <li data-participant-id="<%= bye.event_participant_id %>" class="px-4 py-2 text-[13px] min-w-0 truncate">
             <%= t("play.pairings.bye", name: bye.event_participant.name) %>
+            <% if current_participant && bye.event_participant_id == current_participant.id %>
+              <span data-me class="ms-1.5"><%= desk_chip(:ok) { t("play.tables.you") } %></span>
+            <% end %>
           </li>
         <% end %>
       </ul>

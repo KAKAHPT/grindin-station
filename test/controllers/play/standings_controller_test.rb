@@ -36,11 +36,13 @@ module Play
       assert_select "th", text: "Seats", count: 0
     end
 
-    test "the organizer modal keeps the Seats column" do
+    test "the organizer modal has no Seats column either" do
       get tournament_event_participants_path(@tournament), headers: { "Turbo-Frame" => "modal" }
 
-      assert_select "th", text: "Seats"
-      assert_select "tbody span[role=img]", count: 8
+      assert_select "tbody tr", 8
+      assert_select "th", text: "Seats", count: 0
+      assert_select "tbody span[role=img]", count: 0
+      assert_select "tr[data-me]", count: 0
     end
 
     test "the page follows the event's standings stream and refreshes by morph; the modal does not" do

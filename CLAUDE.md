@@ -223,7 +223,7 @@ GET  /up                         → rails/health#show (health check)
 GET  /api/v1/events/:slug/{standings,rounds,info} → api/v1/events (public JSON, 30 s cache, CORS)
 
 Play namespace (/t/:slug, public; draft/canceled events 404 for non-staff):
-GET  /t/:slug                    → event page (enrolled, waitlist, enrol/cancel)
+GET  /t/:slug                    → event page (counts; own entry, decklist, cancel)
 GET  /t/:slug/pairings           → pairings (?round=N)
 GET  /t/:slug/standings          → standings (Win %)
 GET  /t/:slug/timer, /t/:slug/me → round timer, player's table
