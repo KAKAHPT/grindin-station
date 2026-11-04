@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Tournament < Event
+class Tournament < Event # rubocop:disable Metrics/ClassLength
   paginates_per 20
 
   scope :ongoing, -> { where(state: %i[swiss single_elimination]) }
