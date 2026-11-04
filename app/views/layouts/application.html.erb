@@ -133,7 +133,7 @@
             <%= yield %>
           </div>
 
-          <%= turbo_frame_tag "modal", data: { turbo_permanent: true } %>
+          <%= turbo_frame_tag "modal", data: ({ turbo_permanent: true } if content_for?(:permanent_modal)) %>
         </main>
         <footer
           class="
