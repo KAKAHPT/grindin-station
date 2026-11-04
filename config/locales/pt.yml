@@ -13,6 +13,8 @@ pt:
               too_big: "tem de ter 2 MB ou menos"
         event:
           attributes:
+            format:
+              locked: "não pode mudar depois de o torneio começar"
             points_win:
               locked: "não pode mudar depois de o torneio começar"
             points_draw:

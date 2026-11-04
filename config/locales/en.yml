@@ -13,6 +13,8 @@ en:
               too_big: "must be 2 MB or smaller"
         event:
           attributes:
+            format:
+              locked: "cannot change once the tournament has started"
             points_win:
               locked: "cannot change once the tournament has started"
             points_draw:
