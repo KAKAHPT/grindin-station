@@ -171,6 +171,21 @@ module Play
       assert_select "[data-registration] button", text: "Register"
     end
 
+    test "a sold-out event without a waiting list shows Registration is full and no enrol form" do
+      @waiting.each(&:destroy!)
+      @tournament.update!(waitlist_enabled: false)
+      sign_in_user(User.create!(name: "Shut Out", email_address: "shut-#{SecureRandom.hex(3)}@example.com",
+                                password: "password123"))
+
+      get play_event_path(@tournament.slug)
+
+      assert_select ".evhead-eyebrow", text: "Sold out · cEDH · pods of four"
+      assert_select "[data-registration] [data-full]", text: "Registration is full."
+      assert_select "[data-registration] [data-counters]", text: "4 players enrolled."
+      assert_select "[data-registration] form", count: 0
+      assert_select "[data-registration] button", count: 0
+    end
+
     test "the state chip follows the event" do
       @tournament.update_column(:state, :swiss) # rubocop:disable Rails/SkipsModelValidations
       round = @tournament.rounds.create!(type: SwissRound, number: 1)

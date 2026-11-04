@@ -319,6 +319,7 @@ en:
       counts_waitlist:
         one: "1 on the waiting list."
         other: "%{count} on the waiting list."
+      full: "Registration is full."
       full_waitlist: "The event is full: registering puts you on the waiting list."
       join_waitlist: "Join waiting list"
       you: "You"

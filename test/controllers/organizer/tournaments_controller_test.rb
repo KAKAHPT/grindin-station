@@ -106,6 +106,20 @@ module Organizer
       assert_not tournament.reload.featured?
     end
 
+    test "a judge cannot feature the tournament" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_open)
+      judge = User.create!(name: "Judge", email_address: "judge-#{SecureRandom.hex(3)}@example.com",
+                           password: "password123")
+      EventStaff.create!(event: tournament, user: judge, role: "judge")
+
+      sign_in(judge)
+      patch organizer_tournament_path(tournament), params: { tournament: { featured: "1" } }
+
+      assert_redirected_to organizer_root_path
+      assert_not tournament.reload.featured?
+    end
+
     test "a tampered update cannot switch the format" do
       tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
                                            state: :registration_open)

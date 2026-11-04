@@ -1,18 +1,22 @@
 <%# Registration card for anyone not in the event: the counts only (no names), then sign in, the enrol form (Join
-    waiting list once the event is full and keeps a waiting list) or why registration is not open. %>
+    waiting list once the event is full and keeps a waiting list; none when it is full without one) or why
+    registration is not open. %>
 <% full = event.sold_out?(enrolled) %>
 <% join_waitlist = full && event.waitlist_enabled %>
+<% shut = full && !event.waitlist_enabled %>
 <section data-registration class="card">
   <h2 class="card-title"><%= t("play.events.registration") %></h2>
   <div class="p-4 flex flex-col gap-3">
     <p data-counters class="text-[13px] text-muted">
-      <%= t(event.registration_open? ? "play.events.counts_open" : "play.events.counts", count: enrolled) %>
+      <%= t(event.registration_open? && !shut ? "play.events.counts_open" : "play.events.counts", count: enrolled) %>
       <% if event.waitlist_enabled || waitlist.positive? %>
         <%= t("play.events.counts_waitlist", count: waitlist) %>
       <% end %>
     </p>
-    <% if event.registration_open? && current_participant.nil? %>
-      <% if full && event.waitlist_enabled %>
+    <% if event.registration_open? && current_participant.nil? && shut %>
+      <p data-full class="text-[13px] text-warn/80"><%= t("play.events.full") %></p>
+    <% elsif event.registration_open? && current_participant.nil? %>
+      <% if join_waitlist %>
         <p class="text-[13px] text-warn"><%= t("play.events.full_waitlist") %></p>
       <% end %>
       <% if authenticated? %>

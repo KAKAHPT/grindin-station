@@ -319,6 +319,7 @@ es:
       counts_waitlist:
         one: "1 en lista de espera."
         other: "%{count} en lista de espera."
+      full: "Las inscripciones están completas."
       full_waitlist: "El evento está lleno: al inscribirte quedas en lista de espera."
       join_waitlist: "Unirme a la lista de espera"
       you: "Tú"
