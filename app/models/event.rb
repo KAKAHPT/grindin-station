@@ -17,6 +17,7 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   LARGER_POD_SIZE = 5
 
   FORMATS = %w[multiplayer one_v_one].freeze
+  PAIRING_MODES = %w[swiss random power].freeze
   MATCH_GAMES = [1, 3].freeze
   # MTR match points for 1v1 events (win/draw/loss/bye); multiplayer keeps the column defaults.
   ONE_V_ONE_POINTS = { points_win: 3, points_draw: 1, points_loss: 0, points_bye: 3 }.freeze
@@ -55,6 +56,7 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   validate :valid_transition, on: :update, if: :will_save_change_to_state?
   validates :format, inclusion: { in: FORMATS }
   validates :match_games, inclusion: { in: MATCH_GAMES }
+  validates :pairing_mode, inclusion: { in: PAIRING_MODES }
   validate :format_locked_after_creation, on: :update
   validates :result_confirmation, inclusion: { in: RESULT_CONFIRMATIONS }
   validates :top_cut_timeout_rule, inclusion: { in: TOP_CUT_TIMEOUT_RULES }
@@ -75,6 +77,12 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   def one_v_one? = self[:format] == "one_v_one"
 
   def multiplayer? = self[:format] == "multiplayer"
+
+  def swiss_pairing? = pairing_mode == "swiss"
+
+  def power_pairing? = pairing_mode == "power"
+
+  def random_pairing? = pairing_mode == "random"
 
   # Locked in the state being saved or the one it leaves, so a state change cannot unlock them.
   def points_locked?

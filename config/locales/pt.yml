@@ -31,6 +31,8 @@ pt:
               locked: "não pode mudar depois de o torneio ser criado"
             match_games:
               locked: "não pode mudar depois de o torneio começar"
+            pairing_mode:
+              locked: "não pode mudar depois de o torneio começar"
             points_win:
               locked: "não pode mudar depois de o torneio começar"
             points_draw:
@@ -66,6 +68,7 @@ pt:
       event:
         format: "Formato"
         match_games: "Duração do match"
+        pairing_mode: "Emparelhamento"
         points_win: "Pontos por vitória"
         points_draw: "Pontos por empate"
         points_loss: "Pontos por derrota"

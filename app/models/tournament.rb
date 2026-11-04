@@ -40,7 +40,7 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
   validates :swiss_rounds_count, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true,
                                  if: :one_v_one?
   validates :round_minutes, :top_cut_round_minutes, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
-  STRUCTURE_ATTRIBUTES = %i[swiss_rounds_count top_cut_size round_minutes top_cut_round_minutes].freeze
+  STRUCTURE_ATTRIBUTES = %i[swiss_rounds_count top_cut_size round_minutes top_cut_round_minutes pairing_mode].freeze
 
   validate :top_cut_fits_the_field
   validate :swiss_has_rounds, if: -> { will_save_change_to_state? && swiss? }
