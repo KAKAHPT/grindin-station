@@ -8,6 +8,15 @@ Ficheiros de referência: `config/deploy.yml`, `.kamal/secrets`, `config/postgre
 
 - [ ] Criar um VPS **Ubuntu 24.04** (x86_64/amd64 — a imagem é construída para `amd64`). 2 GB de RAM no mínimo.
 - [ ] Firewall (painel da Hostinger e/ou `ufw`): abrir só **22**, **80** e **443**. A porta 5432 do Postgres fica em `127.0.0.1` e não deve ser aberta.
+      Atenção: as portas publicadas pelo Docker passam **por cima** do `ufw` (o Docker escreve as suas próprias regras de iptables).
+      Aqui não há problema porque o Postgres está preso a `127.0.0.1:5432` em `config/deploy.yml` e o kamal-proxy só publica 80/443;
+      não mudar esse bind. A firewall do painel da Hostinger fica à frente do VPS e essa sim aplica-se a tudo.
+- [ ] Swap de 2 GB (2 GB de RAM com Postgres + Puma + Solid Queue ficam apertados):
+      ```sh
+      fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
+      echo '/swapfile none swap sw 0 0' >> /etc/fstab
+      ```
+- [ ] Actualizações de segurança automáticas: `apt install -y unattended-upgrades && dpkg-reconfigure -plow unattended-upgrades`.
 - [ ] Anotar o IP público → será o segredo `GS_VPS_HOST`.
 - [ ] (Opcional) `apt install docker.io` — o `kamal setup` instala o Docker se faltar, desde que o utilizador SSH seja `root`.
 
@@ -21,10 +30,18 @@ Ficheiros de referência: `config/deploy.yml`, `.kamal/secrets`, `config/postgre
 - [ ] `ssh-keygen -t ed25519 -C "grindin-station deploy" -f ~/.ssh/grindin_deploy` (sem passphrase, é para o GitHub Actions).
 - [ ] Adicionar `~/.ssh/grindin_deploy.pub` a `/root/.ssh/authorized_keys` no VPS (`ssh-copy-id -i ~/.ssh/grindin_deploy.pub root@GS_VPS_HOST`).
 - [ ] Testar: `ssh -i ~/.ssh/grindin_deploy root@GS_VPS_HOST true`.
+- [ ] Só **depois** de o teste passar (e de teres também a tua chave pessoal em `authorized_keys`), desligar o login por
+      palavra-passe: em `/etc/ssh/sshd_config` (e em qualquer ficheiro de `/etc/ssh/sshd_config.d/`, onde a Hostinger pode pôr
+      `PasswordAuthentication yes`) deixar `PasswordAuthentication no`; depois `sshd -t && systemctl reload ssh`. Confirmar
+      numa **segunda** janela que ainda entras por chave antes de fechar a sessão aberta.
 
 ## 4. Segredos no GitHub (Settings → Environments → `production` → Secrets)
 
 O workflow usa `environment: production`; os segredos podem estar no environment ou no repositório.
+
+- [ ] Criar o environment `production` (Settings → Environments → New environment) e, em **Deployment branches and tags**,
+      escolher "Selected branches and tags" com a regra `main` só. Assim um "Run workflow" a partir de outro branch não
+      consegue ler os segredos nem fazer deploy.
 
 | Segredo | Obrigatório | Valor |
 |---|---|---|
@@ -50,6 +67,9 @@ O workflow usa `environment: production`; os segredos podem estar no environment
 - [ ] Fazer merge de `m4` em `main` (o workflow **Deploy** só aparece/dispara a partir do branch por omissão).
 - [ ] GitHub → Actions → **Deploy** → **Run workflow** → `command: setup`. Isto instala o Docker no VPS, arranca o
       accessory `db` (o `init.sql` cria as 4 bases), constrói e envia a imagem para `ghcr.io` e faz o primeiro deploy.
+- [ ] Se o primeiro `setup` falhar no arranque da app (healthcheck ou `db:prepare` sem ligação) porque o Postgres ainda
+      está a inicializar (o `init.sql` só corre na primeira vez e demora uns segundos), **não** repetir o `setup`: correr
+      Actions → Deploy → Run workflow → `command: deploy`.
 - [ ] Ver os logs da base: na máquina local, com as mesmas variáveis exportadas (`GS_VPS_HOST`, `GS_DOMAIN`), `bin/kamal accessory logs db`
       — ou `ssh root@$GS_VPS_HOST 'docker logs grindin-station-db'`.
 - [ ] **Nunca correr `db:seed` em produção** (os seeds criam organizadores com palavra-passe conhecida; `db/seeds.rb`

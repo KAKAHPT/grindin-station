@@ -49,3 +49,10 @@
 # Ignore Docker-related files
 /.dockerignore
 /Dockerfile*
+
+# Ignore tests, docs and local tooling (not needed in the image)
+/test/
+/docs/
+/.superpowers/
+/coverage/
+/tmp/screenshots
