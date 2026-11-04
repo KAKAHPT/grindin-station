@@ -1,6 +1,6 @@
-<%# One row of the landing's upcoming events: the cover blurred behind (else a card-art crop picked from the slug),
-    date block, name, format line, organizer, enrolled count, state chip, View event and, while registration is
-    open, Register. Locals: event (Tournament, cover and organizer preloaded), enrolled (count). %>
+<%# One ticket of the landing's upcoming events (option 4C): the cover on top with the state chip and the date,
+    name, format line and organizer, then the perforated stub with the enrolled count, View event and, while
+    registration is open, Register. Locals: event (Tournament, cover and organizer preloaded), enrolled (count). %>
 <% url_locale = params[:locale] %>
 <% banner = if event.cover.attached? && event.cover.representable?
              rails_representation_path(event.cover.representation(resize_to_limit: [480, 480]), only_path: true)
@@ -16,25 +16,29 @@
            (tag.span(tournament_price(event), class: "whitespace-nowrap") if event.price.to_d.zero? || event.currency)]
           .compact %>
 <article class="card lp-evr" data-upcoming-event="<%= event.slug %>">
-  <div class="lp-evr-ban" style="background-image: url('<%= banner %>')" aria-hidden="true"></div>
-  <div class="lp-evr-shade" aria-hidden="true"></div>
-  <div class="lp-evr-date">
-    <b><%= l(event.start_time, format: "%d") %></b>
-    <span><%= l(event.start_time, format: "%b") %></span>
+  <div class="lp-evr-cov">
+    <div class="lp-evr-ban" style="background-image: url('<%= banner %>')" aria-hidden="true"></div>
+    <div class="lp-evr-shade" aria-hidden="true"></div>
+    <div class="lp-evr-st"><%= event_state_chip(event, (event.rounds_count if event.rounds_count.positive?)) %></div>
+    <div class="lp-evr-date">
+      <b><%= l(event.start_time, format: "%d") %></b>
+      <span><%= l(event.start_time, format: "%b · %a") %></span>
+    </div>
   </div>
-  <div class="min-w-0">
+  <div class="lp-evr-bd">
     <h3 class="lp-evr-t"><%= link_to event.name, play_event_path(event.slug, locale: url_locale) %></h3>
     <p class="lp-evr-m"><%= safe_join(line, " · ") %></p>
     <% if organizer %>
       <p class="lp-evr-org"><i aria-hidden="true"><%= organizer.split.first(2).map { |word| word[0] }.join.upcase %></i><%= organizer %></p>
     <% end %>
   </div>
-  <p class="lp-evr-n"><b><%= enrolled %></b><%= max.infinite? ? t("landing.upcoming.enrolled") : t("landing.upcoming.of_max", max: max) %></p>
-  <div class="lp-evr-act">
-    <%= event_state_chip(event, (event.rounds_count if event.rounds_count.positive?)) %>
-    <%= link_to t("landing.upcoming.view"), play_event_path(event.slug, locale: url_locale), class: button_classes(:secondary, size: :sm) %>
-    <% if event.registration_open? %>
-      <%= link_to t("landing.upcoming.register"), play_event_path(event.slug, locale: url_locale), class: button_classes(:primary, size: :sm), data: { register: true } %>
-    <% end %>
+  <div class="lp-evr-stub">
+    <p class="lp-evr-n"><b><%= enrolled %></b><%= max.infinite? ? t("landing.upcoming.enrolled") : t("landing.upcoming.of_max", max: max) %></p>
+    <div class="lp-evr-act">
+      <%= link_to t("landing.upcoming.view"), play_event_path(event.slug, locale: url_locale), class: button_classes(:secondary, size: :sm) %>
+      <% if event.registration_open? %>
+        <%= link_to t("landing.upcoming.register"), play_event_path(event.slug, locale: url_locale), class: button_classes(:primary, size: :sm), data: { register: true } %>
+      <% end %>
+    </div>
   </div>
 </article>

@@ -53,7 +53,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_select "[data-upcoming-event]:first-child[data-upcoming-event='#{live.slug}']" do
-      assert_select ".lp-evr-act", text: /Swiss round/
+      assert_select ".lp-evr-st", text: /Swiss round/
       assert_select "a[data-register]", count: 0
     end
     assert_select "[data-upcoming-event='#{finished.slug}']", count: 0
