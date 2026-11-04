@@ -48,3 +48,15 @@ Performance varies by about ±3 between runs (an earlier run, before dropping th
 - Document request latency (4–32 KiB): the HTML is not compressed by the dev server.
 - First Contentful Paint 2.4–2.7 s on the simulated slow 4G link, driven by the CSS above.
 - Forced reflow / network dependency tree: informational; the chain is HTML → CSS + importmap modules.
+
+## Re-run after M4b + live standings (2026-11-04, main 18b03ce)
+
+Same method (dev server on 3000, Lighthouse via `bin/rails grindin:lighthouse`). The public pairings and
+standings pages now open an Action Cable subscription; scores held.
+
+| Page | Perf | A11y | Best practices |
+| --- | ---: | ---: | ---: |
+| `/t/demo-open` | 95 | 100 | 100 |
+| `/t/demo-open/standings` | 95 | 100 | 100 |
+| `/t/demo-open/pairings` | 95 | 100 | 100 |
+| `/p/player-1` | 93 | 100 | 100 |
