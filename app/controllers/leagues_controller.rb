@@ -9,8 +9,8 @@ class LeaguesController < ApplicationController
   # Public leagues as tickets (upcoming by default, ?filter=past) and the viewer's own running now.
   def index
     @past = params[:filter] == "past"
-    @leagues = ticket_scope(League, past: @past).page(params[:page]).load
-    @ongoing = ticket_preload(League.for_player(current_user&.player).ongoing).to_a
+    @ongoing = ongoing_tickets(League)
+    @leagues = ticket_scope(League, past: @past, except: @ongoing)
     @enrolled = enrolled_counts(@leagues.to_a + @ongoing)
   end
 

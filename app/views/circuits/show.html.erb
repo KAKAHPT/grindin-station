@@ -10,7 +10,7 @@
   </h1>
   <p class="mt-1 text-[13px] text-muted" data-circuit-events>
     <% if @circuit.event_organizer %>
-      <%= t("lists.organized_by_html", name: link_to(@circuit.event_organizer.name, organizer_root_path, class: "text-accent hover:underline")) %> ·
+      <%= t("lists.organized_by_html", name: @circuit.event_organizer.name) %> ·
     <% end %>
     <%= t("lists.events_count", count: events.size) %><% if @leagues.any? %> · <%= t("lists.leagues_count", count: @leagues.size) %><% end %>
   </p>

@@ -12,9 +12,7 @@ class PlayEventPhoneTest < ApplicationSystemTestCase
   end
 
   test "a player on a phone sees the header card once, no enrolled list, and saves their decklist" do
-    # Headless Chrome will not shrink the window below 500 px; emulate the 375 px phone instead.
-    page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride",
-                                    width: 375, height: 812, deviceScaleFactor: 2, mobile: true)
+    use_phone_viewport(width: 375, height: 812)
     sign_in_as(@me.player.user)
 
     visit play_event_path(@tournament.slug)
@@ -37,7 +35,5 @@ class PlayEventPhoneTest < ApplicationSystemTestCase
     assert_equal "https://moxfield.com/decks/phone", @me.reload.decklist
     assert_equal 375, page.evaluate_script("window.innerWidth")
     assert_operator page.evaluate_script("document.documentElement.scrollWidth"), :<=, 375
-  ensure
-    page.driver.browser.execute_cdp("Emulation.clearDeviceMetricsOverride")
   end
 end

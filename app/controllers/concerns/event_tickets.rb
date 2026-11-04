@@ -7,11 +7,16 @@ module EventTickets
 
   private
 
-  # Visible (not draft or canceled) events of a type, upcoming soonest first or past latest first.
-  def ticket_scope(klass, past:)
-    scope = klass.visible
+  # Visible (not draft or canceled) events of a type, upcoming soonest first or past latest first, one page;
+  # except: events already shown elsewhere on the page (the viewer's running now).
+  def ticket_scope(klass, past:, except: [])
+    scope = klass.visible.where.not(id: except.map(&:id))
     ticket_preload(past ? scope.past.order(start_time: :desc) : scope.upcoming.order(:start_time))
+      .page(params[:page]).load
   end
+
+  # The signed-in viewer's own events of a type running now (none for a visitor).
+  def ongoing_tickets(klass) = ticket_preload(klass.for_player(current_user&.player).ongoing).to_a
 
   def ticket_preload(scope) = scope.preload(cover_attachment: :blob, event_organizer: :user)
 

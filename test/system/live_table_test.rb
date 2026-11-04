@@ -21,10 +21,12 @@ class LiveTableTest < ApplicationSystemTestCase
       visit play_me_path(@tournament.slug)
       assert_selector "[data-report-status]", text: /playing/i
       mark_page
+      assert_streams_connected
     end
 
     in_organizer_session do
       visit organizer_tournament_round_path(@tournament, @round)
+      assert_streams_connected
       mark_winner(@pod, @player.name)
       mark_page
     end
@@ -55,6 +57,7 @@ class LiveTableTest < ApplicationSystemTestCase
       assert_selector "[data-round-number='1']"
       assert_no_selector "[data-pod-number='#{@pod.number}'] li[data-winner]"
       mark_page
+      assert_streams_connected
     end
 
     in_organizer_session do
@@ -75,6 +78,12 @@ class LiveTableTest < ApplicationSystemTestCase
   end
 
   private
+
+  # A broadcast sent before the page's cable subscriptions are confirmed is lost; wait for every one of them.
+  def assert_streams_connected
+    assert_selector "turbo-cable-stream-source[connected]", visible: false
+    assert_no_selector "turbo-cable-stream-source:not([connected])", visible: false
+  end
 
   def in_player_session
     Capybara.using_session(:player) do

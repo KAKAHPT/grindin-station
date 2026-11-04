@@ -9,8 +9,8 @@ class TournamentsController < ApplicationController
   # Public tournaments as tickets (upcoming by default, ?filter=past) and the viewer's own running now.
   def index
     @past = params[:filter] == "past"
-    @tournaments = ticket_scope(Tournament, past: @past).page(params[:page]).load
-    @ongoing = ticket_preload(Tournament.for_player(current_user&.player).ongoing).to_a
+    @ongoing = ongoing_tickets(Tournament)
+    @tournaments = ticket_scope(Tournament, past: @past, except: @ongoing)
     @enrolled = enrolled_counts(@tournaments.to_a + @ongoing)
   end
 

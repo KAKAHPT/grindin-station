@@ -35,6 +35,17 @@ class PublicListsTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "an event of the viewer's running now is listed once, under running now" do
+    swiss = events(:small_tournament_swiss) # swiss, starts next week, player_one is enrolled (fixtures)
+    post session_path, params: { session: { email_address: users(:player_one).email_address, password: "password123" } }
+
+    get events_path
+
+    assert_select "[data-upcoming-event=?]", swiss.slug, count: 1
+    assert_select "[data-ticket-grid]:first-of-type h2", text: "Your events running now"
+    assert_select "[data-ticket-grid]:first-of-type [data-upcoming-event=?]", swiss.slug
+  end
+
   test "past events show finished tournaments and mark Past" do
     get events_path(filter: "past")
 

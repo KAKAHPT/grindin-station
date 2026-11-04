@@ -65,7 +65,7 @@
         <ul class="divide-y divide-line text-[13px]">
           <% league.rounds.sort_by(&:number).each do |round| %>
             <li class="flex items-center justify-between gap-3 px-4 py-2.5">
-              <span><%= round.respond_to?(:display_name) ? round.display_name : t("lists.league.round", number: round.number) %></span>
+              <span><%= t("lists.league.round", number: round.number) %></span>
               <% if round.finished_at %>
                 <%= desk_chip(:info) { t("play.events.state.finished") } %>
               <% elsif round.started? %>

@@ -9,13 +9,12 @@ class EventsController < ApplicationController
 
   def index
     @past = params[:filter] == "past"
-    @tournaments = ticket_scope(Tournament, past: @past).page(params[:page]).load
-    @leagues = ticket_scope(League, past: @past).page(params[:page]).load
-
-    player = current_user&.player
-    ongoing_tournaments = ticket_preload(Tournament.for_player(player).ongoing).to_a
-    ongoing_leagues = ticket_preload(League.for_player(player).ongoing).to_a
+    ongoing_tournaments = ongoing_tickets(Tournament)
+    ongoing_leagues = ongoing_tickets(League)
     @ongoing = ongoing_tournaments + ongoing_leagues
+    # An event shown under "running now" is not listed again below it.
+    @tournaments = ticket_scope(Tournament, past: @past, except: ongoing_tournaments)
+    @leagues = ticket_scope(League, past: @past, except: ongoing_leagues)
     @enrolled = enrolled_counts(@tournaments.to_a + @leagues.to_a + @ongoing)
   end
 end

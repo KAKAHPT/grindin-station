@@ -20,12 +20,16 @@ All four are at or above 90. Performance varies by about ±3 between runs.
 
 | Page | Perf | A11y | Best practices |
 | --- | ---: | ---: | ---: |
-| `/events` | 83 | 98 | 100 |
+| `/events` (before removing Leaflet) | 83 | 98 | 100 |
+| `/events` (after, three runs) | 83 / 79 / 83 | 98 | 100 |
 
-`/events` (and `/tournaments`, `/leagues`, `/circuits`) use the `application` layout, which loads the organizer
-entry point (Flowbite), the Leaflet stylesheet from jsdelivr and the modal frame the top bar's Sign in opens in;
-Lighthouse counts the render-blocking requests. Moving the lists to the `public` layout would need the modal
-sign-in to become a plain link (the authentication system tests open it from `/events`).
+Leaflet was dead code (no view uses the map controller any more) and is gone: the jsdelivr stylesheet in the
+`application` layout, `map_controller.js`, the importmap pin, `vendor/javascript/leaflet.js` and the jsdelivr host in
+the CSP `style-src`. The score did not move: what remains is the organizer entry point (Flowbite, about 219 KiB of
+unused JavaScript on a public list), the render-blocking Google Fonts and the two stylesheets of the `application`
+layout. `/events`, `/tournaments`, `/leagues` and `/circuits` keep that layout for the modal Sign in (the
+authentication system tests open it from `/events`); moving them to `public` with a plain Sign in link would drop
+Flowbite from them.
 
 ## Inventory
 
