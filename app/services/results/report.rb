@@ -2,8 +2,9 @@
 
 module Results
   # A seated player reports their pod's result, once the round has started. With no confirmation
-  # required it is applied at once (never in the cut, see Pod#result_confirmation); otherwise it waits in pod.pending_result for Results::Confirm. A second report from
-  # another player that matches counts as a confirmation; one that differs disputes the pod.
+  # required it is applied at once (never in the cut, see Pod#result_confirmation); otherwise it
+  # waits in pod.pending_result for Results::Confirm. A second report from another player that
+  # matches counts as a confirmation; one that differs disputes the pod.
   # At a 1v1 event the report carries the game score (see Results::Apply) and so does the pending JSON.
   class Report
     TYPES = %w[Win Draw].freeze

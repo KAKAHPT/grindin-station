@@ -3,7 +3,7 @@
 require "test_helper"
 
 module Results
-  class ReportTest < ActiveSupport::TestCase
+  class ReportTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLength
     setup do
       @t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
       @pod = @t.rounds.create!(type: SwissRound, number: 1, started_at: 1.hour.ago).pods.first

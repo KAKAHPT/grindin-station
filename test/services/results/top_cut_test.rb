@@ -11,7 +11,8 @@ module Results
       @t.rounds.create!(type: SwissRound, number: 1)
       TournamentBuilder.play_round!(@t, winners: { 1 => 0, 2 => 0, 3 => 0, 4 => 0 })
       @t.update_column(:state, :single_elimination) # rubocop:disable Rails/SkipsModelValidations
-      @cut = @t.rounds.create!(type: SingleEliminationRound, number: 2, started_at: 1.hour.ago) # Top 16: 4 pods, then a final
+      # Top 16: 4 pods, then a final
+      @cut = @t.rounds.create!(type: SingleEliminationRound, number: 2, started_at: 1.hour.ago)
     end
 
     test "a win advances the winner and eliminates the table; the next cut round seats only the advanced" do

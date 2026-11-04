@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Pod < ApplicationRecord
+class Pod < ApplicationRecord # rubocop:disable Metrics/ClassLength
   belongs_to :round
   has_one :event, through: :round
 
