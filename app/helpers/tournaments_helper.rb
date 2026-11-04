@@ -53,6 +53,20 @@ module TournamentsHelper
     t("rounds.confirmed", seats: seats.join(", ")) if seats.any?
   end
 
+  # 1v1 score buttons as [label, "won-lost-drawn" form value] for the event's best-of-N.
+  WINNER_SCORE_OPTIONS = { 3 => [["2-0", "2-0-0"], ["2-1", "2-1-0"]], 1 => [["1-0", "1-0-0"]] }.freeze
+  DRAW_SCORE_OPTIONS = { 3 => [["1-1", "1-1-1"], ["0-0", "0-0-1"]], 1 => [["0-0", "0-0-1"]] }.freeze
+
+  def winner_score_options(event) = WINNER_SCORE_OPTIONS.fetch(event.match_games)
+
+  def draw_score_options(event) = DRAW_SCORE_OPTIONS.fetch(event.match_games)
+
+  # "2-1" from a 1v1 result's games (won-lost, then drawn games when there are any: "1-1-1").
+  def result_score(result)
+    won, lost, drawn = result.games
+    [won, lost, (drawn if drawn.positive?)].compact.join("-")
+  end
+
   def currency_options
     EventOrganizer::CURRENCIES.keys.map { |c| [CURRENCY_SYMBOLS[c], c] }
   end

@@ -225,6 +225,7 @@ pt:
       who_won: "Quem ganhou?"
     report_result: "Reportar resultado"
     draw: "Draw"
+    score: "Resultado"
     submit: "Submeter"
     call_judge: "Chamar um juiz"
     judge_called: "Juiz chamado"
@@ -261,6 +262,8 @@ pt:
       draw_in_top_cut: "No top cut não há empates: escolhe quem passa."
       round_closed: "Esta ronda está fechada: pede a um juiz para corrigir o resultado."
       time_already_called: "O tempo já foi chamado nesta mesa; aguarda revisão do staff."
+      impossible_score: "Esse resultado não é possível neste encontro."
+      score_required: "Indica o resultado em jogos."
   rounds:
     print:
       pairings_link: "Imprimir emparelhamentos"
@@ -291,6 +294,8 @@ pt:
     change_result: "Alterar resultado"
     insert_result: "Inserir resultado"
     player_wins: "%{name} ganha"
+    score: "Resultado"
+    draw_scores: "Resultado do draw"
     finished_in: "Terminou em %{time}"
     cancel: "Cancelar"
     undo: "Anular ronda"

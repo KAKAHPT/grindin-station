@@ -4,18 +4,20 @@ module Results
   # A seated player reports their pod's result. With no confirmation required it is applied at
   # once; otherwise it waits in pod.pending_result for Results::Confirm. A second report from
   # another player that matches counts as a confirmation; one that differs disputes the pod.
+  # At a 1v1 event the report carries the game score (see Results::Apply) and so does the pending JSON.
   class Report
     TYPES = %w[Win Draw].freeze
 
-    def self.call(pod:, participant:, type:, winner: nil)
-      new(pod: pod, participant: participant, type: type, winner: winner).call
+    def self.call(pod:, participant:, type:, winner: nil, games: nil)
+      new(pod: pod, participant: participant, type: type, winner: winner, games: games).call
     end
 
-    def initialize(pod:, participant:, type:, winner:)
+    def initialize(pod:, participant:, type:, winner:, games: nil)
       @pod = pod
       @participant = participant
       @type = type
       @winner = winner
+      @games = games
     end
 
     def call
@@ -42,6 +44,7 @@ module Results
       refuse("draw_in_top_cut") if @type == "Draw" && @pod.round.is_a?(SingleEliminationRound)
       refuse("invalid_winner") if @type == "Win" && !@pod.seated?(@winner)
       refuse("already_confirmed") if @pod.pending_result && @pod.confirmations.key?(@participant.id)
+      @score = Apply.check_games!(@pod.event, @type, @games)
     end
 
     def refuse(key)
@@ -49,11 +52,17 @@ module Results
     end
 
     def payload
-      @type == "Win" ? { "type" => "Win", "winner_id" => @winner.id } : { "type" => "Draw" }
+      return { "type" => "Draw" }.merge(games_payload("games")) if @type == "Draw"
+
+      { "type" => "Win", "winner_id" => @winner.id }.merge(games_payload("winner"))
+    end
+
+    def games_payload(key)
+      @score ? { "games" => { key => @score } } : {}
     end
 
     def apply_now
-      Apply.call(pod: @pod, type: @type, winner: @winner, by: nil)
+      Apply.call(pod: @pod, type: @type, winner: @winner, by: nil, games: payload["games"])
       @pod.update!(reported_by_participant_id: @participant.id, reported_at: Time.current,
                    pending_result: nil, confirmations: {})
     end
@@ -80,6 +89,7 @@ module Results
       seat = @pod.seatings.find_by(event_participant_id: reporter&.id)&.order
       said = result["type"]
       said += " by #{@pod.event_participants.find_by(id: result['winner_id'])&.name}" if said == "Win"
+      said += " #{result['games'].values.first.join('-')}" if result["games"]
       "seat #{seat || '?'} says #{said}"
     end
   end

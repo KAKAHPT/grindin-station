@@ -36,7 +36,7 @@ module Results
       ranked = EventParticipant.standings_for(event).index_by(&:id)
       seated = @pod.seatings.sort_by(&:order).map { |seating| ranked.fetch(seating.event_participant_id) }
       winner = seated.each_with_index.min_by { |participant, i| [-participant.rank_score, i] }.first
-      Apply.call(pod: @pod, type: "Advance", winner: winner, by: @by)
+      Apply.call(pod: @pod, type: "Advance", winner: winner, by: @by, games: Apply::UNSCORED)
     end
 
     # Once per table: a pod already waiting for staff review gets no more time.

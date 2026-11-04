@@ -3,7 +3,7 @@
 require "application_system_test_case"
 
 # Flow 1: the organizer takes a 16-player event from registration to a published first round.
-class OrganizerRoundFlowTest < ApplicationSystemTestCase
+class OrganizerRoundFlowTest < ApplicationSystemTestCase # rubocop:disable Metrics/ClassLength
   setup do
     @tournament = TournamentBuilder.build(players: 16, organizer: event_organizers(:standard_organizer),
                                           state: :registration_open)
@@ -98,6 +98,29 @@ class OrganizerRoundFlowTest < ApplicationSystemTestCase
     end
     assert_no_selector "#pod_#{pod.id}[data-controller~='pod-result']"
     assert_no_text "#{name} wins"
+  end
+
+  test "1v1: the organizer taps a player, then 2-1, and the card shows the score" do
+    tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                         format: "one_v_one")
+    round = tournament.rounds.create!(type: SwissRound, number: 1)
+    round.update!(published: true, started_at: Time.current)
+    pod = round.pods.order(:number).first
+    winner = pod.seatings.order(:order).last.event_participant
+    sign_in_as(users(:organizer_user))
+    visit organizer_tournament_round_path(tournament, round)
+
+    within("#pod_#{pod.id}") do
+      find("li[role=button][data-name='#{winner.name}']").click
+      assert_selector "[data-pod-result-target=confirmLabel]", text: "#{winner.name} wins"
+      click_button "2-1"
+    end
+
+    within("#pod_#{pod.id}") do
+      assert_text(/completed/i)
+      assert_selector "li[data-name='#{winner.name}']", text: /2-1/
+    end
+    assert_equal [2, 1, 0], Result.current.find_by!(round: round, event_participant: winner).games
   end
 
   private

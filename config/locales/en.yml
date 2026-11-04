@@ -225,6 +225,7 @@ en:
       who_won: "Who won?"
     report_result: "Report result"
     draw: "Draw"
+    score: "Score"
     submit: "Submit"
     call_judge: "Call a judge"
     judge_called: "Judge called"
@@ -261,6 +262,8 @@ en:
       draw_in_top_cut: "There are no draws in the top cut: pick the player who advances."
       round_closed: "This round is closed: ask a judge to correct the result."
       time_already_called: "Time was already called at this table; it is waiting for staff review."
+      impossible_score: "That score is not possible in this match."
+      score_required: "Enter the game score."
   rounds:
     print:
       pairings_link: "Print pairings"
@@ -291,6 +294,8 @@ en:
     change_result: "Change result"
     insert_result: "Insert result"
     player_wins: "%{name} wins"
+    score: "Score"
+    draw_scores: "Draw score"
     finished_in: "Finished in %{time}"
     cancel: "Cancel"
     undo: "Undo round"

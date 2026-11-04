@@ -1,8 +1,9 @@
 import { Controller } from "@hotwired/stimulus";
 
 // Pod card: tap a player row to pick the winner, then confirm. Confirming submits the hidden per-seat Win form.
+// 1v1 cards confirm with a score button (its games param fills the form's result[games]) and Draw opens the draw scores.
 export default class extends Controller {
-  static targets = ["row", "winForm", "draw", "confirm", "confirmLabel"];
+  static targets = ["row", "winForm", "draw", "confirm", "confirmLabel", "drawScores"];
   static values = { template: String };
 
   connect() {
@@ -16,6 +17,11 @@ export default class extends Controller {
 
   // A live refresh morphs the card back to the server markup: put the pick back, or drop it if the seat can no longer win.
   restore() {
+    if (this.drawOpen) {
+      if (this.hasDrawScoresTarget) this.showDrawScores();
+      else this.clear();
+      return;
+    }
     if (!this.selectedSeat) return;
     const row = this.rowTargets.find((r) => r.dataset.seat === this.selectedSeat);
     const form = this.winFormTargets.find((f) => f.dataset.seat === this.selectedSeat);
@@ -38,15 +44,29 @@ export default class extends Controller {
     if (row !== current) this.mark(row);
   }
 
-  confirm() {
+  confirm(event) {
     const row = this.selectedRow;
     if (!row) return;
     const form = this.winFormTargets.find((f) => f.dataset.seat === row.dataset.seat);
-    if (form) form.requestSubmit();
+    if (!form) return;
+    const games = event?.params?.games;
+    if (games) form.querySelector("input[name='result[games]']").value = games;
+    form.requestSubmit();
   }
 
   cancel() {
     this.clear();
+  }
+
+  openDraw() {
+    this.clear();
+    this.drawOpen = true;
+    this.showDrawScores();
+  }
+
+  showDrawScores() {
+    this.drawTarget.hidden = true;
+    this.drawScoresTarget.hidden = false;
   }
 
   mark(row) {
@@ -60,6 +80,7 @@ export default class extends Controller {
 
   clear() {
     this.selectedSeat = null;
+    this.drawOpen = false;
     this.rowTargets.forEach((row) => {
       delete row.dataset.selected;
       row.setAttribute("aria-pressed", "false");
@@ -68,6 +89,7 @@ export default class extends Controller {
     if (!this.hasDrawTarget || !this.hasConfirmTarget) return;
     this.drawTarget.hidden = false;
     this.confirmTarget.hidden = true;
+    if (this.hasDrawScoresTarget) this.drawScoresTarget.hidden = true;
   }
 
   get selectedRow() {

@@ -49,7 +49,7 @@ module Results
         winner = @pod.event_participants.find_by(id: pending["winner_id"])
         refuse("invalid_winner") if winner.nil?
       end
-      Apply.call(pod: @pod, type: pending["type"], winner: winner, by: nil)
+      Apply.call(pod: @pod, type: pending["type"], winner: winner, by: nil, games: pending["games"])
       @pod.update!(pending_result: nil, review_requested_at: nil)
     end
   end

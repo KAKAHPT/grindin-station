@@ -67,7 +67,8 @@ module Organizer
       @pod.with_lock do
         Events::SubmitResultJob.perform_now(
           type: result_params[:type],
-          event_participant: event_participant, round: @round, pod: @pod, by: current_user
+          event_participant: event_participant, round: @round, pod: @pod, by: current_user,
+          games: Results::Apply.games_param(result_params[:type], result_params[:games])
         )
         close_out_table
       end
@@ -106,10 +107,12 @@ module Organizer
       pod.event_participants.find result_params[:event_participant_id]
     end
 
+    # games: a 1v1 score as "won-lost-drawn" ("2-1-0"), the winner's for a Win, both players' for a Draw.
     def result_params
       params.expect(result: [
                       :type,
-                      :event_participant_id
+                      :event_participant_id,
+                      :games
                     ])
     end
   end

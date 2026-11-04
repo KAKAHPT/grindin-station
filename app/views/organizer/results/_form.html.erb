@@ -25,6 +25,11 @@
 
   <%= f.select_with_label :event_participant_id, @pod.event_participants.includes(player: :user).map { |p| [p.name, p.id] }, include_blank: true %>
 
+  <% if @pod.event.one_v_one? %>
+    <%= f.select_with_label :games, winner_score_options(@pod.event) + draw_score_options(@pod.event).map { |label, value| ["#{t('rounds.draw')} #{label}", value] },
+                            include_blank: true, selected: params.dig(:result, :games) %>
+  <% end %>
+
   <% content_for :footer do %>
     <%= f.submit %>
     <%= link_to [:organizer, @result.event, @result.round.becomes(Round)], class:"py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" do %>

@@ -14,13 +14,36 @@
         </label>
       <% end %>
     </fieldset>
+    <% if @pod.event.one_v_one? %>
+      <fieldset class="mt-4 grid grid-flow-col auto-cols-fr gap-2">
+        <legend class="text-sm text-muted mb-2"><%= t("play.score") %></legend>
+        <% winner_score_options(@pod.event).each_with_index do |(label, value), i| %>
+          <label class="flex items-center justify-center gap-2 min-h-12 px-4 rounded-md bg-surface-raised border border-line has-[:checked]:border-accent/60 has-[:checked]:bg-accent/[0.08]">
+            <%= radio_button_tag :games, value, i.zero?, class: "text-accent bg-surface border-line focus:ring-accent" %>
+            <span class="font-display font-semibold"><%= label %></span>
+          </label>
+        <% end %>
+      </fieldset>
+    <% end %>
     <%= f.button t("play.submit"), class: button_classes(:primary, "mt-4 w-full") %>
   <% end %>
 
   <% unless @pod.round.is_a?(SingleEliminationRound) %>
-    <%= form_with url: play_pod_report_path(current_event.slug, @pod, locale: params[:locale]), class: "mt-3" do |f| %>
-      <%= hidden_field_tag :type, "Draw" %>
-      <%= f.button t("play.draw"), class: button_classes(:secondary, "w-full") %>
+    <% if @pod.event.one_v_one? %>
+      <div class="mt-3 grid grid-flow-col auto-cols-fr gap-2">
+        <% draw_score_options(@pod.event).each do |label, value| %>
+          <%= form_with url: play_pod_report_path(current_event.slug, @pod, locale: params[:locale]) do |f| %>
+            <%= hidden_field_tag :type, "Draw", id: nil %>
+            <%= hidden_field_tag :games, value, id: nil %>
+            <%= f.button "#{t('play.draw')} #{label}", class: button_classes(:secondary, "w-full") %>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <%= form_with url: play_pod_report_path(current_event.slug, @pod, locale: params[:locale]), class: "mt-3" do |f| %>
+        <%= hidden_field_tag :type, "Draw" %>
+        <%= f.button t("play.draw"), class: button_classes(:secondary, "w-full") %>
+      <% end %>
     <% end %>
   <% end %>
 </section>
