@@ -14,31 +14,31 @@ module Play
       @waiting = Array.new(2) { |i| waitlist!(i + 1) }
     end
 
-    test "a visitor sees the event, the enrolled players and the waitlist with positions" do
+    test "a visitor sees the event header, the About card and the counts, but no player names" do
       get play_event_path(@tournament.slug)
 
       assert_response :success
-      assert_select "h1", text: @tournament.name
-      assert_select "[data-event-state]", text: "Registration open"
-      assert_select ".markdown strong", text: "Bring sleeves"
+      assert_select ".evhead", count: 1
+      assert_select "[data-event-header] h1", text: @tournament.name
+      assert_select ".evhead-eyebrow", text: "Registration open · cEDH · pods of four"
+      assert_select ".evhead-line", text: /Lisboa · 4 players/
+      assert_select "[data-event-header] nav.seg a.seg-on[aria-current=page]", text: "Event"
+      assert_select "[data-about] .markdown strong", text: "Bring sleeves"
       assert_includes response.body, "Rua do Grind 1, Lisboa"
       assert_select "a[href^='https://www.google.com/maps']"
       assert_select "[data-event-price]", text: /10,00 €/
-      assert_select "[data-enrolled] li", count: 4
-      @enrolled.each { |participant| assert_select "[data-enrolled]", text: /#{participant.name}/ }
-      assert_select "[data-waitlist] li", count: 2
-      assert_select "[data-waitlist] li", text: /1.*#{@waiting[0].name}/m
-      assert_select "[data-waitlist] li", text: /2.*#{@waiting[1].name}/m
-      assert_select "[data-counters]", text: %r{4\s*/\s*4}
+      assert_select "[data-registration] [data-counters]", text: /4 players enrolled.*2 on the waiting list/m
+      assert_select "[data-enrolled], [data-waitlist]", count: 0
+      (@enrolled + @waiting).each { |participant| assert_not_includes response.body, participant.name }
+      assert_select "[data-you]", count: 0
     end
 
-    test "never shows decklists, and commanders only when the event allows it" do
-      get play_event_path(@tournament.slug)
-      assert_not_includes response.body, "Kinnan, Bonder Prodigy"
-
+    test "never shows anyone's decklist or commander, even with commanders on" do
       @tournament.update!(show_commanders_in_standings: true)
+
       get play_event_path(@tournament.slug)
-      assert_includes response.body, "Kinnan, Bonder Prodigy"
+
+      assert_not_includes response.body, "Kinnan, Bonder Prodigy"
     end
 
     test "a decklist that is a web address never shows, even with commanders on" do
@@ -54,7 +54,7 @@ module Play
     test "a visitor is asked to sign in to enrol and gets no player items" do
       get play_event_path(@tournament.slug)
 
-      assert_select "a[href=?]", new_session_path, text: "Sign in to enrol"
+      assert_select "[data-registration] a[href=?]", new_session_path, text: "Sign in to register"
       assert_select "nav[data-play-nav] a", text: "My table", count: 0
       assert_select "nav[data-play-nav] a", text: "Event"
       assert_select "nav[data-play-nav] a", text: "Standings"
@@ -70,7 +70,7 @@ module Play
 
       assert_select "form[action=?][method=post]", tournament_event_participants_path(@tournament) do
         assert_select "input[type=checkbox][name='event_participant[accepted_terms]'][required]"
-        assert_select "button", text: "Enrol"
+        assert_select "button", text: "Register"
       end
       assert_select "button", text: "Cancel registration", count: 0
 
@@ -79,20 +79,56 @@ module Play
       assert_redirected_to play_event_path(@tournament.slug)
       follow_redirect!
       assert_select "[data-flash=notice]", text: /waitlist/i
-      assert_select "[data-waitlist] li", text: /3.*Outsider/m
+      assert_select "[data-you] [data-you-state]", text: "Waiting list #3"
     end
 
-    test "an enrolled player can cancel and sees My table" do
-      sign_in_user(@enrolled.last.player.user)
+    test "an enrolled player sees the You card: chips, own decklist form, cancel and My table" do
+      me = @enrolled.first
+      me.update!(checked_in: true)
+      sign_in_user(me.player.user)
 
       get play_event_path(@tournament.slug)
 
-      assert_select "form[action=?]", tournament_event_participant_path(@tournament, @enrolled.last) do
-        assert_select "input[name=_method][value=delete]"
-        assert_select "button[data-turbo-confirm]", text: "Cancel registration"
+      assert_select "[data-registration]", count: 0
+      assert_select "[data-you]" do
+        assert_select "[data-you-state]", text: "You are enrolled"
+        assert_select "[data-checked-in]", text: "Checked in"
+        assert_select "form[data-decklist-form][action=?]", tournament_event_participant_path(@tournament, me) do
+          assert_select "input[name=_method][value=patch]"
+          assert_select "input[name='event_participant[decklist]'][value=?]", "Kinnan, Bonder Prodigy"
+          assert_select "button", text: "Save"
+        end
+        assert_select "form[action=?]", tournament_event_participant_path(@tournament, me) do
+          assert_select "input[name=_method][value=delete]"
+          assert_select "button[data-turbo-confirm]", text: "Cancel registration"
+        end
       end
-      assert_select "button", text: "Enrol", count: 0
+      (@enrolled - [me]).each { |participant| assert_not_includes response.body, participant.name }
+      assert_select "button", text: "Register", count: 0
       assert_select "nav[data-play-nav] a[href=?]", play_me_path(@tournament.slug), text: "My table"
+      assert_select "[data-play-header-nav] a[href=?]", play_me_path(@tournament.slug), text: "My table"
+    end
+
+    test "the player saves their decklist from the You card until round 1 is published, then it is read-only" do
+      me = @enrolled.first
+      sign_in_user(me.player.user)
+
+      patch tournament_event_participant_path(@tournament, me),
+            params: { event_participant: { decklist: "https://moxfield.com/decks/mine" } }
+      assert_equal "https://moxfield.com/decks/mine", me.reload.decklist
+
+      @tournament.update_column(:state, :swiss) # rubocop:disable Rails/SkipsModelValidations
+      @tournament.rounds.create!(type: SwissRound, number: 1).update!(published: true)
+      get play_event_path(@tournament.slug)
+
+      assert_select "[data-you]" do
+        assert_select "form[data-decklist-form]", count: 0
+        assert_select "input[data-decklist-locked][readonly][value=?]", "https://moxfield.com/decks/mine"
+        assert_select "p", text: /locked/
+      end
+
+      patch tournament_event_participant_path(@tournament, me), params: { event_participant: { decklist: "x" } }
+      assert_equal "https://moxfield.com/decks/mine", me.reload.decklist
     end
 
     test "a waitlisted player can cancel but has no table" do
@@ -100,8 +136,10 @@ module Play
 
       get play_event_path(@tournament.slug)
 
+      assert_select "[data-you] [data-you-state]", text: "Waiting list #1"
       assert_select "button", text: "Cancel registration"
       assert_select "nav[data-play-nav] a", text: "My table", count: 0
+      assert_select "[data-play-header-nav] a", text: "My table", count: 0
     end
 
     test "the organizer gets a Manage link" do
@@ -110,6 +148,8 @@ module Play
       get play_event_path(@tournament.slug)
 
       assert_select "a[href=?]", organizer_tournament_path(@tournament), text: "Manage"
+      assert_select "[data-registration] [data-counters]", text: /4 players enrolled/
+      assert_select "[data-enrolled], [data-waitlist]", count: 0
     end
 
     test "the state chip follows the event" do
@@ -117,15 +157,19 @@ module Play
       round = @tournament.rounds.create!(type: SwissRound, number: 1)
       round.update!(published: true)
       get play_event_path(@tournament.slug)
-      assert_select "[data-event-state]", text: "Swiss round 1"
+      assert_select ".evhead-eyebrow", text: "Swiss round 1 · cEDH · pods of four"
+
+      round.update!(started_at: Time.current)
+      get play_event_path(@tournament.slug)
+      assert_select ".evhead-eyebrow", text: "Swiss round 1 · cEDH · pods of four · live"
 
       @tournament.update_columns(state: :single_elimination, top_cut_size: 16) # rubocop:disable Rails/SkipsModelValidations
       get play_event_path(@tournament.slug)
-      assert_select "[data-event-state]", text: "Top 16"
+      assert_select ".evhead-eyebrow", text: /\ATop 16 · /
 
       @tournament.update_column(:state, :finished) # rubocop:disable Rails/SkipsModelValidations
       get play_event_path(@tournament.slug, locale: "pt")
-      assert_select "[data-event-state]", text: "Terminado"
+      assert_select ".evhead-eyebrow", text: /\ATerminado · cEDH · mesas de quatro/
     end
 
     test "the old event address redirects to the public page" do

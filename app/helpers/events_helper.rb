@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# The public event page (/t/:slug).
+# The public event pages (/t/:slug, /pairings, /standings, /me): state chip and the event header card.
 module EventsHelper
   EVENT_STATE_TONES = {
     draft: :warn, registration_open: :ok, registration_closed: :warn, swiss: :info,
@@ -9,12 +9,43 @@ module EventsHelper
 
   # "Registration open", "Swiss round 3", "Top 16", ...; round_number is the latest published round.
   def event_state_chip(event, round_number)
-    label =
-      case event.state
-      when "swiss" then t("play.events.state.swiss", number: round_number || 1)
-      when "single_elimination" then t("play.events.state.single_elimination", size: event.top_cut_size)
-      else t("play.events.state.#{event.state}")
-      end
-    desk_chip(EVENT_STATE_TONES.fetch(event.state)) { label }
+    desk_chip(EVENT_STATE_TONES.fetch(event.state)) { event_state_label(event, round_number) }
+  end
+
+  def event_state_label(event, round_number)
+    case event.state
+    when "swiss" then t("play.events.state.swiss", number: round_number || 1)
+    when "single_elimination" then t("play.events.state.single_elimination", size: event.top_cut_size)
+    else t("play.events.state.#{event.state}")
+    end
+  end
+
+  # "cEDH · pods of four" or "1v1 · Bo3".
+  def event_format_label(event)
+    event.one_v_one? ? t("play.events.format_badge", games: event.match_games) : t("play.header.multiplayer")
+  end
+
+  # Header eyebrow: "Swiss round 3 · cEDH · pods of four · live" (live only while a round is running).
+  def play_eyebrow(event, round)
+    parts = [event_state_label(event, round&.number), event_format_label(event)]
+    parts << t("play.header.live") if round&.started? && round.finished_at.nil?
+    parts.join(" · ")
+  end
+
+  # Header line: "4 Nov 2026 · Lisboa · 16 players" (the city is the last part of the address).
+  def play_info_line(event, players)
+    city = event.address.to_s.split(",").last.to_s.strip.presence
+    [(l(event.start_time, format: "%-d %b %Y") if event.start_time), city, t("play.header.players", count: players)]
+      .compact.join(" · ")
+  end
+
+  # About card format line: "cEDH · pods of four · 4 Swiss rounds · Top 4 · 80 min rounds".
+  def play_format_line(event)
+    structure = tournament_structure(event)
+    swiss = structure[:swiss].to_i
+    cut = structure[:cut].to_i
+    [event_format_label(event), (t("organizer.shell.swiss_rounds", count: swiss) if swiss.positive?),
+     cut.positive? ? t("organizer.top_cut_option", size: cut) : t("organizer.no_cut"),
+     t("play.header.round_minutes", minutes: event.round_minutes)].compact.join(" · ")
   end
 end

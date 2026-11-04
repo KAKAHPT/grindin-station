@@ -15,10 +15,32 @@ module Play
       get play_standings_path(@tournament.slug)
 
       assert_response :success
-      assert_select "h2", text: "Standings"
+      assert_select "[data-event-header] h1", text: "#{@tournament.name} · Standings"
       assert_select "tbody tr", 8
+      assert_select "th", text: "Seats", count: 0
+      assert_select "tbody span[role=img]", count: 0
+      assert_select "tr[data-me]", count: 0
       assert_select "nav[data-play-nav] a[href=?][aria-current=page]", play_standings_path(@tournament.slug)
       assert_select "turbo-frame#modal", count: 0
+    end
+
+    test "a signed-in player's row is highlighted with You; there are no seats" do
+      me = @tournament.event_participants.order(:created_at).first
+      me.player.user.update!(password: "password123")
+      post session_path, params: { session: { email_address: me.player.user.email_address, password: "password123" } }
+
+      get play_standings_path(@tournament.slug)
+
+      assert_select "tr[data-me]", count: 1
+      assert_select "tr#event_participant_#{me.id}[data-me] [data-you]", text: "You"
+      assert_select "th", text: "Seats", count: 0
+    end
+
+    test "the organizer modal keeps the Seats column" do
+      get tournament_event_participants_path(@tournament), headers: { "Turbo-Frame" => "modal" }
+
+      assert_select "th", text: "Seats"
+      assert_select "tbody span[role=img]", count: 8
     end
 
     test "the page follows the event's standings stream and refreshes by morph; the modal does not" do
@@ -56,14 +78,14 @@ module Play
 
       get play_standings_path(@tournament.slug)
 
-      assert_select "h2", text: "Final standings"
+      assert_select "[data-event-header] h1", text: "#{@tournament.name} · Final standings"
       assert_select "tbody tr" do |rows|
         assert_equal [ranked.last, ranked.first].map { |p| "event_participant_#{p.id}" }, rows.first(2).pluck("id")
       end
       assert_select "tbody tr:first-child [data-final-position]", text: "1"
 
       get play_standings_path(@tournament.slug, locale: "pt")
-      assert_select "h2", text: "Classificação final"
+      assert_select "[data-event-header] h1", text: "#{@tournament.name} · Classificação final"
     end
   end
 end

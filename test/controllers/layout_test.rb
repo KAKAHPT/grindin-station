@@ -24,7 +24,8 @@ class LayoutTest < ActionDispatch::IntegrationTest
     assert_select "[data-topbar] [data-play-player]", text: users(:player_one).name
     assert_select "[data-topbar] [data-notifications-bell]"
     assert_select "[data-topbar]", text: /#{tournament.name}/, count: 0
-    assert_select "[data-event-header] h1", text: tournament.name
+    assert_select "[data-event-header] h1", text: "#{tournament.name} · Standings"
+    assert_select ".evhead", count: 1
   end
 
   test "an organizer page has the top bar with the organizer mode chip and the account links" do

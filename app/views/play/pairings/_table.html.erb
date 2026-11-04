@@ -1,14 +1,19 @@
-<%# Role-free public card of one table: number, status, seats in order, the winner. No staff links or buttons. %>
-<%# 1v1: two names, no seat squares, the winner's score. %>
+<%# Role-free public card of one table: number, status, seats in order, the winner (grey trophy). No staff links
+    or buttons. 1v1: two names, no seat squares, the winner's score. Locals me (the viewer's participant or nil)
+    and my_pod: the viewer's own table gets "Your table", a teal border and the "You" row. %>
 <% one_v_one = event.one_v_one? %>
+<% mine = local_assigns[:my_pod] && pod.id == my_pod.id %>
 <% results = pod.current_results.index_by(&:event_participant_id) %>
 <% status = pod.report_status %>
 <% drawn = status == :completed && results.values.all? { |result| result.is_a?(Draw) } %>
-<%= tag.article id: dom_id(pod), data: { pod_number: pod.number },
-                class: "flex flex-col bg-surface border border-line rounded-xl shadow-card overflow-clip" do %>
-  <div class="flex items-center justify-between gap-2 px-4 pt-3 pb-2">
-    <h3 class="font-display text-lg font-semibold leading-none tracking-tight text-ink">
-      <%= t("play.tables.table") %> <%= pod.number %>
+<%= tag.article id: dom_id(pod), data: { pod_number: pod.number, pairing_table: true, my_table: (true if mine) },
+                class: ["card flex flex-col overflow-clip", ("border-accent/55 ring-1 ring-accent/20" if mine)] do %>
+  <div class="band flex items-center justify-between gap-2 px-4 py-2.5">
+    <h3 class="flex items-center gap-2 font-display text-[15px] font-semibold leading-none tracking-tight text-ink">
+      <span><%= t("play.tables.table") %> <%= pod.number %></span>
+      <% if mine %>
+        <span data-your-table><%= desk_chip(:ok) { t("play.pairings.your_table") } %></span>
+      <% end %>
     </h3>
     <div class="flex flex-wrap items-center justify-end gap-x-3 gap-y-0.5">
       <% if drawn %>
@@ -17,17 +22,21 @@
       <%= status_chip(pod_status_tone(status), data: { pod_status: true }) { t("rounds.status.#{status}") } %>
     </div>
   </div>
-  <ol class="flex flex-col divide-y divide-line/60 border-t border-line">
+  <ol class="flex flex-col divide-y divide-line/60">
     <% pod.seatings.each do |seating| %>
       <% seated = seating.event_participant %>
       <% won = results[seated.id].class.in?([Win, Advance]) %>
-      <%= tag.li data: { seat: (seating.order unless one_v_one), participant_id: seated.id, winner: (true if won) },
-                 class: ["flex items-center gap-2.5 px-4 py-1.5 min-h-9", ("bg-accent/[0.08]" if won)] do %>
+      <% you = local_assigns[:me] && seated.id == me.id %>
+      <%= tag.li data: { seat: (seating.order unless one_v_one), participant_id: seated.id, winner: (true if won), me: (true if you) },
+                 class: ["flex items-center gap-2.5 px-4 py-1.5 min-h-9", ("bg-accent/[0.08]" if you || won)] do %>
         <% unless one_v_one %>
-          <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= won ? "text-accent" : "text-muted" %>"><%= seating.order %></span>
+          <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= won || you ? "text-accent" : "text-muted" %>"><%= seating.order %></span>
         <% end %>
         <span class="flex-1 min-w-0 text-[13px]">
-          <span data-name class="block truncate <%= "font-semibold text-ink" if won %>"><%= profile_link(seated.player&.user, seated.name) %></span>
+          <span class="flex items-center gap-1.5 min-w-0">
+            <span data-name="<%= seated.name %>" class="truncate <%= "font-semibold text-ink" if won || you %>"><%= profile_link(seated.player&.user, seated.name) %></span>
+            <% if you %><%= desk_chip(:ok) { t("play.tables.you") } %><% end %>
+          </span>
           <% if event.show_commanders_in_standings && commander_text(seated) %>
             <span class="block truncate text-xs text-muted"><%= commander_text(seated) %></span>
           <% end %>
@@ -36,7 +45,7 @@
           <span data-score class="font-display text-[12px] font-semibold text-accent"><%= score %></span>
         <% end %>
         <% if won %>
-          <%= icon("medal", class: "text-[14px] text-accent") %><span class="sr-only"><%= t("play.pairings.winner") %></span>
+          <%= icon("trophy", class: "text-[14px] text-muted") %><span class="sr-only"><%= t("play.pairings.winner") %></span>
         <% end %>
       <% end %>
     <% end %>

@@ -1,7 +1,9 @@
 <% pad = local_assigns.fetch(:pad, "px-3") %>
+<% you = local_assigns[:me_id].present? && event_participant.id == me_id %>
 <tr
   id="<%= dom_id(event_participant) %>"
-  class="<%= event_participant.playing? ? "" : "line-through text-muted" %> h-[34px] odd:bg-white/[0.015] hover:bg-white/[0.04] transition-colors"
+  <% if you %>data-me<% end %>
+  class="<%= event_participant.playing? ? "" : "line-through text-muted" %> h-[34px] <%= you ? "bg-accent/[0.07]" : "odd:bg-white/[0.015]" %> hover:bg-white/[0.04] transition-colors"
 >
   <th
     scope="row"
@@ -13,12 +15,16 @@
       <span class="tabular text-muted"><%= event_participant_iteration.index + 1 %></span>
     <% end %>
   </th>
+  <% if local_assigns[:movement] %>
+    <td class="px-1 py-0.5 text-nowrap"><%= render "shared/movement", participant: event_participant %></td>
+  <% end %>
   <th
     scope="row"
     data-tooltip-target="tooltip-<%= event_participant.id %>"
     class="<%= pad %> py-0.5 font-semibold text-ink whitespace-nowrap"
   >
-    <span class="<%= "block max-w-[7.5rem] truncate @lg:max-w-none" if local_assigns[:wide_only].present? %>"><%= profile_link(event_participant.player.user, truncate(event_participant.name)) %></span>
+    <span class="<%= "inline-block align-middle max-w-[7.5rem] truncate @lg:max-w-none" if local_assigns[:wide_only].present? %>"><%= profile_link(event_participant.player.user, truncate(event_participant.name)) %></span>
+    <% if you %><span data-you class="ms-1.5 align-middle"><%= desk_chip(:ok) { t("play.tables.you") } %></span><% end %>
   </th>
   <% columns = event_participant.standing_columns %>
   <td class="<%= pad %> py-0.5 tabular text-right font-display text-[12px] font-semibold text-accent"><%= columns[:points] %></td>
@@ -34,9 +40,11 @@
     </td>
     <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right"><%= columns[:beaten] %></td>
     <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right"><%= columns[:unique] %></td>
-    <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 text-nowrap">
-      <%= seat_grid(columns[:seats], seat_five: local_assigns.fetch(:seat_five, false)) %>
-    </td>
+    <% if local_assigns.fetch(:seats, true) %>
+      <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 text-nowrap">
+        <%= seat_grid(columns[:seats], seat_five: local_assigns.fetch(:seat_five, false)) %>
+      </td>
+    <% end %>
   <% end %>
   <td class="<%= pad %> py-0.5 tabular text-right text-nowrap">
     <% wld = [event_participant.number_of_wins, event_participant.number_of_losses, event_participant.number_of_draws] %>

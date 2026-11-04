@@ -1,0 +1,29 @@
+<%# Event header card of the public event pages, given to the play layout as content_for(:event_header).
+    Local section: :event, :pairings, :standings or :my_table; players: the enrolled count (counted when not
+    given). The segmented nav and "My table" sit on the right from 640 px up; phones use the bottom nav. %>
+<% event = current_event %>
+<% url_locale = params[:locale] %>
+<% players = local_assigns[:players] || event.event_participants.enrolled.count %>
+<% label = section == :standings && event.finished? ? t("play.standings.final_title") : t("play.nav.#{section}") %>
+<% title = section.in?(%i[pairings standings]) ? "#{event.name} · #{label}" : event.name %>
+<% links = { event: play_event_path(event.slug, locale: url_locale),
+             pairings: play_pairings_path(event.slug, locale: url_locale),
+             standings: play_standings_path(event.slug, locale: url_locale) } %>
+<% actions = capture do %>
+  <div data-play-header-nav class="hidden sm:flex flex-wrap items-center gap-2">
+    <nav class="seg" aria-label="<%= event.name %>">
+      <% links.each do |key, path| %>
+        <%= link_to t("play.nav.#{key}"), path, class: ("seg-on" if key == section), "aria-current": ("page" if key == section) %>
+      <% end %>
+    </nav>
+    <% if current_participant&.enrolled? %>
+      <%= link_to t("play.nav.my_table"), play_me_path(event.slug, locale: url_locale),
+                  class: button_classes(section == :my_table ? :secondary : :primary, size: :sm),
+                  "aria-current": ("page" if section == :my_table) %>
+    <% end %>
+  </div>
+<% end %>
+<% content_for :event_header do %>
+  <%= render "shared/event_header", event: event, title: title, eyebrow: play_eyebrow(event, current_round),
+                                    line: play_info_line(event, players), actions: actions %>
+<% end %>

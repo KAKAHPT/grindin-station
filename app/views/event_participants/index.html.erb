@@ -4,11 +4,18 @@
 <% end %>
 
 <% unless @standings_in_modal %>
+  <% content_for :wide_main, "1" %>
+  <%= render "play/shared/header", section: :standings %>
   <% turbo_refreshes_with method: :morph, scroll: :preserve %>
   <%= turbo_stream_from LiveBroadcasts.standings_stream(@tournament.id) %>
 <% end %>
 <% latest_published = @tournament.rounds.published.max_by(&:number) %>
 <% one_v_one = @tournament.one_v_one? %>
+<%# Public standings: no seat history (it is on the player's own table), the viewer's row marked "You", and the
+    movement arrows column once shared/_movement exists. The organizer modal keeps the Seats column. %>
+<% seats = @standings_in_modal %>
+<% me_id = (current_participant&.id unless @standings_in_modal) %>
+<% movement = !@standings_in_modal && lookup_context.exists?("shared/movement", [], true) %>
 <% content_for :close do %>
   <% if latest_published %>
     <%= link_to [@tournament, latest_published.becomes(Round)], class: "ms-auto #{icon_button_classes}" do %>
@@ -32,9 +39,6 @@
   <% end %>
 <% end %>
 
-<% unless @standings_in_modal %>
-  <h2 class="mb-3 font-display text-xl font-semibold"><%= @tournament.finished? ? t("play.standings.final_title") : t("play.nav.standings") %></h2>
-<% end %>
 <% if @standings.any? %>
   <div class="<%= @standings_in_modal ? "-m-4 md:-m-5 overflow-x-auto" : "-mx-4 sm:mx-0 rounded-none sm:rounded-xl bg-surface border-y sm:border border-line shadow-card overflow-clip" %>">
   <%# In the narrow play column (a container) OWR, Beaten, Unique and Seats (1v1: GW% and OGW%) show only from 32rem up; the modal shows all. %>
@@ -51,6 +55,7 @@
         >
           Rank
         </th>
+        <% if movement %><th scope="col" class="px-1 py-2"><span class="sr-only"><%= t("play.standings.movement") %></span></th><% end %>
         <th scope="col" class="<%= pad %> py-2 whitespace-nowrap">Player</th>
         <th scope="col" class="<%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-points">
           <%= t("standings.columns.points") %>
@@ -73,9 +78,11 @@
           <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-unique">
             <%= t("standings.columns.unique") %>
           </th>
-          <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap">
-            <%= t("standings.columns.seats") %>
-          </th>
+          <% if seats %>
+            <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap">
+              <%= t("standings.columns.seats") %>
+            </th>
+          <% end %>
         <% end %>
         <th scope="col" class="<%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-wld">
           W-L-D
@@ -181,14 +188,14 @@
       <!-- TODO updated by turbo stream -->
       <% case @tournament.state %>
       <% when 'registration_open', 'registration_closed' %>
-        <%= render partial: "event_participants/event_participant", collection: @standings.sort_by(&:name), locals: { wide_only: wide_only, pad: pad } %>
+        <%= render partial: "event_participants/event_participant", collection: @standings.sort_by(&:name), locals: { wide_only: wide_only, pad: pad, seats: seats, me_id: me_id, movement: movement } %>
       <% else %>
         <%# A finished event lists everyone by the final position recorded when it finished; anyone without one follows by rank. %>
         <% final = @tournament.finished? %>
         <% standings = @standings.reject(&:waitlisted?).sort_by do |p|
              [final && p.final_position ? 0 : 1, (p.final_position if final).to_i, p.playing? ? 0 : 1, -p.rank_score, p.name]
            end %>
-        <%= render partial: "event_participants/event_participant", collection: standings, locals: { seat_five: !one_v_one && seat_five?(standings), wide_only: wide_only, pad: pad, final: final } %>
+        <%= render partial: "event_participants/event_participant", collection: standings, locals: { seat_five: seats && !one_v_one && seat_five?(standings), wide_only: wide_only, pad: pad, final: final, seats: seats, me_id: me_id, movement: movement } %>
       <% end %>
     </tbody>
   </table>

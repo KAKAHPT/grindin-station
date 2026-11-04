@@ -51,9 +51,12 @@ class EventParticipantsStandingsTest < ActionDispatch::IntegrationTest
   private
 
   def assert_standings_headers(locale)
-    %i[points owr beaten unique seats].each do |column|
+    %i[points owr beaten unique].each do |column|
       header = I18n.t("standings.columns.#{column}", locale: locale)
       assert_select "th", text: /\A\s*#{Regexp.escape(header)}\s*\z/
     end
+    # Seat history is on the player's own table, not in the public standings.
+    assert_select "th", text: I18n.t("standings.columns.seats", locale: locale), count: 0
+    assert_select "tbody span[role=img]", count: 0
   end
 end

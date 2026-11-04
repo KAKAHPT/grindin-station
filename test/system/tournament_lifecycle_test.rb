@@ -109,9 +109,9 @@ class TournamentLifecycleTest < ApplicationSystemTestCase
     visit tournament_path(tournament)
     assert_current_path play_event_path(tournament.slug)
 
-    fill_in "Decklist", with: "https://moxfield.com/test"
+    fill_in "Your decklist", with: "https://moxfield.com/test"
     find('input[name="event_participant[accepted_terms]"]').set(true)
-    click_button "Enrol"
+    click_button "Register"
     assert_text I18n.t("flash.notice.registration_successful")
     assert_button "Cancel registration"
 

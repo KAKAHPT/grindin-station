@@ -1,0 +1,41 @@
+<%# About card: when, where (+ map link), price, format line, then the description, schedule and rules. %>
+<section data-about class="card">
+  <h2 class="card-title"><%= t("play.events.about") %></h2>
+  <div class="p-4">
+    <dl class="grid grid-cols-[4.5rem_1fr] gap-x-3 gap-y-1.5 text-[13px]">
+      <dt class="text-muted"><%= t("play.events.when") %></dt>
+      <dd>
+        <% if event.start_time %>
+          <%= time_tag event.start_time, l(event.start_time, format: t("play.events.time_format")) %>
+          <% if event.end_time && event.end_time.to_date != event.start_time.to_date %>
+            – <%= time_tag event.end_time, l(event.end_time, format: t("play.events.time_format")) %>
+          <% end %>
+        <% end %>
+      </dd>
+      <% if event.address.present? %>
+        <dt class="text-muted"><%= t("play.events.where") %></dt>
+        <dd>
+          <%= event.address %> ·
+          <%= link_to t("play.events.open_map"), "https://www.google.com/maps/search/?api=1&query=#{ERB::Util.url_encode(event.address)}",
+                      target: "_blank", rel: "noopener", class: "text-accent hover:underline" %>
+        </dd>
+      <% end %>
+      <dt class="text-muted"><%= t("play.events.price") %></dt>
+      <dd data-event-price>
+        <%= (event.price || 0).zero? ? t("play.events.free") : number_to_currency(event.price, number_to_currency_options(event.currency)) %>
+      </dd>
+      <dt class="text-muted"><%= t("play.events.format") %></dt>
+      <dd data-event-format><%= play_format_line(event) %></dd>
+    </dl>
+
+    <% [[:description, event.description], [:schedule, event.schedule], [:rules, event.rules]].each do |key, text| %>
+      <% next if text.blank? %>
+      <section class="mt-4">
+        <% unless key == :description %>
+          <h3 class="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted"><%= t("play.events.#{key}") %></h3>
+        <% end %>
+        <div class="markdown mt-1 text-[13px] leading-relaxed text-muted"><%= marksmithed(text) %></div>
+      </section>
+    <% end %>
+  </div>
+</section>

@@ -509,6 +509,13 @@
     }
   }
 
+  /* Public event pages: phones use the bottom nav, so the header's nav-only actions box takes no room. */
+  @media (max-width: 639.98px) {
+    .evhead-actions:has(> [data-play-header-nav]:only-child) {
+      display: none;
+    }
+  }
+
   /* Route tabs */
   .tabs {
     display: flex;
