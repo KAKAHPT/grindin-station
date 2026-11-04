@@ -18,7 +18,7 @@
       </div>
     </div>
     <% if pod.round.started? %>
-      <% result_label = pod.finished? ? "Change result" : "Insert result" %>
+      <% result_label = pod.finished? ? t("rounds.change_result") : t("rounds.insert_result") %>
       <%= link_to [:new, :organizer, pod.event, pod.round.becomes(Round), pod, :result], data: {turbo_frame: "modal"}, title: result_label, class: icon_button_classes(size: :sm) do %>
         <%= icon("hand-deposit") %><span class="sr-only"><%= result_label %></span>
       <% end %>

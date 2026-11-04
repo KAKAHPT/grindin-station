@@ -22,6 +22,16 @@ module Play
       assert_includes response.body, "Round #3"
     end
 
+    test "the clock has its time in the first response" do
+      @round.update!(started_at: Time.current)
+
+      get play_timer_path(@tournament.slug)
+
+      assert_select "p.clock[data-controller=big-timer]" do |clock|
+        assert_match(/\A\d{2}:\d{2}\z/, clock.text.strip)
+      end
+    end
+
     test "uses the top cut length for a single elimination round" do
       round = @tournament.rounds.create!(type: SingleEliminationRound, number: 4)
       round.update!(published: true, started_at: Time.current)

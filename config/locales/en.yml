@@ -286,6 +286,8 @@ en:
     extra_time: "+%{minutes} min"
     add_extra_time: "+5 min"
     time_called: "Time called"
+    change_result: "Change result"
+    insert_result: "Insert result"
     player_wins: "%{name} wins"
     cancel: "Cancel"
     undo: "Undo round"

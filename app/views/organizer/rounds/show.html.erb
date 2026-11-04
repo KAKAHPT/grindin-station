@@ -108,9 +108,7 @@
             data-round-timer-round-time-value="<%= @round.duration %>"
             data-round-timer-started-at-value="<%= @round.started_at.iso8601 %>"
             data-round-timer-finished-at-value="<%= @round.finished_at&.iso8601 %>"
-          >
-            --:--
-          </span>
+          ><%= clock_text(@round.started_at, (@round.duration / 60 if @round.duration&.positive?)) %></span>
           <% unless @round.past? %>
             <%= button_to [:organizer, @round.event, @round.becomes(Round)], method: :patch, params: {round: {action: :close}}, form_class: "w-full sm:w-auto", class: button_classes(:primary, "w-full sm:w-auto", size: :sm) do %>
               <%= t("rounds.close") %>

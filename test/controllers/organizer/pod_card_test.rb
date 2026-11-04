@@ -27,6 +27,14 @@ module Organizer
       end
     end
 
+    test "the round clock has its time in the first response" do
+      get organizer_tournament_round_path(@tournament, @round)
+
+      assert_select "[data-controller=round-timer]" do |clock|
+        assert_match(/\A\d{2}:\d{2}\z/, clock.text.strip)
+      end
+    end
+
     test "a completed pod is not tappable" do
       TournamentBuilder.play_round!(@tournament, winners: { @pod.number => 0 })
       get organizer_tournament_round_path(@tournament, @round)

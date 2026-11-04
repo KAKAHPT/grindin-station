@@ -3,7 +3,7 @@
   <h1 class="round"><%= @round.display_name %></h1>
   <p class="clock" data-controller="big-timer"
      data-big-timer-started-at-value="<%= @round.started_at.iso8601(3) %>"
-     data-big-timer-minutes-value="<%= @minutes %>"></p>
+     data-big-timer-minutes-value="<%= @minutes %>"><%= clock_text(@round.started_at, @minutes) %></p>
 <% elsif @round&.finished_at %>
   <h1 class="round"><%= @round.display_name %></h1>
   <p class="clock"><%= t("timer.closed") %></p>

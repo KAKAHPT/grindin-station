@@ -41,4 +41,51 @@ class OrganizerRoundFlowTest < ApplicationSystemTestCase
     end
     assert_button "Start"
   end
+
+  test "a winner selection survives a live refresh" do
+    round, pod, other = started_round_with_pods
+    name = pod.seatings.order(:order).first.event_participant.name
+    sign_in_as(users(:organizer_user))
+    visit organizer_tournament_round_path(@tournament, round)
+    within("#pod_#{pod.id}") { find("li[role=button][data-name='#{name}']").click }
+    assert_selector "#pod_#{pod.id} li[data-selected=true]"
+
+    complete_and_refresh(round, other)
+
+    within("#pod_#{pod.id}") do
+      assert_selector "li[data-selected=true][data-name='#{name}']"
+      assert_selector "[data-pod-result-target=confirmLabel]", text: "#{name} wins"
+    end
+  end
+
+  test "a selection on a pod completed meanwhile is dropped by the refresh" do
+    round, pod, = started_round_with_pods
+    name = pod.seatings.order(:order).first.event_participant.name
+    sign_in_as(users(:organizer_user))
+    visit organizer_tournament_round_path(@tournament, round)
+    within("#pod_#{pod.id}") { find("li[role=button][data-name='#{name}']").click }
+    assert_selector "#pod_#{pod.id} li[data-selected=true]"
+
+    complete_and_refresh(round, pod)
+
+    within("#pod_#{pod.id}") { assert_no_selector "li[data-selected=true]" }
+    assert_no_text "#{name} wins"
+  end
+
+  private
+
+  def started_round_with_pods
+    @tournament.update!(result_confirmation: "none")
+    round = @tournament.rounds.create!(type: SwissRound, number: 1)
+    round.update!(published: true, started_at: Time.current)
+    [round, *round.pods.order(:number).first(2)]
+  end
+
+  # Staff result on a pod, then a live refresh with no request id (so this page morphs).
+  def complete_and_refresh(round, pod)
+    winner = pod.seatings.order(:order).first.event_participant
+    Results::Report.call(pod: pod, participant: winner, type: "Win", winner: winner)
+    Turbo::StreamsChannel.broadcast_refresh_to(LiveBroadcasts.round_stream(round.id, :en))
+    within("#pod_#{pod.id}") { assert_text(/completed/i) }
+  end
 end
