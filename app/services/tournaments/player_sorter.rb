@@ -10,8 +10,7 @@ module Tournaments
 
     # Ranking order (points and tiebreakers). Top cut decides who advances from this order, so it never changes.
     def sorted_players
-      ids = @round.event_participants.ids.to_set
-      players_by_rank = EventParticipant.standings_for(@round.event).select { |p| ids.include?(p.id) }.shuffle
+      players_by_rank = participants.shuffle
       players_by_rank.sort_by.with_index { |p, i| [-p.rank_score, i] }
     end
 
@@ -21,6 +20,13 @@ module Tournaments
       sorted_players.chunk_while { |a, b| a.match_points == b.match_points }.flat_map do |group|
         self.class.deal(group, group.index_with(&:seat_counts))
       end
+    end
+
+    # Random pairing order: the whole field (by id, so only the rng decides) shuffled with `rng`, then dealt by
+    # seat need as one group. Points play no part.
+    def random_players(rng)
+      field = participants.sort_by(&:id).shuffle(random: rng)
+      self.class.deal(field, field.index_with(&:seat_counts))
     end
 
     # Need-aware dealing (spec §5.3, measured by grindin:simulate): sort the group by the seat each player needs
@@ -33,5 +39,13 @@ module Tournaments
     end
 
     def self.needed_seat(counts) = (1..PREFERRED_POD_SIZE).min_by { |seat| [counts[seat], seat] }
+
+    private
+
+    # The round's participants, loaded through the standings (ranking and seat counts in one query).
+    def participants
+      ids = @round.event_participants.ids.to_set
+      EventParticipant.standings_for(@round.event).select { |p| ids.include?(p.id) }
+    end
   end
 end

@@ -133,7 +133,10 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
 
   def straight_to_single_elimination? = no_swiss? && single_elimination? && state_was == "registration_closed"
 
+  # Power and random pairing go top-down over their order every round; only swiss spreads and forces.
   def swiss_round_strategy(number, total)
+    return :standard unless swiss_pairing?
+
     if number == 2 && total >= 3 then :spread
     elsif number == total && total >= 4 then :forced
     else :standard

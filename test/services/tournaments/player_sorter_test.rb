@@ -32,5 +32,17 @@ module Tournaments
       assert_equal sorter.sorted_players.map(&:id).sort, paired.map(&:id).sort
       assert_equal paired.map(&:match_points).sort.reverse, paired.map(&:match_points)
     end
+
+    test "random_players shuffles the whole field with the rng and deals it as one group" do
+      t = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
+      round = t.rounds.create!(type: SwissRound, number: 1)
+      TournamentBuilder.play_round!(t, winners: { 1 => 0, 2 => :draw })
+      sorter = PlayerSorter.new(t.rounds.find(round.id))
+
+      field = t.event_participants.sort_by(&:id).shuffle(random: Random.new(3))
+      expected = PlayerSorter.deal(field, field.index_with(&:seat_counts)).map(&:id)
+      assert_equal expected, sorter.random_players(Random.new(3)).map(&:id)
+      assert_equal expected, sorter.random_players(Random.new(3)).map(&:id)
+    end
   end
 end
