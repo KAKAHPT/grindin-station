@@ -3,11 +3,11 @@
 require "test_helper"
 
 module Play
-  class TablesTest < ActionDispatch::IntegrationTest
+  class TablesTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
     setup do
       @tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
       @round = @tournament.rounds.create!(type: SwissRound, number: 1)
-      @round.update!(published: true)
+      @round.update!(published: true, started_at: Time.current)
       @pod = @round.pods.order(:number).first
       @seats = @pod.event_participants.to_a
       @me = @seats[1]
@@ -50,6 +50,19 @@ module Play
       @tournament.update!(show_commanders_in_standings: true)
       get play_me_path(@tournament.slug)
       assert_includes response.body, "Kinnan, Bonder Prodigy"
+    end
+
+    test "the report button shows only once the round has started" do
+      sign_in(@me)
+      report = play_pod_report_new_path(@tournament.slug, @pod)
+
+      @round.update!(started_at: nil)
+      get play_me_path(@tournament.slug)
+      assert_select "a[href='#{report}']", count: 0
+
+      @round.update!(started_at: Time.current)
+      get play_me_path(@tournament.slug)
+      assert_select "a[href='#{report}']", text: I18n.t("play.report_result")
     end
 
     test "someone not in the event is redirected" do

@@ -76,6 +76,19 @@ module Results
       assert_equal @seats[3], call.participant
     end
 
+    test "a dispute on a table with an open call adds to that call" do
+      @t.update!(result_confirmation: "one")
+      call = JudgeCalls::Open.call(event: @t, pod: @pod, participant: @seats[1], reason: "Rules question")
+      Report.call(pod: @pod, participant: @seats[0], type: "Win", winner: @seats[2])
+
+      assert_no_difference -> { JudgeCall.count } do
+        Report.call(pod: @pod, participant: @seats[3], type: "Draw")
+      end
+
+      assert_predicate @pod.reload, :disputed?
+      assert_match(/\ARules question\nConflicting result reports: /, call.reload.reason)
+    end
+
     test "a report before the round has started is refused" do
       @t.update!(result_confirmation: "none")
       @pod.round.update!(started_at: nil)

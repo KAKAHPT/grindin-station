@@ -2,18 +2,29 @@
 
 module JudgeCalls
   # Opens a judge call and tells the event's organizers and judges. A pod has one open call at most
-  # (a unique index): when another request opened it first, that call is returned and nobody is told
-  # twice. The savepoint keeps a caller's transaction usable after the refused insert.
+  # (a unique index): when the pod already has one, the new reason is added to it and the staff are
+  # told again. The savepoint keeps a caller's transaction usable after the refused insert.
   class Open
     def self.call(event:, reason:, pod: nil, participant: nil)
-      JudgeCall.transaction(requires_new: true) do
-        call = JudgeCall.create!(event: event, pod: pod, participant: participant,
-                                 reason: reason.to_s.truncate(JudgeCall::REASON_MAX_LENGTH))
+      JudgeCall.transaction do
+        call = create_or_add(event: event, reason: reason, pod: pod, participant: participant)
         Notify.staff(event, kind: "judge_call", subject: call)
         call
       end
-    rescue ActiveRecord::RecordNotUnique
-      JudgeCall.find_by!(pod: pod, status: "open")
     end
+
+    def self.create_or_add(event:, reason:, pod:, participant:)
+      JudgeCall.transaction(requires_new: true) do
+        JudgeCall.create!(event: event, pod: pod, participant: participant, reason: limit(reason))
+      end
+    rescue ActiveRecord::RecordNotUnique
+      open = JudgeCall.find_by!(pod: pod, status: "open")
+      open.tap { open.update!(reason: limit("#{open.reason}\n#{reason}")) }
+    end
+
+    def self.limit(reason)
+      reason.to_s.truncate(JudgeCall::REASON_MAX_LENGTH)
+    end
+    private_class_method :create_or_add, :limit
   end
 end

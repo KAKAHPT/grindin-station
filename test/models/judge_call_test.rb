@@ -51,13 +51,17 @@ class JudgeCallTest < ActiveSupport::TestCase
     assert JudgeCall.new(event: @tournament, reason: "x" * 500).valid?
   end
 
-  test "a pod has one open call at most; opening another returns it without telling the staff again" do
+  test "a pod has one open call at most; opening another adds its reason and tells the staff again" do
     pod = @tournament.rounds.create!(type: SwissRound, number: 1).pods.first
     first = JudgeCalls::Open.call(event: @tournament, pod: pod, reason: "First")
+    notified = Notification.count
 
-    assert_no_difference -> { Notification.count } do
-      assert_equal first, JudgeCalls::Open.call(event: @tournament, pod: pod, reason: "x" * 600)
+    assert_difference -> { Notification.count }, notified do
+      assert_equal first, JudgeCalls::Open.call(event: @tournament, pod: pod, reason: "Conflicting result reports")
     end
+    assert_equal "First\nConflicting result reports", first.reload.reason
+    JudgeCalls::Open.call(event: @tournament, pod: pod, reason: "x" * 600)
+    assert_equal 500, first.reload.reason.length
     assert_raises(ActiveRecord::RecordNotUnique) { JudgeCall.create!(event: @tournament, pod: pod, reason: "Race") }
 
     first.acknowledge!(by: @judge)

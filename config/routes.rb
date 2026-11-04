@@ -3,6 +3,8 @@
 Rails.application.routes.draw do
   # kamal-proxy health check: 200 when the app boots, 500 otherwise.
   get "up" => "rails/health#show", as: :rails_health_check
+  # Content security policy violation reports (see config/initializers/content_security_policy.rb).
+  post "csp-reports", to: "csp_reports#create", as: :csp_reports
 
   resource :session
   get "/auth/:provider/callback", to: "omniauth_callbacks#create", as: :omniauth_callback

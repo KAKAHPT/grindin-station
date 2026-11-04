@@ -88,6 +88,8 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
   # Adopts an unowned player with this key (one created before the user signed up); a player that
   # belongs to someone else is never taken over, the new user gets its own.
   def initialize_player
+    return if player
+
     key = compute_key
     unowned = Player.find_by(key: key, user_id: nil)
     self.player = unowned || Player.new(key: free_key(key))

@@ -30,6 +30,17 @@ class SignInHardeningTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "a malformed sign-in body is refused, not a 500" do
+    with_memory_rate_limit_store do
+      post session_path, params: { session: "not-a-hash" }
+      assert_response :bad_request
+
+      post session_path, params: { session: { email_address: ["a@x.com"], password: "x" } }
+      assert_redirected_to new_session_path
+      assert_equal I18n.t("flash.alert.invalid_credentials"), flash[:alert]
+    end
+  end
+
   test "one venue address allows many players to sign in" do
     with_memory_rate_limit_store do
       30.times { |i| sign_in_as("someone#{i}@example.com") }
@@ -63,8 +74,10 @@ class SignInHardeningTest < ActionDispatch::IntegrationTest
       request_reset("player1@example.com", ip: "10.0.3.1")
       assert_equal I18n.t("flash.alert.try_again_later"), flash[:alert]
 
-      5.times { |i| request_reset("other#{i}@example.com") }
+      19.times { |i| request_reset("other#{i}@example.com") }
       request_reset("player2@example.com")
+      assert_equal I18n.t("flash.notice.password_reset_sent"), flash[:notice]
+      request_reset("player3@example.com")
       assert_equal I18n.t("flash.alert.try_again_later"), flash[:alert]
     end
   end

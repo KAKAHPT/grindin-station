@@ -61,7 +61,10 @@ module Organizer
       ActiveRecord::Associations::Preloader.new(records: [round], associations: { pods: :seatings }).call
       round.destroy!
       event.rounds.reload.max_by(&:number).update!(finished_at: nil)
-      event.update!(state: :swiss) if event.single_elimination? && event.rounds.none?(SingleEliminationRound)
+      return unless event.single_elimination? && event.rounds.none?(SingleEliminationRound)
+
+      # The one step back the state machine allows: undoing the first cut round. No state side effects apply.
+      event.update_columns(state: Tournament.states[:swiss], updated_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
     end
 
     def load_printable

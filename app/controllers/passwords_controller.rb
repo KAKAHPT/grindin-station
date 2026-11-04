@@ -3,7 +3,8 @@
 class PasswordsController < ApplicationController
   allow_unauthenticated_access
   before_action :set_user_by_token, only: %i[edit update]
-  rate_limit to: 5, within: 10.minutes, only: :create, name: "ip",
+  # Per address loosely (a venue's players share one), per e-mail tightly.
+  rate_limit to: 20, within: 10.minutes, only: :create, name: "ip",
              with: -> { redirect_to new_password_url, alert: t("flash.alert.try_again_later") }
   rate_limit to: 5, within: 10.minutes, only: :create, name: "email",
              by: -> { params[:email_address].to_s.strip.downcase },

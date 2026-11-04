@@ -45,7 +45,7 @@ module Play
     end
 
     def can_report?
-      self_report? && status == :playing
+      self_report? && status == :playing && round.started?
     end
 
     def can_confirm?

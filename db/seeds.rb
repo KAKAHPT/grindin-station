@@ -40,8 +40,6 @@ users = User.create(
   ]
 )
 
-users.each(&:initialize_player)
-
 # Create an initial event organizer
 to = EventOrganizer.create!(
   user: User.create({ name: "Kakah", email_address: "kakah@grindin-station.test", password: "123qwe" })

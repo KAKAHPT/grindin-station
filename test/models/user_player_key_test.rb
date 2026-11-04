@@ -48,6 +48,16 @@ class UserPlayerKeyTest < ActiveSupport::TestCase
     assert_equal unowned.id, user.player.id
   end
 
+  test "initializing the player again keeps the one the user has" do
+    user = sign_up("again@example.com", "Again")
+    player = user.player
+
+    assert_no_difference -> { Player.count } do
+      user.initialize_player
+    end
+    assert_equal player.id, user.reload.player.id
+  end
+
   test "a malformed e-mail is refused" do
     user = sign_up("not an e-mail", "Someone")
 

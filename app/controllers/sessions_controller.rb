@@ -4,7 +4,7 @@ class SessionsController < ApplicationController
   allow_unauthenticated_access only: %i[new create]
   # Per e-mail against password guessing; per address only loosely, since a venue's players share one.
   rate_limit to: 10, within: 3.minutes, only: :create, name: "email",
-             by: -> { params.dig(:session, :email_address).to_s.strip.downcase },
+             by: -> { login_email },
              with: -> { redirect_to new_session_url, alert: t("flash.alert.try_again_later") }
   rate_limit to: 100, within: 3.minutes, only: :create, name: "ip",
              with: -> { redirect_to new_session_url, alert: t("flash.alert.try_again_later") }
@@ -12,7 +12,9 @@ class SessionsController < ApplicationController
   def new; end
 
   def create
-    if (user = User.authenticate_by(params.expect(session: [:email_address, :password])))
+    credentials = params.expect(session: [:email_address, :password])
+    if (user = User.authenticate_by(email_address: credentials[:email_address].to_s,
+                                    password: credentials[:password].to_s))
       start_new_session_for user
       redirect_to root_path, notice: t("flash.notice.signed_in")
     elsif request.headers["Turbo-Frame"] == "modal"
@@ -29,5 +31,13 @@ class SessionsController < ApplicationController
   def destroy
     terminate_session
     redirect_to root_path, notice: t("flash.notice.signed_out")
+  end
+
+  private
+
+  # The e-mail the rate limit counts by; "" for a malformed body (params.expect answers it with a 400).
+  def login_email
+    session_params = params[:session]
+    session_params.is_a?(ActionController::Parameters) ? session_params[:email_address].to_s.strip.downcase : ""
   end
 end

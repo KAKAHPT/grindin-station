@@ -15,9 +15,12 @@ Rails.application.configure do
     policy.style_src :self, :unsafe_inline, "https://fonts.googleapis.com", "https://cdn.jsdelivr.net"
     policy.img_src :self, :data, :blob, :https
     policy.font_src :self, :data, "https://fonts.gstatic.com"
-    policy.connect_src :self, :ws, :wss
+    # 'self' covers the Action Cable websocket on the same host.
+    policy.connect_src :self
     policy.object_src :none
     policy.frame_ancestors :none
+    # Violations are logged by CspReportsController.
+    policy.report_uri "/csp-reports"
   end
 
   # A fresh nonce per response for the importmap and module scripts; Turbo ignores the nonce when it
