@@ -78,7 +78,7 @@ class Round < ApplicationRecord
   def round_finished
     return unless finished_at.present? && finished_at_previously_changed?
 
-    ::Standings::Snapshot.call(event, self) if event.is_a?(Tournament)
+    ::Standings::Snapshot.call(event, self) if is_a?(SwissRound) && event.is_a?(Tournament)
     advance_tournament!
   end
 end

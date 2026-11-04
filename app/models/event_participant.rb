@@ -152,7 +152,7 @@ class EventParticipant < ApplicationRecord
   # Shared by the participants of one standings load (see .standings_for).
   class Standings
     def initialize(event, participants)
-      @event_id = event.id
+      @event = event
       @by_id = participants.index_by(&:id)
       @seat_counts = EventParticipant.seat_counts_for(event)
       index_tables(event)
@@ -161,7 +161,7 @@ class EventParticipant < ApplicationRecord
     def seat_counts(id) = @seat_counts.fetch(id) { EventParticipant.empty_seat_counts }
 
     # Loaded on first use, in one query for the whole field.
-    def movement(id) = (@movements ||= StandingsSnapshot.movements_for(@event_id))[id]
+    def movement(id) = (@movements ||= StandingsSnapshot.movements_for(@event))[id]
 
     # One entry per shared closed non-cut table, like EventParticipant#opponents.
     def opponents(id)
@@ -193,10 +193,10 @@ class EventParticipant < ApplicationRecord
 
   attr_writer :standings
 
-  # Places moved between the two latest closed rounds (positive = up); nil before round 2 closes or
-  # for someone missing from either snapshot.
+  # Places moved between the two latest closed swiss rounds (positive = up); nil before round 2 closes,
+  # once the swiss is over, or for someone missing from either snapshot.
   def movement_since_last_round
-    @standings ? @standings.movement(id) : StandingsSnapshot.movements_for(event_id)[id]
+    @standings ? @standings.movement(id) : StandingsSnapshot.movements_for(event)[id]
   end
 
   def played_against?(another)

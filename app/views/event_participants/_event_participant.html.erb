@@ -15,9 +15,7 @@
       <span class="tabular text-muted"><%= event_participant_iteration.index + 1 %></span>
     <% end %>
   </th>
-  <% if local_assigns[:movement] %>
-    <td class="px-1 py-0.5 text-nowrap"><%= render "shared/movement", participant: event_participant %></td>
-  <% end %>
+  <td class="px-1 py-0.5 text-nowrap"><%= render "shared/movement", participant: event_participant %></td>
   <th
     scope="row"
     data-tooltip-target="tooltip-<%= event_participant.id %>"

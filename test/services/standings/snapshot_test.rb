@@ -31,17 +31,42 @@ module Standings
     end
 
     test "closing a round writes its snapshot before the next round is paired" do
-      round2 = @t.rounds.create!(type: SwissRound, number: 2)
-      round2.pods.each do |pod|
-        pod.seatings.each_with_index do |seating, i|
-          (i.zero? ? Win : Loss).create!(round: round2, event_participant_id: seating.event_participant_id)
-        end
+      round2 = play_round_two
+      rows_when_advancing = nil
+      round2.define_singleton_method(:advance_tournament!) do
+        rows_when_advancing = event.standings_snapshots.where(round_number: 2).count
+        super()
       end
 
       round2.update!(finished_at: Time.current, published: true)
 
-      assert_equal 8, @t.standings_snapshots.where(round_number: 2).count
+      assert_equal 8, rows_when_advancing
       assert @t.rounds.exists?(number: 3)
+    end
+
+    test "closing a cut round writes no snapshot" do
+      @t.update_column(:state, Tournament.states[:single_elimination]) # rubocop:disable Rails/SkipsModelValidations
+      cut = SingleEliminationRound.new(event: @t, number: 2)
+      cut.define_singleton_method(:create_pods) { nil }
+      cut.define_singleton_method(:advance_tournament!) { nil }
+      cut.save!
+
+      cut.update!(finished_at: Time.current)
+
+      assert_not @t.standings_snapshots.exists?
+    end
+
+    test "correcting a result in a closed swiss round writes the snapshot again" do
+      Snapshot.call(@t, @round1)
+      pod = @round1.pods.find_by!(number: 2)
+      winner = pod.seatings.order(:order).last.event_participant
+      assert_operator @t.standings_snapshots.find_by!(event_participant: winner).rank, :>, 2
+
+      Results::Apply.call(pod: pod, type: "Win", winner: winner)
+
+      assert_operator @t.standings_snapshots.find_by!(event_participant: winner).rank, :<=, 2
+      snapshot = @t.standings_snapshots.order(:rank).pluck(:event_participant_id)
+      assert_equal Feeds::Standings.ranked(@t).map(&:id), snapshot
     end
 
     test "discard removes the reopened round and every later one" do
@@ -65,10 +90,27 @@ module Standings
                                        rank: swapped.fetch(row.event_participant_id, row.rank))
       end
 
-      movements = StandingsSnapshot.movements_for(@t.id)
+      movements = StandingsSnapshot.movements_for(@t)
       assert_equal(-2, first.movement_since_last_round)
       assert_equal 2, third.movement_since_last_round
       assert_equal [0] * 6, movements.except(first.id, third.id).values
+
+      @t.update_column(:state, Tournament.states[:single_elimination]) # rubocop:disable Rails/SkipsModelValidations
+      assert_empty StandingsSnapshot.movements_for(@t.reload)
+      assert_nil first.reload.movement_since_last_round
+    end
+
+    private
+
+    # Round 2 created with seat 1 winning every pod, not yet closed.
+    def play_round_two
+      round2 = @t.rounds.create!(type: SwissRound, number: 2)
+      round2.pods.each do |pod|
+        pod.seatings.each_with_index do |seating, i|
+          (i.zero? ? Win : Loss).create!(round: round2, event_participant_id: seating.event_participant_id)
+        end
+      end
+      round2
     end
   end
 end

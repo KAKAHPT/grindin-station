@@ -113,16 +113,13 @@ module Organizer
       participants
     end
 
-    # The standings with a rank each; the waitlist is not ranked and follows in waitlist order.
+    # The standings with a rank each (the public order, Feeds::Standings.ranked); the waitlist is not
+    # ranked and follows in waitlist order.
     def ranked_participants(event)
-      waitlist, ranked = roster_participants(event).partition(&:waitlisted?)
-      ranked =
-        ranked.sort_by do |p|
-          seats = p.seat_counts
-          [p.playing? ? 0 : 1, -p.rank_score, -seats[4], -seats[3], -seats[2], -seats[1], p.name]
-        end
+      participants = roster_participants(event)
+      ranked = Feeds::Standings.ranked(event, participants)
       ranked.each.with_index(1) { |p, rank| p.rank = rank }
-      ranked + waitlist.sort_by { |p| p.waitlist_position.to_i }
+      ranked + participants.select(&:waitlisted?).sort_by { |p| p.waitlist_position.to_i }
     end
 
     def roster_counts(event)

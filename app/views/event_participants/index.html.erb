@@ -15,7 +15,6 @@
     expanded row). Public standings mark the viewer's row "You"; both the page and the modal show the
     movement arrows (shared/_movement). %>
 <% me_id = (current_participant&.id unless @standings_in_modal) %>
-<% movement = true %>
 <% content_for :close do %>
   <% if latest_published %>
     <%= link_to [@tournament, latest_published.becomes(Round)], class: "ms-auto #{icon_button_classes}" do %>
@@ -55,7 +54,7 @@
         >
           Rank
         </th>
-        <% if movement %><th scope="col" class="px-1 py-2"><span class="sr-only"><%= t("play.standings.movement") %></span></th><% end %>
+        <th scope="col" class="px-1 py-2"><span class="sr-only"><%= t("play.standings.movement") %></span></th>
         <th scope="col" class="<%= pad %> py-2 whitespace-nowrap">Player</th>
         <th scope="col" class="<%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-points">
           <%= t("standings.columns.points") %>
@@ -183,20 +182,16 @@
       <!-- TODO updated by turbo stream -->
       <% case @tournament.state %>
       <% when 'registration_open', 'registration_closed' %>
-        <%= render partial: "event_participants/event_participant", collection: @standings.sort_by(&:name), locals: { wide_only: wide_only, pad: pad, me_id: me_id, movement: movement } %>
+        <%= render partial: "event_participants/event_participant", collection: @standings.sort_by(&:name), locals: { wide_only: wide_only, pad: pad, me_id: me_id } %>
       <% else %>
-        <%# A finished event lists everyone by the final position recorded when it finished; anyone without one follows by rank. %>
-        <% final = @tournament.finished? %>
-        <% standings = @standings.reject(&:waitlisted?).sort_by do |p|
-             [final && p.final_position ? 0 : 1, (p.final_position if final).to_i, p.playing? ? 0 : 1, -p.rank_score, p.name]
-           end %>
-        <%= render partial: "event_participants/event_participant", collection: standings, locals: { wide_only: wide_only, pad: pad, final: final, me_id: me_id, movement: movement } %>
+        <%# The feed's order (Feeds::Standings.ranked): final positions once finished, then playing, rank score, name. %>
+        <%= render partial: "event_participants/event_participant", collection: Feeds::Standings.ranked(@tournament, @standings), locals: { wide_only: wide_only, pad: pad, final: @tournament.finished?, me_id: me_id } %>
       <% end %>
     </tbody>
   </table>
   </div>
   </div>
-  <%= render "tournaments/standings_help", event: @tournament, movement: movement %>
+  <%= render "tournaments/standings_help", event: @tournament %>
 <% end %>
 
 <% content_for :footer do %>

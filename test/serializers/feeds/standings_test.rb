@@ -98,7 +98,7 @@ module Feeds
       assert(rows.all? { |row| [row[:omw], row[:gw], row[:ogw]].all?(Float) })
     end
 
-    test "movement is null until two rounds have closed, then places moved up since the last round" do
+    test "movement is null until two swiss rounds have closed and after the swiss, else places moved up" do
       ::Standings::Snapshot.call(@t, @round1)
       assert(Feeds::Standings.call(@t)[:standings].all? { |row| row.key?(:movement) && row[:movement].nil? })
 
@@ -113,6 +113,9 @@ module Feeds
       assert_equal(-2, rows.fetch(first.player_id)[:movement])
       assert_equal 2, rows.fetch(third.player_id)[:movement]
       assert_equal [0] * 14, rows.except(first.player_id, third.player_id).values.pluck(:movement)
+
+      @t.update_column(:state, Tournament.states[:single_elimination]) # rubocop:disable Rails/SkipsModelValidations
+      assert(Feeds::Standings.call(@t.reload)[:standings].all? { |row| row[:movement].nil? })
     end
   end
 end

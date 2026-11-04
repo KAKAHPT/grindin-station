@@ -82,5 +82,6 @@ class Infraction < ApplicationRecord
                                event_participant: EventParticipant.find_by(
                                  event: event, player: player
                                ))
+    ::Standings::Snapshot.refresh(pod.round)
   end
 end

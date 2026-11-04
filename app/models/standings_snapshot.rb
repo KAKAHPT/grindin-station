@@ -6,9 +6,11 @@ class StandingsSnapshot < ApplicationRecord
   belongs_to :event_participant
 
   # participant id => places moved between the two latest snapshots of the event (positive = up);
-  # empty before two rounds have closed. One query.
-  def self.movements_for(event_id)
-    before, after = latest_two_ranks(event_id)
+  # empty before two swiss rounds have closed and once the swiss is over (cut or finished). One query.
+  def self.movements_for(event)
+    return {} unless event.state == "swiss"
+
+    before, after = latest_two_ranks(event.id)
     return {} unless after
 
     after.filter_map { |id, rank| [id, before[id] - rank] if before[id] }.to_h
