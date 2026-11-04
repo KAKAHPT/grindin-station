@@ -7,6 +7,12 @@ module Tournaments
       raise ArgumentError, "tournament has no top cut" unless round.event.rounds_info[:top]
 
       @round = round
+      round.event.one_v_one? ? Tournaments::OneVOneBracket.call(round) : pair_multiplayer_cut!
+    end
+
+    private
+
+    def pair_multiplayer_cut!
       @players_to_advance, @players_by_rank, @players_to_eliminate = initialize_players
 
       generate_pods!
@@ -19,8 +25,6 @@ module Tournaments
         @round.pods.each(&:sit_participants!)
       end
     end
-
-    private
 
     def initialize_players
       sorted_players = Tournaments::PlayerSorter.new(@round).sorted_players

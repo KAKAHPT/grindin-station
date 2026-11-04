@@ -15,6 +15,10 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   SMALLER_POD_SIZE = 3
   LARGER_POD_SIZE = 5
 
+  FORMATS = %w[multiplayer one_v_one].freeze
+  MATCH_GAMES = [1, 3].freeze
+  # MTR match points for 1v1 events (win/draw/loss/bye); multiplayer keeps the column defaults.
+  ONE_V_ONE_POINTS = { points_win: 3, points_draw: 1, points_loss: 0, points_bye: 3 }.freeze
   POINT_ATTRIBUTES = %i[points_win points_draw points_loss points_bye].freeze
   UNLOCKED_POINTS_STATES = %w[draft registration_open registration_closed].freeze
   RESULT_CONFIRMATIONS = %w[none one all].freeze
@@ -45,15 +49,26 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   validates :points_win, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
   validates :points_draw, :points_loss, :points_bye, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validate :points_locked_after_start, on: :update
+  validates :format, inclusion: { in: FORMATS }
+  validates :match_games, inclusion: { in: MATCH_GAMES }
+  validate :format_locked_after_creation, on: :update
   validates :result_confirmation, inclusion: { in: RESULT_CONFIRMATIONS }
   validates :top_cut_timeout_rule, inclusion: { in: TOP_CUT_TIMEOUT_RULES }
   validates :confirmation_timeout_minutes, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
 
   validates :slug, uniqueness: true
+  # Points not given for a new 1v1 event start at the MTR values instead of the multiplayer defaults.
+  after_initialize :apply_one_v_one_points, if: :new_record?
   before_validation :populate_slug, if: -> { slug.blank? }
 
   after_update :perform_state_based_actions, if: -> { state_previously_changed? }
   after_save :geocode_address, if: -> { address_previously_changed? }
+
+  # read_attribute: a record loaded against a schema without the column (or a stale schema cache) would otherwise
+  # fall through to Kernel#format and raise "too few arguments".
+  def one_v_one? = self[:format] == "one_v_one"
+
+  def multiplayer? = self[:format] == "multiplayer"
 
   def points_locked?
     UNLOCKED_POINTS_STATES.exclude?(state)
@@ -185,8 +200,24 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   def points_locked_after_start
     return unless points_locked?
 
-    POINT_ATTRIBUTES.each do |attribute|
+    # The match length goes with the points: results already scored would not fit another best-of.
+    [*POINT_ATTRIBUTES, :match_games].each do |attribute|
       errors.add(attribute, :locked) if attribute_changed?(attribute)
     end
+  end
+
+  def apply_one_v_one_points
+    return unless one_v_one?
+
+    # Not *_changed?: a value given explicitly that equals the column (multiplayer) default, such as
+    # points_win: 7, is not "changed", yet the organiser chose it and it must not become the 1v1 value.
+    ONE_V_ONE_POINTS.each do |attribute, value|
+      self[attribute] = value unless attribute_came_from_user?(attribute.to_s)
+    end
+  end
+
+  # The format is chosen at creation only (spec §1).
+  def format_locked_after_creation
+    errors.add(:format, :locked) if format_changed?
   end
 end

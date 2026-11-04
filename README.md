@@ -1,5 +1,9 @@
 # TODO
 
+## Formats
+
+An event is either **multiplayer** (pods of four, fair seats, cEDH tiebreakers) or **1v1** (tables of two, best-of-3 or best-of-1, Magic Tournament Rules Swiss pairing, tiebreakers and bracket). The format is chosen when the event is created. See `CLAUDE.md` → Event Formats.
+
 ## Tech
 
 - [ ] Remove all possible N+1 queries

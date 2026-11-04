@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_04_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_04_140100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -115,7 +115,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_04_130000) do
     t.datetime "end_time"
     t.uuid "event_organizer_id"
     t.integer "event_participants_count", default: 0, null: false
+    t.string "format", default: "multiplayer", null: false
     t.geography "location", limit: {srid: 4326, type: "st_point", geographic: true}
+    t.integer "match_games", default: 3, null: false
     t.string "name", null: false
     t.int4range "participants_range"
     t.integer "play_mode", default: 0, null: false
@@ -234,6 +236,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_04_130000) do
   create_table "results", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.uuid "event_participant_id"
+    t.integer "games_drawn", default: 0, null: false
+    t.integer "games_lost", default: 0, null: false
+    t.integer "games_won", default: 0, null: false
     t.uuid "recorded_by_user_id"
     t.uuid "round_id"
     t.uuid "superseded_by_id"

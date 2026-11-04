@@ -6,7 +6,9 @@
   <div class="mt-2 flex items-center justify-between gap-3 text-sm">
     <span data-position class="font-display font-semibold text-accent"><%= profile_position(row) %></span>
     <span data-wld class="tabular text-muted"><%= [row.wins, row.losses, row.draws].join("-") %></span>
-    <%= seat_grid(row.seats, seat_five: row.seats[5].positive?) %>
+    <% if row.seats %>
+      <%= seat_grid(row.seats, seat_five: row.seats[5].positive?) %>
+    <% end %>
   </div>
   <% if row.decklist_visible %>
     <p class="mt-2 text-sm truncate"><%= t("profiles.decklist") %>: <%= decklist_link(row.decklist) %></p>

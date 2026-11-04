@@ -43,7 +43,8 @@ module Organizer
 
     def update
       @tournament = Tournament.staffed_by(current_user).find params[:id]
-      @tournament.attributes = tournament_params
+      # The format is chosen at creation only (the model refuses a change too).
+      @tournament.attributes = tournament_params.except(:format)
 
       if @tournament.save
         if @tournament.state_previously_changed? && @tournament.single_elimination?
@@ -75,6 +76,8 @@ module Organizer
                       price
                       currency
                       cover
+                      format
+                      match_games
                       points_win
                       points_draw
                       points_loss

@@ -15,7 +15,7 @@
   </th>
   <% columns = participant.standing_columns if standings %>
   <td class="px-2.5 tabular text-right font-display font-semibold <%= participant.playing? ? "text-accent" : "text-muted" %>"><%= standings ? columns[:points] : "–" %></td>
-  <td class="px-2.5 tabular text-right"><%= standings ? number_to_percentage(columns[:owr] * 100, precision: 1) : "–" %></td>
+  <td class="px-2.5 tabular text-right"><%= standings ? rate_label(columns[@event.one_v_one? ? :omw : :owr]) : "–" %></td>
   <td class="px-2.5 tabular text-right whitespace-nowrap">
     <%= standings ? "#{participant.number_of_wins}-#{participant.number_of_losses}-#{participant.number_of_draws}" : "–" %>
   </td>
@@ -80,11 +80,17 @@
   <td colspan="7" class="px-2.5">
     <% columns ||= participant.standing_columns %>
     <span class="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
-      <span><%= t("organizer.roster.stats.beaten") %> <b class="text-ink font-semibold"><%= columns[:beaten] %></b></span>
-      <span aria-hidden="true">·</span>
-      <span><%= t("organizer.roster.stats.unique") %> <b class="text-ink font-semibold"><%= columns[:unique] %></b></span>
-      <span aria-hidden="true">·</span>
-      <span class="inline-flex items-center gap-1.5"><%= t("organizer.roster.stats.seats") %> <%= seat_grid(columns[:seats], seat_five: seat_five) %></span>
+      <% if @event.one_v_one? %>
+        <span><%= t("organizer.roster.stats.gw") %> <b class="text-ink font-semibold tabular"><%= rate_label(columns[:gw]) %></b></span>
+        <span aria-hidden="true">·</span>
+        <span><%= t("organizer.roster.stats.ogw") %> <b class="text-ink font-semibold tabular"><%= rate_label(columns[:ogw]) %></b></span>
+      <% else %>
+        <span><%= t("organizer.roster.stats.beaten") %> <b class="text-ink font-semibold"><%= columns[:beaten] %></b></span>
+        <span aria-hidden="true">·</span>
+        <span><%= t("organizer.roster.stats.unique") %> <b class="text-ink font-semibold"><%= columns[:unique] %></b></span>
+        <span aria-hidden="true">·</span>
+        <span class="inline-flex items-center gap-1.5"><%= t("organizer.roster.stats.seats") %> <%= seat_grid(columns[:seats], seat_five: seat_five) %></span>
+      <% end %>
       <span aria-hidden="true">·</span>
       <span><%= t("organizer.roster.stats.check_in") %> <b class="text-ink font-semibold tabular"><%= participant.checked_in_at ? l(participant.checked_in_at, format: "%H:%M") : "–" %></b></span>
       <span aria-hidden="true">·</span>

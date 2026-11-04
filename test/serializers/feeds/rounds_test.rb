@@ -92,5 +92,21 @@ module Feeds
       assert_equal 4, feed[:rounds].last[:tables].sole[:players].size
       assert_nil Feeds::Info.call(@t)[:timerEnd]
     end
+
+    test "multiplayer tables keep their keys, without games" do
+      table = Feeds::Rounds.call(@t)[:rounds].first[:tables].first
+
+      assert_equal %i[table status winner draw ended players], table.keys
+    end
+
+    test "1v1 tables carry the score: the winner's games, the draw's, or null before a result" do
+      t = build_1v1_feed_tournament
+      round1, round2 = Feeds::Rounds.call(t)[:rounds]
+
+      assert_equal %i[table status winner draw ended players games], round1[:tables].first.keys
+      assert_equal %w[2-1 1-1], round1[:tables].pluck(:games)
+      assert_equal([2, 2], round1[:tables].map { |table| table[:players].size })
+      assert_equal [nil, nil], round2[:tables].pluck(:games)
+    end
   end
 end

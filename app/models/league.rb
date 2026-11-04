@@ -5,6 +5,8 @@ class League < Event
 
   enum :play_mode, { scheduled: 0, pickup: 1 }, prefix: true
 
+  # Leagues pair pods of 3-5; the 1v1 pairer and bracket are tournament-only.
+  validates :format, inclusion: { in: %w[multiplayer] }
   validates :wager_percentage,
             numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100, allow_blank: true }
 

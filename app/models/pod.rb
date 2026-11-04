@@ -87,6 +87,8 @@ class Pod < ApplicationRecord
   def sit_participants!
     if round.is_a? SingleEliminationRound
       ranked_seatings
+    elsif round.event.one_v_one?
+      random_seatings
     else
       fair_seatings
     end
@@ -99,6 +101,15 @@ class Pod < ApplicationRecord
   def ranked_seatings
     candidates.sort_by.with_index { |p, i| [-p.rank_score, i] }.each.with_index do |participant, i|
       seatings.build(event_participant: participant, order: i + 1, assigned_by: "ranked")
+    end
+  end
+
+  # 1v1 swiss: who sits first is a coin flip seeded like fair_seatings; no seat history.
+  def random_seatings
+    participants = candidates.sort_by(&:id)
+    participants.reverse! if seating_rng.rand(2).zero?
+    participants.each.with_index(1) do |participant, position|
+      seatings.build(event_participant: participant, order: position, assigned_by: "random")
     end
   end
 

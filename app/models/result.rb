@@ -31,6 +31,18 @@ class Result < ApplicationRecord
     }
   )
 
+  # 1v1 game score as [won, lost, drawn]; multiplayer rows keep 0/0/0.
+  def games = [games_won, games_lost, games_drawn]
+
+  # Game points (3 per game won, 1 per game drawn) feed the 1v1 game-win-rate tiebreaker.
+  def game_points = (3 * games_won) + games_drawn
+
+  # "2-1" from the games (won-lost, then drawn games when there are any: "1-1-1"); nil when unscored
+  # (an Advance by time called, a multiplayer result).
+  def score
+    [games_won, games_lost, (games_drawn if games_drawn.positive?)].compact.join("-") unless games.sum.zero?
+  end
+
   # In-place write for open rounds only; closed rounds go through Results::Apply (superseding).
   def self.create_or_update_by(**keys)
     result = Result.current.find_by(keys)

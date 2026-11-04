@@ -37,5 +37,73 @@ module Tournaments
       error = assert_raises(ArgumentError) { t.rounds.create!(type: SingleEliminationRound, number: 2) }
       assert_equal "tournament has no top cut", error.message
     end
+
+    test "1v1 top 8: seeds 1v8, 2v7, 3v6, 4v5 in pod order, higher seed in seat 1, the rest eliminated" do
+      t, seeds = one_v_one_top_eight
+      cut = t.rounds.create!(type: SingleEliminationRound, number: 2)
+      assert_equal [[1, 8], [2, 7], [3, 6], [4, 5]].map { |pair| pair.map { |seed| seeds[seed - 1] } }, bracket(cut)
+      assert_equal %w[ranked], cut.seatings.map(&:assigned_by).uniq
+      assert_equal seeds[8..].sort, cut.results.where(type: "Eliminated").pluck(:event_participant_id).sort
+    end
+
+    test "1v1 bracket: the next round pairs the winners of pods i and k+1-i" do
+      t, seeds = one_v_one_top_eight
+      cut = t.rounds.create!(type: SingleEliminationRound, number: 2)
+      close_cut!(cut, seeds, { 8 => 1, 2 => 7, 3 => 6, 5 => 4 })
+      semis = t.rounds.create!(type: SingleEliminationRound, number: 3)
+      assert_equal [[5, 8], [2, 3]].map { |pair| pair.map { |seed| seeds[seed - 1] } }, bracket(semis)
+    end
+
+    test "1v1 top 8 with 7 players: seed 1 advances by walkover, then meets the 4/5 winner" do
+      t, seeds = one_v_one_top_eight(dropped: 3)
+      assert_equal 7, seeds.size
+      cut = t.rounds.create!(type: SingleEliminationRound, number: 2)
+      assert_equal [[2, 7], [3, 6], [4, 5]].map { |pair| pair.map { |seed| seeds[seed - 1] } }, bracket(cut)
+      assert_equal [seeds[0]], cut.byes.pluck(:event_participant_id)
+      assert_equal 0, cut.results.where(type: "Eliminated").count
+
+      close_cut!(cut, seeds, { 2 => 7, 3 => 6, 4 => 5 })
+      semis = t.rounds.create!(type: SingleEliminationRound, number: 3)
+      assert_equal [[1, 4], [2, 3]].map { |pair| pair.map { |seed| seeds[seed - 1] } }, bracket(semis)
+    end
+
+    test "1v1 bracket: a winner who dropped leaves a walkover for the k+1-i winner" do
+      t, seeds = one_v_one_top_eight
+      cut = t.rounds.create!(type: SingleEliminationRound, number: 2)
+      close_cut!(cut, seeds, { 8 => 1, 2 => 7, 3 => 6, 5 => 4 })
+      t.event_participants.find(seeds[7]).update_columns(dropped: true) # rubocop:disable Rails/SkipsModelValidations
+      semis = t.rounds.create!(type: SingleEliminationRound, number: 3)
+      assert_equal [[seeds[1], seeds[2]]], bracket(semis)
+      assert_equal [seeds[4]], semis.byes.pluck(:event_participant_id)
+    end
+
+    private
+
+    # 10 players, one 1v1 swiss round, Top 8, then `dropped` of them drop; seeds = active ids by rank (1st first).
+    def one_v_one_top_eight(dropped: 0)
+      t = TournamentBuilder.build(players: 10, organizer: event_organizers(:standard_organizer), format: "one_v_one")
+      t.update_columns(swiss_rounds_count: 1, top_cut_size: 8) # rubocop:disable Rails/SkipsModelValidations
+      round = t.rounds.create!(type: SwissRound, number: 1)
+      TournamentBuilder.play_1v1_round!(t, scores: round.pods.pluck(:number).index_with([2, 0]))
+      t.event_participants.first(dropped).each { |p| p.update_columns(dropped: true) } # rubocop:disable Rails/SkipsModelValidations
+      [t, active_seeds(t)]
+    end
+
+    def active_seeds(tournament)
+      EventParticipant.standings_for(tournament).reject(&:dropped).sort_by { |player| -player.rank_score }.map(&:id)
+    end
+
+    # Records { winner seed => loser seed } as Advance/Eliminated and closes the cut round.
+    def close_cut!(cut, seeds, results)
+      results.each do |winner, loser|
+        Advance.create!(round: cut, event_participant_id: seeds[winner - 1])
+        Eliminated.create!(round: cut, event_participant_id: seeds[loser - 1])
+      end
+      cut.update_columns(finished_at: Time.current, published: true) # rubocop:disable Rails/SkipsModelValidations
+    end
+
+    def bracket(round)
+      round.pods.includes(:seatings).order(:number).map { |pod| pod.seatings.map(&:event_participant_id) }
+    end
   end
 end

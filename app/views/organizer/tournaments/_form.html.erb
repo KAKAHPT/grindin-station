@@ -1,4 +1,7 @@
-<%= modal_form_for [:organizer, tournament], html: { data: { turbo: false } } do |f| %>
+<%# format-fields: the match length shows for 1v1; untouched points and the top cut options follow the format. %>
+<%= modal_form_for [:organizer, tournament], html: { data: { turbo: false, controller: "format-fields",
+                                                          format_fields_points_value: format_points_defaults.to_json,
+                                                          format_fields_cut_options_value: Event::FORMATS.index_with { |format| top_cut_options(format) }.to_json } } do |f| %>
   <% content_for :title do %>
     <% if tournament.persisted? %>
       Edit
@@ -35,10 +38,18 @@
     <%= f.select_with_label :currency, currency_options, selected: tournament.currency %>
   </div>
 
+  <%# The format is chosen at creation only (the model refuses a later change). %>
+  <div class="flex gap-2">
+    <%= f.select_with_label :format, format_options, { selected: tournament.format }, disabled: tournament.persisted?, data: { format_fields_target: "format", action: "format-fields#change" } %>
+    <%= tag.div class: "flex-1", hidden: !tournament.one_v_one?, data: { format_fields_target: "matchGames" } do %>
+      <%= f.select_with_label :match_games, match_games_options, { selected: tournament.match_games }, disabled: tournament.points_locked? %>
+    <% end %>
+  </div>
+
   <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><%= t("organizer.points_help") %></p>
   <div class="flex gap-2">
-    <% %i[points_win points_draw points_loss points_bye].each do |attribute| %>
-      <%= f.number_field_with_label attribute, min: (attribute == :points_win ? 1 : 0), step: 1, disabled: tournament.points_locked? %>
+    <% Event::POINT_ATTRIBUTES.each do |attribute| %>
+      <%= f.number_field_with_label attribute, min: (attribute == :points_win ? 1 : 0), step: 1, disabled: tournament.points_locked?, data: { format_fields_target: "points", attribute: attribute, action: "input->format-fields#touch" } %>
     <% end %>
   </div>
 
@@ -47,7 +58,7 @@
   <% end %>
   <div class="flex gap-2">
     <%= f.number_field_with_label :swiss_rounds_count, min: 1, step: 1, placeholder: t("organizer.structure_use_suggestion"), disabled: tournament.points_locked? %>
-    <%= f.select_with_label :top_cut_size, top_cut_options, { include_blank: t("organizer.structure_use_suggestion"), selected: tournament.top_cut_size }, disabled: tournament.points_locked? %>
+    <%= f.select_with_label :top_cut_size, top_cut_options(tournament.format), { include_blank: t("organizer.structure_use_suggestion"), selected: tournament.top_cut_size }, disabled: tournament.points_locked?, data: { format_fields_target: "topCut" } %>
   </div>
   <div class="flex gap-2">
     <%= f.number_field_with_label :round_minutes, min: 1, step: 1, disabled: tournament.points_locked? %>

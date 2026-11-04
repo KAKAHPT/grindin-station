@@ -36,5 +36,11 @@ module Feeds
       @round2.update_columns(finished_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
       assert_nil Feeds::Info.call(@t)[:timerEnd]
     end
+
+    test "gives the format and the match length" do
+      assert_equal ["multiplayer", 3], Feeds::Info.call(@t).values_at(:format, :matchGames)
+      assert_equal ["one_v_one", 1],
+                   Feeds::Info.call(build_1v1_feed_tournament(match_games: 1)).values_at(:format, :matchGames)
+    end
   end
 end

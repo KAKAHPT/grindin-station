@@ -13,6 +13,10 @@ pt:
               too_big: "tem de ter 2 MB ou menos"
         event:
           attributes:
+            format:
+              locked: "não pode mudar depois de o torneio ser criado"
+            match_games:
+              locked: "não pode mudar depois de o torneio começar"
             points_win:
               locked: "não pode mudar depois de o torneio começar"
             points_draw:
@@ -27,6 +31,8 @@ pt:
               locked: "não pode mudar depois de o torneio começar"
             top_cut_round_minutes:
               locked: "não pode mudar depois de o torneio começar"
+            state:
+              no_swiss_rounds: "não pode ser Swiss: o torneio não tem rondas Swiss"
             top_cut_size:
               locked: "não pode mudar depois de o torneio começar"
               too_big: "é maior do que o número de jogadores"
@@ -43,6 +49,8 @@ pt:
         password_confirmation: "Confirmação da palavra-passe"
         current_password: "Palavra-passe atual"
       event:
+        format: "Formato"
+        match_games: "Duração do match"
         points_win: "Pontos por vitória"
         points_draw: "Pontos por empate"
         points_loss: "Pontos por derrota"
@@ -62,8 +70,15 @@ pt:
         accepted_terms: "Li e aceito as regras deste evento."
   organizer:
     points_help: "Pontos por resultado. Bloqueados quando o Swiss começa."
+    format_options:
+      multiplayer: "Mesas multiplayer"
+      one_v_one: "1v1"
+    match_games_options:
+      bo3: "Melhor de 3"
+      bo1: "Melhor de 1"
     structure_suggestion: "Sugestão para %{players} jogadores: %{rounds} rondas Swiss, top %{cut}"
     structure_suggestion_no_cut: "Sugestão para %{players} jogadores: %{rounds} rondas Swiss, sem corte"
+    structure_suggestion_elimination_only: "Sugestão para %{players} jogadores: eliminação direta, top %{cut}"
     structure_use_suggestion: "Sugerido"
     no_cut: "Sem corte"
     top_cut_option: "Top %{size}"
@@ -131,6 +146,8 @@ pt:
         beaten: "Batidos"
         unique: "Únicos"
         seats: "Lugares"
+        gw: "GW%"
+        ogw: "OGW%"
         check_in: "Check-in"
         infractions: "Infrações"
         show: "Ver estatísticas"
@@ -169,6 +186,7 @@ pt:
       event: "Evento"
       pairings: "Emparelhamentos"
     events:
+      format_badge: "1v1 · Bo%{games}"
       when: "Quando"
       where: "Onde"
       price: "Preço"
@@ -223,6 +241,7 @@ pt:
       who_won: "Quem ganhou?"
     report_result: "Reportar resultado"
     draw: "Draw"
+    score: "Resultado"
     submit: "Submeter"
     call_judge: "Chamar um juiz"
     judge_called: "Juiz chamado"
@@ -259,6 +278,8 @@ pt:
       draw_in_top_cut: "No top cut não há empates: escolhe quem passa."
       round_closed: "Esta ronda está fechada: pede a um juiz para corrigir o resultado."
       time_already_called: "O tempo já foi chamado nesta mesa; aguarda revisão do staff."
+      impossible_score: "Esse resultado não é possível neste encontro."
+      score_required: "Indica o resultado em jogos."
   rounds:
     print:
       pairings_link: "Imprimir emparelhamentos"
@@ -279,7 +300,9 @@ pt:
       completed: "Concluída"
     judge_called: "Juiz chamado"
     reported_by: "Reportado pelo lugar %{seat} · %{time}"
+    reported_by_player: "Reportado por %{name} · %{time}"
     confirmed: "Confirmado: %{seats}"
+    confirmed_by_players: "Confirmado: %{names}"
     disputed: "Em disputa — precisa do staff"
     win: "Lugar %{seat} ganha"
     draw: "Draw"
@@ -289,6 +312,16 @@ pt:
     change_result: "Alterar resultado"
     insert_result: "Inserir resultado"
     player_wins: "%{name} ganha"
+    score: "Resultado"
+    draw_scores: "Resultado do empate"
+    cut_names:
+      finals: "Final"
+      semifinals: "Meias-finais"
+      quarterfinals: "Quartos de final"
+      round_of_16: "Oitavos de final"
+      round_of_32: "Dezasseis-avos de final"
+    score_on_time: "%{score} no tempo: partida parada no fim do tempo, o jogo por acabar conta como empate"
+    on_time_hint: "tempo"
     finished_in: "Terminou em %{time}"
     cancel: "Cancelar"
     undo: "Anular ronda"
@@ -304,7 +337,11 @@ pt:
       beaten: "Batidos"
       unique: "Únicos"
       seats: "Assentos"
+      omw: "OMW%"
+      gw: "GW%"
+      ogw: "OGW%"
     order_tooltip: "Pts > OWR > Batidos > Únicos > sorteio com semente"
+    order_tooltip_one_v_one: "Pts > OMW% > GW% > OGW% > sorteio com semente"
     help:
       win_rate: "Win %: percentagem de jogos ganhos (sem byes). Não é critério de desempate."
       points: "Pontos de match: %{win} por vitória, %{draw} por empate, %{loss} por derrota."
@@ -312,6 +349,9 @@ pt:
       beaten: "Adversários batidos: jogadores distintos nas mesas que ganhaste."
       unique: "Adversários únicos: jogadores distintos que defrontaste."
       seed: "Restantes empates: sorteio com semente feito na ronda 1, fixo durante todo o evento."
+      omw: "OMW%: a média das percentagens de matches ganhos dos teus adversários, cada uma com um mínimo de 33% (sem byes)."
+      gw: "GW%: os teus pontos de jogo (3 por jogo ganho, 1 por jogo empatado) sobre 3 por jogo jogado, com um mínimo de 33%."
+      ogw: "OGW%: a média das percentagens de jogos ganhos dos teus adversários, cada uma com um mínimo de 33% (sem byes)."
   views:
     pagination:
       previous: "Anterior"

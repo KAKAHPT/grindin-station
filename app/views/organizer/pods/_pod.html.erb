@@ -1,5 +1,7 @@
 <% staff_can_act = pod.round.started? && !pod.round.past? && %w[organizer judge].include?(staff_role) %>
 <% show_results = pod.round.started? && !pod.round.past? && pod.report_status != :completed %>
+<%# 1v1: the pick is confirmed by its score ("2-1" sets the hidden result[games] = "2-1-0"); Draw opens its scores. %>
+<% one_v_one = pod.event.one_v_one? %>
 <%= tag.div id: "pod_#{pod.id}",
             class: "scroll-mt-20 flex flex-col bg-surface border border-line rounded-xl shadow-card overflow-clip",
             data: ({ controller: "pod-result", pod_result_template_value: t("rounds.player_wins", name: "%{name}") } if show_results) do %>
@@ -10,7 +12,7 @@
   <div class="bg-ground/40 border-t border-line p-2.5">
     <% if show_results %>
       <% pod.seatings.each do |seating| %>
-        <%= button_to t("rounds.win", seat: seating.order), [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Win", event_participant_id: seating.event_participant_id } }, form: { class: "hidden", data: { pod_result_target: "winForm", seat: seating.order } }, class: button_classes(:secondary, "w-full", size: :sm) %>
+        <%= button_to t("rounds.win", seat: seating.order), [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Win", event_participant_id: seating.event_participant_id }.merge(one_v_one ? { games: "" } : {}) }, form: { class: "hidden", data: { pod_result_target: "winForm", seat: seating.order } }, class: button_classes(:secondary, "w-full", size: :sm) %>
       <% end %>
     <% end %>
     <% draw_allowed = show_results && !pod.round.is_a?(SingleEliminationRound) %>
@@ -22,7 +24,9 @@
                      end %>
     <%= tag.div class: ["grid gap-2", footer_cols],
                 data: { pod_result_target: ("draw" if show_results) } do %>
-      <% if draw_allowed %>
+      <% if draw_allowed && one_v_one %>
+        <button type="button" data-action="pod-result#openDraw" class="<%= button_classes(:secondary, "w-full", size: :sm) %>"><%= t("rounds.draw") %></button>
+      <% elsif draw_allowed %>
         <%= button_to t("rounds.draw"), [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Draw" } }, form_class: "contents", class: button_classes(:secondary, "w-full", size: :sm) %>
       <% end %>
       <% if staff_can_act %>
@@ -32,7 +36,25 @@
         <%= button_to t("rounds.time_called"), timeout_organizer_tournament_round_pod_results_path(pod.event, pod.round.becomes(Round), pod), method: :post, data: { turbo_confirm: t("results.timeout_confirm") }, form_class: "contents", class: button_classes(:danger, nil, size: :sm) %>
       <% end %>
     <% end %>
-    <% if show_results %>
+    <% if draw_allowed && one_v_one %>
+      <div data-pod-result-target="drawScores" role="group" aria-label="<%= t("rounds.draw_scores") %>" class="flex gap-2" hidden>
+        <% draw_score_options(pod.event).each do |label, value| %>
+          <%= button_to label, [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Draw", games: value } }, form_class: "flex-1", class: button_classes(:secondary, "w-full", size: :sm) %>
+        <% end %>
+        <button type="button" data-action="pod-result#cancel" class="<%= button_classes(:ghost, nil, size: :sm) %>"><%= t("rounds.cancel") %></button>
+      </div>
+    <% end %>
+    <% if show_results && one_v_one %>
+      <div data-pod-result-target="confirm" class="flex flex-col gap-2" hidden>
+        <span class="flex items-center gap-1.5 min-w-0 text-[13px] text-ink"><%= icon("trophy", class: "text-accent") %><span data-pod-result-target="confirmLabel" class="truncate"></span></span>
+        <div role="group" aria-label="<%= t("rounds.score") %>" class="flex gap-2">
+          <% winner_score_options(pod.event).each do |label, value| %>
+            <button type="button" data-action="pod-result#confirm" data-pod-result-games-param="<%= value %>" title="<%= score_option_title(label, value) %>" aria-label="<%= score_option_title(label, value) %>" class="<%= button_classes(:primary, "flex-1", size: :sm) %>"><%= label %><% if value == TournamentsHelper::ON_TIME_SCORE %> <span class="text-[10px] font-normal opacity-80"><%= t("rounds.on_time_hint") %></span><% end %></button>
+          <% end %>
+          <button type="button" data-action="pod-result#cancel" class="<%= button_classes(:ghost, nil, size: :sm) %>"><%= t("rounds.cancel") %></button>
+        </div>
+      </div>
+    <% elsif show_results %>
       <div data-pod-result-target="confirm" class="grid grid-cols-[1fr_auto] gap-2" hidden>
         <button type="button" data-action="pod-result#confirm" class="<%= button_classes(:primary, "w-full min-w-0", size: :sm) %>">
           <%= icon("trophy") %><span data-pod-result-target="confirmLabel" class="truncate"></span>

@@ -24,7 +24,9 @@ module Tournaments
       tournament, final = top_four_played_to_the_end
       winner = final.seatings.find_by!(order: 2).event_participant
       finalists = final.seatings.map(&:event_participant)
-      dropped = (tournament.event_participants.where(waitlisted: false) - finalists).first
+      # The best-ranked non-finalist: back in the standings it must finish above the last place.
+      dropped = EventParticipant.standings_for(tournament).reject { |p| p.waitlisted? || finalists.include?(p) }
+        .max_by(&:rank_score)
       dropped.update!(dropped: true)
       waiting = waitlist!(tournament)
 
