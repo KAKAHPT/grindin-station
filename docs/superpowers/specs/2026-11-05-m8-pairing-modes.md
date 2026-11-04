@@ -16,7 +16,7 @@ next morning.
 
 ## 1. Data
 
-- `events.pairing_mode` string, not null, default `"swiss"`, values `Event::PAIRING_MODES = %w[swiss random power]`.
+- `events.pairing_mode` string, not null, default `"swiss"`, values `Event::PAIRING_MODES = %w[swiss power random]`.
 - Meaningful for `multiplayer` events only. 1v1 events keep `"swiss"` and `Tournaments::OneVOnePairer` ignores
   it. Leagues keep the default and never show the field.
 - Locked with the structure: added to `Tournament::STRUCTURE_ATTRIBUTES`, so `structure_locked_after_start`

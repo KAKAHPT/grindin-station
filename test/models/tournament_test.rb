@@ -215,6 +215,12 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
                     I18n.t("activerecord.errors.models.event.attributes.pairing_mode.locked")
   end
 
+  test "a 1v1 tournament is normalised to swiss pairing" do
+    t = TournamentBuilder.build(players: 0, organizer: event_organizers(:standard_organizer), state: :draft, format: "one_v_one")
+    t.update!(pairing_mode: "power")
+    assert_equal "swiss", t.reload.pairing_mode
+  end
+
   test "a 1v1 tournament ignores the pairing mode and still pairs 2-player pods" do
     tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer),
                                          format: "one_v_one")

@@ -3,7 +3,7 @@
 module Feeds
   # {tid, name, updated (epoch seconds), state, starts_at, ends_at, players, round, timerEnd, format, matchGames,
   # pairingMode}: round is the latest published one; format is "multiplayer" or "one_v_one", matchGames 1 or 3
-  # (best of), pairingMode "swiss", "random" or "power" (nil for 1v1).
+  # (best of), pairingMode "swiss", "power" or "random" (nil for 1v1).
   class Info
     def self.call(event, updated: Feeds.last_change(event)) = new(event).to_h(updated)
 

@@ -68,6 +68,7 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   # Points not given for a new 1v1 event start at the MTR values instead of the multiplayer defaults.
   after_initialize :apply_one_v_one_points, if: :new_record?
   before_validation :populate_slug, if: -> { slug.blank? }
+  before_validation { self.pairing_mode = "swiss" if one_v_one? } # 1v1 never pairs by mode (spec M8 §1)
 
   after_update :perform_state_based_actions, if: -> { state_previously_changed? }
   after_save :geocode_address, if: -> { address_previously_changed? }
