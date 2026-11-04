@@ -8,7 +8,7 @@ class TournamentManagementTest < ApplicationSystemTestCase # rubocop:disable Met
     sign_in_as(organizer)
 
     visit organizer_tournaments_path
-    click_link "Organize Tournament"
+    click_link "New tournament"
 
     fill_in "Name", with: "Grand Championship 2024"
     fill_in "Description", with: "The biggest tournament of the year"
@@ -77,7 +77,7 @@ class TournamentManagementTest < ApplicationSystemTestCase # rubocop:disable Met
     sign_in_as(organizer)
 
     visit organizer_tournament_path(tournament)
-    click_link "Edit"
+    click_link "Settings"
 
     fill_in "Name", with: "Updated Tournament Name"
     fill_in "Description", with: "Updated description"
@@ -95,9 +95,9 @@ class TournamentManagementTest < ApplicationSystemTestCase # rubocop:disable Met
     sign_in_as(organizer)
 
     visit organizer_tournament_path(tournament)
-    click_link "Players"
+    click_link "Roster"
 
-    assert_text "Participants"
+    assert_selector "[data-tabs] .tab-on", text: "Roster"
 
     # Add participant manually via modal form
     click_link "Add player"
@@ -148,9 +148,9 @@ class TournamentManagementTest < ApplicationSystemTestCase # rubocop:disable Met
     assert_text "Finished"
 
     # View standings via Participants
-    click_link "Players"
+    click_link "Roster"
 
-    assert_text "Participants"
+    assert_selector "[data-tabs] .tab-on", text: "Roster"
     tournament.event_participants.each do |participant|
       assert_text participant.player.user.name
     end
@@ -158,7 +158,7 @@ class TournamentManagementTest < ApplicationSystemTestCase # rubocop:disable Met
     # View round details
     tournament.rounds.each_with_index do |round, index|
       visit organizer_tournament_path(tournament)
-      click_link "Bracket"
+      click_link "Rounds"
 
       assert_text "Round #{index + 1}"
       round.pods.each do |pod|

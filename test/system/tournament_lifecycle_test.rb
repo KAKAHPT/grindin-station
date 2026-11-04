@@ -9,7 +9,7 @@ class TournamentLifecycleTest < ApplicationSystemTestCase
 
     # Create tournament - starts as registration_open by default
     visit organizer_tournaments_path
-    click_link "Organize Tournament"
+    click_link "New tournament"
 
     fill_in "Name", with: "Test Championship"
     fill_in "Description", with: "A test tournament for system testing"
@@ -109,9 +109,9 @@ class TournamentLifecycleTest < ApplicationSystemTestCase
     visit tournament_path(tournament)
     assert_current_path play_event_path(tournament.slug)
 
-    fill_in "Decklist", with: "https://moxfield.com/test"
+    fill_in "Your decklist", with: "https://moxfield.com/test"
     find('input[name="event_participant[accepted_terms]"]').set(true)
-    click_button "Enrol"
+    click_button "Register"
     assert_text I18n.t("flash.notice.registration_successful")
     assert_button "Cancel registration"
 
@@ -130,9 +130,9 @@ class TournamentLifecycleTest < ApplicationSystemTestCase
     tournament.update!(state: "registration_open")
     sign_in_as(organizer)
 
-    visit organizer_tournament_path(tournament)
+    visit edit_organizer_tournament_path(tournament)
 
-    accept_confirm { click_button "Cancel" }
+    accept_confirm { click_button "Cancel event" }
     assert_text "Tournament updated successfully"
 
     tournament.reload

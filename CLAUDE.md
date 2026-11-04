@@ -129,8 +129,10 @@ Infractions have a hierarchical enum structure:
 - **Herb**: ERB template engine with JSX-like syntax support (includes `reactionview` gem for validation)
 - **Icons**: local SVG sprite (`app/assets/images/icons.svg`, `icon` helper); no icon CDN
 - **Flowbite**: organizer entry point only (importmap `preload: "organizer"`); public pages ship none
-- **Leaflet**: vendored in `vendor/javascript`, loaded lazily
 - **Turbo Streams**: live updates (see Background Jobs)
+- **Design (M7, one design everywhere)**: palette A dark only (tokens in `app/assets/tailwind/application.css`), Sora + Manrope. Pieces: `shared/_mark` (the S-gear mark; rotates only in the top bar and the event-header corner, honours reduced motion; `mark.svg` favicon), `shared/_topbar` (every layout: nav Events · Rankings · About, EN/PT/ES switch, account / Organizer mode), `shared/_event_header` (`evhead`, locals `event:`, `eyebrow:`, `title:`, `line:`, `actions:`), `shared/_tabs` (organizer tournament tabs), `card` + `card-title` (dark title band), `ctable` and the darker `th`, `seg`, `tab`, `.field`, `button_classes(kind = :secondary, extra = nil, size: :md)`, `desk_chip`, `event_state_chip`, event tickets (`shared/_event_ticket`, rendered directly by `pages/home` for Upcoming, via `shared/_ticket_grid` on `/events`, `/tournaments`, `/leagues`, circuits; the landing's Featured use `shared/_featured_ticket`), the `.lp-tex` texture (grain + hairline grid + soft accent light) on the landing cards. Trophy = grey line icon; no emoji, no Flowbite purple/orange, no `gray-`/`dark:` classes (`grep -rnE "purple|orange-700|dark:|gray-" app/views` stays 0)
+- **Layouts**: `application` (organizer, lists, account), `play` (public event pages `/t/:slug/...`), `public` (landing, profiles), `auth` (sign in/up, forgot/reset: one centred card); also `modal` / `modal_page` (Turbo-frame modals and their full-page fallback), `print` (A4 pairings and slips), `timer` (full-screen round clock)
+- **Languages**: `config/locales/{en,pt,es}.yml`; `POST /locale` stores the `locale` cookie and returns to the page (`?locale=` still overrides and updates it); `test/i18n_parity_test.rb` keeps the three files key for key
 
 ### Tournament Day
 
@@ -143,7 +145,7 @@ Infractions have a hierarchical enum structure:
 ### Public API (stream kit feeds)
 
 - **Namespace** `Api::V1` (`app/controllers/api/v1/`): `BaseController` has no auth/CSRF, `expires_in 30.seconds, public: true`, ETag/Last-Modified from `Feeds.last_change` (includes participants' users, so renames invalidate), `rate_limit` 120/min per IP → 429 `{"error":"rate_limited"}`; draft/canceled events and unknown slugs return 404 `{"error":"not_found"}`
-- **Serializers** `Feeds::Standings`, `Feeds::Rounds`, `Feeds::Info` (`app/serializers/feeds/`, POROs with `call(event, updated:)`) plus `Feeds` helpers; keys mirror the TopDeck relay the OBS kit reads: `updated` epoch seconds (all three), per round `start`/`end` epoch seconds (nil until started/closed) and `clock` seconds, per table `ended` epoch seconds (completed only); standings `id` = `player_id` (UUID, never `player.key`); no decklists, cut rounds named "Top N", `seats` is an object (the kit ignores it), `latest`/`roundTime`/`timerEnd` kept
+- **Serializers** `Feeds::Standings`, `Feeds::Rounds`, `Feeds::Info` (`app/serializers/feeds/`, POROs with `call(event, updated:)`) plus `Feeds` helpers; keys mirror the TopDeck relay the OBS kit reads: `updated` epoch seconds (all three), per round `start`/`end` epoch seconds (nil until started/closed) and `clock` seconds, per table `ended` epoch seconds (completed only); standings `id` = `player_id` (UUID, never `player.key`); no decklists, cut rounds named "Top N", `seats` is an object (the kit ignores it), `latest`/`roundTime`/`timerEnd` kept; standings `movement` = places moved up between the two latest closed rounds (null before round 2)
 - **Stream kits**: the generic "cEDH PT" kit (`~/Desktop/cEDH PT/Content/Stream Kit/cEDH PT/src`, Podcast tab) accepts a Grindin event link (`https://<host>/t/<slug>`) and reads `standings`/`rounds`/`info` straight from this API (`pod.js`, `control.html`; done 2026-11-04). The P9Q kit (`P9Q 2026/src/kit.js`) is untouched by decision of the owner; if it is ever adapted: `const API` + fetch path (`<base>/api/v1/events/<slug>/<feed>`), `standingsTid` must accept `/t/<slug>`, the `commanders` feed (`crew.php`) has no equivalent (use the feed's `commander` or set autoCmd off), and the "Live from TopDeck" label
 - CORS `*` for `/api/v1/*` only (`config/initializers/cors.rb`, rack-cors)
 
@@ -157,6 +159,7 @@ Uses Solid Queue for job processing:
 - **Circuits**: `UpdateStandingsJob`
 - **Live** (Turbo Streams): `Live::BroadcastTableJob` (a participant's table), `Live::BroadcastPodJob`, `Live::BroadcastRoundJob` (organizer round page via state partial + morph refresh). `refresh_pairings` morph-refreshes the public pairings page (all rounds, any pod change); `refresh_standings` morph-refreshes the public standings page (round published/closed, or a pod change on a closed round)
 - Tournaments record `final_position` at finish (used by circuit points)
+- **Standings snapshots**: `Round#round_finished` writes `Standings::Snapshot` (each participant's rank, `Feeds::Standings.ranked` order, keyed by round number) before advancing; swiss rounds only (no cut rounds, no leagues); a result corrected on a closed swiss round re-writes the snapshot of the latest closed swiss round only (earlier rounds stay historical); undoing a round discards the reopened round's snapshot and later ones. `EventParticipant#movement_since_last_round` (one query per standings load) feeds the ▲n/▼n/– arrows (`shared/_movement`) and the feed
 
 ### Deployment
 
@@ -175,13 +178,13 @@ Uses Solid Queue for job processing:
 
 ### Testing
 
-- Minitest with system tests using Capybara/Selenium (headless Chrome)
+- Minitest with system tests using Capybara/Selenium (headless Chrome); `use_phone_viewport` emulates a 390 px phone over CDP (headless Chrome will not shrink a window below 500 px)
 - SimpleCov for coverage reporting with parallel worker support
 - WebMock for HTTP stubbing in tests
 - Fixtures in `test/fixtures/` with sample tournament data
 - Service tests in `test/services/`
 - Tournament-day flows (self-report/confirm/contest, judge calls, round close/cut/undo, roster, printing) have controller tests plus system tests
-- Performance: `bin/rails "grindin:lighthouse[url]"` (mobile Lighthouse, fails below 90); scores in `docs/superpowers/notes/2026-11-04-m3-lighthouse.md`
+- Performance: `bin/rails "grindin:lighthouse[url]"` (mobile Lighthouse, fails below 90); scores in `docs/superpowers/notes/2026-11-04-m3-lighthouse.md` and `2026-11-04-m7-lighthouse.md`
 - Run with parallel workers: `bin/rails test` (uses `:number_of_processors` workers)
 
 ## Code Conventions
@@ -207,14 +210,16 @@ Uses Solid Queue for job processing:
 ## Routes Structure
 
 ```
-GET  /                           → events#index
+GET  /                           → pages#home (landing: fair seats, waiting list, Featured tournaments, upcoming tournaments)
+POST /waitlist                   → waitlist_signups#create (organiser waiting list, 5 per 10 min per IP)
+POST /locale                     → locales#update (EN/PT/ES switch: locale cookie, back to the page)
 POST /registrations              → registrations#create
 GET/POST /session                → sessions (create/destroy)
 POST /passwords/:token           → passwords (reset)
-GET  /tournaments                → tournaments#index (show redirects to /t/:slug)
-GET  /leagues                    → leagues#index/show
-GET  /circuits                   → circuits#index/show
-GET  /events                     → events#index
+GET  /tournaments                → tournaments#index (tickets, ?filter=past; show redirects to /t/:slug, rounds/:id to /t/:slug/pairings?round=N)
+GET  /leagues                    → leagues#index/show (tickets; league page with the event header)
+GET  /circuits                   → circuits#index/show (Rankings: circuit cards, standings table, event tickets)
+GET  /events                     → events#index (tournament and league tickets, ?filter=past)
 GET  /auth/:provider/callback    → omniauth_callbacks#create (+ /auth/failure)
 GET/PATCH/DELETE /account        → accounts (DELETE /account/identities/:id unlinks)
 GET  /p/:handle                  → profiles#show (public profile, history)
@@ -223,7 +228,7 @@ GET  /up                         → rails/health#show (health check)
 GET  /api/v1/events/:slug/{standings,rounds,info} → api/v1/events (public JSON, 30 s cache, CORS)
 
 Play namespace (/t/:slug, public; draft/canceled events 404 for non-staff):
-GET  /t/:slug                    → event page (enrolled, waitlist, enrol/cancel)
+GET  /t/:slug                    → event page (counts; own entry, decklist, cancel)
 GET  /t/:slug/pairings           → pairings (?round=N)
 GET  /t/:slug/standings          → standings (Win %)
 GET  /t/:slug/timer, /t/:slug/me → round timer, player's table

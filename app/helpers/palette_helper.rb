@@ -55,6 +55,11 @@ module PaletteHelper
     "#{SEGMENT_ITEM} #{active ? SEGMENT_ACTIVE : SEGMENT_IDLE}"
   end
 
+  # Route tab of shared/_tabs (underline teal when active).
+  def tab_classes(active)
+    active ? "tab tab-on" : "tab"
+  end
+
   # Status chip: small dot plus uppercase label, coloured by tone (see CHIP_TONES).
   def status_chip(tone, data: nil, &block)
     tag.span(class: "inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide " \

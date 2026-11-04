@@ -28,6 +28,15 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
                   text: /A judge was called/
   end
 
+  test "the notifications are one card with a title band" do
+    sign_in(users(:player_one))
+
+    get notifications_path
+
+    assert_select "section.card > .card-title h1", text: "Notifications"
+    assert_select "section.card p", text: "No notifications yet."
+  end
+
   test "the table is told when a result is contested" do
     @tournament.update!(result_confirmation: "one")
     sign_in(@seats[0].player.user)

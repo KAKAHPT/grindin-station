@@ -19,7 +19,7 @@ module Live
     test "a pod of a published round refreshes the pairings page in every locale, through a debounced job" do
       @round.update!(published: true)
 
-      %i[en pt].each do |locale|
+      I18n.available_locales.each do |locale|
         assert_enqueued_with(job: Turbo::Streams::BroadcastStreamJob,
                              args: [LiveBroadcasts.pairings_stream(@tournament.id, locale), { content: REFRESH }]) do
           BroadcastPodJob.perform_now(pod_id: @pod.id)
@@ -31,7 +31,7 @@ module Live
     end
 
     test "a round job refreshes the pairings page in every locale" do
-      %i[en pt].each do |locale|
+      I18n.available_locales.each do |locale|
         assert_turbo_stream_broadcasts(LiveBroadcasts.pairings_stream(@tournament.id, locale), count: 1) do
           perform_enqueued_jobs(only: Turbo::Streams::BroadcastStreamJob) { BroadcastRoundJob.perform_now(@round) }
         end
@@ -41,7 +41,7 @@ module Live
     test "a judge call on a pod does not refresh the pairings page" do
       @round.update!(published: true)
 
-      %i[en pt].each do |locale|
+      I18n.available_locales.each do |locale|
         call = nil
         assert_no_turbo_stream_broadcasts(LiveBroadcasts.pairings_stream(@tournament.id, locale)) do
           perform_enqueued_jobs do
@@ -53,7 +53,7 @@ module Live
     end
 
     test "a pod of an unpublished round broadcasts nothing on the pairings stream" do
-      %i[en pt].each do |locale|
+      I18n.available_locales.each do |locale|
         assert_no_turbo_stream_broadcasts(LiveBroadcasts.pairings_stream(@tournament.id, locale)) do
           perform_enqueued_jobs { BroadcastPodJob.perform_now(pod_id: @pod.id) }
         end

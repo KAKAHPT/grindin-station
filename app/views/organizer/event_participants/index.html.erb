@@ -27,100 +27,8 @@
   <% end %>
 <% end %>
 
-<%= content_for :sub_navigation do %>
-  <nav class="flex mb-5" aria-label="Breadcrumb">
-    <ol class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2">
-      <li class="inline-flex items-center">
-        <%= link_to root_url, class:"inline-flex items-center text-muted hover:text-ink" do %>
-          <svg
-            class="w-5 h-5 mr-2.5"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
-            ></path>
-          </svg>
-          Home
-        <% end %>
-      </li>
-      <li>
-        <div class="flex items-center">
-          <svg
-            class="w-6 h-6 text-line"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-              clip-rule="evenodd"
-            ></path>
-          </svg>
-          <%= link_to [:organizer, :tournaments], class: 'ml-1 text-muted hover:text-ink md:ml-2' do %>
-            Tournaments
-          <% end %>
-        </div>
-      </li>
-      <li>
-        <div class="flex items-center">
-          <svg
-            class="w-6 h-6 text-line"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-              clip-rule="evenodd"
-            ></path>
-          </svg>
-          <%= link_to [:organizer, @event], class: 'ml-1 text-muted hover:text-ink md:ml-2' do %>
-            <%= @event.name %>
-          <% end %>
-        </div>
-      </li>
-      <li>
-        <div class="flex items-center">
-          <svg
-            class="w-6 h-6 text-line"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-              clip-rule="evenodd"
-            ></path>
-          </svg>
-          <span
-            class="ml-1 text-ink md:ml-2"
-            aria-current="page"
-          >
-            Players
-          </span>
-        </div>
-      </li>
-    </ol>
-  </nav>
-
-  <h1 class="font-display text-lg font-semibold text-ink sm:text-xl">
-    <%= @event.name %>
-    Participants (
-    <%= @event.event_participants_count %>
-    )
-    <% unless scorekeeper %>
-      <%= link_to [:new, :organizer, @event, :event_participant], data: {turbo_frame: "modal"}, class: button_classes(:primary, "float-right", size: :sm) do %>
-        <%= icon("plus", class: "me-2") %>
-        Add player
-      <% end %>
-    <% end %>
-  </h1>
-
+<% if @layout_mode == "application" %>
+  <%= render "organizer/tournaments/shell", tournament: @event %>
 <% end %>
 
 <% if @layout_mode == "application" %>
@@ -143,7 +51,8 @@
                       class: "inline-flex items-center gap-1.5 rounded-[4px] px-1 -mx-1 hover:text-ink aria-[current]:text-ink aria-[current]:bg-surface-raised" %>
         <% end %>
       <% end %>
-      <div class="relative ms-auto w-full sm:w-auto">
+      <div class="ms-auto flex w-full flex-wrap items-center gap-2 sm:w-auto">
+      <div class="relative w-full sm:w-auto">
         <label for="query" class="sr-only">Search</label>
       <%= form_tag [:organizer, @event, :event_participants], data: { turbo_frame: "player_list" }, method: "get", remote: true do %>
         <%= hidden_field_tag :layout, "application" %>
@@ -172,6 +81,13 @@
         </div>
 
         <%= text_field_tag :query, params[:query], placeholder: "Search for players", class: "block h-8 ps-9 text-[12px] text-ink border border-line rounded-md w-full sm:w-64 bg-surface placeholder:text-muted focus:ring-accent focus:border-accent" %>
+      <% end %>
+      </div>
+      <% unless scorekeeper %>
+        <%= link_to [:new, :organizer, @event, :event_participant], data: { turbo_frame: "modal" }, class: button_classes(:primary, size: :sm) do %>
+          <%= icon("plus") %>
+          <%= t("organizer.roster.add_player") %>
+        <% end %>
       <% end %>
       </div>
     </div>
@@ -242,6 +158,7 @@
           >
             Rank
           </th>
+          <th scope="col" class="px-1 py-3"><span class="sr-only"><%= t("play.standings.movement") %></span></th>
           <th scope="col" class="px-2.5 py-3 whitespace-nowrap">Player</th>
           <th scope="col" class="px-2.5 py-3 whitespace-nowrap text-right" data-tooltip-target="tooltip-points">
             <%= t("standings.columns.points") %>

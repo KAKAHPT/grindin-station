@@ -15,7 +15,13 @@ module Play
       get play_pairings_path(@tournament.slug)
 
       assert_response :success
-      assert_select "h2", text: "Pairings"
+      assert_select "[data-event-header] h1", text: "#{@tournament.name} · Pairings"
+      assert_select "[data-controller=pod-filter][data-pod-filter-cards-value='[data-pairing-table]']" do
+        # Permanent, so a live morph refresh keeps the typed text (the controller re-filters on turbo:morph).
+        assert_select "input#pairings-search[type=search][data-turbo-permanent][data-pod-filter-target=input]" \
+                      "[data-action='input->pod-filter#filter']"
+      end
+      assert_select "[data-your-table]", count: 0
       @round.pods.preload(seatings: { event_participant: { player: :user } }).find_each do |pod|
         assert_select "[data-pod-number='#{pod.number}']" do
           assert_select "h3", text: /Table\s+#{pod.number}/
@@ -24,11 +30,41 @@ module Play
           assert_select "li[data-seat]" do |rows|
             assert_equal (1..names.size).map(&:to_s), rows.pluck("data-seat")
             assert_equal(names, rows.map { |row| row.at_css("[data-name]").text.strip })
+            assert_equal(names, rows.map { |row| row.at_css("[data-name]")["data-name"] })
           end
         end
       end
       assert_select "a[href*='/organizer']", count: 0
-      assert_select "button", count: 0
+      assert_select "main button", count: 0
+    end
+
+    test "a signed-in player sees their own table first, marked Your table and You" do
+      mine = @round.pods.order(:number).last
+      me = mine.seatings.first.event_participant
+      me.player.user.update!(password: "password123")
+      post session_path, params: { session: { email_address: me.player.user.email_address, password: "password123" } }
+
+      get play_pairings_path(@tournament.slug)
+
+      assert_select "[data-pairings] article" do |cards|
+        assert_equal mine.number.to_s, cards.first["data-pod-number"]
+        assert_equal @round.pods.count, cards.size
+      end
+      assert_select "[data-pairings] article:first-child[data-my-table]" do
+        assert_select "[data-your-table]", text: "Your table"
+        assert_select "li[data-me][data-participant-id=?]", me.id, text: /You/
+      end
+      assert_select "[data-your-table]", count: 1
+      assert_select "li[data-me]", count: 1
+    end
+
+    test "a running round shows the time left" do
+      @round.update!(started_at: 10.minutes.ago)
+
+      get play_pairings_path(@tournament.slug)
+
+      assert_select "[data-time-left]", text: /\d\d:\d\d left/
+      assert_select ".evhead-eyebrow", text: /· live\z/
     end
 
     test "the nav links the pairings and the new standings" do
@@ -141,7 +177,14 @@ module Play
 
       assert_response :success
       assert_select "[data-byes] li[data-participant-id=?]", bye.id, text: /Bye:\s*#{bye.name}/
+      assert_select "[data-byes] [data-me]", count: 0
       assert_each_once(cut.seatings.pluck(:event_participant_id) + [bye.id])
+
+      bye.player.user.update!(password: "password123")
+      post session_path, params: { session: { email_address: bye.player.user.email_address, password: "password123" } }
+      get play_pairings_path(tournament.slug)
+      assert_select "[data-byes] li[data-participant-id=?] [data-me]", bye.id, text: "You"
+      assert_select "[data-me]", count: 1
     end
 
     test "the page follows the event's pairings stream and morph-refreshes, on any round" do
@@ -161,7 +204,7 @@ module Play
       get play_pairings_path(@tournament.slug, locale: "pt")
 
       assert_response :success
-      assert_select "h2", text: "Emparelhamentos"
+      assert_select "[data-event-header] h1", text: "#{@tournament.name} · Emparelhamentos"
       assert_select "h3", text: /Mesa\s+1/
     end
 

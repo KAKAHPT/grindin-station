@@ -1,1 +1,4 @@
-<%= render "form", tournament: @tournament %>
+<div class="col-span-full mx-auto w-full max-w-[720px]">
+  <h1 class="mb-3.5 font-display text-2xl font-semibold text-ink"><%= t("organizer.tournaments.new") %></h1>
+  <div class="card"><%= render "form", tournament: @tournament %></div>
+</div>

@@ -1,0 +1,10 @@
+<%# Google / Discord below the e-mail form; hidden when the provider's env vars are unset. %>
+<% providers = { google_oauth2: "auth.continue_with_google", discord: "auth.continue_with_discord" }.select { |provider, _| oauth_enabled?(provider) } %>
+<% if providers.any? %>
+  <div class="auth-or"><%= t("auth.or") %></div>
+  <div class="grid gap-2" data-oauth>
+    <% providers.each do |provider, label| %>
+      <%= button_to t(label), "/auth/#{provider}", method: :post, data: { turbo: false }, class: button_classes(:secondary, "w-full"), form_class: "contents" %>
+    <% end %>
+  </div>
+<% end %>

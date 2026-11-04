@@ -1,37 +1,14 @@
 # frozen_string_literal: true
 
 class ModalFormBuilder < ActionView::Helpers::FormBuilder
+  # The Settings look (see .field* in application.css): muted 12 px labels over dark inputs.
   FIELD_CLASSES = {
-    "file_field" => %w[
-      overflow-hidden
-      block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer
-      bg-gray-50 dark:text-white
-      focus:outline-none dark:bg-gray-500 dark:border-gray-500 dark:placeholder-gray-400
-    ].join(" "),
-    "check_box" => %w[
-      w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm
-      focus:ring-blue-500 focus:ring-2
-      dark:focus:ring-blue-600 dark:ring-offset-gray-800
-      dark:bg-gray-700 dark:border-gray-600
-    ].join(" "),
-    "text_area" => %w[
-      block p-2.5 w-full text-sm text-gray-900 bg-gray-50
-      rounded-lg border border-gray-300
-      focus:ring-blue-500 focus:border-blue-500
-      dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white
-      dark:focus:ring-blue-500 dark:focus:border-blue-500
-    ].join(" "),
-    "default" => %w[
-      bg-gray-50 border border-gray-300 text-gray-900
-      text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full
-      p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white
-      dark:focus:ring-blue-500 dark:focus:border-blue-500
-    ].join(" ")
+    "check_box" => "field-check",
+    "default" => "field-input"
   }.freeze
-  LABEL_CLASSES = %w[text-sm font-medium text-gray-900 dark:text-gray-300 inline-flex items-center].join(" ")
-  REQUIRED_BADGE_CLASSES = %w[bg-red-100 text-red-800 text-xs font-medium ms-2 px-2.5 py-0.5 rounded dark:bg-red-900
-                              dark:text-red-300].join(" ")
-  WRAPPER_CLASSES = %w[flex flex-col gap-1 mb-4].join(" ")
+  LABEL_CLASSES = "inline-flex items-center gap-2 text-[12px] text-muted"
+  REQUIRED_BADGE_CLASSES = "text-[10.5px] font-semibold uppercase tracking-wide text-muted/70"
+  WRAPPER_CLASSES = "field mb-4"
 
   def method_missing(method_name, *args, &block)
     return super unless method_name.to_s.end_with?("_with_label")
@@ -42,18 +19,19 @@ class ModalFormBuilder < ActionView::Helpers::FormBuilder
     name, *rest = args
     options = rest.extract_options!
     required = !options[:required].nil?
+    label_options = options[:label] || {}
     label_html =
-      label(name, { class: LABEL_CLASSES }.merge(options[:label] || {})) do |translation|
+      label(name, { class: LABEL_CLASSES }.merge(label_options.except(:text))) do |translation|
         @template.safe_join(
           [
-            @template.content_tag(:span, translation),
-            required ? @template.content_tag(:span, "required", class: REQUIRED_BADGE_CLASSES) : nil
+            @template.content_tag(:span, label_options[:text] || translation),
+            required ? @template.content_tag(:span, @template.t("helpers.required"), class: REQUIRED_BADGE_CLASSES) : nil
           ].compact
         )
       end
     field_html = public_send(
       original_method, name,
-      *(rest + [{ class: "#{FIELD_CLASSES.fetch(original_method, FIELD_CLASSES['default'])} #{options[:class]}" }.merge(options.except(:class))]), &block
+      *(rest + [{ class: "#{FIELD_CLASSES.fetch(original_method, FIELD_CLASSES['default'])} #{options[:class]}" }.merge(options.except(:class, :label))]), &block
     )
 
     @template.content_tag(:div, class: WRAPPER_CLASSES) do
@@ -72,14 +50,14 @@ class ModalFormBuilder < ActionView::Helpers::FormBuilder
     label_html = label(
       method,
       options.dig(:label, :text),
-      { class: "#{LABEL_CLASSES} ms-2" }.merge(options[:label] || {})
+      { class: "#{LABEL_CLASSES} ms-2 text-ink/90" }.merge(options[:label] || {})
     )
     check_box_html = check_box(
       method,
       objectify_options({ class: FIELD_CLASSES["check_box"] }.merge(options)),
       checked_value, unchecked_value
     )
-    @template.content_tag(:div, class: "flex items-start mb-5") do
+    @template.content_tag(:div, class: "flex items-start mb-4") do
       @template.safe_join(
         [
           @template.content_tag(:div, class: "flex items-center h-5") { check_box_html },
@@ -99,11 +77,7 @@ class ModalFormBuilder < ActionView::Helpers::FormBuilder
       value,
       {
         form: @options.dig(:html, :id),
-        class: [
-          "text-white", "bg-blue-700", "hover:bg-blue-800", "focus:ring-4", "focus:outline-none",
-          "focus:ring-blue-300", "font-medium", "rounded-lg", "text-sm", "px-5", "py-2.5", "text-center",
-          "dark:bg-blue-600", "dark:hover:bg-blue-700", "dark:focus:ring-blue-800"
-        ].join(" ")
+        class: @template.button_classes(:primary, size: :sm)
       }.merge(options)
     )
   end

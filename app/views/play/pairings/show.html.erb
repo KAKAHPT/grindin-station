@@ -1,42 +1,60 @@
 <% content_for :wide_main, "1" %>
+<%= render "play/shared/header", section: :pairings %>
 <%# Live: any change to the event's pods morph-refreshes this page, on whichever round it shows. %>
 <% turbo_refreshes_with method: :morph, scroll: :preserve %>
 <%= turbo_stream_from LiveBroadcasts.pairings_stream(current_event.id) %>
 <% url_locale = params[:locale] %>
-<h2 class="mb-3 font-display text-xl font-semibold"><%= t("play.nav.pairings") %></h2>
 
 <% if @round %>
-  <% if @rounds.size > 1 %>
-    <nav data-round-selector aria-label="<%= t("play.pairings.rounds") %>" class="mb-4 -mx-4 px-4 overflow-x-auto">
-      <ul class="flex gap-2 w-max">
-        <% @rounds.each do |round| %>
-          <% active = round == @round %>
-          <li>
-            <%= link_to round.number, play_pairings_path(current_event.slug, round: round.number, locale: url_locale),
-                        "aria-current": ("page" if active), "aria-label": t("play.tables.round", number: round.number),
-                        class: ["inline-flex size-9 items-center justify-center rounded-md border text-sm font-semibold tabular",
-                                active ? "border-accent/60 bg-accent/10 text-accent" : "border-line text-muted hover:text-ink"] %>
-          </li>
+  <div data-controller="pod-filter" data-pod-filter-cards-value="[data-pairing-table]">
+    <div class="mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-2 min-w-0">
+        <% if @rounds.size > 1 %>
+          <nav data-round-selector aria-label="<%= t("play.pairings.rounds") %>" class="seg max-w-full overflow-x-auto">
+            <% @rounds.each do |round| %>
+              <% active = round == @round %>
+              <%= link_to round.number, play_pairings_path(current_event.slug, round: round.number, locale: url_locale),
+                          "aria-current": ("page" if active), "aria-label": t("play.tables.round", number: round.number),
+                          class: ["tabular", ("seg-on" if active)] %>
+            <% end %>
+          </nav>
         <% end %>
-      </ul>
-    </nav>
-  <% end %>
+        <p data-round-number="<%= @round.number %>" class="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted">
+          <%= @round.is_a?(SingleEliminationRound) ? @round.display_name : t("play.tables.round", number: @round.number) %>
+          <% if @round.started? && @round.finished_at.nil? %>
+            ·
+            <span data-time-left>
+              <%= t("play.pairings.time_left_html", time: tag.span(clock_text(@round.started_at, @round.duration&.to_i), class: "tabular",
+                      data: { controller: "round-timer", round_timer_round_time_value: @round.duration.to_i,
+                              round_timer_started_at_value: @round.started_at.iso8601 })) %>
+            </span>
+          <% end %>
+        </p>
+      </div>
+      <label class="relative block w-full sm:w-72">
+        <span class="sr-only"><%= t("play.pairings.search") %></span>
+        <svg aria-hidden="true" class="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/></svg>
+        <input type="search" id="pairings-search" autocomplete="off" data-pairings-search data-turbo-permanent placeholder="<%= t("play.pairings.search") %>"
+               data-pod-filter-target="input" data-action="input->pod-filter#filter" class="field-input ps-8">
+      </label>
+    </div>
 
-  <p data-round-number="<%= @round.number %>" class="mb-3 text-[11px] font-semibold uppercase tracking-wide text-muted">
-    <%= @round.is_a?(SingleEliminationRound) ? @round.display_name : t("play.tables.round", number: @round.number) %>
-  </p>
-
-  <div data-pairings class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 content-start">
-    <%= render partial: "play/pairings/table", collection: @pods, as: :pod, locals: { event: current_event } %>
+    <div data-pairings class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 content-start">
+      <%= render partial: "play/pairings/table", collection: @pods, as: :pod,
+                 locals: { event: current_event, me: current_participant, my_pod: @my_pod } %>
+    </div>
   </div>
 
   <% if @byes.any? %>
-    <section data-byes class="mt-4 rounded-xl bg-surface border border-line shadow-card overflow-clip">
-      <h3 class="px-4 pt-3 pb-2 font-display text-lg font-semibold text-ink"><%= t("play.pairings.byes") %></h3>
-      <ul class="flex flex-col divide-y divide-line/60 border-t border-line">
+    <section data-byes class="card mt-4 overflow-clip">
+      <h3 class="band px-4 py-2.5 font-display text-[15px] font-semibold text-ink"><%= t("play.pairings.byes") %></h3>
+      <ul class="flex flex-col divide-y divide-line/60">
         <% @byes.each do |bye| %>
           <li data-participant-id="<%= bye.event_participant_id %>" class="px-4 py-2 text-[13px] min-w-0 truncate">
             <%= t("play.pairings.bye", name: bye.event_participant.name) %>
+            <% if current_participant && bye.event_participant_id == current_participant.id %>
+              <span data-me class="ms-1.5"><%= desk_chip(:ok) { t("play.tables.you") } %></span>
+            <% end %>
           </li>
         <% end %>
       </ul>

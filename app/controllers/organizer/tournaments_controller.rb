@@ -6,15 +6,27 @@ module Organizer
     require_organizer only: %i[new create]
     allow_roles :organizer, only: %i[edit update]
     allow_roles :organizer, :judge, :scorekeeper, only: :show
+    # New and Settings are full pages (the tournament page's Settings tab), never the modal.
+    layout "application"
 
+    PAST_STATES = %i[finished canceled].freeze
+
+    # Active (not finished/canceled) or, with ?past=1, past tournaments as cards.
     def index
-      @tournaments = Tournament.with_attached_cover.where.not(state: :canceled).staffed_by(current_user).preload(:rounds)
+      @past = params[:past].present?
+      scope = Tournament.with_attached_cover.staffed_by(current_user).preload(:rounds)
+      @tournaments =
+        if @past then scope.where(state: PAST_STATES).order(start_time: :desc)
+        else scope.where.not(state: PAST_STATES).order(:start_time)
+        end
+      @editable_ids = editable_ids(@tournaments)
     end
 
     def show
       @tournament =
         Tournament
           .staffed_by(current_user)
+          .with_attached_cover
           .preload(
             rounds: :pods,
             event_participants: { player: :user }
@@ -28,7 +40,7 @@ module Organizer
     end
 
     def edit
-      @tournament = Tournament.staffed_by(current_user).find params[:id]
+      @tournament = Tournament.staffed_by(current_user).with_attached_cover.find params[:id]
     end
 
     def create
@@ -42,7 +54,7 @@ module Organizer
     end
 
     def update
-      @tournament = Tournament.staffed_by(current_user).find params[:id]
+      @tournament = Tournament.staffed_by(current_user).with_attached_cover.find params[:id]
       # The format is chosen at creation only (the model refuses a change too).
       @tournament.attributes = tournament_params.except(:format)
 
@@ -59,6 +71,13 @@ module Organizer
     end
 
     private
+
+    # Tournaments the user may edit: owned, or staffed as an organizer (one query for the staff roles).
+    def editable_ids(tournaments)
+      organizer_id = current_organizer&.id
+      staffed = EventStaff.where(user: current_user, role: "organizer", event_id: tournaments.map(&:id)).pluck(:event_id)
+      tournaments.select { |t| organizer_id && t.event_organizer_id == organizer_id }.map(&:id) + staffed
+    end
 
     def tournament_params
       params.expect(tournament: %i[
@@ -93,6 +112,7 @@ module Organizer
                       show_commanders_in_standings
                       show_decklists
                       top_cut_timeout_rule
+                      featured
                     ])
     end
   end

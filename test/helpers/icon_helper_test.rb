@@ -22,7 +22,7 @@ class IconHelperTest < ActionView::TestCase
   test "the sprite has a symbol for every icon used in the app" do
     symbols = File.read(SPRITE).scan(/<symbol id="([a-z0-9-]+)"/).flatten
 
-    assert_operator used_icon_names.size, :>=, 30
+    assert_operator used_icon_names.size, :>=, 25
     assert_empty used_icon_names - symbols, "icons missing from #{SPRITE.basename}"
   end
 

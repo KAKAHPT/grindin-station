@@ -1,0 +1,25 @@
+<%# Waiting-list card of the landing (id waitlist, replaced in place by the Turbo Stream answer of POST /waitlist).
+    Locals: signup (WaitlistSignup), state nil (the form), :done (on the list) or :limited (rate limited). %>
+<div id="waitlist" class="lp-wl" data-waitlist>
+  <div>
+    <p class="lp-wl-t"><%= t("landing.waitlist.title") %></p>
+    <p class="lp-wl-m"><%= t("landing.waitlist.text") %></p>
+  </div>
+  <span class="lp-chip"><i aria-hidden="true"></i><%= t("landing.waitlist.chip") %></span>
+  <% if state == :done %>
+    <p class="lp-wl-done" role="status"><strong><%= t("landing.waitlist.done") %></strong> <%= t("landing.waitlist.done_text") %></p>
+  <% else %>
+    <% if state == :limited || signup.errors.any? %>
+      <p class="lp-wl-error" role="alert"><%= t(state == :limited ? "landing.waitlist.limited" : "landing.waitlist.invalid") %></p>
+    <% end %>
+    <%= form_with model: signup, url: waitlist_signups_path(locale: params[:locale]), class: "lp-wl-form" do |f| %>
+      <%= f.label :name, t("landing.waitlist.name"), class: "sr-only" %>
+      <%= f.text_field :name, placeholder: t("landing.waitlist.name"), required: true, maxlength: 100,
+                              autocomplete: "name", class: "field-input", "aria-invalid": signup.errors.include?(:name) %>
+      <%= f.label :email, t("landing.waitlist.email"), class: "sr-only" %>
+      <%= f.email_field :email, placeholder: t("landing.waitlist.email"), required: true, maxlength: 254,
+                                autocomplete: "email", class: "field-input", "aria-invalid": signup.errors.include?(:email) %>
+      <%= f.submit t("landing.waitlist.join"), name: nil, class: button_classes(:primary, size: :sm) %>
+    <% end %>
+  <% end %>
+</div>

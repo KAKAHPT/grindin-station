@@ -5,7 +5,8 @@ require "test_helper"
 # The tournament pages of a 1v1 event: "Table N" with two names and no seat squares, the score next to
 # the winner, and the 1v1 standings columns (OMW%, GW%, OGW%; no Seats, Beaten or Unique).
 class OneVOnePagesTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
-  ONE_V_ONE_COLUMNS = ["Rank", "Player", "Pts", "OMW%", "GW%", "OGW%", "Win %", "W-L-D"].freeze
+  ONE_V_ONE_COLUMNS = ["Rank", "Movement since the last round", "Player", "Pts", "OMW%", "GW%", "OGW%", "Win %",
+                       "W-L-D"].freeze
 
   setup do
     @t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer), format: "one_v_one")
@@ -91,17 +92,19 @@ class OneVOnePagesTest < ActionDispatch::IntegrationTest # rubocop:disable Metri
     assert_select "tbody tr[id^=stats_]", text: /Seats/, count: 0
   end
 
-  test "event page: the format badge" do
+  test "event page: the format in the header eyebrow and the About card" do
     get play_event_path(@t.slug)
-    assert_select "[data-event-format]", text: "1v1 · Bo3"
+    assert_select ".evhead-eyebrow", text: /· 1v1 · Bo3/
+    assert_select "[data-event-format]", text: /\A1v1 · Bo3 · /
 
     @t.update_column(:match_games, 1) # rubocop:disable Rails/SkipsModelValidations
     get play_event_path(@t.slug)
-    assert_select "[data-event-format]", text: "1v1 · Bo1"
+    assert_select "[data-event-format]", text: /\A1v1 · Bo1 · /
 
     multiplayer = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
     get play_event_path(multiplayer.slug)
-    assert_select "[data-event-format]", 0
+    assert_select "[data-event-format]", text: /\AcEDH · pods of four · /
+    assert_select "[data-event-format]", text: /1v1/, count: 0
   end
 
   test "profile history: a 1v1 event has no seats" do

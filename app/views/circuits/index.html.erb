@@ -1,61 +1,32 @@
+<%# Rankings: every circuit as a card (name with the grey trophy, organizer, number of open events). %>
+<% url_locale = params[:locale] %>
+<div class="col-span-full pt-2">
+  <h1 class="font-display text-2xl font-semibold text-ink"><%= t("lists.circuits.title") %></h1>
+  <p class="mt-1 text-[13px] text-muted"><%= t("lists.circuits.lead") %></p>
+</div>
+
 <% if @circuits.any? %>
-  <h1
-    class="
-      text-4xl font-extrabold leading-none tracking-tight text-gray-900
-      md:text-5xl lg:text-6xl dark:text-white
-      col-span-full
-    "
-  >
-    Leagues & Circuits
-  </h1>
-  <p class="my-4 text-lg text-gray-500 dark:text-gray-400">
-    Compete in organized leagues and climb the circuit standings to earn recognition.
-  </p>
-<% end %>
-
-<div class="col-span-full">
-  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+  <div class="col-span-full grid grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-3">
     <% @circuits.each do |circuit| %>
-      <%= link_to circuit, class: "block group" do %>
-        <div
-          class="
-            p-6 bg-white border border-gray-200 rounded-lg shadow-sm
-            hover:bg-gray-50 hover:shadow-md transition-shadow dark:border-gray-700
-            dark:bg-gray-800 dark:hover:bg-gray-750
-          "
-        >
-          <div class="flex items-center justify-between mb-3">
-            <h3
-              class="
-                text-xl font-bold text-gray-900 dark:text-white
-                group-hover:text-blue-600 dark:group-hover:text-blue-400
-              "
-            >
-              <%= circuit.name %>
-            </h3>
-            <%= icon('trophy', class: "text-yellow-500 w-5 h-5") %>
-          </div>
-
+      <% leagues_count = @league_counts.fetch(circuit.id, 0) %>
+      <% events_count = @tournament_counts.fetch(circuit.id, 0) + leagues_count %>
+      <%= link_to circuit_path(circuit, locale: url_locale), class: "card block overflow-clip hover:border-line-strong", data: { circuit: circuit.id } do %>
+        <h2 class="card-title flex items-center justify-between gap-3">
+          <span class="truncate"><%= circuit.name %></span>
+          <%= icon("trophy", class: "text-muted") %>
+        </h2>
+        <div class="px-4 py-3 text-[12.5px] text-muted">
           <% if circuit.event_organizer %>
-            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-              Organized by <%= circuit.event_organizer.name %>
-            </p>
+            <p><%= t("lists.organized_by_html", name: circuit.event_organizer.name) %></p>
           <% end %>
-
-          <% leagues_count = @league_counts.fetch(circuit.id, 0) %>
-          <% events_count = @tournament_counts.fetch(circuit.id, 0) + leagues_count %>
-          <% if events_count.positive? %>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-              <%= number_to_currency(events_count) %> event(s)
-              <% if leagues_count.positive? %>
-                (<%= leagues_count %> leagues)
-              <% end %>
-            </p>
-          <% end %>
+          <p class="mt-0.5" data-circuit-events>
+            <%= t("lists.events_count", count: events_count) %><% if leagues_count.positive? %> · <%= t("lists.leagues_count", count: leagues_count) %><% end %>
+          </p>
         </div>
       <% end %>
     <% end %>
   </div>
-</div>
-
-<%= paginate @circuits %>
+  <div class="col-span-full"><%= paginate @circuits %></div>
+<% else %>
+  <p class="col-span-full card px-4 py-8 text-center text-[13px] text-muted"><%= t("lists.circuits.empty") %></p>
+<% end %>

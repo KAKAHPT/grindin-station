@@ -2,7 +2,8 @@
 
 module Feeds
   # {tid, name, updated (epoch seconds), standings: [{rank, name, id, commander, wins, losses, draws, points, winRate,
-  # seats}]}; 1v1 rows have omw, gw, ogw (4 decimals) instead of seats.
+  # seats, movement}]}; movement is places moved up since the last swiss round (negative = down; null before
+  # round 2 closes and once the swiss is over). 1v1 rows have omw, gw, ogw (4 decimals) instead of seats.
   # id is the player's UUID: opaque and stable. Not player.key, which is MD5(e-mail + name): fast to
   # brute-force from a public name, changes on every rename, and survives account removal.
   class Standings
@@ -32,7 +33,8 @@ module Feeds
       { rank: rank, name: participant.name, id: participant.player_id,
         commander: Feeds.commander(@event, participant),
         wins: participant.number_of_wins, losses: participant.number_of_losses, draws: participant.number_of_draws,
-        points: participant.match_points, winRate: participant.win_rate&.round(4) }.merge(tiebreakers(participant))
+        points: participant.match_points, winRate: participant.win_rate&.round(4),
+        movement: participant.movement_since_last_round }.merge(tiebreakers(participant))
     end
 
     def tiebreakers(participant)

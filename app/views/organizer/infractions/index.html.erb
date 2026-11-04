@@ -4,7 +4,7 @@
 <% end %>
 
 <% content_for :close do %>
-  <%= link_to [:organizer, @event_participant.event, :event_participants, { layout: 'application' }], class:"text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" do %>
+  <%= link_to [:organizer, @event_participant.event, :event_participants, { layout: 'application' }], class: "ms-auto #{icon_button_classes(size: :sm)}" do %>
     <svg
       class="w-3 h-3"
       aria-hidden="true"
@@ -24,26 +24,16 @@
   <% end %>
 <% end %>
 
-<table
-  class="
-    col-span-full text-md -m-4 md:-m-5 text-left rtl:text-right
-    text-gray-500 dark:text-gray-400
-  "
->
-  <thead
-    class="
-      text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700
-      dark:text-gray-400
-    "
-  >
+<table class="ctable col-span-full -m-4 md:-m-5 text-left rtl:text-right">
+  <thead>
     <tr>
-      <th scope="col" class="px-5 py-3">Kind</th>
-      <th scope="col" class="px-5 py-3">Category</th>
-      <th scope="col" class="px-5 py-3">Penalty</th>
-      <th scope="col" class="px-5 py-3">Round</th>
-      <th scope="col" class="px-5 py-3">Pod</th>
-      <th scope="col" class="px-5 py-3">Description</th>
-      <th scope="col" class="px-5 py-3">
+      <th scope="col">Kind</th>
+      <th scope="col">Category</th>
+      <th scope="col">Penalty</th>
+      <th scope="col">Round</th>
+      <th scope="col">Pod</th>
+      <th scope="col">Description</th>
+      <th scope="col">
         <span class="sr-only">Actions</span>
       </th>
     </tr>
@@ -52,7 +42,7 @@
 </table>
 
 <% content_for :footer do %>
-  <%= link_to [:organizer, @event_participant.event, :event_participants, { layout: 'application' }], class:"py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" do %>
+  <%= link_to [:organizer, @event_participant.event, :event_participants, { layout: 'application' }], class: "ms-3 #{small_button_classes(:ghost)}" do %>
     Close
   <% end %>
 <% end %>

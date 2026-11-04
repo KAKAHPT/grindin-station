@@ -60,7 +60,9 @@ module Organizer
     def roll_back(event, round)
       ActiveRecord::Associations::Preloader.new(records: [round], associations: { pods: :seatings }).call
       round.destroy!
-      event.rounds.reload.max_by(&:number).update!(finished_at: nil)
+      reopened = event.rounds.reload.max_by(&:number)
+      reopened.update!(finished_at: nil)
+      ::Standings::Snapshot.discard(event, reopened.number)
       return unless event.single_elimination? && event.rounds.none?(SingleEliminationRound)
 
       # The one step back the state machine allows: undoing the first cut round. No state side effects apply.
@@ -96,7 +98,7 @@ module Organizer
     end
 
     def load_tournament
-      Tournament.staffed_by(current_user).find params[:tournament_id]
+      Tournament.staffed_by(current_user).with_attached_cover.find params[:tournament_id]
     end
 
     def load_round(tournament)

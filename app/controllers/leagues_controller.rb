@@ -2,27 +2,20 @@
 
 class LeaguesController < ApplicationController
   include PublicEvent
+  include EventTickets
 
   skip_before_action :require_authentication
 
+  # Public leagues as tickets (upcoming by default, ?filter=past) and the viewer's own running now.
   def index
-    scope = League.with_attached_cover.where.not(state: %i[draft canceled]).preload(:rounds)
-
-    case params[:filter]
-    when "past"
-      scope = scope.past
-      @title = "Past leagues"
-    else
-      scope = scope.upcoming
-      @title = "Upcoming leagues"
-    end
-
-    @leagues = scope.page params[:page]
-
-    @ongoing = League.for_player(current_user&.player).ongoing
+    @past = params[:filter] == "past"
+    @ongoing = ongoing_tickets(League)
+    @leagues = ticket_scope(League, past: @past, except: @ongoing)
+    @enrolled = enrolled_counts(@leagues.to_a + @ongoing)
   end
 
   def show
-    @league = ensure_public!(League.preload(rounds: :pods, event_participants: { player: :user }).find(params[:id]))
+    scope = League.preload(:rounds, cover_attachment: :blob, event_participants: [:results, { player: :user }])
+    @league = ensure_public!(scope.find(params[:id]))
   end
 end

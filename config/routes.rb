@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   post "csp-reports", to: "csp_reports#create", as: :csp_reports
 
   resource :session
+  post "locale", to: "locales#update", as: :locale
   get "/auth/:provider/callback", to: "omniauth_callbacks#create", as: :omniauth_callback
   get "/auth/failure", to: "omniauth_callbacks#failure", as: :omniauth_failure
   resources :passwords, param: :token
@@ -126,5 +127,7 @@ Rails.application.routes.draw do
     end
   end
 
-  root "events#index"
+  post "waitlist", to: "waitlist_signups#create", as: :waitlist_signups
+
+  root "pages#home"
 end

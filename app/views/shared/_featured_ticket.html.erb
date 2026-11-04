@@ -1,0 +1,30 @@
+<%# A featured event on the landing (option 4B, the art ticket): the cover behind the whole card, the date glowing
+    in the state colour on the left stub behind a dotted perforation, then name and state chip, format line,
+    organizer, enrolled count and the actions; a bottom edge in the state colour. Locals: event (cover and
+    organizer preloaded), enrolled (count). Pieces from EventTicketHelper. %>
+<% sold_out = event.sold_out?(enrolled) %>
+<% href = ticket_href(event) %>
+<%= tag.article class: "lp-ft lp-ft-#{ticket_tone(event, sold_out)}", style: "background-image: url('#{ticket_banner(event, size: 960)}')",
+                data: { featured_event: event.slug, sold_out: ticket_sold_out?(event, sold_out) || nil } do %>
+  <div class="lp-ft-stub">
+    <b><%= l(event.start_time, format: "%d") %></b>
+    <small><%= l(event.start_time, format: "%b") %></small>
+    <span><%= l(event.start_time, format: "%A · %H:%M") %></span>
+  </div>
+  <div class="lp-ft-bd">
+    <div class="lp-ft-top">
+      <h3 class="lp-ft-t"><%= link_to event.name, href %></h3>
+      <%= ticket_state_chip(event, sold_out) %>
+    </div>
+    <p class="lp-ft-m"><%= ticket_line(event) %></p>
+    <%= ticket_organizer(event) %>
+    <div class="lp-ft-row">
+      <p class="lp-evr-n"><%= ticket_enrolled(event, enrolled) %></p>
+      <div class="lp-evr-act">
+        <%= link_to t("landing.upcoming.view"), href, class: button_classes(:secondary, size: :sm) %>
+        <%= ticket_register_button(event, sold_out) %>
+      </div>
+    </div>
+  </div>
+  <div class="lp-ft-edge" aria-hidden="true"></div>
+<% end %>

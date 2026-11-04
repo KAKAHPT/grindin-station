@@ -36,7 +36,7 @@ module Organizer
     end
 
     def load_tournament
-      @load_tournament ||= Tournament.staffed_by(current_user).find(params.expect(:tournament_id))
+      @load_tournament ||= Tournament.staffed_by(current_user).with_attached_cover.find(params.expect(:tournament_id))
     end
 
     def judge_center_path

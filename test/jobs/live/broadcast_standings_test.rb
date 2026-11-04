@@ -15,7 +15,7 @@ module Live
     end
 
     test "a round job refreshes the standings page in every locale" do
-      %i[en pt].each do |locale|
+      I18n.available_locales.each do |locale|
         assert_turbo_stream_broadcasts(LiveBroadcasts.standings_stream(@tournament.id, locale), count: 1) do
           perform_enqueued_jobs(only: Turbo::Streams::BroadcastStreamJob) { BroadcastRoundJob.perform_now(@round) }
         end
@@ -23,7 +23,7 @@ module Live
     end
 
     test "a pod of an open round leaves the standings page alone" do
-      %i[en pt].each do |locale|
+      I18n.available_locales.each do |locale|
         assert_no_turbo_stream_broadcasts(LiveBroadcasts.standings_stream(@tournament.id, locale)) do
           perform_enqueued_jobs { BroadcastPodJob.perform_now(pod_id: @pod.id) }
         end
@@ -34,7 +34,7 @@ module Live
       @round.update!(finished_at: Time.current)
       clear_enqueued_jobs
 
-      %i[en pt].each do |locale|
+      I18n.available_locales.each do |locale|
         assert_turbo_stream_broadcasts(LiveBroadcasts.standings_stream(@tournament.id, locale), count: 1) do
           perform_enqueued_jobs(only: Turbo::Streams::BroadcastStreamJob) { BroadcastPodJob.perform_now(pod_id: @pod.id) }
         end

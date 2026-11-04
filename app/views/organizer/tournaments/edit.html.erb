@@ -1,1 +1,16 @@
-<%= render "form", tournament: @tournament %>
+<%= render "organizer/tournaments/shell", tournament: @tournament %>
+<div class="col-span-full w-full max-w-[720px] space-y-3.5">
+  <div class="card" data-settings><%= render "form", tournament: @tournament %></div>
+
+  <% if @tournament.available_states.key?("canceled") %>
+    <section class="card border-danger/40 p-[18px]" data-danger-zone>
+      <h2 class="form-section text-danger"><%= t("organizer.settings.danger_zone") %></h2>
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <p class="form-help max-w-md"><%= t("organizer.settings.cancel_help") %></p>
+        <%= button_to t("organizer.settings.cancel_event"), organizer_tournament_path(@tournament), method: :patch,
+                      params: { tournament: { state: "canceled" } },
+                      data: { turbo_confirm: t("organizer.settings.cancel_confirm") }, class: button_classes(:danger, size: :sm) %>
+      </div>
+    </section>
+  <% end %>
+</div>

@@ -1,0 +1,30 @@
+<%# Event header card (evhead): the event cover blurred behind (neutral surface without one), the eyebrow
+    (state · format · live), the title, one info line, the actions on the right (stacked on phones) and the
+    rotating mark half out of the top-right corner.
+    render "shared/event_header", event:, eyebrow:, title:, line:, actions: capture { ... }
+    Only event is required; title defaults to the event name. The cover is the 960 px variant like the tickets'
+    (the original upload when it cannot be resized), blurred by CSS. %>
+<% title = local_assigns[:title].presence || event.name %>
+<section class="evhead" data-event-header>
+  <div class="evhead-corner"><%= render "shared/mark", size: 62, rotating: true, id_suffix: "evhead" %></div>
+  <div class="evhead-bg" aria-hidden="true">
+    <% if event.cover.attached? %>
+      <div class="evhead-ban" style="background-image: url('<%= event.cover.representable? ? ticket_banner(event, size: 960) : rails_blob_path(event.cover, only_path: true) %>')"></div>
+    <% end %>
+    <div class="evhead-shade"></div>
+  </div>
+  <div class="evhead-in">
+    <div class="min-w-0">
+      <% if local_assigns[:eyebrow].present? %>
+        <p class="evhead-eyebrow"><%= eyebrow %></p>
+      <% end %>
+      <h1 class="evhead-title"><%= title %></h1>
+      <% if local_assigns[:line].present? %>
+        <p class="evhead-line"><%= line %></p>
+      <% end %>
+    </div>
+    <% if local_assigns[:actions].present? %>
+      <div class="evhead-actions"><%= actions %></div>
+    <% end %>
+  </div>
+</section>

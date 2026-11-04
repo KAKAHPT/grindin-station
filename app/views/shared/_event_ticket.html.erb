@@ -1,0 +1,30 @@
+<%# One event ticket (option 4C), on the landing and the event lists: the cover on top with the state chip and the
+    date, name, format line and organizer, then the perforated stub with the enrolled count, View event and, while
+    a tournament's registration is open, Register (Join waiting list once it is sold out). Past events too.
+    Locals: event (Tournament or League, cover and organizer preloaded), enrolled (count), sold_out (optional,
+    computed from enrolled when not given). Pieces from EventTicketHelper. %>
+<% sold_out = local_assigns.fetch(:sold_out) { event.sold_out?(enrolled) } %>
+<% href = ticket_href(event) %>
+<%= tag.article class: "card lp-evr", data: { upcoming_event: event.slug, sold_out: ticket_sold_out?(event, sold_out) || nil } do %>
+  <div class="lp-evr-cov">
+    <div class="lp-evr-ban" style="background-image: url('<%= ticket_banner(event) %>')" aria-hidden="true"></div>
+    <div class="lp-evr-shade" aria-hidden="true"></div>
+    <div class="lp-evr-st"><%= ticket_state_chip(event, sold_out) %></div>
+    <div class="lp-evr-date">
+      <b><%= l(event.start_time, format: "%d") %></b>
+      <span><%= l(event.start_time, format: "%b · %a") %></span>
+    </div>
+  </div>
+  <div class="lp-evr-bd">
+    <h3 class="lp-evr-t"><%= link_to event.name, href %></h3>
+    <p class="lp-evr-m"><%= ticket_line(event) %></p>
+    <%= ticket_organizer(event) %>
+  </div>
+  <div class="lp-evr-stub">
+    <p class="lp-evr-n"><%= ticket_enrolled(event, enrolled) %></p>
+    <div class="lp-evr-act">
+      <%= link_to t("landing.upcoming.view"), href, class: button_classes(:secondary, size: :sm) %>
+      <%= ticket_register_button(event, sold_out) %>
+    </div>
+  </div>
+<% end %>

@@ -8,6 +8,8 @@ module Api
     class BaseController < ApplicationController
       skip_before_action :require_authentication
       skip_forgery_protection
+      # Publicly cached JSON: no locale cookie (Set-Cookie) and no per-visitor locale.
+      skip_around_action :switch_locale
       rate_limit to: 120, within: 1.minute, by: -> { request.remote_ip },
                  with: -> { render json: { error: "rate_limited" }, status: :too_many_requests }
       before_action :set_cache

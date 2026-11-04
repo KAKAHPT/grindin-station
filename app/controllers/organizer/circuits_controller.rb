@@ -5,14 +5,15 @@ module Organizer
     require_organizer
 
     def index
-      @circuits = Circuit.for_organizer(current_organizer).preload(:tournaments)
+      @circuits = Circuit.for_organizer(current_organizer).preload(:events, event_organizer: :user)
         .page(params[:page])
     end
 
     def show
       @circuit = Circuit.for_organizer(current_organizer).preload(
-        tournaments: :rounds,
-        circuit_standings: :player
+        :events, :leagues, { event_organizer: :user },
+        tournaments: [:rounds, { cover_attachment: :blob }],
+        circuit_standings: { player: :user }
       ).find(params[:id])
     rescue ActiveRecord::RecordNotFound
       redirect_to [:organizer, :circuits], alert: t("flash.alert.not_authorized_circuit")

@@ -11,8 +11,8 @@ Rails.application.configure do
   config.content_security_policy do |policy|
     policy.default_src :self
     policy.script_src :self, :unsafe_hashes, FONT_SWAP_HANDLER_HASH
-    # Tailwind and Turbo set inline styles; Google Fonts and the Leaflet stylesheet are external.
-    policy.style_src :self, :unsafe_inline, "https://fonts.googleapis.com", "https://cdn.jsdelivr.net"
+    # Tailwind and Turbo set inline styles; the Google Fonts stylesheet is external.
+    policy.style_src :self, :unsafe_inline, "https://fonts.googleapis.com"
     policy.img_src :self, :data, :blob, :https
     policy.font_src :self, :data, "https://fonts.gstatic.com"
     # 'self' covers the Action Cable websocket on the same host.

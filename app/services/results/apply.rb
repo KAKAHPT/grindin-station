@@ -92,6 +92,7 @@ module Results
           closed = Round.finished.exists?(@round.id) # fresh: the round may have closed since it was loaded
           assignments.map { |participant, type| closed ? supersede(participant, type) : update(participant, type) }
         end
+      ::Standings::Snapshot.refresh(@round)
       Outcome.new(results: results, warning: self.class.warning_for(@pod))
     end
 

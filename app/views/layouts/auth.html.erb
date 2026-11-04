@@ -1,0 +1,33 @@
+<%# Sign in / sign up / forgot / reset (spec §5): one centred card with the mark and "Grindin Station" above the
+    title. In the modal frame when the page asked for it (the application layout's Sign in), else a full page in the
+    application layout. The card shows the flash itself, so the layout's toasts are skipped. %>
+<% card = capture do %>
+  <div class="auth-card card" data-auth-card>
+    <div class="auth-mark">
+      <%= render "shared/mark", size: 64, id_suffix: "auth" %>
+      <div class="lp-eyebrow"><%= t("app.name") %></div>
+    </div>
+    <h2><%= yield :title %></h2>
+    <% flash.each do |key, message| %>
+      <p role="alert" data-flash="<%= key %>"
+         class="mb-4 p-3 rounded-md border text-[13px] <%= key.to_s == "alert" ? "bg-danger/10 text-danger border-danger/40" : "bg-accent/10 text-accent border-accent/40" %>">
+        <%= message %>
+      </p>
+    <% end %>
+    <%= yield %>
+  </div>
+<% end %>
+<% flash.clear %>
+<% if turbo_frame_request_id == "modal" %>
+  <%= turbo_frame_tag "modal" do %>
+    <div class="fixed inset-0 z-50 flex items-start sm:items-center justify-center overflow-y-auto p-4 font-body text-ink">
+      <%= card %>
+    </div>
+    <div class="bg-ground/80 fixed inset-0 z-40"></div>
+  <% end %>
+<% else %>
+  <% content_for :page_content do %>
+    <div class="col-span-full flex justify-center py-8 font-body text-ink"><%= card %></div>
+  <% end %>
+  <%= render template: "layouts/application" %>
+<% end %>

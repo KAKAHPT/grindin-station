@@ -10,6 +10,7 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   has_many :pods, through: :rounds
   has_many :event_staff, class_name: "EventStaff", dependent: :destroy
   has_many :judge_calls, dependent: :destroy
+  has_many :standings_snapshots, dependent: :delete_all
 
   PREFERRED_POD_SIZE = 4
   SMALLER_POD_SIZE = 3
@@ -90,6 +91,11 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
     event_participants.loaded? ? event_participants.count(&:enrolled?) : event_participants.enrolled.count
   end
 
+  # A finite maximum reached by the enrolled players; enrolled is passed when the count is already known.
+  def sold_out?(enrolled = playing_participants_count)
+    maximum_participants.finite? && enrolled >= maximum_participants
+  end
+
   def promote_from_waitlist!(participant)
     with_lock do
       participant.promote!
@@ -108,6 +114,21 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
     event_participants.waitlist.each.with_index(1) do |participant, position|
       participant.update!(waitlist_position: position) unless participant.waitlist_position == position
     end
+  end
+
+  # The latest published round's number (nil before round 1 is published); the ticket lists set it for a whole
+  # page in one query (Event.load_latest_published_round_numbers).
+  attr_writer :latest_published_round_number
+
+  def latest_published_round_number
+    return @latest_published_round_number if defined?(@latest_published_round_number)
+
+    @latest_published_round_number = rounds.published.maximum(:number)
+  end
+
+  def self.load_latest_published_round_numbers(events)
+    numbers = Round.published.where(event_id: events.map(&:id)).group(:event_id).maximum(:number)
+    events.each { |event| event.latest_published_round_number = numbers[event.id] }
   end
 
   def available_states

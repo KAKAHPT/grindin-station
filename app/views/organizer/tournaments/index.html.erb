@@ -1,18 +1,22 @@
-<%= content_for :sub_navigation do %>
-  <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
-    My tournaments
+<div class="col-span-full flex flex-wrap items-center justify-between gap-3">
+  <h1 class="font-display text-2xl font-semibold text-ink"><%= t("organizer.tournaments.title") %></h1>
+  <div class="flex flex-wrap items-center gap-2.5">
+    <span class="seg" data-tournaments-filter>
+      <%= link_to t("organizer.tournaments.active"), organizer_tournaments_path, class: ("seg-on" unless @past), "aria-current": ("page" unless @past) %>
+      <%= link_to t("organizer.tournaments.past"), organizer_tournaments_path(past: 1), class: ("seg-on" if @past), "aria-current": ("page" if @past) %>
+    </span>
     <% if current_user.organizer? %>
-      <%= link_to [:new, :organizer, :tournament], class: "float-right text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800", data: {turbo_frame: "modal"} do %>
-        Organize Tournament
-      <% end %>
+      <%= link_to t("organizer.tournaments.new"), new_organizer_tournament_path, class: button_classes(:primary, size: :sm) %>
     <% end %>
-  </h1>
-<% end %>
+  </div>
+</div>
 
 <% if @tournaments.present? %>
-  <%= render collection: @tournaments, partial: "tournament" %>
+  <div class="col-span-full grid grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-3">
+    <%= render partial: "tournament_card", collection: @tournaments, as: :tournament, locals: { editable_ids: @editable_ids } %>
+  </div>
 <% else %>
-  <p class="text-gray-500 dark:text-gray-400 col-span-full">
-    You haven't organized any tournaments yet.
+  <p class="col-span-full card px-4 py-8 text-center text-[13px] text-muted">
+    <%= t(@past ? "organizer.tournaments.empty_past" : "organizer.tournaments.empty") %>
   </p>
 <% end %>

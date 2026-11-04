@@ -1,0 +1,113 @@
+<%# The landing (/), mock F: the scrolling card-art mosaic behind the hero, the waiting-list card, Anne's seat
+    board, how seats are weighted, the featured tournaments (when any) and the next public tournaments. %>
+<% content_for :title, t("landing.title") %>
+<% content_for :description, t("landing.description") %>
+<% content_for :full_main, "1" %>
+<% content_for :footer_note do %>
+  <p class="mb-3 text-xs" data-attribution><%= t("landing.attribution") %></p>
+<% end %>
+<% url_locale = params[:locale] %>
+<% arts = (1..48).map { |n| image_path("landing/c#{n}.jpg") } %>
+<% seat_rows = [%w[Anne Mike Chris Sarah], %w[Tom Anne Emma Jake], %w[Lucy Ben Anne Alex], %w[Sam Kate Dan Anne]] %>
+<% seat_tables = [3, 1, 2, 1] %>
+
+<div class="landing">
+  <section class="lp-hero">
+    <div class="lp-mosaic" aria-hidden="true">
+      <% 2.times do %>
+        <div class="lp-sheet">
+          <% arts.each do |src| %>
+            <img src="<%= src %>" alt="" width="240" height="175" loading="lazy" decoding="async">
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+    <div class="lp-vig" aria-hidden="true"></div>
+    <div class="lp-hero-in">
+      <div class="lp-mark"><%= render "shared/mark", size: 84, id_suffix: "hero", rotating: true %></div>
+      <p class="lp-eyebrow"><%= t("landing.eyebrow") %></p>
+      <h1><%= t("landing.headline_html") %></h1>
+      <p class="lp-lead"><%= t("landing.lead") %></p>
+      <div class="lp-ctas">
+        <%= link_to t("landing.cta_events"), "#upcoming", class: button_classes(:primary) %>
+        <%= link_to t("landing.cta_organise"),
+                    current_user&.event_organizer ? organizer_root_path(locale: url_locale) : "#waitlist",
+                    class: button_classes(:secondary) %>
+      </div>
+      <%= render "pages/waitlist", signup: @waitlist_signup, state: nil %>
+    </div>
+  </section>
+
+  <div class="lp-fair" id="about">
+    <section class="card lp-seatboard lp-tex" data-seat-board>
+      <div class="lp-sb-hd">
+        <h2><%= t("landing.seats.title") %></h2>
+        <span><%= t("landing.seats.subtitle") %></span>
+      </div>
+      <div class="lp-pods">
+        <% seat_rows.each_with_index do |names, index| %>
+          <% mine = names.index("Anne") + 1 %>
+          <div class="lp-pod" role="group" aria-label="<%= t("landing.seats.pod", round: index + 1, table: seat_tables[index]) %>">
+            <div class="lp-pod-lab">
+              <span><%= t("landing.seats.pod", round: index + 1, table: seat_tables[index]) %></span>
+              <em><%= t("landing.seats.seat_k", number: mine) %></em>
+            </div>
+            <div class="lp-pod-seats">
+              <% names.each_with_index do |name, seat| %>
+                <span class="lp-pod-p<%= " me" if name == "Anne" %>"><i><%= seat + 1 %></i><%= name %></span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      <div class="lp-sb-sum">
+        <span><%= t("landing.seats.summary") %></span>
+        <span class="lp-fairchip"><%= t("landing.seats.fair") %></span>
+      </div>
+      <p class="lp-sb-note"><%= t("landing.seats.note") %></p>
+    </section>
+
+    <section class="card lp-why lp-tex">
+      <p class="lp-eyebrow"><%= t("landing.why.eyebrow") %></p>
+      <h2><%= t("landing.why.title") %></h2>
+      <p><%= t("landing.why.intro") %></p>
+      <ol>
+        <% t("landing.why.steps").each_with_index do |step, index| %>
+          <li><b><%= index + 1 %></b><span><strong><%= step[:title] %></strong> <%= step[:text] %></span></li>
+        <% end %>
+      </ol>
+      <p><%= t("landing.why.audit") %></p>
+    </section>
+  </div>
+
+  <% if @featured.any? %>
+    <section class="lp-feat" data-featured>
+      <h2 class="lp-eyebrow"><%= t("landing.featured.title") %></h2>
+      <div class="lp-ftl">
+        <% @featured.each do |event| %>
+          <%= render "shared/featured_ticket", event: event, enrolled: @enrolled.fetch(event.id, 0) %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <section class="lp-upc" id="upcoming" data-upcoming>
+    <div class="lp-upc-hd">
+      <h2><%= t("landing.upcoming.title") %></h2>
+      <span>
+        <% if @open_count.positive? %><%= t("landing.upcoming.open", count: @open_count) %> · <% end %>
+        <%= link_to t("landing.upcoming.see_all"), events_path(locale: url_locale) %>
+      </span>
+    </div>
+    <% if @upcoming.any? %>
+      <div class="lp-evl">
+        <% @upcoming.each do |event| %>
+          <% count = @enrolled.fetch(event.id, 0) %>
+          <%= render "shared/event_ticket", event: event, enrolled: count, sold_out: event.sold_out?(count) %>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="card lp-empty"><%= t("landing.upcoming.empty") %></p>
+    <% end %>
+  </section>
+</div>

@@ -27,6 +27,23 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     assert_not user.reload.password_set
   end
 
+  test "a blank or short password is rejected and keeps the sessions" do
+    user = users(:player_one)
+    user.update!(password_set: false)
+    user.sessions.create!(user_agent: "other device")
+
+    ["", "short"].each do |password|
+      put password_path(user.password_reset_token), params: { password: password, password_confirmation: password }
+
+      assert_match %r{/passwords/[^/]+/edit\z}, response.location
+      assert_equal I18n.t("flash.alert.password_too_short"), flash[:alert]
+    end
+    user.reload
+    assert_not user.password_set
+    assert user.authenticate("password123")
+    assert_predicate user.sessions, :exists?
+  end
+
   test "an invalid token goes back to the reset request" do
     get edit_password_path("not-a-token")
 

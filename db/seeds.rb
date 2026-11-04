@@ -5,48 +5,48 @@ abort("Seeds are for development only") if Rails.env.production?
 # Create an initial list of users
 users = User.create(
   [
-    { name: "Fábio", email_address: "fabio@grindin-station.test", password: "123qwe" },
-    { name: "Simão", email_address: "simao@grindin-station.test", password: "123qwe" },
-    { name: "Bandeira", email_address: "bandeira@grindin-station.test", password: "123qwe" },
-    { name: "Esgaio", email_address: "esgaio@grindin-station.test", password: "123qwe" },
-    { name: "Nuno", email_address: "nuno@grindin-station.test", password: "123qwe" },
-    { name: "Pedro", email_address: "pedro@grindin-station.test", password: "123qwe" },
-    { name: "Joao", email_address: "joao@grindin-station.test", password: "123qwe" },
-    { name: "Gil", email_address: "gil@grindin-station.test", password: "123qwe" },
-    { name: "Lucas", email_address: "lucas@grindin-station.test", password: "123qwe" },
-    { name: "Artur", email_address: "artur@grindin-station.test", password: "123qwe" },
-    { name: "Brandao", email_address: "brandao@grindin-station.test", password: "123qwe" },
-    { name: "Chico", email_address: "chico@grindin-station.test", password: "123qwe" },
-    { name: "Demerson", email_address: "demerson@grindin-station.test", password: "123qwe" },
-    { name: "Guilherme", email_address: "guilherme@grindin-station.test", password: "123qwe" },
-    { name: "Olivio", email_address: "olivio@grindin-station.test", password: "123qwe" },
-    { name: "Tiago", email_address: "tiago@grindin-station.test", password: "123qwe" },
-    { name: "Jose", email_address: "jose@grindin-station.test", password: "123qwe" },
-    { name: "Vanessa", email_address: "vanessa@grindin-station.test", password: "123qwe" },
-    { name: "Antonio", email_address: "antonio@grindin-station.test", password: "123qwe" },
-    { name: "Fernando", email_address: "fernando@grindin-station.test", password: "123qwe" },
-    { name: "Francisco", email_address: "francisco@grindin-station.test", password: "123qwe" },
-    { name: "Afonso", email_address: "afonso@grindin-station.test", password: "123qwe" },
-    { name: "Roberto", email_address: "roberto@grindin-station.test", password: "123qwe" },
-    { name: "Bonifacio", email_address: "bonifacio@grindin-station.test", password: "123qwe" },
-    { name: "Carlos", email_address: "carlos@grindin-station.test", password: "123qwe" },
-    { name: "Joel", email_address: "joel@grindin-station.test", password: "123qwe" },
-    { name: "Emanuel", email_address: "emanuel@grindin-station.test", password: "123qwe" },
-    { name: "Vitor", email_address: "vitor@grindin-station.test", password: "123qwe" },
-    { name: "Hugo", email_address: "hugo@grindin-station.test", password: "123qwe" },
-    { name: "Mario", email_address: "mario@grindin-station.test", password: "123qwe" },
-    { name: "Manuel", email_address: "manuel@grindin-station.test", password: "123qwe" },
-    { name: "Max", email_address: "max@grindin-station.test", password: "123qwe" }
+    { name: "Fábio", email_address: "fabio@grindin-station.test", password: "123qwe123" },
+    { name: "Simão", email_address: "simao@grindin-station.test", password: "123qwe123" },
+    { name: "Bandeira", email_address: "bandeira@grindin-station.test", password: "123qwe123" },
+    { name: "Esgaio", email_address: "esgaio@grindin-station.test", password: "123qwe123" },
+    { name: "Nuno", email_address: "nuno@grindin-station.test", password: "123qwe123" },
+    { name: "Pedro", email_address: "pedro@grindin-station.test", password: "123qwe123" },
+    { name: "Joao", email_address: "joao@grindin-station.test", password: "123qwe123" },
+    { name: "Gil", email_address: "gil@grindin-station.test", password: "123qwe123" },
+    { name: "Lucas", email_address: "lucas@grindin-station.test", password: "123qwe123" },
+    { name: "Artur", email_address: "artur@grindin-station.test", password: "123qwe123" },
+    { name: "Brandao", email_address: "brandao@grindin-station.test", password: "123qwe123" },
+    { name: "Chico", email_address: "chico@grindin-station.test", password: "123qwe123" },
+    { name: "Demerson", email_address: "demerson@grindin-station.test", password: "123qwe123" },
+    { name: "Guilherme", email_address: "guilherme@grindin-station.test", password: "123qwe123" },
+    { name: "Olivio", email_address: "olivio@grindin-station.test", password: "123qwe123" },
+    { name: "Tiago", email_address: "tiago@grindin-station.test", password: "123qwe123" },
+    { name: "Jose", email_address: "jose@grindin-station.test", password: "123qwe123" },
+    { name: "Vanessa", email_address: "vanessa@grindin-station.test", password: "123qwe123" },
+    { name: "Antonio", email_address: "antonio@grindin-station.test", password: "123qwe123" },
+    { name: "Fernando", email_address: "fernando@grindin-station.test", password: "123qwe123" },
+    { name: "Francisco", email_address: "francisco@grindin-station.test", password: "123qwe123" },
+    { name: "Afonso", email_address: "afonso@grindin-station.test", password: "123qwe123" },
+    { name: "Roberto", email_address: "roberto@grindin-station.test", password: "123qwe123" },
+    { name: "Bonifacio", email_address: "bonifacio@grindin-station.test", password: "123qwe123" },
+    { name: "Carlos", email_address: "carlos@grindin-station.test", password: "123qwe123" },
+    { name: "Joel", email_address: "joel@grindin-station.test", password: "123qwe123" },
+    { name: "Emanuel", email_address: "emanuel@grindin-station.test", password: "123qwe123" },
+    { name: "Vitor", email_address: "vitor@grindin-station.test", password: "123qwe123" },
+    { name: "Hugo", email_address: "hugo@grindin-station.test", password: "123qwe123" },
+    { name: "Mario", email_address: "mario@grindin-station.test", password: "123qwe123" },
+    { name: "Manuel", email_address: "manuel@grindin-station.test", password: "123qwe123" },
+    { name: "Max", email_address: "max@grindin-station.test", password: "123qwe123" }
   ]
 )
 
 # Create an initial event organizer
 to = EventOrganizer.create!(
-  user: User.create({ name: "Kakah", email_address: "kakah@grindin-station.test", password: "123qwe" })
+  user: User.create({ name: "Kakah", email_address: "kakah@grindin-station.test", password: "123qwe123" })
 )
 
 other_to = EventOrganizer.create!(
-  user: User.create({ name: "Virgilio", email_address: "virgilio@grindin-station.test", password: "123qwe" })
+  user: User.create({ name: "Virgilio", email_address: "virgilio@grindin-station.test", password: "123qwe123" })
 )
 
 # Create a couple of example events

@@ -19,7 +19,7 @@ module GrindinStation
     config.generators { |g| g.orm :active_record, primary_key_type: :uuid }
 
     config.i18n.default_locale = :en
-    config.i18n.available_locales = %i[en pt]
+    config.i18n.available_locales = %i[en pt es]
 
     # Configuration for the application, engines, and railties goes here.
     #

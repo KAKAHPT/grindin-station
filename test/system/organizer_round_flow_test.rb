@@ -22,7 +22,7 @@ class OrganizerRoundFlowTest < ApplicationSystemTestCase # rubocop:disable Metri
     assert_text I18n.t("flash.notice.tournament_updated")
     assert_predicate @tournament.reload, :swiss?
 
-    click_link "Bracket"
+    click_link "Rounds"
     assert_text "Round #1"
     click_button "Publish"
     assert_text I18n.t("flash.notice.round_published")

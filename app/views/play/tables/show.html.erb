@@ -1,2 +1,6 @@
+<% content_for :wide_main, "1" %>
+<%= render "play/shared/header", section: :my_table %>
 <%= turbo_stream_from(*LiveBroadcasts.table_stream(current_event, current_participant)) %>
-<%= render "play/tables/table", **@table.locals, locale: I18n.locale %>
+<div class="max-w-md mx-auto">
+  <%= render "play/tables/table", **@table.locals, locale: I18n.locale %>
+</div>

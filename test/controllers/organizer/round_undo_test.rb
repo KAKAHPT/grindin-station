@@ -17,11 +17,14 @@ module Organizer
       TournamentBuilder.play_round!(@t, winners: { 1 => 0, 2 => 0 })
       round2 = @t.rounds.create!(type: SwissRound, number: 2)
 
+      ::Standings::Snapshot.call(@t, @round)
+
       delete organizer_tournament_round_path(@t, round2)
 
       assert_redirected_to organizer_tournament_round_path(@t, @round)
       assert_not Round.exists?(round2.id)
       assert_nil @round.reload.finished_at
+      assert_not @t.standings_snapshots.exists?
     end
 
     test "undoing the first cut round goes back to the swiss and reopens its last round" do
@@ -31,12 +34,15 @@ module Organizer
       @t.update_column(:state, Tournament.states[:single_elimination]) # rubocop:disable Rails/SkipsModelValidations
       cut = @t.rounds.create!(type: SingleEliminationRound, number: 3)
 
+      [@round, round2].each { |round| ::Standings::Snapshot.call(@t, round) }
+
       delete organizer_tournament_round_path(@t, cut)
 
       assert_redirected_to organizer_tournament_round_path(@t, round2)
       assert_not Round.exists?(cut.id)
       assert_nil round2.reload.finished_at
       assert_predicate @t.reload, :swiss?
+      assert_equal [1], @t.standings_snapshots.distinct.pluck(:round_number)
     end
 
     test "an older round cannot be undone while a later one exists" do

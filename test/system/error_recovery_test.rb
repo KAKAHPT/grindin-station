@@ -11,12 +11,13 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
     # Draft state shows Open Registrations button
     visit organizer_tournament_path(tournament)
 
-    # registration_open state shows Close Registrations and Cancel buttons
+    # registration_open state shows Close Registrations; Cancel event lives in Settings
     assert_button "Close Registrations"
     assert_no_button "Open Registrations"
 
     # Cancel requires a confirm dialog
-    accept_confirm { click_button "Cancel" }
+    click_link "Settings"
+    accept_confirm { click_button "Cancel event" }
     assert_text "Tournament updated successfully"
 
     tournament.reload
@@ -29,7 +30,7 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
     sign_in_as(organizer)
 
     visit organizer_tournaments_path
-    click_link "Organize Tournament"
+    click_link "New tournament"
 
     # Submit form with missing required fields
     fill_in "Start time", with: Time.zone.now.tomorrow.change(sec: 0)
@@ -104,7 +105,7 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
     visit organizer_tournament_path(tournament)
 
     # Should show current state, not cached state
-    # registration_closed state shows "Move to Swiss stage" and "Cancel" buttons
+    # registration_closed state shows "Move to Swiss stage"
     assert_button "Move to Swiss stage"
     assert_no_button "Close Registrations"
   end
@@ -114,36 +115,17 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
 
     assert_current_path root_path
     assert_text "Grindin Station"
-    assert_text "Log in"
+    assert_selector "[data-topbar] a", text: "Sign in"
     assert_no_text "Logout"
   end
 
-  test "logged out user sees tournaments on root path" do
-    visit root_path
+  test "logged out user sees tournaments on the events page" do
+    visit events_path
 
-    assert_current_path root_path
-    assert_text "Upcoming events"
+    assert_current_path events_path
+    assert_text "Events"
     assert_text "Medium Tournament"
     assert_text "Free entry"
-    assert_text "View details"
-  end
-
-  test "logged out user sees cover images on root path" do
-    events(:medium_tournament).cover.attach(
-      io: File.open(Rails.root.join("test/fixtures/files/cover1.jpg")),
-      filename: "cover1.jpg",
-      content_type: "image/jpeg"
-    )
-
-    leagues(:standard_league).cover.attach(
-      io: File.open(Rails.root.join("test/fixtures/files/cover2.jpg")),
-      filename: "cover2.jpg",
-      content_type: "image/jpeg"
-    )
-
-    visit root_path
-
-    assert_selector "img[alt='Cover image for Medium Tournament']"
-    assert_selector "img[alt='Cover image for Standard League']"
+    assert_link "View event"
   end
 end

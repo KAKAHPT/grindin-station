@@ -34,6 +34,7 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
   normalizes :email_address, with: ->(e) { e.strip.downcase }
   normalizes :country, with: ->(c) { c.strip.upcase.presence }
 
+  validates :password, length: { minimum: 8 }, allow_nil: true
   validates :email_address, presence: true, uniqueness: true
   validates :email_address, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
   validates :name, presence: true

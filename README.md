@@ -48,7 +48,7 @@ An event is either **multiplayer** (pods of four, fair seats, cEDH tiebreakers) 
   `/t/:slug/timer`.
 - **Impressões.** A partir da página da ronda: emparelhamentos (12 mesas por folha A4) e folhas com QR (6 por
   folha A4), que levam o jogador à sua mesa.
-- **Aspeto.** Paleta A, apenas em modo escuro.
+- **Aspeto.** Um só desenho em todas as páginas (M7): paleta A, apenas em modo escuro, a marca S com engrenagem, barra de topo, cartão de cabeçalho do evento, cartões e bilhetes de evento. A interface existe em inglês, português e espanhol (EN / PT / ES na barra de topo; a escolha fica num cookie).
 
 ## Jogadores e público
 

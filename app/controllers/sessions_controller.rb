@@ -2,6 +2,7 @@
 
 class SessionsController < ApplicationController
   allow_unauthenticated_access only: %i[new create]
+  layout "auth"
   # Per e-mail against password guessing; per address only loosely, since a venue's players share one.
   rate_limit to: 10, within: 3.minutes, only: :create, name: "email",
              by: -> { login_email },
@@ -17,12 +18,6 @@ class SessionsController < ApplicationController
                                     password: credentials[:password].to_s))
       start_new_session_for user
       redirect_to root_path, notice: t("flash.notice.signed_in")
-    elsif request.headers["Turbo-Frame"] == "modal"
-      render turbo_stream: turbo_stream.replace(
-        "modal",
-        partial: "sessions/new",
-        locals: { alert: t("flash.alert.invalid_credentials"), notice: nil }
-      ), status: :unprocessable_entity
     else
       redirect_to new_session_path, alert: t("flash.alert.invalid_credentials")
     end
