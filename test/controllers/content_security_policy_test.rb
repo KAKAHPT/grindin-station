@@ -46,7 +46,7 @@ class ContentSecurityPolicyTest < ActionDispatch::IntegrationTest
       10.times { post csp_reports_path, params: "{}", headers: { "Content-Type" => "application/csp-report" } }
       assert_response :too_many_requests
     end
-    assert_includes log.string, "CSP violation: {\"csp-report\":{\"violated-directive\":\"script-src\"}}"
+    assert_includes log.string, "CSP violation: " + %({"csp-report":{"violated-directive":"script-src"}}).inspect
   ensure
     Rails.logger = logger
   end
