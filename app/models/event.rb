@@ -77,7 +77,7 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   # Locked in the state being saved or the one it leaves, so a state change cannot unlock them.
   def points_locked?
-    UNLOCKED_POINTS_STATES.exclude?(state) || UNLOCKED_POINTS_STATES.exclude?(state_was)
+    UNLOCKED_POINTS_STATES.exclude?(state) || (persisted? && UNLOCKED_POINTS_STATES.exclude?(state_was))
   end
 
   # The state machine: Tournament adapts it for a 1v1 with no swiss.

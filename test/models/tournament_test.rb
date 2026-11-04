@@ -51,6 +51,10 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     assert_equal %w[finished canceled], tournament.available_states.keys
   end
 
+  test "a new tournament's points are not locked" do
+    assert_not Tournament.new.points_locked?
+  end
+
   test "a state outside the transition map is refused" do
     tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
 
