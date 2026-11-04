@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class PagesControllerTest < ActionDispatch::IntegrationTest
+class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
   setup do
     @organizer = event_organizers(:standard_organizer)
   end
@@ -93,7 +93,87 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-upcoming-event='#{soonest.slug}']"
   end
 
+  test "the Featured section is absent while nothing is featured" do
+    upcoming(:registration_open, "Plain Cup", 1.hour)
+
+    get root_path
+
+    assert_select "[data-featured]", count: 0
+    assert_select "[data-featured-event]", count: 0
+  end
+
+  test "up to three featured tournaments sit above Upcoming as art tickets and leave the Upcoming list" do
+    featured = Array.new(4) { |index| upcoming(:registration_open, "Star #{index}", (index + 1).minutes) }
+    Tournament.where(id: featured.map(&:id)).update_all(featured: true) # rubocop:disable Rails/SkipsModelValidations
+    hidden = upcoming(:draft, "Hidden Star", 1.minute)
+    hidden.update_column(:featured, true) # rubocop:disable Rails/SkipsModelValidations
+    plain = upcoming(:registration_open, "Plain Cup", 30.seconds)
+
+    get root_path
+
+    assert_select "section.lp-feat[data-featured] + section[data-upcoming]"
+    assert_select "[data-featured] h2", text: "Featured"
+    assert_select "[data-featured-event]", 3
+    assert_select "[data-featured-event]:first-child[data-featured-event='#{featured.first.slug}']" do
+      assert_select ".lp-ft-stub b", text: l_day(featured.first)
+      assert_select "a[data-register][href=?]", play_event_path(featured.first.slug), text: "Register"
+      assert_select ".lp-evr-org", text: /#{@organizer.name}/
+    end
+    assert_select "[data-featured-event='#{featured.last.slug}']", count: 0
+    assert_select "[data-featured-event='#{hidden.slug}']", count: 0
+    assert_select "[data-upcoming] [data-upcoming-event='#{plain.slug}']"
+    featured.first(3).each { |event| assert_select "[data-upcoming] [data-upcoming-event='#{event.slug}']", count: 0 }
+    assert_select "[data-upcoming] [data-upcoming-event='#{featured.last.slug}']"
+  end
+
+  test "a sold-out tournament shows the Sold out chip and Join waiting list, on both tickets" do
+    event = upcoming(:registration_open, "Full Cup", 1.minute)
+    event.update!(maximum_participants: 2, waitlist_enabled: true)
+    2.times { |index| enrol(event, index) }
+    featured = upcoming(:registration_open, "Full Star", 2.minutes)
+    featured.update!(maximum_participants: 1, waitlist_enabled: true, featured: true)
+    enrol(featured, 9)
+
+    get root_path
+
+    [["[data-upcoming-event='#{event.slug}']", event], ["[data-featured-event='#{featured.slug}']", featured]]
+      .each do |selector, tournament|
+        assert_select "#{selector}[data-sold-out]" do
+          assert_select "span", text: "Sold out"
+          assert_select "span", text: "Registration open", count: 0
+          assert_select "a[data-register][href=?]", play_event_path(tournament.slug), text: "Join waiting list"
+        end
+      end
+    assert_select "[data-featured-event='#{featured.slug}'].lp-ft-warn"
+
+    get root_path(locale: "es")
+    assert_select "[data-upcoming-event='#{event.slug}'] .lp-evr-st", text: "Agotado"
+  end
+
+  test "a sold-out tournament without a waiting list shows Sold out and no Register" do
+    event = upcoming(:registration_open, "Shut Cup", 1.minute)
+    event.update!(maximum_participants: 1)
+    enrol(event, 0)
+
+    get root_path
+
+    assert_select "[data-upcoming-event='#{event.slug}']" do
+      assert_select "span", text: "Sold out"
+      assert_select "a[data-register]", count: 0
+    end
+  end
+
   private
+
+  def l_day(event)
+    I18n.l(event.start_time, format: "%d")
+  end
+
+  def enrol(event, index)
+    user = User.create!(name: "Player #{event.slug} #{index}", password: "password123",
+                        email_address: "p#{index}-#{SecureRandom.hex(3)}@example.com")
+    event.event_participants.create!(player: user.player, accepted_terms: true)
+  end
 
   def upcoming(state, name, from_now)
     event = Tournament.create!(name: name, event_organizer: @organizer, state: :draft,

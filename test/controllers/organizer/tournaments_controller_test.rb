@@ -89,6 +89,23 @@ module Organizer
       assert_select "[data-format-fields-target=matchGames]:not([hidden]) select[name='tournament[match_games]']"
     end
 
+    test "Settings features the tournament on the landing and takes it off again" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_open)
+
+      get edit_organizer_tournament_path(tournament)
+      assert_select "input[type=checkbox][name='tournament[featured]']:not([checked])"
+      assert_select "label[for=tournament_featured]", text: "Feature on the landing"
+      assert_select ".form-help", text: /Featured strip at the top of grindin.cedhpt.com/
+
+      patch organizer_tournament_path(tournament), params: { tournament: { featured: "1" } }
+      assert_redirected_to organizer_tournament_path(tournament)
+      assert tournament.reload.featured?
+
+      patch organizer_tournament_path(tournament), params: { tournament: { featured: "0" } }
+      assert_not tournament.reload.featured?
+    end
+
     test "a tampered update cannot switch the format" do
       tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
                                            state: :registration_open)

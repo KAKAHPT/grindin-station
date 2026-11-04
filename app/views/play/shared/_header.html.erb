@@ -24,6 +24,6 @@
   </div>
 <% end %>
 <% content_for :event_header do %>
-  <%= render "shared/event_header", event: event, title: title, eyebrow: play_eyebrow(event, current_round),
+  <%= render "shared/event_header", event: event, title: title, eyebrow: play_eyebrow(event, current_round, players),
                                     line: play_info_line(event, players), actions: actions %>
 <% end %>

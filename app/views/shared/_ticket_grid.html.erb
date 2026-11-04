@@ -7,7 +7,8 @@
     <% end %>
     <div class="lp-evl">
       <% events.each do |event| %>
-        <%= render "shared/event_ticket", event: event, enrolled: enrolled.fetch(event.id, 0) %>
+        <% count = enrolled.fetch(event.id, 0) %>
+        <%= render "shared/event_ticket", event: event, enrolled: count, sold_out: event.sold_out?(count) %>
       <% end %>
     </div>
     <% if local_assigns[:paginate] %>

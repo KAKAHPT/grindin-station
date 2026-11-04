@@ -91,6 +91,11 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
     event_participants.loaded? ? event_participants.count(&:enrolled?) : event_participants.enrolled.count
   end
 
+  # A finite maximum reached by the enrolled players; enrolled is passed when the count is already known.
+  def sold_out?(enrolled = playing_participants_count)
+    maximum_participants.finite? && enrolled >= maximum_participants
+  end
+
   def promote_from_waitlist!(participant)
     with_lock do
       participant.promote!

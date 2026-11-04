@@ -112,6 +112,7 @@ module Organizer
                       show_commanders_in_standings
                       show_decklists
                       top_cut_timeout_rule
+                      featured
                     ])
     end
   end

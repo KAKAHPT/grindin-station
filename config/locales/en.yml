@@ -78,6 +78,7 @@ en:
         result_confirmation: "Result confirmation"
         confirmation_timeout_minutes: "Confirmation timeout (minutes)"
         waitlist_enabled: "Waitlist when full"
+        featured: "Feature on the landing"
         show_commanders_in_standings: "Show commanders in standings"
         show_decklists: "Show decklists on player profiles"
         top_cut_timeout_rule: "If a top cut game times out"
@@ -148,6 +149,7 @@ en:
       price_placeholder: "Fee per player"
       no_limit: "No limit"
       description_placeholder: "How to get to the venue, where to eat, etc."
+      featured_help: "Shown in the Featured strip at the top of grindin.cedhpt.com while the event is upcoming or running."
       back: "Back"
       danger_zone: "Danger zone"
       cancel_help: "Canceling hides the event from players and cannot be undone."
@@ -318,6 +320,7 @@ en:
         one: "1 on the waiting list."
         other: "%{count} on the waiting list."
       full_waitlist: "The event is full: registering puts you on the waiting list."
+      join_waitlist: "Join waiting list"
       you: "You"
       checked_in: "Checked in"
       your_decklist: "Your decklist"
@@ -344,6 +347,7 @@ en:
       state:
         draft: "Draft"
         registration_open: "Registration open"
+        sold_out: "Sold out"
         registration_closed: "Registration closed"
         swiss: "Swiss round %{number}"
         single_elimination: "Top %{size}"
@@ -697,6 +701,8 @@ en:
           text: "Each player's seats so far in the tournament are counted. Seat 1 goes to whoever has had it least; the other seats take the order that costs the table least."
         - title: "Ties from the seed."
           text: "Anything still equal is drawn from the event seed, fixed in round 1, so nothing is chosen by hand."
+    featured:
+      title: "Featured"
     upcoming:
       title: "Upcoming events"
       open:

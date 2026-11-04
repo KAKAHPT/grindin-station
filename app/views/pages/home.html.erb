@@ -1,5 +1,5 @@
 <%# The landing (/), mock F: the scrolling card-art mosaic behind the hero, the waiting-list card, Anne's seat
-    board, how seats are weighted, and the next public tournaments. %>
+    board, how seats are weighted, the featured tournaments (when any) and the next public tournaments. %>
 <% content_for :title, t("landing.title") %>
 <% content_for :description, t("landing.description") %>
 <% content_for :full_main, "1" %>
@@ -79,6 +79,17 @@
       <p><%= t("landing.why.audit") %></p>
     </section>
   </div>
+
+  <% if @featured.any? %>
+    <section class="lp-feat" data-featured>
+      <h2 class="lp-eyebrow"><%= t("landing.featured.title") %></h2>
+      <div class="lp-ftl">
+        <% @featured.each do |event| %>
+          <%= render "shared/featured_ticket", event: event, enrolled: @enrolled.fetch(event.id, 0) %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
 
   <section class="lp-upc" id="upcoming" data-upcoming>
     <div class="lp-upc-hd">

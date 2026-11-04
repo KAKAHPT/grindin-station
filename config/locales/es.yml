@@ -78,6 +78,7 @@ es:
         result_confirmation: "Confirmación de resultados"
         confirmation_timeout_minutes: "Tiempo límite de confirmación (minutos)"
         waitlist_enabled: "Lista de espera cuando está lleno"
+        featured: "Destacar en la portada"
         show_commanders_in_standings: "Mostrar comandantes en la clasificación"
         show_decklists: "Mostrar decklists en los perfiles de los jugadores"
         top_cut_timeout_rule: "Si una partida del corte se queda sin tiempo"
@@ -148,6 +149,7 @@ es:
       price_placeholder: "Precio por jugador"
       no_limit: "Sin límite"
       description_placeholder: "Cómo llegar al lugar, dónde comer, etc."
+      featured_help: "Aparece en la franja Destacados en la parte superior de grindin.cedhpt.com mientras el evento está por llegar o en curso."
       back: "Volver"
       danger_zone: "Zona de peligro"
       cancel_help: "Cancelar oculta el evento a los jugadores y no se puede deshacer."
@@ -318,6 +320,7 @@ es:
         one: "1 en lista de espera."
         other: "%{count} en lista de espera."
       full_waitlist: "El evento está lleno: al inscribirte quedas en lista de espera."
+      join_waitlist: "Unirme a la lista de espera"
       you: "Tú"
       checked_in: "Check-in hecho"
       your_decklist: "Tu decklist"
@@ -344,6 +347,7 @@ es:
       state:
         draft: "Borrador"
         registration_open: "Inscripciones abiertas"
+        sold_out: "Agotado"
         registration_closed: "Inscripciones cerradas"
         swiss: "Ronda suiza %{number}"
         single_elimination: "Top %{size}"
@@ -697,6 +701,8 @@ es:
           text: "Se cuentan los asientos de cada jugador hasta ahora en el torneo. El asiento 1 va para quien lo ha tenido menos veces; los demás asientos toman el orden que menos cuesta a la mesa."
         - title: "Empates por la semilla."
           text: "Lo que siga igualado se sortea con la semilla del evento, fijada en la ronda 1, así que nada se elige a mano."
+    featured:
+      title: "Destacados"
     upcoming:
       title: "Próximos eventos"
       open:

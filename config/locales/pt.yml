@@ -78,6 +78,7 @@ pt:
         result_confirmation: "Confirmação de resultados"
         confirmation_timeout_minutes: "Tempo limite de confirmação (minutos)"
         waitlist_enabled: "Lista de espera quando cheio"
+        featured: "Destacar na página inicial"
         show_commanders_in_standings: "Mostrar comandantes na classificação"
         show_decklists: "Mostrar decklists nos perfis dos jogadores"
         top_cut_timeout_rule: "Se um jogo do corte esgotar o tempo"
@@ -148,6 +149,7 @@ pt:
       price_placeholder: "Preço por jogador"
       no_limit: "Sem limite"
       description_placeholder: "Como chegar ao local, onde comer, etc."
+      featured_help: "Aparece na faixa Em destaque no topo de grindin.cedhpt.com enquanto o evento está para breve ou a decorrer."
       back: "Voltar"
       danger_zone: "Zona de perigo"
       cancel_help: "Cancelar esconde o evento dos jogadores e não pode ser desfeito."
@@ -318,6 +320,7 @@ pt:
         one: "1 em lista de espera."
         other: "%{count} em lista de espera."
       full_waitlist: "O evento está cheio: ao inscrever-te ficas em lista de espera."
+      join_waitlist: "Entrar na lista de espera"
       you: "Tu"
       checked_in: "Check-in feito"
       your_decklist: "A tua decklist"
@@ -344,6 +347,7 @@ pt:
       state:
         draft: "Rascunho"
         registration_open: "Inscrições abertas"
+        sold_out: "Esgotado"
         registration_closed: "Inscrições fechadas"
         swiss: "Swiss ronda %{number}"
         single_elimination: "Top %{size}"
@@ -697,6 +701,8 @@ pt:
           text: "Contam-se os lugares de cada jogador até agora no torneio. O lugar 1 vai para quem o teve menos vezes; os outros lugares tomam a ordem que custa menos à mesa."
         - title: "Empates pela semente."
           text: "O que ainda estiver igual é sorteado com a semente do evento, fixada na ronda 1, por isso nada é escolhido à mão."
+    featured:
+      title: "Em destaque"
     upcoming:
       title: "Próximos eventos"
       open:

@@ -1,6 +1,7 @@
-<%# Registration card for anyone not in the event: the counts only (no names), then sign in, the enrol form or
-    why registration is not open. %>
-<% full = !event.maximum_participants.infinite? && enrolled >= event.maximum_participants %>
+<%# Registration card for anyone not in the event: the counts only (no names), then sign in, the enrol form (Join
+    waiting list once the event is full and keeps a waiting list) or why registration is not open. %>
+<% full = event.sold_out?(enrolled) %>
+<% join_waitlist = full && event.waitlist_enabled %>
 <section data-registration class="card">
   <h2 class="card-title"><%= t("play.events.registration") %></h2>
   <div class="p-4 flex flex-col gap-3">
@@ -25,7 +26,7 @@
             <%= f.check_box :accepted_terms, required: true, class: "field-check mt-0.5" %>
             <span><%= EventParticipant.human_attribute_name(:accepted_terms) %></span>
           </label>
-          <%= f.button t("play.events.enrol"), class: button_classes(:primary, "w-full") %>
+          <%= f.button t(join_waitlist ? "play.events.join_waitlist" : "play.events.enrol"), class: button_classes(:primary, "w-full") %>
         <% end %>
       <% else %>
         <%= link_to t("play.events.sign_in_to_enrol"), new_session_path(locale: params[:locale]), class: button_classes(:primary, "w-full") %>

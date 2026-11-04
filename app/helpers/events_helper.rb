@@ -25,9 +25,12 @@ module EventsHelper
     event.one_v_one? ? t("play.events.format_badge", games: event.match_games) : t("play.header.multiplayer")
   end
 
-  # Header eyebrow: "Swiss round 3 · cEDH · pods of four · live" (live only while a round is running).
-  def play_eyebrow(event, round)
-    parts = [event_state_label(event, round&.number), event_format_label(event)]
+  # Header eyebrow: "Swiss round 3 · cEDH · pods of four · live" (live only while a round is running); "Sold out"
+  # in place of "Registration open" once the enrolled players fill the maximum.
+  def play_eyebrow(event, round, players = nil)
+    sold_out = event.registration_open? && players && event.sold_out?(players)
+    state = sold_out ? t("play.events.state.sold_out") : event_state_label(event, round&.number)
+    parts = [state, event_format_label(event)]
     parts << t("play.header.live") if round&.started? && round.finished_at.nil?
     parts.join(" · ")
   end

@@ -35,6 +35,8 @@
   <%= f.text_area_with_label :schedule, rows: 3, placeholder: "- 9:00 Check-in\n- 10:00 First round" %>
   <%= f.text_area_with_label :rules, rows: 4 %>
   <%= f.text_area_with_label :description, rows: 3, placeholder: t("organizer.settings.description_placeholder") %>
+  <%= f.check_box_with_label :featured %>
+  <p class="form-help -mt-3 mb-4 ms-6"><%= t("organizer.settings.featured_help") %></p>
 
   <h2 class="form-section"><%= t("organizer.settings.structure") %></h2>
   <% if (suggestion = structure_suggestion(tournament)) %>

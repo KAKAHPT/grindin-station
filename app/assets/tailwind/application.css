@@ -1345,6 +1345,158 @@
     color: var(--color-muted);
   }
 
+  /* Featured events (option 4B, the art ticket): above Upcoming, two per row; an odd first one spans the row. */
+  .lp-feat {
+    max-width: 980px;
+    margin: 36px auto 0;
+    padding: 0 24px;
+  }
+
+  .lp-feat .lp-eyebrow {
+    margin-bottom: 12px;
+  }
+
+  .lp-ftl {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .lp-ftl > :first-child:nth-last-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  .lp-ft {
+    --ft-tone: var(--color-accent);
+    --ft-glow: rgb(45 212 191 / 0.5);
+    position: relative;
+    display: grid;
+    grid-template-columns: 104px 1fr;
+    min-height: 150px;
+    overflow: hidden;
+    isolation: isolate;
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    background: #000 center / cover;
+    box-shadow: 0 14px 34px -18px #000;
+  }
+
+  .lp-ft::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(90deg, rgb(17 19 21 / 0.35) 0, rgb(17 19 21 / 0.82) 36%, rgb(17 19 21 / 0.94) 100%);
+  }
+
+  .lp-ft-warn {
+    --ft-tone: var(--color-warn);
+    --ft-glow: rgb(251 191 36 / 0.4);
+  }
+
+  .lp-ft-info {
+    --ft-tone: var(--color-info);
+    --ft-glow: rgb(122 162 247 / 0.5);
+  }
+
+  .lp-ft-bad {
+    --ft-tone: var(--color-danger);
+    --ft-glow: rgb(248 113 113 / 0.4);
+  }
+
+  .lp-ft-stub {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    padding: 12px 8px;
+    text-align: center;
+    background: rgb(17 19 21 / 0.55);
+    backdrop-filter: blur(2px);
+  }
+
+  .lp-ft-stub::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: -1px;
+    width: 2px;
+    background: repeating-linear-gradient(180deg, var(--color-line-strong) 0 6px, transparent 6px 12px);
+  }
+
+  .lp-ft-stub b {
+    font: 800 40px var(--font-display);
+    line-height: 1;
+    color: var(--ft-tone);
+    text-shadow: 0 0 24px var(--ft-glow);
+  }
+
+  .lp-ft-stub small {
+    font: 700 10px var(--font-body);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #c9d1d9;
+  }
+
+  .lp-ft-stub span {
+    margin-top: 6px;
+    font: 600 10px var(--font-body);
+    color: var(--color-muted);
+  }
+
+  .lp-ft-bd {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    padding: 14px 16px;
+  }
+
+  .lp-ft-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .lp-ft-t {
+    font: 700 18px var(--font-display);
+    letter-spacing: -0.01em;
+    text-shadow: 0 2px 12px #000;
+  }
+
+  .lp-ft-t a:hover {
+    color: var(--color-accent);
+  }
+
+  .lp-ft-m {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #aeb6bf;
+  }
+
+  .lp-ft-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 8px;
+  }
+
+  .lp-ft-edge {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--ft-tone), transparent 70%);
+  }
+
   /* One ticket (option 4C): cover, body, perforated stub. */
   .lp-evr {
     position: relative;
@@ -1455,6 +1607,7 @@
   .lp-evr-stub {
     position: relative;
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     gap: 8px;
@@ -1506,6 +1659,7 @@
   .lp-evr-act {
     display: flex;
     gap: 6px;
+    margin-left: auto;
   }
 
   @media (max-width: 760px) {
@@ -1549,8 +1703,13 @@
       font-size: 9.5px;
     }
 
-    .lp-upc {
+    .lp-upc,
+    .lp-feat {
       padding: 0 16px;
+    }
+
+    .lp-ftl {
+      grid-template-columns: 1fr;
     }
 
     .lp-evl {

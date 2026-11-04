@@ -20,7 +20,7 @@ module Play
       assert_response :success
       assert_select ".evhead", count: 1
       assert_select "[data-event-header] h1", text: @tournament.name
-      assert_select ".evhead-eyebrow", text: "Registration open · cEDH · pods of four"
+      assert_select ".evhead-eyebrow", text: "Sold out · cEDH · pods of four"
       assert_select ".evhead-line", text: /Lisboa · 4 players/
       assert_select "[data-event-header] nav.seg a.seg-on[aria-current=page]", text: "Event"
       assert_select "[data-about] .markdown strong", text: "Bring sleeves"
@@ -70,7 +70,7 @@ module Play
 
       assert_select "form[action=?][method=post]", tournament_event_participants_path(@tournament) do
         assert_select "input[type=checkbox][name='event_participant[accepted_terms]'][required]"
-        assert_select "button", text: "Register"
+        assert_select "button", text: "Join waiting list"
       end
       assert_select "button", text: "Cancel registration", count: 0
 
@@ -150,6 +150,25 @@ module Play
       assert_select "a[href=?]", organizer_tournament_path(@tournament), text: "Manage"
       assert_select "[data-registration] [data-counters]", text: /4 players enrolled/
       assert_select "[data-enrolled], [data-waitlist]", count: 0
+    end
+
+    test "a sold-out event says so and offers the waiting list; with a free place it is Registration open" do
+      sign_in_user(User.create!(name: "Late", email_address: "late-#{SecureRandom.hex(3)}@example.com",
+                                password: "password123"))
+
+      get play_event_path(@tournament.slug)
+      assert_select ".evhead-eyebrow", text: "Sold out · cEDH · pods of four"
+      assert_select "[data-registration] .text-warn", text: /waiting list/
+      assert_select "[data-registration] button", text: "Join waiting list"
+
+      get play_event_path(@tournament.slug, locale: "pt")
+      assert_select ".evhead-eyebrow", text: /\AEsgotado · /
+      assert_select "[data-registration] button", text: "Entrar na lista de espera"
+
+      @tournament.update!(maximum_participants: 8)
+      get play_event_path(@tournament.slug, locale: "en")
+      assert_select ".evhead-eyebrow", text: "Registration open · cEDH · pods of four"
+      assert_select "[data-registration] button", text: "Register"
     end
 
     test "the state chip follows the event" do
