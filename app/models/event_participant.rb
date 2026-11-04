@@ -245,6 +245,39 @@ class EventParticipant < ApplicationRecord
       end
   end
 
+  # MTR floor for every 1v1 win rate.
+  RATE_FLOOR = 0.33
+
+  # 1v1: match points out of the maximum for the rounds played (byes count), floored at 0.33.
+  def match_win_rate
+    @match_win_rate ||=
+      begin
+        rounds = number_of_rounds_played
+        rounds.zero? ? RATE_FLOOR : [match_points.fdiv(rounds * event.points_win), RATE_FLOOR].max
+      end
+  end
+
+  # 1v1: game points (3/1/0) out of 3 per game played over the swiss rounds, a bye counting 2-0; floored at 0.33.
+  def game_win_rate # rubocop:disable Metrics/AbcSize
+    @game_win_rate ||=
+      begin
+        swiss = results.select { |result| result.round.is_a?(SwissRound) }
+        points = swiss.sum(&:game_points) + (6 * number_of_byes)
+        played = swiss.sum { |result| result.games.sum } + (2 * number_of_byes)
+        played.zero? ? RATE_FLOOR : [points.fdiv(3 * played), RATE_FLOOR].max
+      end
+  end
+
+  # 1v1: average of the opponents' floored match win rates (byes excluded); 0.33 without opponents.
+  def opponents_match_win_rate
+    @opponents_match_win_rate ||= average_rate(opponent_records, :match_win_rate)
+  end
+
+  # 1v1: average of the opponents' floored game win rates (byes excluded); 0.33 without opponents.
+  def opponents_game_win_rate
+    @opponents_game_win_rate ||= average_rate(opponent_records, :game_win_rate)
+  end
+
   # Distinct players at the swiss tables this participant won.
   def opponents_beaten
     @opponents_beaten ||=
@@ -277,6 +310,8 @@ class EventParticipant < ApplicationRecord
     @rank_score ||=
       if event.is_a?(League)
         league_score.to_f
+      elsif event.one_v_one?
+        one_v_one_score
       else
         (number_of_advancements * (10**18)) +
           (match_points * (10**13)) +
@@ -289,6 +324,11 @@ class EventParticipant < ApplicationRecord
 
   # The readable tiebreakers, for the standings views.
   def standing_columns
+    if event.one_v_one?
+      return { points: match_points, omw: opponents_match_win_rate, gw: game_win_rate,
+               ogw: opponents_game_win_rate }
+    end
+
     { points: match_points, owr: opponents_win_rate, beaten: opponents_beaten,
       unique: unique_opponents, seats: seat_counts }
   end
@@ -308,6 +348,19 @@ class EventParticipant < ApplicationRecord
   end
 
   private
+
+  # Points, then OMW, GW, OGW (percentages x 10 000, rounded), then the salt. Advancements outrank everything.
+  def one_v_one_score # rubocop:disable Metrics/AbcSize -- one term per tiebreaker
+    (number_of_advancements * (10**21)) + (match_points * (10**17)) +
+      ((opponents_match_win_rate * 10_000).round * (10**12)) + ((game_win_rate * 10_000).round * (10**8)) +
+      ((opponents_game_win_rate * 10_000).round * (10**4)) + tiebreak_salt
+  end
+
+  def average_rate(records, rate)
+    return RATE_FLOOR if records.empty?
+
+    records.sum(&rate).fdiv(records.size)
+  end
 
   def beaten_at(round_ids)
     won_pod_ids = pods.where(pods: { round_id: round_ids }).pluck("pods.id")
@@ -335,6 +388,10 @@ class EventParticipant < ApplicationRecord
   def clear_standings_cache
     @match_points = nil
     @opponents_win_rate = nil
+    @match_win_rate = nil
+    @game_win_rate = nil
+    @opponents_match_win_rate = nil
+    @opponents_game_win_rate = nil
     @opponents_beaten = nil
     @unique_opponents = nil
     @rank_score = nil
