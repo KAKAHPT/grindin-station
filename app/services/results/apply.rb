@@ -8,8 +8,8 @@ module Results
   # 1v1 events also take the game score: games: { winner: [won, lost, drawn] } for a Win/Advance
   # (the loser gets the mirror) or { games: [won, lost, drawn] } for a Draw (both players). It is
   # required there (except for a Penalty) and checked against the event's match_games; UNSCORED
-  # (time called in the cut) writes no games. Multiplayer callers pass no games.
-  class Apply
+  # (an Advance by time called in the cut) writes 0-0-0. Multiplayer callers pass no games.
+  class Apply # rubocop:disable Metrics/ClassLength -- the 1v1 score checks live with the writes
     Outcome = Data.define(:results, :warning)
 
     UNSCORED = :unscored
@@ -30,15 +30,27 @@ module Results
 
     # Raises NotAllowed unless the games are a possible score for this result at a 1v1 event.
     def self.check_games!(event, type, games)
-      return unless event.one_v_one?
-      return if type.in?(UNSCORED_TYPES) || games == UNSCORED
+      return if !event.one_v_one? || unscored?(type, games)
       raise NotAllowed, "score_required" if games.blank?
 
-      triple = normalize(games.to_h.with_indifferent_access[type == "Draw" ? :games : :winner])
+      triple = triple_for(type, games)
       raise NotAllowed, "impossible_score" unless allowed_scores(event, type).include?(triple)
 
       triple
     end
+
+    # A Penalty/Eliminated, or an Advance by time called (UNSCORED), carries no score.
+    def self.unscored?(type, games)
+      type.in?(UNSCORED_TYPES) || (games == UNSCORED && type == "Advance")
+    end
+    private_class_method :unscored?
+
+    def self.triple_for(type, games)
+      return unless games.respond_to?(:to_h)
+
+      normalize(games.to_h.with_indifferent_access[type == "Draw" ? :games : :winner])
+    end
+    private_class_method :triple_for
 
     def self.allowed_scores(event, type)
       (type == "Draw" ? DRAW_SCORES : WINNER_SCORES).fetch(event.match_games, [])
@@ -46,7 +58,7 @@ module Results
     private_class_method :allowed_scores
 
     def self.normalize(list)
-      Array(list).map { |value| Integer(value, exception: false) }
+      Array(list).map { |value| value.to_s.match?(/\A\d+\z/) ? value.to_i : nil }
     end
     private_class_method :normalize
 
@@ -134,8 +146,10 @@ module Results
     end
 
     # The game columns for one seat: the score as given for the winner and a draw, mirrored for the loser.
+    # An unscored 1v1 rewrite (Penalty, time called) resets them so stale games never feed the tiebreakers.
     def games_for(participant)
-      return {} if @score.nil?
+      return {} if @score.nil? && !@round.event.one_v_one?
+      return { games_won: 0, games_lost: 0, games_drawn: 0 } if @score.nil?
 
       won, lost, drawn = @type == "Draw" || participant == @winner ? @score : @score.values_at(1, 0, 2)
       { games_won: won, games_lost: lost, games_drawn: drawn }

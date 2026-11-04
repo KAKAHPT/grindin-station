@@ -109,6 +109,25 @@ module Organizer
       assert_select "#pod_#{pod.id} li[data-name='#{a.name}']", text: /2-1/, count: 0
     end
 
+    test "a 1v1 cut table resolved by time called shows no score" do
+      t = TournamentBuilder.build(players: 10, organizer: event_organizers(:standard_organizer), format: "one_v_one")
+      t.update_columns(swiss_rounds_count: 1, top_cut_size: 8) # rubocop:disable Rails/SkipsModelValidations
+      swiss = t.rounds.create!(type: SwissRound, number: 1)
+      TournamentBuilder.play_1v1_round!(t, scores: swiss.pods.pluck(:number).index_with([2, 0]))
+      t.update_column(:state, :single_elimination) # rubocop:disable Rails/SkipsModelValidations
+      cut = t.rounds.create!(type: SingleEliminationRound, number: 2)
+      cut.update!(published: true, started_at: Time.current)
+      pod = cut.pods.order(:number).first
+
+      Results::Timeout.call(pod: pod)
+      get organizer_tournament_round_path(t, cut)
+
+      assert_equal [[0, 0, 0]],
+                   Result.current.where(round: cut, event_participant: pod.event_participants).map(&:games).uniq
+      assert_select "#pod_#{pod.id} li[data-name]", 2
+      assert_select "#pod_#{pod.id} li[data-name]", text: /·|\d-\d/, count: 0
+    end
+
     test "a 1v1 result without a score is refused with the reason" do
       t, round, pod = one_v_one_round
       winner = pod.seatings.first.event_participant

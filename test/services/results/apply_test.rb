@@ -156,6 +156,41 @@ module Results
       assert_equal "impossible_score", error.message
     end
 
+    test "1v1: a scored row rewritten as a Penalty drops its old games" do
+      pod, a, = one_v_one_pod
+      Apply.call(pod: pod, type: "Win", winner: a, games: { winner: [2, 1, 0] })
+
+      Apply.call(pod: pod, type: "Penalty", winner: a)
+
+      assert_equal "Penalty", current(pod, a).type
+      assert_equal [0, 0, 0], current(pod, a).games
+    end
+
+    test "1v1: Eliminated needs no score" do
+      pod, a, = one_v_one_pod
+
+      assert_nothing_raised { Apply.call(pod: pod, type: "Eliminated", winner: a) }
+    end
+
+    test "1v1: UNSCORED is only for an Advance" do
+      pod, a, = one_v_one_pod
+
+      error = assert_raises(NotAllowed) { Apply.call(pod: pod, type: "Win", winner: a, games: Apply::UNSCORED) }
+      assert_equal "impossible_score", error.message
+    end
+
+    test "1v1: malformed form scores are impossible, not errors" do
+      pod, a, = one_v_one_pod
+      ["abc", "2-x-0", "-1-0-0", "2-0-0-0", " 2-0-0"].each do |value|
+        error =
+          assert_raises(NotAllowed) do
+            Apply.call(pod: pod, type: "Win", winner: a, games: Apply.games_param("Win", value))
+          end
+
+        assert_equal "impossible_score", error.message, value
+      end
+    end
+
     test "1v1 needs a score unless it is a penalty" do
       pod, a, = one_v_one_pod
       %w[Win Draw].each do |type|

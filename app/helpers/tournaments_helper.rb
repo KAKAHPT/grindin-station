@@ -61,10 +61,11 @@ module TournamentsHelper
 
   def draw_score_options(event) = DRAW_SCORE_OPTIONS.fetch(event.match_games)
 
-  # "2-1" from a 1v1 result's games (won-lost, then drawn games when there are any: "1-1-1").
+  # "2-1" from a 1v1 result's games (won-lost, then drawn games when there are any: "1-1-1"); nil when
+  # unscored (an Advance by time called).
   def result_score(result)
     won, lost, drawn = result.games
-    [won, lost, (drawn if drawn.positive?)].compact.join("-")
+    [won, lost, (drawn if drawn.positive?)].compact.join("-") unless (won + lost + drawn).zero?
   end
 
   def currency_options
