@@ -41,6 +41,9 @@
       <div>
         <%= f.label :email_address, class: label %>
         <%= f.email_field :email_address, required: true, autocomplete: "username", class: input %>
+        <% if @user.password_set %>
+          <p class="mt-1 text-xs text-muted"><%= t(".email_hint") %></p>
+        <% end %>
       </div>
       <div>
         <%= f.label :handle, class: label %>

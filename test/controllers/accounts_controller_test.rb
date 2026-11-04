@@ -89,6 +89,46 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     assert @user.password_set
   end
 
+  test "an e-mail change needs the current password" do
+    patch account_path, params: { user: { email_address: "new@example.com", current_password: "wrong" } }
+    assert_response :unprocessable_entity
+    assert_equal "player1@example.com", @user.reload.email_address
+
+    patch account_path, params: { user: { email_address: "new@example.com", current_password: "password123" } }
+    assert_redirected_to account_path
+    assert_equal "new@example.com", @user.reload.email_address
+  end
+
+  test "resubmitting the same e-mail needs no password" do
+    patch account_path, params: { user: { email_address: " Player1@example.com", name: "Renamed" } }
+
+    assert_redirected_to account_path
+    assert_equal "Renamed", @user.reload.name
+  end
+
+  test "a password or e-mail change ends the other sessions, keeping this one" do
+    other = @user.sessions.create!(user_agent: "other device")
+
+    patch account_path, params: { user: { password: "newpassword1", password_confirmation: "newpassword1",
+                                          current_password: "password123" } }
+    assert_not Session.exists?(other.id)
+    assert_equal 1, @user.sessions.count
+
+    other = @user.sessions.create!(user_agent: "other device")
+    patch account_path, params: { user: { email_address: "moved@example.com", current_password: "newpassword1" } }
+    assert_not Session.exists?(other.id)
+    get account_path
+    assert_response :success
+  end
+
+  test "a profile change keeps the other sessions" do
+    other = @user.sessions.create!(user_agent: "other device")
+
+    patch account_path, params: { user: { bio: "Hello" } }
+
+    assert Session.exists?(other.id)
+  end
+
   test "an OAuth-created user sets a password without the current one" do
     @user.update!(password_set: false)
 

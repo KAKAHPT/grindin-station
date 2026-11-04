@@ -410,6 +410,7 @@ en:
       title: "Your account"
       profile: "Profile"
       avatar_hint: "JPEG, PNG or WebP, up to 2 MB."
+      email_hint: "To change your e-mail, also type your current password below."
       handle_hint: "3 to 30 lowercase letters, digits or hyphens. Used in your public profile address."
       visibility:
         public: "Public"

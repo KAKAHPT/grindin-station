@@ -2,9 +2,12 @@
 
 class SessionsController < ApplicationController
   allow_unauthenticated_access only: %i[new create]
-  rate_limit to: 10, within: 3.minutes, only: :create, with: lambda {
-    redirect_to new_session_url, alert: t("flash.alert.try_again_later")
-  }
+  # Per e-mail against password guessing; per address only loosely, since a venue's players share one.
+  rate_limit to: 10, within: 3.minutes, only: :create, name: "email",
+             by: -> { params.dig(:session, :email_address).to_s.strip.downcase },
+             with: -> { redirect_to new_session_url, alert: t("flash.alert.try_again_later") }
+  rate_limit to: 100, within: 3.minutes, only: :create, name: "ip",
+             with: -> { redirect_to new_session_url, alert: t("flash.alert.try_again_later") }
 
   def new; end
 
