@@ -45,7 +45,8 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   validates :top_cut_timeout_rule, inclusion: { in: TOP_CUT_TIMEOUT_RULES }
   validates :confirmation_timeout_minutes, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
 
-  before_validation :populate_slug
+  validates :slug, uniqueness: true
+  before_validation :populate_slug, if: -> { slug.blank? }
 
   after_update :perform_state_based_actions, if: -> { state_previously_changed? }
   after_save :geocode_address, if: -> { address_previously_changed? }
@@ -161,11 +162,21 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
     touch
   end
 
+  # Set once from the name (never on rename, so links and QR codes keep working); "weekly-2", "weekly-3"
+  # for the next events of the same name.
   def populate_slug
-    self.slug = name.downcase.gsub(/[^a-z0-9]/, "-")
+    return if name.blank?
+
+    base = name.downcase.gsub(/[^a-z0-9]/, "-")
+    taken = slugs_starting_with(base)
+    self.slug = taken.include?(base) ? (2..).lazy.map { |n| "#{base}-#{n}" }.find { |s| taken.exclude?(s) } : base
   end
 
   private
+
+  def slugs_starting_with(base)
+    Event.where(slug: base).or(Event.where("slug LIKE ?", "#{Event.sanitize_sql_like(base)}-%")).pluck(:slug).to_set
+  end
 
   def points_locked_after_start
     return unless points_locked?
