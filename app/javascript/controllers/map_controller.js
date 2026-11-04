@@ -1,5 +1,4 @@
 import { Controller } from "@hotwired/stimulus"
-import leaflet from "leaflet"
 
 export default class extends Controller {
   static values = {
@@ -8,7 +7,11 @@ export default class extends Controller {
     address: String
   }
 
-  connect() {
+  // Leaflet is imported only when a map appears, so pages without one never load it.
+  async connect() {
+    const leaflet = await import("leaflet")
+    if (!this.element.isConnected) return
+
     this.map = leaflet.map(this.element, {
       zoomControl: false
     }).setView([this.latitudeValue, this.longitudeValue], 17);

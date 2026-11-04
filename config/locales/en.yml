@@ -1,9 +1,16 @@
 en:
   app:
     name: "Grindin Station"
+    description: "Pairings, standings and results of cEDH events, live on your phone."
   activerecord:
     errors:
       models:
+        user:
+          current_password_invalid: "Current password is incorrect"
+          attributes:
+            avatar:
+              content_type: "must be a JPEG, PNG or WebP image"
+              too_big: "must be 2 MB or smaller"
         event:
           attributes:
             points_win:
@@ -24,6 +31,17 @@ en:
               locked: "cannot change once the tournament has started"
               too_big: "is bigger than the number of players"
     attributes:
+      user:
+        name: "Name"
+        email_address: "E-mail"
+        handle: "Handle"
+        country: "Country (2-letter code)"
+        bio: "Bio"
+        visibility: "Profile visibility"
+        avatar: "Avatar"
+        password: "Password"
+        password_confirmation: "Password confirmation"
+        current_password: "Current password"
       event:
         points_win: "Points for a win"
         points_draw: "Points for a draw"
@@ -38,6 +56,7 @@ en:
         confirmation_timeout_minutes: "Confirmation timeout (minutes)"
         waitlist_enabled: "Waitlist when full"
         show_commanders_in_standings: "Show commanders in standings"
+        show_decklists: "Show decklists on player profiles"
         top_cut_timeout_rule: "If a top cut game times out"
       event_participant:
         accepted_terms: "I have read and accepted the rules for this event."
@@ -142,11 +161,51 @@ en:
       confirm_no_show: "Mark %{name} as a no-show?"
       confirm_undo_drop: "Re-enroll %{name}?"
   play:
+    description: "%{event}: pairings, standings and tables, live."
     not_a_participant: "Only players in this event can open that page."
     nav:
       my_table: "My table"
       standings: "Standings"
       event: "Event"
+      pairings: "Pairings"
+    events:
+      when: "When"
+      where: "Where"
+      price: "Price"
+      free: "Free entry"
+      open_map: "Open in Google Maps"
+      time_format: "%d %b %Y, %H:%M %Z"
+      enrolled_count: "enrolled"
+      waitlist_count: "on the waitlist"
+      enrolled: "Enrolled"
+      waitlist: "Waitlist"
+      nobody_yet: "Nobody has enrolled yet."
+      description: "About"
+      schedule: "Schedule"
+      rules: "Rules"
+      manage: "Manage"
+      enrol: "Enrol"
+      sign_in_to_enrol: "Sign in to enrol"
+      decklist_placeholder: "Decklist or commander (optional)"
+      cancel_registration: "Cancel registration"
+      cancel_confirm: "Cancel your registration for this event?"
+      you_are_enrolled: "You are enrolled."
+      you_are_waitlisted: "You are number %{position} on the waitlist."
+      state:
+        draft: "Draft"
+        registration_open: "Registration open"
+        registration_closed: "Registration closed"
+        swiss: "Swiss round %{number}"
+        single_elimination: "Top %{size}"
+        finished: "Finished"
+        canceled: "Canceled"
+    standings:
+      final_title: "Final standings"
+    pairings:
+      byes: "Byes"
+      bye: "Bye: %{name}"
+      rounds: "Rounds"
+      winner: "Winner"
     tables:
       round: "Round %{number}"
       table: "Table"
@@ -298,6 +357,82 @@ en:
       password_reset_link_invalid: "Password reset link is invalid or has expired."
       try_again_later: "Try again later."
       invalid_credentials: "Try another email address or password."
+  accounts:
+    confirm_new_password: "Confirm new password"
+    nav: "Account"
+    removed_player: "Removed player"
+    show:
+      title: "Your account"
+      profile: "Profile"
+      avatar_hint: "JPEG, PNG or WebP, up to 2 MB."
+      handle_hint: "3 to 30 lowercase letters, digits or hyphens. Used in your public profile address."
+      visibility:
+        public: "Public"
+        participants: "Only players of my events"
+        private: "Private"
+      password: "Password"
+      password_not_set: "You signed up with Google or Discord. Set a password to also sign in with your e-mail."
+      new_password: "New password"
+      save: "Save changes"
+      identities: "Linked sign-ins"
+      no_identities: "No Google or Discord account linked."
+      link: "Link %{provider}"
+      unlink: "Unlink"
+      unlink_hint: "Set a password or link another account before unlinking this one."
+      delete_title: "Delete account"
+      delete_explanation: "Your name, e-mail, avatar and linked sign-ins are removed. Your past results stay in the events under \"Removed player\". This cannot be undone."
+      delete_prompt: "Type \"%{word}\" to confirm"
+      delete_word: "delete"
+      delete_button: "Delete my account"
+    flash:
+      updated: "Account updated."
+      unlinked: "Sign-in unlinked."
+      unlink_refused: "You need a password or another linked sign-in before unlinking this one."
+      confirmation_mismatch: "The confirmation word did not match. Your account was not deleted."
+      deleted: "Your account was deleted."
+  auth:
+    continue_with_google: "Continue with Google"
+    continue_with_discord: "Continue with Discord"
+    email_unverified: "%{provider} did not verify your e-mail. Sign in with your password and link %{provider} in your account."
+    email_taken: "An account with this e-mail already exists. Sign in with your password, then link %{provider} in your account."
+    identity_taken: "That %{provider} account is already linked to another user."
+    linked: "%{provider} linked."
+    oauth_failed: "Could not sign you in with that account. Try again or use your e-mail and password."
+    or: "or"
   passwords_mailer:
     reset:
       subject: "Reset your password"
+  notifications:
+    title: "Notifications"
+    mark_all_read: "Mark all as read"
+    empty: "No notifications yet."
+    kinds:
+      judge_call: "A judge was called at %{event}."
+      result_contested: "A result at your table was contested at %{event}. A judge is on the way."
+  profiles:
+    description: "%{name} on Grindin Station: events and results."
+    sign_in: "Sign in"
+    follow: "Follow"
+    coming_soon: "Coming soon"
+    events: "Events"
+    no_events: "No finished events yet."
+    position: "%{ordinal} of %{total}"
+    decklist: "Decklist"
+    comments: "Comments"
+    comments_soon: "Comments are coming soon."
+    countries:
+      PT: "Portugal"
+      ES: "Spain"
+      BR: "Brazil"
+      FR: "France"
+      GB: "United Kingdom"
+      US: "United States"
+      DE: "Germany"
+      IT: "Italy"
+      NL: "Netherlands"
+      BE: "Belgium"
+      IE: "Ireland"
+      CH: "Switzerland"
+      AO: "Angola"
+      MZ: "Mozambique"
+      CV: "Cape Verde"

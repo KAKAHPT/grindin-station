@@ -1,9 +1,16 @@
 pt:
   app:
     name: "Grindin Station"
+    description: "Emparelhamentos, classificações e resultados de eventos de cEDH, ao vivo no telemóvel."
   activerecord:
     errors:
       models:
+        user:
+          current_password_invalid: "A palavra-passe atual está incorreta"
+          attributes:
+            avatar:
+              content_type: "tem de ser uma imagem JPEG, PNG ou WebP"
+              too_big: "tem de ter 2 MB ou menos"
         event:
           attributes:
             points_win:
@@ -24,6 +31,17 @@ pt:
               locked: "não pode mudar depois de o torneio começar"
               too_big: "é maior do que o número de jogadores"
     attributes:
+      user:
+        name: "Nome"
+        email_address: "E-mail"
+        handle: "Identificador"
+        country: "País (código de 2 letras)"
+        bio: "Bio"
+        visibility: "Visibilidade do perfil"
+        avatar: "Avatar"
+        password: "Palavra-passe"
+        password_confirmation: "Confirmação da palavra-passe"
+        current_password: "Palavra-passe atual"
       event:
         points_win: "Pontos por vitória"
         points_draw: "Pontos por empate"
@@ -38,6 +56,7 @@ pt:
         confirmation_timeout_minutes: "Tempo limite de confirmação (minutos)"
         waitlist_enabled: "Lista de espera quando cheio"
         show_commanders_in_standings: "Mostrar comandantes na classificação"
+        show_decklists: "Mostrar decklists nos perfis dos jogadores"
         top_cut_timeout_rule: "Se um jogo do corte esgotar o tempo"
       event_participant:
         accepted_terms: "Li e aceito as regras deste evento."
@@ -142,11 +161,51 @@ pt:
       confirm_no_show: "Marcar %{name} como não comparecido?"
       confirm_undo_drop: "Voltar a inscrever %{name}?"
   play:
+    description: "%{event}: emparelhamentos, classificação e mesas, ao vivo."
     not_a_participant: "Só os jogadores deste evento podem abrir essa página."
     nav:
       my_table: "A minha mesa"
       standings: "Classificação"
       event: "Evento"
+      pairings: "Emparelhamentos"
+    events:
+      when: "Quando"
+      where: "Onde"
+      price: "Preço"
+      free: "Entrada gratuita"
+      open_map: "Abrir no Google Maps"
+      time_format: "%d %b %Y, %H:%M %Z"
+      enrolled_count: "inscritos"
+      waitlist_count: "em lista de espera"
+      enrolled: "Inscritos"
+      waitlist: "Lista de espera"
+      nobody_yet: "Ainda ninguém se inscreveu."
+      description: "Sobre"
+      schedule: "Horário"
+      rules: "Regras"
+      manage: "Gerir"
+      enrol: "Inscrever"
+      sign_in_to_enrol: "Entrar para inscrever-se"
+      decklist_placeholder: "Decklist ou comandante (opcional)"
+      cancel_registration: "Anular inscrição"
+      cancel_confirm: "Anular a tua inscrição neste evento?"
+      you_are_enrolled: "Estás inscrito."
+      you_are_waitlisted: "És o número %{position} da lista de espera."
+      state:
+        draft: "Rascunho"
+        registration_open: "Inscrições abertas"
+        registration_closed: "Inscrições fechadas"
+        swiss: "Swiss ronda %{number}"
+        single_elimination: "Top %{size}"
+        finished: "Terminado"
+        canceled: "Cancelado"
+    standings:
+      final_title: "Classificação final"
+    pairings:
+      byes: "Byes"
+      bye: "Bye: %{name}"
+      rounds: "Rondas"
+      winner: "Vencedor"
     tables:
       round: "Ronda %{number}"
       table: "Mesa"
@@ -298,6 +357,82 @@ pt:
       password_reset_link_invalid: "A ligação para repor a palavra-passe é inválida ou expirou."
       try_again_later: "Tenta novamente mais tarde."
       invalid_credentials: "Tenta outro e-mail ou outra palavra-passe."
+  accounts:
+    confirm_new_password: "Confirmar nova palavra-passe"
+    nav: "Conta"
+    removed_player: "Jogador removido"
+    show:
+      title: "A tua conta"
+      profile: "Perfil"
+      avatar_hint: "JPEG, PNG ou WebP, até 2 MB."
+      handle_hint: "3 a 30 letras minúsculas, algarismos ou hífenes. Usado no endereço do teu perfil público."
+      visibility:
+        public: "Público"
+        participants: "Só jogadores dos meus eventos"
+        private: "Privado"
+      password: "Palavra-passe"
+      password_not_set: "Registaste-te com Google ou Discord. Define uma palavra-passe para também entrares com o teu e-mail."
+      new_password: "Nova palavra-passe"
+      save: "Guardar alterações"
+      identities: "Contas ligadas"
+      no_identities: "Nenhuma conta Google ou Discord ligada."
+      link: "Ligar %{provider}"
+      unlink: "Desligar"
+      unlink_hint: "Define uma palavra-passe ou liga outra conta antes de desligar esta."
+      delete_title: "Eliminar conta"
+      delete_explanation: "O teu nome, e-mail, avatar e contas ligadas são removidos. Os teus resultados passados ficam nos eventos como \"Jogador removido\". Não é possível desfazer."
+      delete_prompt: "Escreve \"%{word}\" para confirmar"
+      delete_word: "eliminar"
+      delete_button: "Eliminar a minha conta"
+    flash:
+      updated: "Conta atualizada."
+      unlinked: "Conta desligada."
+      unlink_refused: "Precisas de uma palavra-passe ou de outra conta ligada antes de desligar esta."
+      confirmation_mismatch: "A palavra de confirmação não coincide. A tua conta não foi eliminada."
+      deleted: "A tua conta foi eliminada."
+  auth:
+    continue_with_google: "Continuar com Google"
+    continue_with_discord: "Continuar com Discord"
+    email_unverified: "O %{provider} não verificou o teu e-mail. Entra com a tua palavra-passe e liga o %{provider} na tua conta."
+    email_taken: "Já existe uma conta com este e-mail. Entra com a tua palavra-passe e depois liga o %{provider} na tua conta."
+    identity_taken: "Essa conta %{provider} já está ligada a outro utilizador."
+    linked: "%{provider} ligado."
+    oauth_failed: "Não foi possível entrar com essa conta. Tenta novamente ou usa o e-mail e a palavra-passe."
+    or: "ou"
   passwords_mailer:
     reset:
       subject: "Repõe a tua palavra-passe"
+  notifications:
+    title: "Notificações"
+    mark_all_read: "Marcar todas como lidas"
+    empty: "Ainda não há notificações."
+    kinds:
+      judge_call: "Foi chamado um juiz em %{event}."
+      result_contested: "Um resultado da tua mesa foi contestado em %{event}. Vem aí um juiz."
+  profiles:
+    description: "%{name} no Grindin Station: eventos e resultados."
+    sign_in: "Entrar"
+    follow: "Seguir"
+    coming_soon: "Em breve"
+    events: "Eventos"
+    no_events: "Ainda sem eventos terminados."
+    position: "%{position}.º de %{total}"
+    decklist: "Decklist"
+    comments: "Comentários"
+    comments_soon: "Os comentários chegam em breve."
+    countries:
+      PT: "Portugal"
+      ES: "Espanha"
+      BR: "Brasil"
+      FR: "França"
+      GB: "Reino Unido"
+      US: "Estados Unidos"
+      DE: "Alemanha"
+      IT: "Itália"
+      NL: "Países Baixos"
+      BE: "Bélgica"
+      IE: "Irlanda"
+      CH: "Suíça"
+      AO: "Angola"
+      MZ: "Moçambique"
+      CV: "Cabo Verde"

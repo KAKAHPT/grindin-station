@@ -11,7 +11,7 @@ class EventParticipantsStandingsTest < ActionDispatch::IntegrationTest
   end
 
   test "public standings show the tiebreaker columns and explain them" do
-    get tournament_event_participants_path(@tournament)
+    get play_standings_path(@tournament.slug)
 
     assert_response :success
     assert_standings_headers(:en)
@@ -19,7 +19,7 @@ class EventParticipantsStandingsTest < ActionDispatch::IntegrationTest
   end
 
   test "public standings render in portuguese" do
-    get tournament_event_participants_path(@tournament, locale: "pt")
+    get play_standings_path(@tournament.slug, locale: "pt")
 
     assert_response :success
     assert_standings_headers(:pt)
@@ -31,7 +31,7 @@ class EventParticipantsStandingsTest < ActionDispatch::IntegrationTest
     tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
     tournament.rounds.create!(type: SwissRound, number: 1)
 
-    get tournament_event_participants_path(tournament)
+    get play_standings_path(tournament.slug)
 
     assert_response :success
   end
@@ -41,7 +41,7 @@ class EventParticipantsStandingsTest < ActionDispatch::IntegrationTest
                                                      player_email: "espera-#{SecureRandom.hex(3)}@example.com")
     waiting.update_columns(waitlisted: true, waitlist_position: 1) # rubocop:disable Rails/SkipsModelValidations
 
-    get tournament_event_participants_path(@tournament)
+    get play_standings_path(@tournament.slug)
 
     assert_response :success
     assert_select "tbody tr", 8

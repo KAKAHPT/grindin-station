@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>" class="dark">
+  <head>
+    <title><%= [content_for(:title), t("app.name")].compact_blank.join(" · ") %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= render "layouts/phone_head", description: t("app.description") %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+  <body class="min-h-screen bg-ground text-ink font-body antialiased">
+    <header class="sticky top-0 z-20 px-4 py-3 border-b border-line bg-surface/90 backdrop-blur shadow-card">
+      <%= link_to t("app.name"), root_path(locale: params[:locale]), class: "font-display text-lg font-semibold" %>
+    </header>
+
+    <% flash.each do |key, message| %>
+      <p role="alert" data-flash="<%= key %>"
+         class="mx-4 mt-4 p-3 rounded-xl border text-sm <%= key.to_s == "alert" ? "bg-danger/10 text-danger border-danger/40" : "bg-accent/10 text-accent border-accent/40" %>">
+        <%= message %>
+      </p>
+    <% end %>
+
+    <main class="max-w-md mx-auto px-4 pt-4 pb-12">
+      <%= yield %>
+    </main>
+
+    <footer class="max-w-md mx-auto px-4 py-6 border-t border-line text-sm text-muted">
+      <% if authenticated? %>
+        <%= link_to t("accounts.nav"), account_path(locale: params[:locale]), class: "hover:text-ink" %>
+      <% else %>
+        <%= link_to t("profiles.sign_in"), new_session_path(locale: params[:locale]), class: "hover:text-ink" %>
+      <% end %>
+    </footer>
+  </body>
+</html>

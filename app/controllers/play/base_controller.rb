@@ -1,12 +1,22 @@
 # frozen_string_literal: true
 
 module Play
-  # Player-facing pages of one event (/t/:slug): only an enrolled, not eliminated participant gets in.
+  # Player-facing pages of one event (/t/:slug): only an enrolled, not eliminated participant gets in,
+  # except for the actions declared with `public_actions`, open to anyone (current_participant may be nil).
   class BaseController < ApplicationController
+    include PublicEvent
+
     layout "play"
 
     before_action :load_event
     before_action :load_participant
+
+    # Open to visitors: no login, no participant required (the signed-in user's participant is still loaded).
+    def self.public_actions(*actions)
+      allow_unauthenticated_access(only: actions)
+      skip_before_action :load_participant, only: actions
+      before_action :find_participant, only: actions
+    end
 
     helper_method :current_participant, :current_event, :current_round, :judge_called?
 
@@ -19,15 +29,20 @@ module Play
     attr_reader :current_participant, :current_event
 
     def load_event
-      @current_event = Tournament.find_by!(slug: params.expect(:slug))
+      @current_event = find_public_event!
     end
 
     def load_participant
-      player = current_user.player
-      @current_participant = player && current_event.event_participants.find_by(player: player)
+      find_participant
       return if @current_participant&.enrolled? && !eliminated?
 
-      redirect_to tournament_path(current_event), alert: t("play.not_a_participant")
+      redirect_to play_event_path(current_event.slug, locale: params[:locale]), alert: t("play.not_a_participant")
+    end
+
+    # The signed-in user's participant in the event, in any state, or nil.
+    def find_participant
+      player = current_user&.player
+      @current_participant = player && current_event.event_participants.find_by(player: player)
     end
 
     def eliminated?

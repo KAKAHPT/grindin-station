@@ -4,8 +4,8 @@
     <li>
       <span class="seat-no"><%= seating.order %></span>
       <span class="seat-name"><%= participant.name %></span>
-      <% if event.show_commanders_in_standings && participant.decklist.present? %>
-        <span class="seat-commander"><%= participant.decklist %></span>
+      <% if event.show_commanders_in_standings && commander_text(participant) %>
+        <span class="seat-commander"><%= commander_text(participant) %></span>
       <% end %>
     </li>
   <% end %>

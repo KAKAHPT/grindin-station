@@ -14,12 +14,12 @@
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css", integrity: "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=", crossorigin: "anonymous", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/light/style.css", integrity: "sha256-8uWWmfqu7ifantuG3Rj17TvVET2z5OOI/dI6/K8wiGU=", crossorigin: "anonymous", "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
+    <%= javascript_importmap_tags "organizer" %>
+    <%= yield :head %>
   </head>
   <body class="bg-ground text-ink font-body antialiased">
     <header class="fixed z-30 w-full bg-surface/90 backdrop-blur border-b border-line shadow-card">
-      <nav class="py-3 px-4">
+      <nav class="py-3 px-4" aria-label="<%= t("app.name") %>">
         <div class="flex justify-between items-center max-w-screen-2xl mx-auto">
           <div class="flex justify-start items-center">
             <button
@@ -94,6 +94,8 @@
             <% end %>
 
             <% if authenticated? %>
+              <%= render "notifications/bell" %>
+              <%= link_to t("accounts.nav"), account_path(locale: params[:locale]), class: "text-muted hover:text-ink hover:bg-line focus:outline-none focus:ring-2 focus:ring-line rounded-lg text-sm p-2.5" %>
               <%= link_to 'Logout', session_path(Current.session), data: { "turbo-method": :delete }, class: "text-muted hover:text-ink hover:bg-line focus:outline-none focus:ring-2 focus:ring-line rounded-lg text-sm p-2.5" %>
             <% else %>
               <%= link_to new_session_path, data: { turbo_frame: "modal" }, class: small_button_classes(:primary) do %>
@@ -131,7 +133,7 @@
             <%= yield %>
           </div>
 
-          <%= turbo_frame_tag "modal" %>
+          <%= turbo_frame_tag "modal", data: ({ turbo_permanent: true } if content_for?(:permanent_modal)) %>
         </main>
         <footer
           class="

@@ -32,7 +32,32 @@ class QueryBudgetTest < ActionDispatch::IntegrationTest
   end
 
   test "public standings run under 60 queries" do
-    assert_queries_under(60, "public standings") { get tournament_event_participants_path(@t) }
+    assert_queries_under(60, "public standings") { get play_standings_path(@t.slug) }
+  end
+
+  test "public pairings with 16 tables run under 60 queries" do
+    @t.rounds.create!(type: SwissRound, number: 2).update!(published: true)
+    assert_queries_under(60, "public pairings (organizer)") { get play_pairings_path(@t.slug) }
+    assert_select "[data-pod-number]", count: 16
+
+    delete session_path
+    assert_queries_under(60, "public pairings (visitor)") { get play_pairings_path(@t.slug) }
+    assert_queries_under(60, "public pairings, closed round") { get play_pairings_path(@t.slug, round: 1) }
+  end
+
+  test "public event page with a waitlist runs under 60 queries" do
+    10.times do |i|
+      user = User.create!(name: "Espera #{i}", email_address: "espera-#{i}-#{SecureRandom.hex(3)}@example.com",
+                          password: "password123")
+      @t.event_participants.create!(player: user.player, accepted_terms: true, waitlisted: true,
+                                    waitlist_position: i + 1)
+    end
+    assert_queries_under(60, "event page (organizer)") { get play_event_path(@t.slug) }
+    assert_select "[data-enrolled] li", count: 64
+    assert_select "[data-waitlist] li", count: 10
+
+    delete session_path
+    assert_queries_under(60, "event page (visitor)") { get play_event_path(@t.slug) }
   end
 
   private

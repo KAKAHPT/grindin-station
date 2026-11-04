@@ -48,9 +48,13 @@ module ApplicationHelper
     ], &block)
   end
 
+  # Phosphor light icon from the local sprite (app/assets/images/icons.svg), sized to the font like
+  # the old icon font; a w-*/h-* class in options[:class] overrides the size.
   def icon(name, options = nil)
     css_classes = options&.dig(:class)
-    tag.i(class: "ph-light ph-#{name} #{css_classes}")
+    tag.svg(tag.use(href: "#{asset_path('icons.svg')}##{name}"),
+            class: "inline-block size-[1em] shrink-0 align-[-0.125em] #{css_classes}".strip,
+            fill: "currentColor", "aria-hidden": "true")
   end
 
   def organizer_mode?

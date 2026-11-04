@@ -63,6 +63,7 @@
   <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><%= t("organizer.confirmation_help") %></p>
   <%= f.check_box_with_label :waitlist_enabled %>
   <%= f.check_box_with_label :show_commanders_in_standings %>
+  <%= f.check_box_with_label :show_decklists %>
   <%= f.select_with_label :top_cut_timeout_rule, top_cut_timeout_rule_options, selected: tournament.top_cut_timeout_rule %>
 
   <%= f.text_area_with_label :description, rows: 4, placeholder: "Additional info, like how to get to the venue, where to eat, etc." %>

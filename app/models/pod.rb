@@ -32,6 +32,11 @@ class Pod < ApplicationRecord
 
   after_initialize -> { @candidates = [] }
 
+  # Report state shown on "my table" and on the pod card; a change is broadcast live.
+  LIVE_ATTRIBUTES = %w[pending_result confirmations disputed review_requested_at extra_time
+                       reported_by_participant_id reported_at].freeze
+  after_update_commit :broadcast_live, if: -> { saved_changes.keys.intersect?(LIVE_ATTRIBUTES) }
+
   def open_judge_call?
     return judge_calls.any? { |call| call.status.in?(%w[open acknowledged]) } if judge_calls.loaded?
 
@@ -110,6 +115,12 @@ class Pod < ApplicationRecord
     assigner.order.each.with_index(1) do |participant, position|
       seatings.build(event_participant: participant, order: position, assigned_by: "fair", cost: assigner.cost)
     end
+  end
+
+  # A dispute moves the pod in or out of :completed, which changes the card's staff buttons: refresh the page too.
+  def broadcast_live
+    Live::BroadcastPodJob.perform_later(pod_id: id, refresh: saved_change_to_disputed?,
+                                        request_id: Turbo.current_request_id)
   end
 
   def seating_rng

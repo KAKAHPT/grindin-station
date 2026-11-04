@@ -19,6 +19,13 @@ class JudgeCall < ApplicationRecord
   validate :stays_closed, if: -> { status_in_database == "closed" && has_changes_to_save? }
   validate :acknowledged_from_open, if: -> { acknowledged? && will_save_change_to_acknowledged_at? }
 
+  # A call shows on the table (and the pod card when it has a pod).
+  after_commit on: %i[create update] do
+    if pod_id then Live::BroadcastPodJob.perform_later(pod_id: pod_id)
+    elsif event_participant_id then Live::BroadcastTableJob.perform_later(event_participant_id)
+    end
+  end
+
   STATUSES.each { |status| define_method(:"#{status}?") { self.status == status } }
 
   def acknowledge!(by:)

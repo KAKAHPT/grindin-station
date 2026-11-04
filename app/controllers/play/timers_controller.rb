@@ -3,12 +3,14 @@
 module Play
   # Public big-screen clock of one event (/t/:slug/timer): no login, no nav.
   class TimersController < ApplicationController
+    include PublicEvent
+
     layout "timer"
 
     allow_unauthenticated_access
 
     def show
-      @event = Tournament.find_by!(slug: params.expect(:slug))
+      @event = find_public_event!
       @round = @event.rounds.where(published: true).order(number: :desc).first
       @minutes = round_minutes
     end

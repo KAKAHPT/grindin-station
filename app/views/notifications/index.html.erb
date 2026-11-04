@@ -1,0 +1,26 @@
+<div class="max-w-md mx-auto">
+  <div class="flex items-center justify-between gap-3">
+    <h1 class="font-display text-2xl font-semibold"><%= t("notifications.title") %></h1>
+    <% if @notifications.any? { |notification| notification.read_at.nil? } %>
+      <%= button_to t("notifications.mark_all_read"), mark_all_read_notifications_path(locale: params[:locale]),
+                    class: small_button_classes(:secondary) %>
+    <% end %>
+  </div>
+
+  <% if @notifications.empty? %>
+    <p class="mt-6 text-sm text-muted"><%= t("notifications.empty") %></p>
+  <% else %>
+    <ol class="mt-4 divide-y divide-line/60 border-y border-line">
+      <% @notifications.each do |notification| %>
+        <%= tag.li data: { notification: true, unread: (true if notification.read_at.nil?) },
+                   class: ["py-3 flex items-start gap-3 text-sm", ("font-semibold" if notification.read_at.nil?)] do %>
+          <span class="mt-1.5 size-1.5 shrink-0 rounded-full <%= notification.read_at.nil? ? "bg-accent" : "bg-transparent" %>" aria-hidden="true"></span>
+          <span class="flex-1 min-w-0">
+            <%= notification_line(notification) %>
+            <%= time_tag notification.created_at, l(notification.created_at, format: :short), class: "block text-xs font-normal text-muted" %>
+          </span>
+        <% end %>
+      <% end %>
+    </ol>
+  <% end %>
+</div>

@@ -17,6 +17,7 @@ class Round < ApplicationRecord
 
   after_create :create_pods
   after_update :round_finished
+  after_update_commit :broadcast_live, if: -> { saved_changes.keys.intersect?(%w[published started_at finished_at]) }
 
   def finished?
     pods.all?(&:finished?)
@@ -66,6 +67,13 @@ class Round < ApplicationRecord
   end
 
   private
+
+  # Publishing, starting or closing reloads the staff round pages. Publishing, or reopening after the
+  # next round was undone, also pushes every table.
+  def broadcast_live
+    tables = saved_change_to_published?(to: true) || saved_change_to_finished_at?(to: nil)
+    Live::BroadcastRoundJob.perform_later(self, tables: tables, request_id: Turbo.current_request_id)
+  end
 
   def round_finished
     return unless finished_at.present? && finished_at_previously_changed?

@@ -105,15 +105,15 @@ class TournamentLifecycleTest < ApplicationSystemTestCase
     player_user = users(:player_seven) # Player not yet registered
     sign_in_as(player_user)
 
-    # Register for tournament via modal form
+    # Register from the public event page (the old address redirects there)
     visit tournament_path(tournament)
-    click_link "Sign up"
+    assert_current_path play_event_path(tournament.slug)
 
-    # Wait for modal to appear and fill in the form
     fill_in "Decklist", with: "https://moxfield.com/test"
     find('input[name="event_participant[accepted_terms]"]').set(true)
-    click_button "Confirm Sign up"
+    click_button "Enrol"
     assert_text I18n.t("flash.notice.registration_successful")
+    assert_button "Cancel registration"
 
     assert EventParticipant.exists?(
       event: tournament,

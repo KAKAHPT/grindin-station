@@ -1,3 +1,7 @@
+<% content_for :permanent_modal, "1" %>
+<%# Live: pod states arrive on the round stream; a change that moves a pod's staff buttons morph-refreshes the page. %>
+<% turbo_refreshes_with method: :morph, scroll: :preserve %>
+<%= turbo_stream_from LiveBroadcasts.round_stream(@round.id) %>
 <%= content_for :sub_navigation do %>
   <nav class="flex mb-5" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2">

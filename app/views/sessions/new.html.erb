@@ -32,3 +32,13 @@
     <% end %>
   <% end %>
 <% end %>
+
+<% oauth_providers = { google_oauth2: "auth.continue_with_google", discord: "auth.continue_with_discord" }.select { |provider, _| oauth_enabled?(provider) } %>
+<% if oauth_providers.any? %>
+  <div class="mt-4 flex flex-col gap-2">
+    <p class="text-center text-sm text-muted"><%= t("auth.or") %></p>
+    <% oauth_providers.each do |provider, label| %>
+      <%= button_to t(label), "/auth/#{provider}", method: :post, data: { turbo: false }, class: button_classes(:secondary, "w-full"), form_class: "contents" %>
+    <% end %>
+  </div>
+<% end %>

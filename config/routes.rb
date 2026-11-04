@@ -2,8 +2,16 @@
 
 Rails.application.routes.draw do
   resource :session
+  get "/auth/:provider/callback", to: "omniauth_callbacks#create", as: :omniauth_callback
+  get "/auth/failure", to: "omniauth_callbacks#failure", as: :omniauth_failure
   resources :passwords, param: :token
   resources :registrations, only: %i[new create]
+  resource :account, only: %i[show update destroy]
+  delete "/account/identities/:id" => "accounts#unlink_identity", as: :unlink_identity
+  get "/p/:handle", to: "profiles#show", as: :profile, constraints: { handle: /[a-z0-9-]+/ }
+  resources :notifications, only: :index do
+    post :mark_all_read, on: :collection
+  end
 
   resources :tournaments, only: %i[index show] do
     resources :rounds do
@@ -29,9 +37,12 @@ Rails.application.routes.draw do
     end
   end
 
+  get "/t/:slug", to: "play/events#show", as: :play_event
   scope "/t/:slug", module: :play, as: :play do
     get "me", to: "tables#show"
     get "timer", to: "timers#show"
+    get "pairings", to: "pairings#show"
+    get "standings", to: "standings#show"
     resources :pods, only: [] do
       get "report/new", to: "reports#new"
       post "report", to: "reports#create"

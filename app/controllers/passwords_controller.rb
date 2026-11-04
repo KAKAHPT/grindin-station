@@ -25,7 +25,8 @@ class PasswordsController < ApplicationController
   end
 
   def update
-    if @user.update(params.permit(:password, :password_confirmation))
+    if @user.update(params.permit(:password, :password_confirmation).merge(password_set: true))
+      @user.sessions.destroy_all
       redirect_to new_session_path, notice: t("flash.notice.password_reset")
     else
       redirect_to edit_password_path(params[:token]), alert: t("flash.alert.passwords_no_match")
@@ -35,8 +36,8 @@ class PasswordsController < ApplicationController
   private
 
   def set_user_by_token
-    @user = User.find_by!(password_reset_token: params[:token])
-  rescue ActiveSupport::MessageVerifier::InvalidSignature
+    @user = User.find_by_token_for!(:password_reset, params[:token])
+  rescue ActiveSupport::MessageVerifier::InvalidSignature, ActiveRecord::RecordNotFound
     redirect_to new_password_path, alert: t("flash.alert.password_reset_link_invalid")
   end
 end

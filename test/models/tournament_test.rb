@@ -292,6 +292,27 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     assert_equal "my-awesome-tournament-", tournament.slug
   end
 
+  test "renaming keeps the slug" do
+    tournament = create_named("Weekly")
+
+    tournament.update!(name: "Weekly Renamed")
+
+    assert_equal "weekly", tournament.reload.slug
+  end
+
+  test "events with the same name get unique slugs" do
+    assert_equal %w[weekly weekly-2 weekly-3], Array.new(3) { create_named("Weekly").slug }
+  end
+
+  test "a taken slug is invalid" do
+    create_named("Weekly")
+    tournament = Tournament.new(name: "Other", slug: "weekly", event_organizer: event_organizers(:standard_organizer),
+                                start_time: 1.week.from_now, end_time: 2.weeks.from_now)
+
+    assert_not tournament.valid?
+    assert_includes tournament.errors[:slug], I18n.t("errors.messages.taken")
+  end
+
   test "tournament requires event_organizer" do
     tournament = Tournament.new(
       name: "Test Tournament",
@@ -393,5 +414,12 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
 
     assert_equal 0, tournament.latitude
     assert_equal 0, tournament.longitude
+  end
+
+  private
+
+  def create_named(name)
+    Tournament.create!(name: name, event_organizer: event_organizers(:standard_organizer),
+                       start_time: 1.week.from_now, end_time: 2.weeks.from_now)
   end
 end

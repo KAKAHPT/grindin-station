@@ -1,0 +1,14 @@
+<li data-profile-event class="p-4">
+  <div class="flex items-baseline justify-between gap-3">
+    <%= link_to row.event.name, polymorphic_path(row.event, locale: params[:locale]), class: "font-semibold truncate hover:text-accent" %>
+    <span class="shrink-0 text-xs text-muted"><%= l(row.event.start_time.to_date) %></span>
+  </div>
+  <div class="mt-2 flex items-center justify-between gap-3 text-sm">
+    <span data-position class="font-display font-semibold text-accent"><%= profile_position(row) %></span>
+    <span data-wld class="tabular text-muted"><%= [row.wins, row.losses, row.draws].join("-") %></span>
+    <%= seat_grid(row.seats, seat_five: row.seats[5].positive?) %>
+  </div>
+  <% if row.decklist_visible %>
+    <p class="mt-2 text-sm truncate"><%= t("profiles.decklist") %>: <%= decklist_link(row.decklist) %></p>
+  <% end %>
+</li>

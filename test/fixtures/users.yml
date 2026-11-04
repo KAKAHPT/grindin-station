@@ -1,90 +1,108 @@
 # Users fixture for testing
 organizer_user:
+  handle: "organizer-user"
   name: "Tournament Organizer"
   email_address: "organizer@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"
 
 player_one:
+  handle: "player-one"
   name: "Player One"
   email_address: "player1@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"
 
 player_two:
+  handle: "player-two"
   name: "Player Two"
   email_address: "player2@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"
 
 player_three:
+  handle: "player-three"
   name: "Player Three"
   email_address: "player3@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"
 
 player_four:
+  handle: "player-four"
   name: "Player Four"
   email_address: "player4@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"
 
 player_five:
+  handle: "player-five"
   name: "Player Five"
   email_address: "player5@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"
 
 player_six:
+  handle: "player-six"
   name: "Player Six"
   email_address: "player6@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"
 
 player_seven:
+  handle: "player-seven"
   name: "Player Seven"
   email_address: "player7@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"
 
 player_eight:
+  handle: "player-eight"
   name: "Player Eight"
   email_address: "player8@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"
 
 player_nine:
+  handle: "player-nine"
   name: "Player Nine"
   email_address: "player9@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"
 
 player_ten:
+  handle: "player-ten"
   name: "Player Ten"
   email_address: "player10@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"
 
 player_eleven:
+  handle: "player-eleven"
   name: "Player Eleven"
   email_address: "player11@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"
 
 player_twelve:
+  handle: "player-twelve"
   name: "Player Twelve"
   email_address: "player12@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"
 
 player_thirteen:
+  handle: "player-thirteen"
   name: "Player Thirteen"
   email_address: "player13@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"
 
 player_fourteen:
+  handle: "player-fourteen"
   name: "Player Fourteen"
   email_address: "player14@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"
 
 player_fifteen:
+  handle: "player-fifteen"
   name: "Player Fifteen"
   email_address: "player15@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"
 
 player_sixteen:
+  handle: "player-sixteen"
   name: "Player Sixteen"
   email_address: "player16@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"
 
 player_seventeen:
+  handle: "player-seventeen"
   name: "Player Seventeen"
   email_address: "player17@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"

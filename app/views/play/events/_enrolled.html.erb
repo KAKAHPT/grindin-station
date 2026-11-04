@@ -1,0 +1,38 @@
+<section class="mt-8">
+  <h2 class="font-display text-sm font-semibold uppercase tracking-wide text-muted">
+    <%= t("play.events.enrolled") %> <span class="tabular">(<%= enrolled.size %>)</span>
+  </h2>
+  <% if enrolled.empty? %>
+    <p class="mt-2 text-sm text-muted"><%= t("play.events.nobody_yet") %></p>
+  <% else %>
+    <ol data-enrolled class="mt-2 divide-y divide-line/60 border-y border-line">
+      <% enrolled.each.with_index(1) do |participant, number| %>
+        <li class="py-2.5 flex items-baseline gap-3 text-[15px]">
+          <span class="w-6 shrink-0 text-right tabular text-xs text-muted"><%= number %></span>
+          <span class="min-w-0">
+            <%= profile_link(participant.player.user, participant.name) %>
+            <% if event.show_commanders_in_standings && commander_text(participant) %>
+              <span class="block text-xs text-muted"><%= commander_text(participant) %></span>
+            <% end %>
+          </span>
+        </li>
+      <% end %>
+    </ol>
+  <% end %>
+</section>
+
+<% if waitlist.any? %>
+  <section class="mt-8">
+    <h2 class="font-display text-sm font-semibold uppercase tracking-wide text-muted">
+      <%= t("play.events.waitlist") %> <span class="tabular">(<%= waitlist.size %>)</span>
+    </h2>
+    <ol data-waitlist class="mt-2 divide-y divide-line/60 border-y border-line">
+      <% waitlist.each do |participant| %>
+        <li class="py-2.5 flex items-baseline gap-3 text-[15px]">
+          <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> text-muted"><%= participant.waitlist_position %></span>
+          <span class="min-w-0"><%= profile_link(participant.player.user, participant.name) %></span>
+        </li>
+      <% end %>
+    </ol>
+  </section>
+<% end %>

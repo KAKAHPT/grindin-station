@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_03_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_04_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -133,6 +133,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_150000) do
     t.integer "seed"
     t.boolean "self_report_enabled", default: true, null: false
     t.boolean "show_commanders_in_standings", default: false, null: false
+    t.boolean "show_decklists", default: false, null: false
     t.string "slug", null: false
     t.datetime "start_time"
     t.integer "state", default: 0, null: false
@@ -147,6 +148,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_150000) do
     t.index ["circuit_id"], name: "index_events_on_circuit_id"
     t.index ["event_organizer_id"], name: "index_events_on_event_organizer_id"
     t.index ["location"], name: "index_events_on_location", using: :gist
+    t.index ["slug"], name: "index_events_on_slug", unique: true
+  end
+
+  create_table "identities", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "email"
+    t.string "name"
+    t.string "provider", null: false
+    t.string "uid", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["provider", "uid"], name: "index_identities_on_provider_and_uid", unique: true
+    t.index ["user_id"], name: "index_identities_on_user_id"
   end
 
   create_table "infractions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -278,12 +292,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_150000) do
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "anonymized_at"
+    t.text "bio"
+    t.string "country", limit: 2
     t.datetime "created_at", null: false
     t.string "email_address", null: false
+    t.string "handle"
     t.string "name", null: false
     t.string "password_digest", null: false
+    t.boolean "password_set", default: true, null: false
     t.datetime "updated_at", null: false
+    t.string "visibility", default: "public", null: false
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
+    t.index ["handle"], name: "index_users_on_handle", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -297,6 +318,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_150000) do
   add_foreign_key "event_staff", "events"
   add_foreign_key "event_staff", "users"
   add_foreign_key "events", "circuits"
+  add_foreign_key "identities", "users"
   add_foreign_key "infractions", "events"
   add_foreign_key "infractions", "players"
   add_foreign_key "infractions", "pods"

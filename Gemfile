@@ -11,6 +11,12 @@ gem "kaminari"
 gem "kamal", require: false
 gem "thruster", require: false
 
+# Sign in with Google / Discord
+gem "omniauth", "~> 2.1"
+gem "omniauth-google-oauth2", "~> 1.2"
+gem "omniauth-discord", "~> 1.2"
+gem "omniauth-rails_csrf_protection", "~> 2.0"
+
 # Frontend
 gem "propshaft"
 gem "importmap-rails"
@@ -19,6 +25,7 @@ gem "turbo-rails"
 gem "stimulus-rails"
 gem "tailwindcss-rails", "~> 4.6"
 gem "commonmarker"
+gem "image_processing", "~> 1.2"
 gem "reactionview", "~> 0.4.0"
 gem "herb", force_ruby_platform: RUBY_PLATFORM.include?("darwin")
 
