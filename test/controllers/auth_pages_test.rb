@@ -88,7 +88,8 @@ class AuthPagesTest < ActionDispatch::IntegrationTest
                        headers: { "Turbo-Frame" => "modal" }
     assert_redirected_to new_session_path
 
-    post passwords_path, params: { email_address: users(:player_one).email_address }, headers: { "Turbo-Frame" => "modal" }
+    post passwords_path, params: { email_address: users(:player_one).email_address },
+                         headers: { "Turbo-Frame" => "modal" }
     assert_redirected_to new_session_path
   end
 
