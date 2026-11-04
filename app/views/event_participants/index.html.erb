@@ -152,7 +152,7 @@
       <% when 'registration_open', 'registration_closed' %>
         <%= render partial: "event_participants/event_participant", collection: @standings.sort_by(&:name), locals: { wide_only: wide_only, pad: pad } %>
       <% else %>
-        <%# A finished event lists its top cut by final position first, then everyone else by rank. %>
+        <%# A finished event lists everyone by the final position recorded when it finished; anyone without one follows by rank. %>
         <% final = @tournament.finished? %>
         <% standings = @standings.reject(&:waitlisted?).sort_by do |p|
              [final && p.final_position ? 0 : 1, (p.final_position if final).to_i, p.playing? ? 0 : 1, -p.rank_score, p.name]
