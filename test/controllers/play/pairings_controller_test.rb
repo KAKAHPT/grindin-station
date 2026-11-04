@@ -97,6 +97,16 @@ module Play
       assert_includes response.body, "Kinnan, Bonder Prodigy"
     end
 
+    test "a decklist that is a web address never shows, even with commanders on" do
+      @tournament.update!(show_commanders_in_standings: true)
+      @round.pods.first.seatings.first.event_participant.update!(decklist: "http://moxfield.com/decks/secret")
+
+      get play_pairings_path(@tournament.slug)
+
+      assert_response :success
+      assert_not_includes response.body, "moxfield.com"
+    end
+
     test "every player of a round with a 3-player pod appears exactly once" do
       tournament = TournamentBuilder.build(players: 7, organizer: event_organizers(:standard_organizer))
       round = tournament.rounds.create!(type: SwissRound, number: 1)

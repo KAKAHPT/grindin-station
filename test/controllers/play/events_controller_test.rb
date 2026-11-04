@@ -41,6 +41,16 @@ module Play
       assert_includes response.body, "Kinnan, Bonder Prodigy"
     end
 
+    test "a decklist that is a web address never shows, even with commanders on" do
+      @tournament.update!(show_commanders_in_standings: true)
+      @enrolled.first.update!(decklist: "https://moxfield.com/decks/secret")
+
+      get play_event_path(@tournament.slug)
+
+      assert_response :success
+      assert_not_includes response.body, "moxfield.com"
+    end
+
     test "a visitor is asked to sign in to enrol and gets no player items" do
       get play_event_path(@tournament.slug)
 

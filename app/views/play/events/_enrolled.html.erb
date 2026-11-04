@@ -11,8 +11,8 @@
           <span class="w-6 shrink-0 text-right tabular text-xs text-muted"><%= number %></span>
           <span class="min-w-0">
             <%= profile_link(participant.player.user, participant.name) %>
-            <% if event.show_commanders_in_standings && participant.decklist.present? %>
-              <span class="block text-xs text-muted"><%= participant.decklist %></span>
+            <% if event.show_commanders_in_standings && commander_text(participant) %>
+              <span class="block text-xs text-muted"><%= commander_text(participant) %></span>
             <% end %>
           </span>
         </li>

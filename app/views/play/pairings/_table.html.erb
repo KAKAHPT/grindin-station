@@ -24,8 +24,8 @@
         <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= won ? "text-accent" : "text-muted" %>"><%= seating.order %></span>
         <span class="flex-1 min-w-0 text-[13px]">
           <span data-name class="block truncate <%= "font-semibold text-ink" if won %>"><%= profile_link(seated.player&.user, seated.name) %></span>
-          <% if event.show_commanders_in_standings && seated.decklist.present? %>
-            <span class="block truncate text-xs text-muted"><%= seated.decklist %></span>
+          <% if event.show_commanders_in_standings && commander_text(seated) %>
+            <span class="block truncate text-xs text-muted"><%= commander_text(seated) %></span>
           <% end %>
         </span>
         <% if won %>

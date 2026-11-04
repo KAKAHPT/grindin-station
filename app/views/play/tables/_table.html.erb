@@ -27,8 +27,8 @@
             <span class="flex-1 min-w-0 text-[15px]">
               <%= seated.name %>
               <% if me %><span class="ms-1 text-[11px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-md bg-accent/15 text-accent"><%= t("play.tables.you") %></span><% end %>
-              <% if event.show_commanders_in_standings && seated.decklist.present? %>
-                <span class="block text-xs font-normal text-muted"><%= seated.decklist %></span>
+              <% if event.show_commanders_in_standings && commander_text(seated) %>
+                <span class="block text-xs font-normal text-muted"><%= commander_text(seated) %></span>
               <% end %>
             </span>
           <% end %>
