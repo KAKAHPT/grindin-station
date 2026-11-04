@@ -35,6 +35,21 @@ class QueryBudgetTest < ActionDispatch::IntegrationTest
     assert_queries_under(60, "public standings") { get tournament_event_participants_path(@t) }
   end
 
+  test "public event page with a waitlist runs under 60 queries" do
+    10.times do |i|
+      user = User.create!(name: "Espera #{i}", email_address: "espera-#{i}-#{SecureRandom.hex(3)}@example.com",
+                          password: "password123")
+      @t.event_participants.create!(player: user.player, accepted_terms: true, waitlisted: true,
+                                    waitlist_position: i + 1)
+    end
+    assert_queries_under(60, "event page (organizer)") { get play_event_path(@t.slug) }
+    assert_select "[data-enrolled] li", count: 64
+    assert_select "[data-waitlist] li", count: 10
+
+    delete session_path
+    assert_queries_under(60, "event page (visitor)") { get play_event_path(@t.slug) }
+  end
+
   private
 
   def assert_queries_under(limit, label, &block)

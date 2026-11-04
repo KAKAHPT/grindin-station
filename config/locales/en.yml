@@ -165,6 +165,38 @@ en:
       my_table: "My table"
       standings: "Standings"
       event: "Event"
+      pairings: "Pairings"
+    events:
+      when: "When"
+      where: "Where"
+      price: "Price"
+      free: "Free entry"
+      open_map: "Open in Google Maps"
+      time_format: "%d %b %Y, %H:%M %Z"
+      enrolled_count: "enrolled"
+      waitlist_count: "on the waitlist"
+      enrolled: "Enrolled"
+      waitlist: "Waitlist"
+      nobody_yet: "Nobody has enrolled yet."
+      description: "About"
+      schedule: "Schedule"
+      rules: "Rules"
+      manage: "Manage"
+      enrol: "Enrol"
+      sign_in_to_enrol: "Sign in to enrol"
+      decklist_placeholder: "Decklist or commander (optional)"
+      cancel_registration: "Cancel registration"
+      cancel_confirm: "Cancel your registration for this event?"
+      you_are_enrolled: "You are enrolled."
+      you_are_waitlisted: "You are number %{position} on the waitlist."
+      state:
+        draft: "Draft"
+        registration_open: "Registration open"
+        registration_closed: "Registration closed"
+        swiss: "Swiss round %{number}"
+        single_elimination: "Top %{size}"
+        finished: "Finished"
+        canceled: "Canceled"
     tables:
       round: "Round %{number}"
       table: "Table"
@@ -357,6 +389,13 @@ en:
   passwords_mailer:
     reset:
       subject: "Reset your password"
+  notifications:
+    title: "Notifications"
+    mark_all_read: "Mark all as read"
+    empty: "No notifications yet."
+    kinds:
+      judge_call: "A judge was called at %{event}."
+      result_contested: "A result at your table was contested at %{event}. A judge is on the way."
   profiles:
     sign_in: "Sign in"
     follow: "Follow"

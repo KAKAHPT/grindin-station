@@ -59,7 +59,7 @@ module Play
 
       get play_me_path(@tournament.slug)
 
-      assert_redirected_to tournament_path(@tournament)
+      assert_redirected_to play_event_path(@tournament.slug)
       assert_equal I18n.t("play.not_a_participant"), flash[:alert]
     end
 
@@ -69,7 +69,7 @@ module Play
 
       get play_me_path(@tournament.slug)
 
-      assert_redirected_to tournament_path(@tournament)
+      assert_redirected_to play_event_path(@tournament.slug)
     end
 
     test "logged out goes to the sign-in page" do
@@ -119,7 +119,7 @@ module Play
 
       get play_me_path(@tournament.slug)
 
-      assert_redirected_to tournament_path(@tournament)
+      assert_redirected_to play_event_path(@tournament.slug)
     end
 
     private

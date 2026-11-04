@@ -61,6 +61,10 @@ class User < ApplicationRecord
     visibility == "participants" && shares_event_with?(viewer)
   end
 
+  def unread_notifications_count
+    notifications.unread.count
+  end
+
   def display_name
     anonymized? ? I18n.t("accounts.removed_player") : name
   end

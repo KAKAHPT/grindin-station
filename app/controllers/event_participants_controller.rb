@@ -2,7 +2,7 @@
 
 class EventParticipantsController < ApplicationController
   skip_before_action :require_authentication, only: %i[index]
-  helper_method :current_event
+  helper_method :current_event, :current_participant
   rescue_from(Registrations::Closed) { redirect_to load_event, alert: t("flash.alert.registration_closed") }
   rescue_from(Registrations::Full) { redirect_to load_event, alert: t("flash.alert.registration_full") }
 
@@ -56,6 +56,13 @@ class EventParticipantsController < ApplicationController
   private
 
   attr_reader :current_event
+
+  # The signed-in user's participant in the event shown in the play layout (for its "My table" item).
+  def current_participant
+    return unless current_event && current_user&.player
+
+    @current_participant ||= current_event.event_participants.find_by(player: current_user.player)
+  end
 
   # Before the swiss the registration is removed and the waitlist moves up; afterwards it is a drop.
   def cancel_registration(participant)
