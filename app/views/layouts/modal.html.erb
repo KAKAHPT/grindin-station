@@ -1,43 +1,36 @@
 <%= turbo_frame_tag "modal" do %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@600;700&display=swap">
   <div
     tabindex="-1"
     aria-hidden="true"
     class="
       flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50
       justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)]
-      max-h-full
+      max-h-full font-body text-ink
     "
   >
     <div class="relative p-4 min-w-[min(33vw,40rem)] max-h-full">
       <!-- Modal content -->
-      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+      <div class="relative bg-surface border border-line rounded-2xl shadow overflow-hidden">
         <!-- Modal header -->
-        <div
-          class="
-            flex items-center justify-between p-4 md:p-5 border-b rounded-t
-            dark:border-gray-600
-          "
-        >
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+        <div class="flex items-center justify-between p-4 md:p-5 border-b border-line">
+          <h3 class="font-display text-xl font-semibold text-ink">
             <%= yield :title %>
           </h3>
           <%= yield :close %>
         </div>
 
         <!-- Modal body -->
-        <div class="p-4 md:p-5"><%= yield %></div>
+        <div class="p-4 md:p-5 bg-ground"><%= yield %></div>
 
         <!-- Modal footer -->
-        <div
-          class="
-            flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b
-            dark:border-gray-600
-          "
-        >
+        <div class="flex items-center p-4 md:p-5 border-t border-line">
           <%= yield :footer %>
         </div>
       </div>
     </div>
   </div>
-  <div class="bg-gray-900/50 dark:bg-gray-900/80 fixed inset-0 z-40"></div>
+  <div class="bg-ground/80 fixed inset-0 z-40"></div>
 <% end %>

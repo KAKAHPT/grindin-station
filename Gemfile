@@ -14,6 +14,7 @@ gem "thruster", require: false
 # Frontend
 gem "propshaft"
 gem "importmap-rails"
+gem "rqrcode", "~> 2.2"
 gem "turbo-rails"
 gem "stimulus-rails"
 gem "tailwindcss-rails", "~> 4.6"

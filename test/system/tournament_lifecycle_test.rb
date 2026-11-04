@@ -15,10 +15,11 @@ class TournamentLifecycleTest < ApplicationSystemTestCase
     fill_in "Description", with: "A test tournament for system testing"
     fill_in "Maximum participants", with: "16"
     fill_in "Address", with: "Porto, Portugal"
-    fill_in "Start time", with: Time.zone.now.tomorrow.strftime("%Y-%m-%dT%H:%M")
-    fill_in "End time", with: Time.zone.now.tomorrow.strftime("%Y-%m-%dT%H:%M")
+    fill_in "Start time", with: Time.zone.now.tomorrow.change(sec: 0)
+    fill_in "End time", with: Time.zone.now.tomorrow.change(sec: 0)
 
     click_button "Create Tournament"
+    assert_text I18n.t("flash.notice.tournament_created")
 
     # Verify tournament was created
     tournament = Tournament.find_by(name: "Test Championship")
@@ -31,9 +32,7 @@ class TournamentLifecycleTest < ApplicationSystemTestCase
     # Close registration (requires confirm dialog)
     visit organizer_tournament_path(tournament)
     # Find the button first and click it - Turbo will show confirm
-    close_btn = find("button", text: "Close Registrations", wait: 5)
-    close_btn.click
-    accept_confirm
+    accept_confirm { click_button "Close Registrations" }
     # Wait for redirect
     assert_text "Tournament updated successfully"
 
@@ -52,9 +51,7 @@ class TournamentLifecycleTest < ApplicationSystemTestCase
 
     # Navigate back to tournament page to click Move to Swiss stage
     visit organizer_tournament_path(tournament)
-    swiss_btn = find("button", text: "Move to Swiss stage", wait: 5)
-    swiss_btn.click
-    accept_confirm
+    accept_confirm { click_button "Move to Swiss stage" }
     assert_text "Tournament updated successfully"
 
     tournament.reload
@@ -116,6 +113,7 @@ class TournamentLifecycleTest < ApplicationSystemTestCase
     fill_in "Decklist", with: "https://moxfield.com/test"
     find('input[name="event_participant[accepted_terms]"]').set(true)
     click_button "Confirm Sign up"
+    assert_text I18n.t("flash.notice.registration_successful")
 
     assert EventParticipant.exists?(
       event: tournament,
@@ -134,22 +132,10 @@ class TournamentLifecycleTest < ApplicationSystemTestCase
 
     visit organizer_tournament_path(tournament)
 
-    cancel_btn = find("button", text: "Cancel", wait: 5)
-    cancel_btn.click
-    accept_confirm
+    accept_confirm { click_button "Cancel" }
     assert_text "Tournament updated successfully"
 
     tournament.reload
     assert_equal "canceled", tournament.state
-  end
-
-  private
-
-  def sign_in_as(user)
-    visit root_path
-    visit new_session_path
-    fill_in "session_email_address", with: user.email_address
-    fill_in "session_password", with: "password123"
-    click_button "Sign in"
   end
 end

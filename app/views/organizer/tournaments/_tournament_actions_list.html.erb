@@ -1,6 +1,8 @@
-<%= link_to [:edit, :organizer, tournament], class: 'inline-flex justify-center items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-orange-700 hover:bg-orange-800 focus:ring-4 focus:ring-orange-300 dark:focus:ring-orange-900', data: {turbo_frame: "modal"} do %>
-  <%= icon("pencil", class: "mr-2") %>
-  Edit
+<% if current_user.staff_role_for(tournament) == "organizer" %>
+  <%= link_to [:edit, :organizer, tournament], class: 'inline-flex justify-center items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-orange-700 hover:bg-orange-800 focus:ring-4 focus:ring-orange-300 dark:focus:ring-orange-900', data: {turbo_frame: "modal"} do %>
+    <%= icon("pencil", class: "mr-2") %>
+    Edit
+  <% end %>
 <% end %>
 
 <% unless tournament.draft? %>

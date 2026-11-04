@@ -54,4 +54,9 @@ Rails.application.configure do
   config.action_controller.raise_on_missing_callback_actions = true
 
   config.active_job.queue_adapter = :test
+
+  # N+1 queries inside a request fail the test (ApplicationController scans every action).
+  config.after_initialize do
+    Prosopite.raise = true
+  end
 end

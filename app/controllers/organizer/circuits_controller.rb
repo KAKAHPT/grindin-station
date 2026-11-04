@@ -2,6 +2,8 @@
 
 module Organizer
   class CircuitsController < OrganizerController
+    require_organizer
+
     def index
       @circuits = Circuit.for_organizer(current_organizer).preload(:tournaments)
         .page(params[:page])

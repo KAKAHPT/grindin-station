@@ -21,12 +21,52 @@ module TournamentsHelper
     canceled: { name: "Cancel", icon: "trash" }
   }.with_indifferent_access.freeze
 
+  POD_STATUS_TONES = {
+    playing: :ink, pending: :muted, review: :muted, disputed: :danger, completed: :accent
+  }.freeze
+
+  def pod_status_tone(status)
+    POD_STATUS_TONES.fetch(status)
+  end
+
+  def pod_status_chip(pod)
+    status = pod.report_status
+    status_chip(pod_status_tone(status)) { t("rounds.status.#{status}") }
+  end
+
+  # Seat (seating order) of each participant at the pod, by participant id.
+  def pod_seats(pod)
+    pod.seatings.to_h { |seating| [seating.event_participant_id, seating.order] }
+  end
+
+  # "Reported by seat 2 · 14:05", nil when no player reported.
+  def pod_reported_line(pod)
+    seat = pod_seats(pod)[pod.reported_by_participant_id]
+    return if seat.nil? || pod.reported_at.nil?
+
+    t("rounds.reported_by", seat: seat, time: l(pod.reported_at, format: "%H:%M"))
+  end
+
+  # "Confirmed: 1, 3" for the seats that confirmed the pending report.
+  def pod_confirmed_line(pod)
+    seats = pod_seats(pod).values_at(*pod.confirmations.keys).compact.sort
+    t("rounds.confirmed", seats: seats.join(", ")) if seats.any?
+  end
+
   def currency_options
     EventOrganizer::CURRENCIES.keys.map { |c| [CURRENCY_SYMBOLS[c], c] }
   end
 
   def top_cut_options
     [[t("organizer.no_cut"), 0]] + Tournaments::TopCut::SIZES.map { |size| [t("organizer.top_cut_option", size: size), size] }
+  end
+
+  def result_confirmation_options
+    Event::RESULT_CONFIRMATIONS.map { |value| [t("organizer.result_confirmation_options.#{value}"), value] }
+  end
+
+  def top_cut_timeout_rule_options
+    Event::TOP_CUT_TIMEOUT_RULES.map { |value| [t("organizer.top_cut_timeout_rule_options.#{value}"), value] }
   end
 
   # nil below 4 players (no structure to suggest yet).
@@ -46,6 +86,26 @@ module TournamentsHelper
   # Times in seats 1-4 as "2·1·1·1", plus seat 5 when any player in the standings sat there.
   def seat_counts_label(seats, seat_five: false)
     seats.values_at(*(1..(seat_five ? 5 : 4))).join("·")
+  end
+
+  # Seat history as four (or five) 18 px cells: the count when the player has sat there (accent),
+  # else the seat number dimmed.
+  def seat_grid(seats, seat_five: false)
+    label = seat_counts_label(seats, seat_five: seat_five)
+    tag.span(class: "inline-flex gap-0.5 align-middle", title: label, "aria-label": label, role: "img") do
+      (1..(seat_five ? 5 : 4)).each do |seat|
+        count = seats[seat].to_i
+        concat tag.span(count.positive? ? count : seat,
+                        class: ["inline-flex size-[18px] items-center justify-center rounded-[3px] font-display",
+                                "text-[10px] font-semibold",
+                                count.positive? ? "bg-accent/20 text-accent" : "bg-surface-raised text-muted"])
+      end
+    end
+  end
+
+  # "66.7%", or "–" before the player has a real game.
+  def win_rate_label(rate)
+    rate.nil? ? "–" : number_to_percentage(rate * 100, precision: 1)
   end
 
   # True when anyone in the list sat in seat 5 of a swiss pod.

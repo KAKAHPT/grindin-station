@@ -8,6 +8,14 @@
     <%= safe_join(@result.errors.full_messages, tag.br) %>
   <% end %>
 
+  <% if @warning %>
+    <p class="mb-4 p-3 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"><%= t("results.later_round_warning") %></p>
+    <label class="flex items-center gap-2 mb-4 text-sm">
+      <%= check_box_tag :confirm, "1", false %>
+      <%= t("results.confirm_correction") %>
+    </label>
+  <% end %>
+
   <% case @result.round %>
   <% when SwissRound %>
     <%= f.select_with_label :type, Result::SELECTABLE_SUBTYPES %>
@@ -15,7 +23,7 @@
     <%= f.select_with_label :type, Result::ELIMINATION_SELECTABLE_SUBYTPES %>
   <% end %>
 
-  <%= f.select_with_label :event_participant_id, @pod.event_participants.map { |p| [p.name, p.id] }, include_blank: true %>
+  <%= f.select_with_label :event_participant_id, @pod.event_participants.includes(player: :user).map { |p| [p.name, p.id] }, include_blank: true %>
 
   <% content_for :footer do %>
     <%= f.submit %>

@@ -1,0 +1,16 @@
+<header class="print-heading">
+  <h1><%= @event.name %></h1>
+  <p><%= @round.display_name %> · <%= t("rounds.print.pairings_title") %></p>
+  <p class="generated"><%= t("rounds.print.generated_at") %> <%= l(Time.current, format: :short) %></p>
+</header>
+
+<% @pods.each_slice(12) do |group| %>
+  <section class="table-group">
+    <% group.each do |pod| %>
+      <div class="table">
+        <h2><%= t("rounds.print.table") %> <%= pod.number %></h2>
+        <%= render "seats", pod: pod, event: @event %>
+      </div>
+    <% end %>
+  </section>
+<% end %>

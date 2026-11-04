@@ -2,7 +2,7 @@
   <nav class="flex mb-5" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2">
       <li class="inline-flex items-center">
-        <%= link_to root_url, class:"inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white" do %>
+        <%= link_to root_url, class:"inline-flex items-center text-muted hover:text-ink" do %>
           <svg
             class="w-5 h-5 mr-2.5"
             fill="currentColor"
@@ -19,7 +19,7 @@
       <li>
         <div class="flex items-center">
           <svg
-            class="w-6 h-6 text-gray-400"
+            class="w-6 h-6 text-line"
             fill="currentColor"
             viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg"
@@ -30,7 +30,7 @@
               clip-rule="evenodd"
             ></path>
           </svg>
-          <%= link_to [:organizer, :tournaments], class: 'ml-1 text-gray-700 hover:text-primary-600 md:ml-2 dark:text-gray-300 dark:hover:text-white' do %>
+          <%= link_to [:organizer, :tournaments], class: 'ml-1 text-muted hover:text-ink md:ml-2' do %>
             Tournaments
           <% end %>
         </div>
@@ -38,7 +38,7 @@
       <li>
         <div class="flex items-center">
           <svg
-            class="w-6 h-6 text-gray-400"
+            class="w-6 h-6 text-line"
             fill="currentColor"
             viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg"
@@ -49,7 +49,7 @@
               clip-rule="evenodd"
             ></path>
           </svg>
-          <%= link_to [:organizer, @round.event], class: 'ml-1 text-gray-700 hover:text-primary-600 md:ml-2 dark:text-gray-300 dark:hover:text-white' do %>
+          <%= link_to [:organizer, @round.event], class: 'ml-1 text-muted hover:text-ink md:ml-2' do %>
             <%= @round.event.name %>
           <% end %>
         </div>
@@ -57,7 +57,7 @@
       <li>
         <div class="flex items-center">
           <svg
-            class="w-6 h-6 text-gray-400"
+            class="w-6 h-6 text-line"
             fill="currentColor"
             viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg"
@@ -69,7 +69,7 @@
             ></path>
           </svg>
           <span
-            class="ml-1 text-gray-400 md:ml-2 dark:text-gray-500"
+            class="ml-1 text-ink md:ml-2"
             aria-current="page"
           >
             Bracket
@@ -78,33 +78,27 @@
       </li>
     </ol>
   </nav>
-  <div class="flex justify-between items-center">
-    <ul
-      class="
-        flex flex-wrap items-center text-sm font-medium text-center
-        text-gray-500 dark:text-gray-400
-      "
-    >
-      <%= link_to [:organizer, @round.event, :event_participants], data: {turbo_frame: "modal"}, class: "inline-block text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700" do %>
+  <ul class="<%= PaletteHelper::SEGMENT_TRACK %> mb-3">
+    <%= render partial: "round", collection: @round.event.rounds.sort_by(&:number) %>
+    <%= render "future_rounds" %>
+  </ul>
+  <div class="flex flex-col gap-3 lg:flex-row lg:justify-between lg:items-center">
+    <div class="flex flex-wrap items-center gap-2 text-sm font-medium">
+      <%= link_to [:organizer, @round.event, :event_participants], data: {turbo_frame: "modal"}, class: small_button_classes(:secondary) do %>
         Standings
       <% end %>
-      <%= render partial: "round", collection: @round.event.rounds.sort_by(&:number) %>
-      <%= render "future_rounds" %>
-    </ul>
-    <div class="flex items-center">
+      <%= link_to t("rounds.print.pairings_link"), print_organizer_tournament_round_path(@round.event, @round), target: "_blank", rel: "noopener", class: small_button_classes(:secondary) %>
+      <%= link_to t("rounds.print.slips_link"), slips_organizer_tournament_round_path(@round.event, @round), target: "_blank", rel: "noopener", class: small_button_classes(:secondary) %>
+    </div>
+    <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
       <% if @round.published? %>
-        <% if @round.finished? && !@round.past? %>
-          <%= button_to [:organizer, @round.event, @round.becomes(Round)], params: {round: {action: :finish}}, class: "focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" do %>
-            Finish Round
-            <%= icon("arrow-right", class: "ms-2") %>
-          <% end %>
-        <% elsif @round.started? %>
+        <% if @round.started? %>
           <span
             data-action="click->round-timer#toggleFullscreen"
             class="
-              cursor-zoom-in bg-gray-100 text-gray-800 font-medium
-              inline-flex items-center px-2.5 py-0.5 rounded me-2
-              dark:bg-gray-700 dark:text-gray-400 border border-gray-500
+              cursor-zoom-in font-display text-xl font-semibold tabular text-ink
+              inline-flex items-center justify-center px-3 h-9 rounded-md
+              bg-surface-raised border border-line shadow-card
             "
             data-controller="round-timer"
             data-round-timer-round-time-value="<%= @round.duration %>"
@@ -113,29 +107,35 @@
           >
             --:--
           </span>
+          <% unless @round.past? %>
+            <%= button_to [:organizer, @round.event, @round.becomes(Round)], method: :patch, params: {round: {action: :close}}, form_class: "w-full sm:w-auto", class: button_classes(:primary, "w-full sm:w-auto", size: :sm) do %>
+              <%= t("rounds.close") %>
+              <%= icon("arrow-right", class: "ms-2") %>
+            <% end %>
+          <% end %>
         <% else %>
-          <%= button_to [:organizer, @round.event, @round.becomes(Round)], params: {round: {action: :start}}, class: "focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 me-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" do %>
+          <%= button_to [:organizer, @round.event, @round.becomes(Round)], params: {round: {action: :start}}, form_class: "w-full sm:w-auto", class: button_classes(:primary, "w-full sm:w-auto", size: :sm) do %>
             <%= icon("play", class: "me-2") %>
             Start
           <% end %>
         <% end %>
-        <% if @round.past? && @round.event.rounds.max_by(&:number).number == @round.number && @round.number == @round.event.number_of_swiss_rounds && @round.event.number_of_single_elimination_rounds > 0 %>
-          <%= button_to [:organizer, @round.event], params: { tournament: { state: :single_elimination } }, class: "focus:outline-none text-white bg-orange-700 hover:bg-orange-800 focus:ring-4 focus:ring-orange-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 me-2 dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800" do %>
-            Advance
+        <% if @round.past? && @round.is_a?(SwissRound) && @round.last_swiss_round? && @round.event.swiss? && @round.event.rounds_info[:top] %>
+          <%= button_to [:organizer, @round.event], method: :patch, params: { tournament: { state: :single_elimination } }, form_class: "w-full sm:w-auto", class: button_classes(:primary, "w-full sm:w-auto", size: :sm) do %>
+            <%= t("rounds.make_cut") %>
             <%= icon("scissors", class: "ms-2") %>
           <% end %>
         <% end %>
       <% else %>
-        <%= button_to [:organizer, @round.event, @round.becomes(Round)], params: {round: {action: :publish}}, class: "focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" do %>
+        <%= button_to [:organizer, @round.event, @round.becomes(Round)], params: {round: {action: :publish}}, form_class: "w-full sm:w-auto", class: button_classes(:primary, "w-full sm:w-auto", size: :sm) do %>
           <%= icon("megaphone", class: "me-2") %>
           Publish
         <% end %>
       <% end %>
 
-      <% if !@round.past? %>
-        <%= button_to [:organizer, @round.event, @round.becomes(Round)], method: :delete, data: {turbo_confirm: "Are you sure you want to destroy this round?"}, class: "focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 me-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800" do %>
-          <%= icon("radioactive", class: "me-2") %>
-          Destroy
+      <% if !@round.past? && @round.number > 1 %>
+        <%= button_to [:organizer, @round.event, @round.becomes(Round)], method: :delete, data: {turbo_confirm: t("rounds.undo_confirm")}, form_class: "w-full sm:w-auto", class: button_classes(:danger, "w-full sm:w-auto", size: :sm) do %>
+          <%= icon("arrow-counter-clockwise", class: "me-2") %>
+          <%= t("rounds.undo") %>
         <% end %>
       <% end %>
     </div>
@@ -143,7 +143,7 @@
 <% end %>
 
 <div class="col-span-full">
-  <h1 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+  <h1 class="mb-1 font-display text-xl font-semibold tracking-tight text-ink">
     Pairings
   </h1>
 
@@ -158,7 +158,7 @@
           "
         >
           <svg
-            class="w-4 h-4 text-gray-500 dark:text-gray-400"
+            class="w-4 h-4 text-muted"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -173,62 +173,74 @@
             />
           </svg>
         </div>
-        <%= text_field_tag :query, params[:query], placeholder: "Search for players", class: "block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-100 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" %>
+        <%= text_field_tag :query, params[:query], placeholder: "Search for players", class: "block h-10 ps-10 text-sm text-ink border border-line rounded-md w-full sm:w-80 bg-surface placeholder:text-muted focus:ring-accent focus:border-accent" %>
       <% end %>
     </div>
   </div>
 </div>
 
-<%= turbo_frame_tag "player_list", class: "col-span-2 block p-0 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700" do %>
+<div
+  class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3 content-start col-span-full"
+  data-controller="swap"
+>
+  <%= render @pods %>
+  <% if @round.byes.present? %>
+    <div
+      class="flex flex-col bg-surface border border-line rounded-xl shadow-card overflow-clip"
+    >
+      <div class="flex justify-between items-center">
+        <h5 class="px-4 pt-3 pb-2 font-display text-lg font-semibold tracking-tight text-ink">
+          Byes
+        </h5>
+      </div>
+      <ul class="grow flex flex-col divide-y divide-line border-t border-line">
+        <% @round.ranked_byes.each do |result| %>
+          <li class="px-4 h-8 flex items-center text-[13px]">
+            <%= result_badge(result, result.event_participant) %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</div>
+
+<%= turbo_frame_tag "player_list", class: "col-span-full block p-0 bg-surface border border-line rounded-2xl shadow-card overflow-clip" do %>
   <div class="relative overflow-x-auto sm:rounded-lg">
     <table
-      class="
-        w-full text-sm text-left rtl:text-right text-gray-500
-        dark:text-gray-400
-      "
+      class="w-full text-sm text-left rtl:text-right text-muted"
     >
       <thead
-        class="
-          text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700
-          dark:text-gray-400
-        "
+        class="sticky top-0 z-10 text-[10.5px] tracking-wide text-muted uppercase bg-surface-raised/95 backdrop-blur border-b border-line-strong"
       >
         <tr>
-          <th scope="col" class="px-6 py-3 text-left">Player</th>
-          <th scope="col" class="px-6 py-3 text-center">Pod</th>
-          <th scope="col" class="px-6 py-3 text-right">Seat</th>
+          <th scope="col" class="px-4 py-2 text-left">Player</th>
+          <th scope="col" class="px-4 py-2 text-right">Pod</th>
+          <th scope="col" class="px-4 py-2 text-right">Seat</th>
         </tr>
       </thead>
       <tbody>
         <% @users_map.keys.sort_by { |k| @users_map[k][:name] }.each.with_index do |k, i| %>
           <tr
-            class="
-              odd:bg-white odd:dark:bg-gray-900 even:bg-gray-100
-              even:dark:bg-gray-800 border-b dark:border-gray-700
-            "
+            class="h-[34px] text-[12px] border-b border-line/60 last:border-b-0 odd:bg-white/[0.015] hover:bg-white/[0.04]"
           >
             <td
               scope="row"
               data-tooltip-target="tooltip-pairings-<%= k %>"
-              class="
-                px-6 py-4 text-left font-medium text-gray-900
-                whitespace-nowrap dark:text-white
-              "
+              class="px-4 py-1 text-left font-semibold text-ink whitespace-nowrap"
             >
               <%= truncate(@users_map[k][:name]) %>
             </td>
-            <td class="px-6 py-4 text-center">
-              <%= link_to @users_map[k][:pod], "#pod_#{@users_map[k][:pod_id]}", target: "_top", data: { controller: 'scroller'} %>
+            <td class="px-4 py-1 tabular text-right">
+              <%= link_to @users_map[k][:pod], "#pod_#{@users_map[k][:pod_id]}", target: "_top", data: { controller: 'scroller'}, class: "text-accent hover:underline" %>
             </td>
-            <td class="px-6 py-4 text-right"><%= @users_map[k][:seating] %></td>
+            <td class="px-4 py-1 tabular text-right"><%= @users_map[k][:seating] %></td>
             <div
               id="tooltip-pairings-<%= k %>"
               role="tooltip"
               class="
                 absolute z-10 invisible inline-block px-3 py-2 text-sm
-                font-medium text-white transition-opacity duration-300
-                bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip
-                dark:bg-gray-700
+                font-medium text-ink transition-opacity duration-300
+                bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
               "
             >
               <%= @users_map[k][:name] %>
@@ -243,42 +255,3 @@
     </table>
   </div>
 <% end %>
-
-<div
-  class="grid grid-cols-1 md:grid-cols-2 gap-4 content-start col-span-2"
-  data-controller="swap"
->
-  <%= render @pods %>
-  <% if @round.byes.present? %>
-    <div
-      class="
-        flex flex-col max-w-sm bg-white border border-gray-200 rounded-lg
-        shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700
-        dark:hover:bg-gray-700
-      "
-    >
-      <div class="flex justify-between items-center">
-        <h5
-          class="
-            px-6 pt-6 pb-3 mb-2 text-2xl font-bold tracking-tight
-            text-gray-900 dark:text-white
-          "
-        >
-          Byes
-        </h5>
-      </div>
-      <ul
-        class="
-          font-normal text-gray-700 dark:text-gray-400 grow flex flex-col
-          justify-items-stretch
-        "
-      >
-        <% @round.byes.sort_by {|r| -r.event_participant.rank_score }.each do |result| %>
-          <li class="grow last:rounded-b-lg pl-6 pr-10 py-3">
-            <%= result_badge(result, result.event_participant) %>
-          </li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-</div>

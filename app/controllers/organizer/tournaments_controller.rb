@@ -2,14 +2,19 @@
 
 module Organizer
   class TournamentsController < OrganizerController
+    public_actions :index
+    require_organizer only: %i[new create]
+    allow_roles :organizer, only: %i[edit update]
+    allow_roles :organizer, :judge, :scorekeeper, only: :show
+
     def index
-      @tournaments = Tournament.with_attached_cover.where.not(state: :canceled).for_organizer(current_organizer).preload(:rounds)
+      @tournaments = Tournament.with_attached_cover.where.not(state: :canceled).staffed_by(current_user).preload(:rounds)
     end
 
     def show
       @tournament =
         Tournament
-          .for_organizer(current_organizer)
+          .staffed_by(current_user)
           .preload(
             rounds: :pods,
             event_participants: { player: :user }
@@ -23,7 +28,7 @@ module Organizer
     end
 
     def edit
-      @tournament = Tournament.for_organizer(current_organizer).find params[:id]
+      @tournament = Tournament.staffed_by(current_user).find params[:id]
     end
 
     def create
@@ -37,7 +42,7 @@ module Organizer
     end
 
     def update
-      @tournament = Tournament.for_organizer(current_organizer).find params[:id]
+      @tournament = Tournament.staffed_by(current_user).find params[:id]
       @tournament.attributes = tournament_params
 
       if @tournament.save
@@ -78,6 +83,12 @@ module Organizer
                       top_cut_size
                       round_minutes
                       top_cut_round_minutes
+                      self_report_enabled
+                      result_confirmation
+                      confirmation_timeout_minutes
+                      waitlist_enabled
+                      show_commanders_in_standings
+                      top_cut_timeout_rule
                     ])
     end
   end

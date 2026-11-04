@@ -3,8 +3,10 @@
 module Organizer
   class InfractionsController < OrganizerController
     layout "modal"
+    allow_roles :organizer, :judge
+
     def index
-      @event_participant = EventParticipant.find(params[:event_participant_id])
+      @event_participant = load_tournament.event_participants.find(params[:event_participant_id])
       @infractions = Infraction.where(
         player_id: @event_participant.player_id,
         event_id: @event_participant.event_id
@@ -21,6 +23,7 @@ module Organizer
     def create
       @infraction = Infraction.new(event: load_tournament)
       @infraction.attributes = infraction_params
+      check_event_scope!(@infraction.player_id, @infraction.pod_id)
 
       if @infraction.save
         redirect_to [:organizer, @infraction.event, :event_participants, { layout: "application" }],
@@ -52,16 +55,22 @@ module Organizer
       params.expect(infraction: %i[player_id pod_id kind category description penalty])
     end
 
+    # The player and pod must belong to this event (404 otherwise).
+    def check_event_scope!(player_id, pod_id)
+      load_tournament.event_participants.find_by!(player_id: player_id)
+      load_tournament.pods.find(pod_id) if pod_id.present?
+    end
+
     def load_player
-      Player.find(params[:player_id])
+      load_tournament.event_participants.find_by!(player_id: params[:player_id]).player
     end
 
     def load_pod
-      Pod.where(id: params[:pod_id]).first
+      load_tournament.pods.find(params[:pod_id]) if params[:pod_id].present?
     end
 
     def load_tournament
-      Tournament.where(id: params[:tournament_id]).first
+      @load_tournament ||= Tournament.staffed_by(current_user).find params[:tournament_id]
     end
   end
 end

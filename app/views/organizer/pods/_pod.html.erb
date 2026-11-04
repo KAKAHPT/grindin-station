@@ -1,55 +1,83 @@
-<div
-  id="pod_<%= pod.id %>"
-  class="
-    scroll-mt-20 overflow-clip flex flex-col max-w-sm bg-white border
-    border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800
-    dark:border-gray-700 dark:hover:bg-gray-700
-  "
->
-  <div class="flex justify-between items-center">
-    <h5
-      class="
-        px-6 pt-6 pb-3 mb-2 text-2xl font-bold tracking-tight text-gray-900
-        dark:text-white
-      "
-    >
-      Pod <%= pod.number %>
-    </h5>
-    <% if pod.round.started? %>
-      <%= link_to [:new, :organizer, pod.event, pod.round.becomes(Round), pod, :result], data: {turbo_frame: "modal"}, class: "me-6 px-3 py-2 text-sm font-medium text-center inline-flex items-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" do %>
-        <%= icon("hand-deposit", class: "me-1") %>
-        <% if pod.finished? %>
-          Change
-        <% else %>
-          Insert
+<% seats = pod_seats(pod) %>
+<% staff_can_act = pod.round.started? && !pod.round.past? && %w[organizer judge].include?(staff_role) %>
+<% show_results = pod.round.started? && !pod.round.past? && pod.report_status != :completed %>
+<%= tag.div id: "pod_#{pod.id}",
+            class: "scroll-mt-20 flex flex-col bg-surface border border-line rounded-xl shadow-card overflow-clip",
+            data: ({ controller: "pod-result", pod_result_template_value: t("rounds.player_wins", name: "%{name}") } if show_results) do %>
+  <div class="flex items-start justify-between gap-2 px-4 pt-3">
+    <div class="flex flex-col gap-1.5 min-w-0 pt-0.5">
+      <h5 class="font-display text-lg font-semibold leading-none tracking-tight text-ink">
+        <%= t("play.tables.table") %> <%= pod.number %>
+      </h5>
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-0.5">
+        <%= pod_status_chip(pod) %>
+        <% if pod.open_judge_call? %>
+          <%= status_chip(:warn) { t("rounds.judge_called") } %>
         <% end %>
-        result
+        <% if pod.extra_time.positive? %>
+          <%= status_chip(:ink) { t("rounds.extra_time", minutes: pod.extra_time) } %>
+        <% end %>
+      </div>
+    </div>
+    <% if pod.round.started? %>
+      <% result_label = pod.finished? ? "Change result" : "Insert result" %>
+      <%= link_to [:new, :organizer, pod.event, pod.round.becomes(Round), pod, :result], data: {turbo_frame: "modal"}, title: result_label, class: icon_button_classes(size: :sm) do %>
+        <%= icon("hand-deposit") %><span class="sr-only"><%= result_label %></span>
       <% end %>
     <% end %>
   </div>
-  <ol
-    class="
-      font-normal text-gray-700 dark:text-gray-400 grow flex flex-col
-      justify-items-stretch
-    "
-  >
+
+  <% status_lines = [pod_reported_line(pod),
+                      (pod_confirmed_line(pod) if %i[pending review].include?(pod.report_status))].compact %>
+  <% if status_lines.any? || pod.report_status == :disputed %>
+    <div class="px-4 pt-1 text-[11px] text-muted flex flex-col">
+      <% status_lines.each do |line| %>
+        <span><%= line %></span>
+      <% end %>
+      <% if pod.report_status == :disputed %>
+        <span class="font-medium text-danger"><%= t("rounds.disputed") %></span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <ol class="mt-2 grow flex flex-col divide-y divide-line/60 border-t border-line">
     <% pod.event_participants.each do |player| %>
-      <li
-        data-tooltip-placement="left"
-        data-tooltip-target="tooltip-pods-<%= player.id %>"
-        class="group list-decimal grow list-inside last:rounded-b-lg px-6 py-3"
-      >
-        <%= result_indicator(pod:, player:) %>
+      <% won = pod.current_results.find { |r| r.event_participant_id == player.id }.class.in?([Win, Advance]) %>
+      <% if show_results %>
+        <li
+          data-tooltip-placement="left"
+          data-tooltip-target="tooltip-pods-<%= player.id %>"
+          data-pod-result-target="row"
+          data-seat="<%= seats[player.id] %>"
+          data-name="<%= player.name %>"
+          data-action="click->pod-result#select keydown.enter->pod-result#select"
+          role="button"
+          tabindex="0"
+          aria-pressed="false"
+          class="group flex items-center gap-2.5 px-4 h-8 cursor-pointer transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:bg-white/[0.04] data-selected:bg-accent/[0.08] data-selected:ring-1 data-selected:ring-inset data-selected:ring-accent/40"
+        >
+      <% else %>
+        <li
+          data-tooltip-placement="left"
+          data-tooltip-target="tooltip-pods-<%= player.id %>"
+          class="group flex items-center gap-2.5 px-4 h-8 transition-colors <%= won ? "bg-accent/[0.08]" : "hover:bg-white/[0.03]" %>"
+        >
+      <% end %>
+        <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= won ? "text-accent" : "text-muted" %>"><%= seats[player.id] %></span>
+        <span class="flex-1 min-w-0 truncate text-[13px]"><%= result_indicator(pod:, player:) %></span>
         <% unless pod.round.published? %>
-          <%= link_to [:swap, :organizer, pod.event, pod.round.becomes(Round), :seatings], data: {action: 'click->swap#selectPlayer', 'swap-player-param' => player.id, 'swap-pod-param' => pod.id, 'turbo-method': 'patch'}, class: "ms-2 float-end hidden group-hover:inline-flex text-purple-700 border border-purple-700 hover:bg-purple-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-full text-sm p-1 text-center items-center dark:border-purple-500 dark:text-purple-500 dark:hover:text-white dark:focus:ring-purple-800 dark:hover:bg-purple-500" do %>
+          <%= link_to [:swap, :organizer, pod.event, pod.round.becomes(Round), :seatings], data: {action: 'click->swap#selectPlayer', 'swap-player-param' => player.id, 'swap-pod-param' => pod.id, 'turbo-method': 'patch'}, class: "hidden group-hover:inline-flex items-center text-muted border border-line hover:text-ink hover:border-muted rounded-[4px] text-xs px-1 py-0.5" do %>
             <%= icon("swap", class: "me-1") %>
             <span class="text-[0.5rem] leading-[0.5rem]">SWAP</span>
           <% end %>
         <% else %>
-          <%= link_to [:new, :organizer, pod.event, pod.round.becomes(Round), pod, :infraction, { player_id: player.player_id }], data: {turbo_frame: "modal"}, class: "float-end hidden group-hover:inline-flex text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-full text-sm p-1 text-center items-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:focus:ring-red-900 dark:hover:bg-red-600" do %>
+          <%= link_to [:new, :organizer, pod.event, pod.round.becomes(Round), pod, :infraction, { player_id: player.player_id }], data: {turbo_frame: "modal"}, class: "hidden group-hover:inline-flex items-center text-danger border border-danger/40 hover:bg-danger/10 rounded-[4px] text-xs px-1 py-0.5" do %>
             <%= icon("gavel", class: "me-1") %>
             <span class="text-[0.5rem] leading-[0.5rem]">PENALTY</span>
           <% end %>
+        <% end %>
+        <% if show_results %>
+          <%= icon("trophy", class: "text-[14px] text-muted group-hover:text-accent group-data-selected:text-accent transition-colors") %>
         <% end %>
       </li>
       <div
@@ -57,8 +85,8 @@
         role="tooltip"
         class="
           absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium
-          text-white transition-opacity duration-300 bg-gray-900 rounded-lg
-          shadow-sm opacity-0 tooltip dark:bg-gray-700
+          text-ink bg-ground border border-line rounded-lg shadow-sm opacity-0
+          tooltip transition-opacity duration-300
         "
       >
         <%= player.name %>
@@ -69,4 +97,42 @@
       </div>
     <% end %>
   </ol>
-</div>
+
+  <% time_called = staff_can_act && pod.round.is_a?(SingleEliminationRound) && !pod.finished? %>
+  <% if show_results || staff_can_act %>
+  <div class="bg-ground/40 border-t border-line p-2.5">
+    <% if show_results %>
+      <% pod.seatings.each do |seating| %>
+        <%= button_to t("rounds.win", seat: seating.order), [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Win", event_participant_id: seating.event_participant_id } }, form: { class: "hidden", data: { pod_result_target: "winForm", seat: seating.order } }, class: button_classes(:secondary, "w-full", size: :sm) %>
+      <% end %>
+    <% end %>
+    <% draw_allowed = show_results && !pod.round.is_a?(SingleEliminationRound) %>
+    <% footer_cols = if !draw_allowed && time_called then "grid-cols-[auto_auto] justify-end"
+                     elsif !draw_allowed then "grid-cols-[auto] justify-end"
+                     elsif time_called then "grid-cols-[1fr_auto_auto]"
+                     elsif staff_can_act then "grid-cols-[1fr_auto]"
+                     else "grid-cols-1"
+                     end %>
+    <%= tag.div class: ["grid gap-2", footer_cols],
+                data: { pod_result_target: ("draw" if show_results) } do %>
+      <% if draw_allowed %>
+        <%= button_to t("rounds.draw"), [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Draw" } }, form_class: "contents", class: button_classes(:secondary, "w-full", size: :sm) %>
+      <% end %>
+      <% if staff_can_act %>
+        <%= button_to t("rounds.add_extra_time"), [:extra_time, :organizer, pod.event, pod.round.becomes(Round), pod], method: :patch, form_class: "contents", class: button_classes(:ghost, nil, size: :sm) %>
+      <% end %>
+      <% if time_called %>
+        <%= button_to t("rounds.time_called"), timeout_organizer_tournament_round_pod_results_path(pod.event, pod.round.becomes(Round), pod), method: :post, data: { turbo_confirm: t("results.timeout_confirm") }, form_class: "contents", class: button_classes(:danger, nil, size: :sm) %>
+      <% end %>
+    <% end %>
+    <% if show_results %>
+      <div data-pod-result-target="confirm" class="grid grid-cols-[1fr_auto] gap-2" hidden>
+        <button type="button" data-action="pod-result#confirm" class="<%= button_classes(:primary, "w-full min-w-0", size: :sm) %>">
+          <%= icon("trophy") %><span data-pod-result-target="confirmLabel" class="truncate"></span>
+        </button>
+        <button type="button" data-action="pod-result#cancel" class="<%= button_classes(:ghost, nil, size: :sm) %>"><%= t("rounds.cancel") %></button>
+      </div>
+    <% end %>
+  </div>
+  <% end %>
+<% end %>

@@ -3,9 +3,10 @@
   Participants
 <% end %>
 
+<% latest_published = @tournament.rounds.published.max_by(&:number) %>
 <% content_for :close do %>
-  <% if @tournament.rounds.present? %>
-    <%= link_to [@tournament, @tournament.rounds.published.max_by(&:number).becomes(Round)], class:"text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" do %>
+  <% if latest_published %>
+    <%= link_to [@tournament, latest_published.becomes(Round)], class: "ms-auto #{icon_button_classes}" do %>
       <svg
         class="w-3 h-3"
         aria-hidden="true"
@@ -26,44 +27,43 @@
   <% end %>
 <% end %>
 
-<% if @tournament.event_participants.present? %>
-  <table
-    class="
-      col-span-full text-md -m-4 md:-m-5 text-left rtl:text-right
-      text-gray-500 dark:text-gray-400
-    "
-  >
-    <thead
-      class="
-        text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700
-        dark:text-gray-400
-      "
-    >
+<% unless @standings_in_modal %>
+  <h2 class="mb-3 font-display text-xl font-semibold"><%= t("play.nav.standings") %></h2>
+<% end %>
+<% if @standings.any? %>
+  <div class="<%= @standings_in_modal ? "-m-4 md:-m-5 overflow-x-auto" : "-mx-4 sm:mx-0 rounded-none sm:rounded-xl bg-surface border-y sm:border border-line shadow-card overflow-clip" %>">
+  <%# In the narrow play column (a container) OWR, Beaten, Unique and Seats show only from 32rem up; the modal shows all. %>
+  <% wide_only = @standings_in_modal ? "" : "hidden @lg:table-cell" %>
+  <% pad = @standings_in_modal ? "px-3" : "px-2 @lg:px-3" %>
+  <div class="<%= "@container" unless @standings_in_modal %> overflow-x-auto">
+  <table class="w-full text-[12px] text-left rtl:text-right text-ink">
+    <thead class="sticky top-0 z-10 text-[10.5px] tracking-[0.06em] text-muted uppercase bg-surface-raised/95 backdrop-blur border-b border-line-strong">
       <tr>
         <th
           scope="col"
-          class="px-5 py-3 text-center"
+          class="<%= pad %> py-2 text-center"
           data-tooltip-target="tooltip-rank"
         >
           Rank
         </th>
-        <th scope="col" class="px-5 py-3">Player</th>
-        <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-points">
+        <th scope="col" class="<%= pad %> py-2 whitespace-nowrap">Player</th>
+        <th scope="col" class="<%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-points">
           <%= t("standings.columns.points") %>
         </th>
-        <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-owr">
+        <th scope="col" class="<%= pad %> py-2 whitespace-nowrap text-right"><%= t("standings.columns.win_rate") %></th>
+        <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-owr">
           <%= t("standings.columns.owr") %>
         </th>
-        <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-beaten">
+        <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-beaten">
           <%= t("standings.columns.beaten") %>
         </th>
-        <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-unique">
+        <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-unique">
           <%= t("standings.columns.unique") %>
         </th>
-        <th scope="col" class="px-5 py-3">
+        <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap">
           <%= t("standings.columns.seats") %>
         </th>
-        <th scope="col" class="px-5 py-3" data-tooltip-target="tooltip-wld">
+        <th scope="col" class="<%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-wld">
           W-L-D
         </th>
 
@@ -72,9 +72,8 @@
           role="tooltip"
           class="
             absolute z-10 invisible inline-block px-3 py-2 text-sm
-            font-medium text-white transition-opacity duration-300
-            bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip
-            dark:bg-gray-700
+            font-medium text-ink transition-opacity duration-300
+            bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
           "
         >
           Player rank is calculated according to the tiebreakers you can see in
@@ -88,9 +87,8 @@
           role="tooltip"
           class="
             absolute z-10 invisible inline-block px-3 py-2 text-sm
-            font-medium text-white transition-opacity duration-300
-            bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip
-            dark:bg-gray-700
+            font-medium text-ink transition-opacity duration-300
+            bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
           "
         >
           <%= t("standings.help.points", win: @tournament.points_win, draw: @tournament.points_draw, loss: @tournament.points_loss) %>
@@ -101,9 +99,8 @@
           role="tooltip"
           class="
             absolute z-10 invisible inline-block px-3 py-2 text-sm
-            font-medium text-white transition-opacity duration-300
-            bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip
-            dark:bg-gray-700
+            font-medium text-ink transition-opacity duration-300
+            bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
           "
         >
           <%= t("standings.help.owr") %>
@@ -114,9 +111,8 @@
           role="tooltip"
           class="
             absolute z-10 invisible inline-block px-3 py-2 text-sm
-            font-medium text-white transition-opacity duration-300
-            bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip
-            dark:bg-gray-700
+            font-medium text-ink transition-opacity duration-300
+            bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
           "
         >
           <%= t("standings.help.beaten") %>
@@ -127,9 +123,8 @@
           role="tooltip"
           class="
             absolute z-10 invisible inline-block px-3 py-2 text-sm
-            font-medium text-white transition-opacity duration-300
-            bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip
-            dark:bg-gray-700
+            font-medium text-ink transition-opacity duration-300
+            bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
           "
         >
           <%= t("standings.help.unique") %>
@@ -140,9 +135,8 @@
           role="tooltip"
           class="
             absolute z-10 invisible inline-block px-3 py-2 text-sm
-            font-medium text-white transition-opacity duration-300
-            bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip
-            dark:bg-gray-700
+            font-medium text-ink transition-opacity duration-300
+            bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
           "
         >
           W-L-D is the tournament track record expressed in:
@@ -152,23 +146,25 @@
         </div>
       </tr>
     </thead>
-    <tbody id="<%= dom_id(@tournament, :event_participants) %>">
+    <tbody id="<%= dom_id(@tournament, :event_participants) %>" class="divide-y divide-line/60">
       <!-- TODO updated by turbo stream -->
       <% case @tournament.state %>
       <% when 'registration_open', 'registration_closed' %>
-        <%= render @tournament.event_participants.sort_by(&:name) %>
+        <%= render partial: "event_participants/event_participant", collection: @standings.sort_by(&:name), locals: { wide_only: wide_only, pad: pad } %>
       <% else %>
-        <% standings = @tournament.event_participants.sort_by { |p| [p.playing? ? 0 : 1, -p.rank_score, p.name] } %>
-        <%= render partial: "event_participants/event_participant", collection: standings, locals: { seat_five: seat_five?(standings) } %>
+        <% standings = @standings.reject(&:waitlisted?).sort_by { |p| [p.playing? ? 0 : 1, -p.rank_score, p.name] } %>
+        <%= render partial: "event_participants/event_participant", collection: standings, locals: { seat_five: seat_five?(standings), wide_only: wide_only, pad: pad } %>
       <% end %>
     </tbody>
   </table>
+  </div>
+  </div>
   <%= render "tournaments/standings_help", event: @tournament %>
 <% end %>
 
 <% content_for :footer do %>
-  <% if @tournament.rounds.present? %>
-    <%= link_to [@tournament, @tournament.rounds.published.max_by(&:number).becomes(Round)], class:"py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" do %>
+  <% if latest_published %>
+    <%= link_to [@tournament, latest_published.becomes(Round)], class: "ms-3 #{small_button_classes(:secondary)}" do %>
       Close
     <% end %>
   <% end %>

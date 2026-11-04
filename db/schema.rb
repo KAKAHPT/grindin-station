@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_17_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_03_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -75,9 +75,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_120000) do
 
   create_table "event_participants", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.boolean "checked_in", default: false, null: false
+    t.datetime "checked_in_at"
     t.datetime "created_at", null: false
     t.string "decklist"
+    t.string "drop_reason"
     t.boolean "dropped", default: false
+    t.datetime "dropped_at"
     t.uuid "event_id"
     t.integer "final_position"
     t.integer "fixed_pod"
@@ -85,13 +88,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_120000) do
     t.boolean "paid", default: false, null: false
     t.uuid "player_id"
     t.datetime "updated_at", null: false
+    t.integer "waitlist_position"
+    t.boolean "waitlisted", default: false, null: false
     t.index ["event_id"], name: "index_event_participants_on_event_id"
     t.index ["player_id"], name: "index_event_participants_on_player_id"
+  end
+
+  create_table "event_staff", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.uuid "event_id", null: false
+    t.string "role", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["event_id", "user_id"], name: "index_event_staff_on_event_id_and_user_id", unique: true
+    t.index ["event_id"], name: "index_event_staff_on_event_id"
+    t.index ["user_id"], name: "index_event_staff_on_user_id"
   end
 
   create_table "events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.text "address"
     t.uuid "circuit_id"
+    t.integer "confirmation_timeout_minutes", default: 5, null: false
     t.datetime "created_at", null: false
     t.integer "currency"
     t.text "description"
@@ -108,20 +125,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_120000) do
     t.integer "points_win", default: 7, null: false
     t.decimal "price"
     t.text "prizes"
+    t.string "result_confirmation", default: "none", null: false
     t.integer "round_minutes", default: 80, null: false
     t.integer "rounds_count", default: 0, null: false
     t.text "rules"
     t.text "schedule"
     t.integer "seed"
+    t.boolean "self_report_enabled", default: true, null: false
+    t.boolean "show_commanders_in_standings", default: false, null: false
     t.string "slug", null: false
     t.datetime "start_time"
     t.integer "state", default: 0, null: false
     t.integer "swiss_rounds_count"
     t.integer "top_cut_round_minutes", default: 150, null: false
     t.integer "top_cut_size"
+    t.string "top_cut_timeout_rule", default: "highest_seed_advances", null: false
     t.string "type", default: "Tournament", null: false
     t.datetime "updated_at", null: false
     t.decimal "wager_percentage", precision: 5, scale: 2
+    t.boolean "waitlist_enabled", default: false, null: false
     t.index ["circuit_id"], name: "index_events_on_circuit_id"
     t.index ["event_organizer_id"], name: "index_events_on_event_organizer_id"
     t.index ["location"], name: "index_events_on_location", using: :gist
@@ -142,6 +164,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_120000) do
     t.index ["pod_id"], name: "index_infractions_on_pod_id"
   end
 
+  create_table "judge_calls", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "acknowledged_at"
+    t.uuid "acknowledged_by_user_id"
+    t.datetime "closed_at"
+    t.datetime "created_at", null: false
+    t.uuid "event_id", null: false
+    t.uuid "event_participant_id"
+    t.uuid "pod_id"
+    t.text "reason"
+    t.string "status", default: "open", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "status"], name: "index_judge_calls_on_event_id_and_status"
+    t.index ["pod_id"], name: "index_judge_calls_on_pod_id"
+  end
+
+  create_table "notifications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "kind", null: false
+    t.datetime "read_at"
+    t.uuid "subject_id"
+    t.string "subject_type"
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["subject_type", "subject_id"], name: "index_notifications_on_subject"
+    t.index ["user_id", "read_at"], name: "index_notifications_on_user_id_and_read_at"
+  end
+
   create_table "players", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "key", null: false
@@ -152,9 +201,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_120000) do
   end
 
   create_table "pods", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.jsonb "confirmations", default: {}, null: false
     t.datetime "created_at", null: false
+    t.boolean "disputed", default: false, null: false
     t.integer "extra_time", default: 0, null: false
     t.integer "number", null: false
+    t.jsonb "pending_result"
+    t.datetime "reported_at"
+    t.uuid "reported_by_participant_id"
+    t.datetime "review_requested_at"
     t.uuid "round_id"
     t.integer "size", default: 4
     t.datetime "updated_at", null: false
@@ -165,12 +220,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_120000) do
   create_table "results", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.uuid "event_participant_id"
+    t.uuid "recorded_by_user_id"
     t.uuid "round_id"
+    t.uuid "superseded_by_id"
     t.string "type", null: false
     t.datetime "updated_at", null: false
-    t.index ["event_participant_id", "round_id"], name: "index_results_on_event_participant_id_and_round_id", unique: true
+    t.index ["event_participant_id", "round_id"], name: "index_results_current_on_participant_and_round", unique: true, where: "(superseded_by_id IS NULL)"
     t.index ["event_participant_id"], name: "index_results_on_event_participant_id"
+    t.index ["recorded_by_user_id"], name: "index_results_on_recorded_by_user_id"
     t.index ["round_id"], name: "index_results_on_round_id"
+    t.index ["superseded_by_id"], name: "index_results_on_superseded_by_id"
   end
 
   create_table "rooms", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -235,14 +294,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_120000) do
   add_foreign_key "event_organizers", "users"
   add_foreign_key "event_participants", "events"
   add_foreign_key "event_participants", "players"
+  add_foreign_key "event_staff", "events"
+  add_foreign_key "event_staff", "users"
   add_foreign_key "events", "circuits"
   add_foreign_key "infractions", "events"
   add_foreign_key "infractions", "players"
   add_foreign_key "infractions", "pods"
+  add_foreign_key "judge_calls", "event_participants", on_delete: :nullify
+  add_foreign_key "judge_calls", "events"
+  add_foreign_key "judge_calls", "pods", on_delete: :nullify
+  add_foreign_key "judge_calls", "users", column: "acknowledged_by_user_id", on_delete: :nullify
+  add_foreign_key "notifications", "users"
   add_foreign_key "players", "users"
+  add_foreign_key "pods", "event_participants", column: "reported_by_participant_id", on_delete: :nullify
   add_foreign_key "pods", "rounds"
   add_foreign_key "results", "event_participants"
+  add_foreign_key "results", "results", column: "superseded_by_id", on_delete: :nullify, deferrable: :deferred
   add_foreign_key "results", "rounds"
+  add_foreign_key "results", "users", column: "recorded_by_user_id", on_delete: :nullify
   add_foreign_key "rooms", "events"
   add_foreign_key "rounds", "events"
   add_foreign_key "seatings", "event_participants"

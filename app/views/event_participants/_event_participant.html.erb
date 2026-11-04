@@ -1,47 +1,48 @@
+<% pad = local_assigns.fetch(:pad, "px-3") %>
 <tr
   id="<%= dom_id(event_participant) %>"
-  class="<%= event_participant.playing? ? "" : "line-through" %> odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700"
+  class="<%= event_participant.playing? ? "" : "line-through text-muted" %> h-[34px] odd:bg-white/[0.015] hover:bg-white/[0.04] transition-colors"
 >
   <th
     scope="row"
-    class="
-      px-5 py-4 text-center font-medium text-gray-900 whitespace-nowrap
-      dark:text-white
-    "
+    class="<%= pad %> py-0.5 text-center whitespace-nowrap"
   >
-    <%= event_participant_iteration.index+1 %>
+    <span class="tabular text-muted"><%= event_participant_iteration.index + 1 %></span>
   </th>
   <th
     scope="row"
     data-tooltip-target="tooltip-<%= event_participant.id %>"
-    class="px-5 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+    class="<%= pad %> py-0.5 font-semibold text-ink whitespace-nowrap"
   >
-    <%= truncate(event_participant.name) %>
+    <span class="<%= "block max-w-[7.5rem] truncate @lg:max-w-none" if local_assigns[:wide_only].present? %>"><%= truncate(event_participant.name) %></span>
   </th>
   <% columns = event_participant.standing_columns %>
-  <td class="px-5 py-4"><%= columns[:points] %></td>
-  <td class="px-5 py-4">
+  <td class="<%= pad %> py-0.5 tabular text-right font-display text-[12px] font-semibold text-accent"><%= columns[:points] %></td>
+  <td class="<%= pad %> py-0.5 tabular text-right"><%= win_rate_label(event_participant.win_rate) %></td>
+  <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right">
     <%= number_to_percentage(columns[:owr] * 100, precision: 1) %>
   </td>
-  <td class="px-5 py-4"><%= columns[:beaten] %></td>
-  <td class="px-5 py-4"><%= columns[:unique] %></td>
-  <td class="px-5 py-4 text-nowrap">
-    <%= seat_counts_label(columns[:seats], seat_five: local_assigns.fetch(:seat_five, false)) %>
+  <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right"><%= columns[:beaten] %></td>
+  <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right"><%= columns[:unique] %></td>
+  <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 text-nowrap">
+    <%= seat_grid(columns[:seats], seat_five: local_assigns.fetch(:seat_five, false)) %>
   </td>
-  <td class="px-5 py-4 text-nowrap">
-    <%= event_participant.number_of_wins -%>
-    &nbsp;-&nbsp;
-    <%= event_participant.number_of_losses -%>
-    &nbsp;-&nbsp;
-    <%= event_participant.number_of_draws -%>
+  <td class="<%= pad %> py-0.5 tabular text-right text-nowrap">
+    <% wld = [event_participant.number_of_wins, event_participant.number_of_losses, event_participant.number_of_draws] %>
+    <% if local_assigns[:wide_only].present? %>
+      <span class="@lg:hidden"><%= wld.join("-") %></span>
+      <span class="hidden @lg:inline"><%= safe_join(wld, raw("&nbsp;-&nbsp;")) %></span>
+    <% else %>
+      <%= safe_join(wld, raw("&nbsp;-&nbsp;")) %>
+    <% end %>
   </td>
   <div
     id="tooltip-<%= event_participant.id %>"
     role="tooltip"
     class="
       absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium
-      text-white transition-opacity duration-300 bg-gray-900 rounded-lg
-      shadow-sm opacity-0 tooltip dark:bg-gray-700
+      text-ink transition-opacity duration-300 bg-ground border border-line rounded-lg
+    shadow-sm opacity-0 tooltip
     "
   >
     <%= event_participant.name %>

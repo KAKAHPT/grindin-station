@@ -1,0 +1,15 @@
+<% url = play_me_url(@event.slug) %>
+<% @pods.each_slice(6) do |group| %>
+  <section class="slip-page">
+    <% group.each do |pod| %>
+      <div class="slip">
+        <h2><%= t("rounds.print.table") %> <%= pod.number %></h2>
+        <p class="slip-round"><%= @event.name %> · <%= @round.display_name %></p>
+        <%= render "seats", pod: pod, event: @event %>
+        <%# Generated server-side from our own URL, never from user input. %>
+        <div class="qr"><%= RQRCode::QRCode.new(url).as_svg(module_size: 3, standalone: true, use_path: true).html_safe %></div>
+        <p class="slip-url"><%= url %></p>
+      </div>
+    <% end %>
+  </section>
+<% end %>

@@ -1,0 +1,23 @@
+<% tone = { "open" => :warn, "acknowledged" => :ink, "closed" => :muted } %>
+<% table_label = judge_call.pod ? t("organizer.judge_calls.table", number: judge_call.pod.number) : t("organizer.judge_calls.no_table") %>
+<li class="flex flex-wrap items-center gap-4 py-4 <%= "opacity-70" if judge_call.closed? %>" id="<%= dom_id(judge_call) %>">
+  <span class="inline-flex size-12 shrink-0 flex-col items-center justify-center rounded-lg bg-surface-raised" title="<%= table_label %>">
+    <span class="text-[9px] font-semibold uppercase tracking-wide leading-none text-muted" aria-hidden="true"><%= t("play.tables.table") %></span>
+    <span class="mt-1 font-display text-[18px] font-semibold leading-none text-ink" aria-hidden="true"><%= judge_call.pod&.number || "–" %></span>
+    <span class="sr-only"><%= table_label %></span>
+  </span>
+  <div class="flex-1 min-w-48">
+    <p class="font-semibold text-ink"><%= judge_call.participant&.player&.name || t("organizer.judge_calls.no_player") %></p>
+    <p class="text-sm text-ink/90"><%= judge_call.reason %></p>
+    <p class="text-xs text-muted"><%= t("organizer.judge_calls.ago", time: time_ago_in_words(judge_call.created_at)) %></p>
+  </div>
+  <span class="flex flex-wrap items-center justify-end gap-3 ms-auto">
+    <%= status_chip(tone.fetch(judge_call.status)) { t("organizer.judge_calls.statuses.#{judge_call.status}") } %>
+    <% if judge_call.open? %>
+      <%= button_to t("organizer.judge_calls.acknowledge"), acknowledge_organizer_tournament_judge_call_path(tournament, judge_call), method: :patch, class: button_classes(:primary) %>
+    <% end %>
+    <% unless judge_call.closed? %>
+      <%= button_to t("organizer.judge_calls.close"), close_organizer_tournament_judge_call_path(tournament, judge_call), method: :patch, class: button_classes(:secondary) %>
+    <% end %>
+  </span>
+</li>

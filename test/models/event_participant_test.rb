@@ -233,4 +233,18 @@ class EventParticipantTest < ActiveSupport::TestCase # rubocop:disable Metrics/C
     # Counter should be decremented
     assert_equal initial_count, tournament.reload.event_participants_count
   end
+
+  test "win rate is wins over real games, byes excluded" do
+    participant = EventParticipant.new
+    participant.define_singleton_method(:results) { [Win.new, Win.new, Loss.new] }
+    assert_in_delta 2.0 / 3, participant.win_rate
+    assert_equal "66.7%", ApplicationController.helpers.win_rate_label(participant.win_rate)
+  end
+
+  test "win rate is nil with only a bye" do
+    participant = EventParticipant.new
+    participant.define_singleton_method(:results) { [Advance.new(round: SwissRound.new)] }
+    assert_nil participant.win_rate
+    assert_equal "–", ApplicationController.helpers.win_rate_label(participant.win_rate)
+  end
 end

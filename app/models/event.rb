@@ -8,6 +8,8 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   has_many :infractions, dependent: :destroy
   has_many :rooms, dependent: :destroy
   has_many :pods, through: :rounds
+  has_many :event_staff, class_name: "EventStaff", dependent: :destroy
+  has_many :judge_calls, dependent: :destroy
 
   PREFERRED_POD_SIZE = 4
   SMALLER_POD_SIZE = 3
@@ -15,8 +17,15 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   POINT_ATTRIBUTES = %i[points_win points_draw points_loss points_bye].freeze
   UNLOCKED_POINTS_STATES = %w[draft registration_open registration_closed].freeze
+  RESULT_CONFIRMATIONS = %w[none one all].freeze
+  TOP_CUT_TIMEOUT_RULES = %w[highest_seed_advances replay].freeze
 
   scope :for_organizer, ->(organizer) { where(event_organizer: organizer) }
+  # Events the user owns (through their EventOrganizer) or works as staff.
+  scope :staffed_by, lambda { |user|
+    staffed = where(id: EventStaff.where(user_id: user.id).select(:event_id))
+    user.event_organizer ? for_organizer(user.event_organizer).or(staffed) : staffed
+  }
   scope :past, -> { where(end_time: ...Time.current) }
   scope :upcoming, -> { where(start_time: Time.current..) }
   scope :for_player, ->(player) { joins(:event_participants).where(event_participants: { player: player }) }
@@ -32,6 +41,9 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   validates :points_win, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
   validates :points_draw, :points_loss, :points_bye, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validate :points_locked_after_start, on: :update
+  validates :result_confirmation, inclusion: { in: RESULT_CONFIRMATIONS }
+  validates :top_cut_timeout_rule, inclusion: { in: TOP_CUT_TIMEOUT_RULES }
+  validates :confirmation_timeout_minutes, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
 
   before_validation :populate_slug
 
@@ -42,9 +54,29 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
     UNLOCKED_POINTS_STATES.exclude?(state)
   end
 
-  # Registered players who have not dropped (from the loaded association when there is one).
+  # Registered players who have not dropped and are off the waitlist (from the loaded association when there is one).
   def playing_participants_count
-    event_participants.loaded? ? event_participants.count(&:playing?) : event_participants.playing.count
+    event_participants.loaded? ? event_participants.count(&:enrolled?) : event_participants.enrolled.count
+  end
+
+  def promote_from_waitlist!(participant)
+    with_lock do
+      participant.promote!
+      renumber_waitlist!
+    end
+  end
+
+  # After a place is freed (freed_place) the first on the waitlist takes it; positions are then closed up.
+  def fill_from_waitlist!(freed_place:)
+    event_participants.waitlist.first&.promote! if freed_place
+    renumber_waitlist!
+  end
+
+  # Closes the gaps in the waitlist positions: 1, 2, 3...
+  def renumber_waitlist!
+    event_participants.waitlist.each.with_index(1) do |participant, position|
+      participant.update!(waitlist_position: position) unless participant.waitlist_position == position
+    end
   end
 
   def available_states
@@ -89,12 +121,12 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
     participants_range&.begin || 0
   end
 
+  # Postgres stores int4range canonically as [min, max + 1), so a read-back range excludes its end.
   def maximum_participants
-    if participants_range&.end == Float::INFINITY || participants_range&.end.nil?
-      Float::INFINITY
-    else
-      participants_range&.end
-    end
+    range_end = participants_range&.end
+    return Float::INFINITY if range_end.nil? || range_end == Float::INFINITY
+
+    participants_range.exclude_end? ? range_end - 1 : range_end
   end
 
   def name_with_dates

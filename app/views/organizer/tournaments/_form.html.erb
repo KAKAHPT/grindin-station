@@ -54,6 +54,17 @@
     <%= f.number_field_with_label :top_cut_round_minutes, min: 1, step: 1, disabled: tournament.points_locked? %>
   </div>
 
+  <h3 class="mb-2 text-sm font-semibold text-gray-900 dark:text-white"><%= t("organizer.day_of_event") %></h3>
+  <%= f.check_box_with_label :self_report_enabled %>
+  <div class="flex gap-2">
+    <%= f.select_with_label :result_confirmation, result_confirmation_options, selected: tournament.result_confirmation %>
+    <%= f.number_field_with_label :confirmation_timeout_minutes, min: 1, step: 1 %>
+  </div>
+  <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><%= t("organizer.confirmation_help") %></p>
+  <%= f.check_box_with_label :waitlist_enabled %>
+  <%= f.check_box_with_label :show_commanders_in_standings %>
+  <%= f.select_with_label :top_cut_timeout_rule, top_cut_timeout_rule_options, selected: tournament.top_cut_timeout_rule %>
+
   <%= f.text_area_with_label :description, rows: 4, placeholder: "Additional info, like how to get to the venue, where to eat, etc." %>
 
   <% content_for :footer do %>

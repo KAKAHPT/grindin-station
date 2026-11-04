@@ -14,10 +14,11 @@ class TournamentManagementTest < ApplicationSystemTestCase
     fill_in "Description", with: "The biggest tournament of the year"
     fill_in "Maximum participants", with: "32"
     fill_in "Address", with: "Lisboa, Portugal"
-    fill_in "Start time", with: Time.zone.now.tomorrow.strftime("%Y-%m-%dT%H:%M")
-    fill_in "End time", with: Time.zone.now.tomorrow.strftime("%Y-%m-%dT%H:%M")
+    fill_in "Start time", with: Time.zone.now.tomorrow.change(sec: 0)
+    fill_in "End time", with: Time.zone.now.tomorrow.change(sec: 0)
 
     click_button "Create Tournament"
+    assert_text I18n.t("flash.notice.tournament_created")
 
     # Verify tournament was created
     tournament = Tournament.find_by(name: "Grand Championship 2024")
@@ -37,6 +38,7 @@ class TournamentManagementTest < ApplicationSystemTestCase
     fill_in "Description", with: "Updated description"
 
     click_button "Update"
+    assert_text I18n.t("flash.notice.tournament_updated")
 
     tournament.reload
     assert_equal "Updated Tournament Name", tournament.name
@@ -120,15 +122,5 @@ class TournamentManagementTest < ApplicationSystemTestCase
         end
       end
     end
-  end
-
-  private
-
-  def sign_in_as(user)
-    visit root_path
-    visit new_session_path
-    fill_in "session_email_address", with: user.email_address
-    fill_in "session_password", with: "password123"
-    click_button "Sign in"
   end
 end

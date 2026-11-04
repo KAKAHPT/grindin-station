@@ -20,6 +20,32 @@
 - [ ] Multi-To Multi-Event circuits
 - [ ] Accessibility: Fixed seating
 
+## Dia de torneio
+
+- **Equipa.** O dono do evento é o organizador; podem juntar-se outros pelo ecrã Equipa (`event_staff`) como
+  `organizer`, `judge` ou `scorekeeper`. Cada papel só vê o que lhe cabe (`Organizer::OrganizerController`).
+- **Confirmação de resultados.** Por evento: `none` (o resultado do organizador vale logo), `one` (basta um
+  jogador da mesa confirmar) ou `all` (todos têm de confirmar). Com `self_report_enabled`, o vencedor regista o
+  resultado em `/t/:slug/me`; os outros jogadores da mesa confirmam ou contestam. Um resultado pendente que
+  ninguém confirma em `confirmation_timeout_minutes` passa a revisão da equipa (`Results::ExpirePendingJob`,
+  corre de minuto a minuto); nunca é aceite automaticamente.
+- **Juízes.** O jogador chama um juiz a partir da sua mesa; os pedidos aparecem no Centro de Juízes
+  (`/organizer/tournaments/:id/judge_calls`), onde se reconhecem e fecham.
+- **Página da ronda (organizador).** Toca numa linha de jogador para marcar o vencedor e depois confirma; há
+  também Draw, +5 min de tempo extra por mesa e Tempo chamado, que decide a mesa pela regra
+  `top_cut_timeout_rule`: `highest_seed_advances` (avança o melhor seed) ou `replay` (repetição com metade do
+  tempo). "Fechar ronda" só funciona quando todas as mesas têm resultado, sem disputas nem juízes chamados (diz
+  quais as mesas que bloqueiam); "Fazer o corte" cria o Top Cut e "Anular ronda" apaga as mesas e resultados.
+- **Lista de inscritos.** Contadores no topo, check-in, pago, decklist, lista de espera (quando alguém desiste
+  ou é libertado um lugar, `fill_from_waitlist!` chama o primeiro da fila), desistir e promover, e estatísticas
+  expansíveis por linha.
+- **Páginas públicas.** `/t/:slug/me` (a mesa e o lugar do jogador), a classificação em
+  `/tournaments/:id/event_participants` (com a coluna Win %, também no telemóvel) e o cronómetro da ronda em
+  `/t/:slug/timer`.
+- **Impressões.** A partir da página da ronda: emparelhamentos (12 mesas por folha A4) e folhas com QR (6 por
+  folha A4), que levam o jogador à sua mesa.
+- **Aspeto.** Paleta A, apenas em modo escuro.
+
 ## Setup no macOS
 
 Testado em macOS (Apple Silicon) com `mise` e PostgreSQL 17 + PostGIS do Homebrew,

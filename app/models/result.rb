@@ -3,6 +3,9 @@
 class Result < ApplicationRecord
   belongs_to :event_participant
   belongs_to :round
+  # Set once the result is replaced by a correction to a closed round; kept for audit only.
+  belongs_to :superseded_by, class_name: "Result", optional: true
+  belongs_to :recorded_by, class_name: "User", foreign_key: :recorded_by_user_id, optional: true, inverse_of: false
 
   has_one :event, through: :round
 
@@ -12,16 +15,18 @@ class Result < ApplicationRecord
   ELIMINATION_SUBYTPES = ELIMINATION_SELECTABLE_SUBYTPES + %w[Eliminated].freeze
 
   scope :publishable, -> { joins(:round).where.not(rounds: { finished_at: nil }) }
+  scope :current, -> { where(superseded_by_id: nil) }
 
   validates(
     :event_participant_id,
     {
-      uniqueness: { scope: :round_id }
+      uniqueness: { scope: :round_id, conditions: -> { current }, if: -> { superseded_by_id.nil? } }
     }
   )
 
+  # In-place write for open rounds only; closed rounds go through Results::Apply (superseding).
   def self.create_or_update_by(**keys)
-    result = Result.find_by(keys)
+    result = Result.current.find_by(keys)
     result = Result.new(keys) if result.blank?
 
     yield(result)
