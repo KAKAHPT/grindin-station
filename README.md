@@ -46,6 +46,35 @@
   folha A4), que levam o jogador à sua mesa.
 - **Aspeto.** Paleta A, apenas em modo escuro.
 
+## Jogadores e público
+
+- **Entrar.** Com e-mail e palavra-passe, ou com Google e Discord (OmniAuth, tabela `identities`). Variáveis de
+  ambiente: `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` e `DISCORD_CLIENT_ID`/`DISCORD_CLIENT_SECRET`; sem elas o
+  botão respetivo não aparece. Uma conta existente liga-se pelo e-mail verificado; o retorno é `/auth/:provider/callback`.
+- **Conta (`/account`).** Nome, e-mail, palavra-passe, handle, país, bio, avatar, visibilidade do perfil
+  (`public`, `participants` ou `private`) e identidades ligadas. Eliminar a conta anonimiza-a ("Removed player"):
+  os resultados ficam, os dados pessoais saem. As miniaturas do avatar precisam de libvips: `brew install vips`.
+- **Perfil público (`/p/:handle`).** Histórico com posição, V-D-E e lugares à mesa. A decklist só aparece se o
+  evento tiver `show_decklists` e já estiver terminado. Ao terminar, cada torneio guarda a `final_position`
+  (pontos do circuito).
+- **Páginas públicas.** `/t/:slug` (evento, inscritos, lista de espera, inscrever e cancelar),
+  `/t/:slug/pairings` (`?round=N`), `/t/:slug/standings` (com Win %) e `/t/:slug/timer`. Eventos em rascunho ou
+  cancelados dão 404 a quem não é equipa; os antigos `/tournaments/:id` redirecionam.
+- **Ao vivo.** Turbo Streams: a mesa de cada jogador e a página da ronda do organizador atualizam sozinhas
+  (`Live::*Job`). Os emparelhamentos públicos ainda não são ao vivo.
+- **Notificações.** `/notifications` e o sino no cabeçalho.
+- **Desempenho.** Sprite de ícones local, Flowbite só no organizador, Leaflet local e carregado a pedido, fontes
+  sem bloquear. `bin/rails "grindin:lighthouse[url]"` mede e falha abaixo de 90; resultados em
+  `docs/superpowers/notes/2026-11-04-m3-lighthouse.md`.
+
+Teste manual em telemóvel real (iOS e Android), por fazer:
+
+1. Entrar com Google.
+2. Abrir `/t/<slug>/me` e ver a mesa.
+3. Reportar um resultado.
+4. Abrir a classificação (`/t/<slug>/standings`).
+5. Abrir o próprio perfil (`/p/<handle>`).
+
 ## Setup no macOS
 
 Testado em macOS (Apple Silicon) com `mise` e PostgreSQL 17 + PostGIS do Homebrew,

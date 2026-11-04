@@ -103,6 +103,8 @@ Infractions have a hierarchical enum structure:
 
 - Rails 8 built-in authentication (removed Devise)
 - Session-based authentication via `Session` model
+- Sign in with Google/Discord via OmniAuth (`config/initializers/omniauth.rb`, `Identity` model/`identities` table, `Accounts::ConnectIdentity`); needs `GOOGLE_CLIENT_ID/SECRET`, `DISCORD_CLIENT_ID/SECRET` (buttons hidden when unset); links to an existing user by verified e-mail
+- `/account` (profile, handle, visibility `public|participants|private`, avatar via Active Storage, needs libvips; delete = `Accounts::Anonymize`, "Removed player")
 - Password reset functionality with `PasswordsMailer`
 - `EventOrganizer` namespace for tournament management functions
 - `Current` concern for request-scoped state
@@ -113,7 +115,10 @@ Infractions have a hierarchical enum structure:
 - **Tailwind CSS 4**: With Flowbite components (@tailwindcss/forms, @tailwindcss/typography, @tailwindcss/container-queries)
 - **Importmap**: JavaScript module management
 - **Herb**: ERB template engine with JSX-like syntax support (includes `reactionview` gem for validation)
-- **Phosphor Icons**: Icon library via CDN
+- **Icons**: local SVG sprite (`app/assets/images/icons.svg`, `icon` helper); no icon CDN
+- **Flowbite**: organizer entry point only (importmap `preload: "organizer"`); public pages ship none
+- **Leaflet**: vendored in `vendor/javascript`, loaded lazily
+- **Turbo Streams**: live updates (see Background Jobs)
 
 ### Tournament Day
 
@@ -131,6 +136,8 @@ Uses Solid Queue for job processing:
 - **Events**: `GeocodeJob`, `SubmitResultJob`
 - **Results**: `Results::ExpirePendingJob` (recurring, every minute): pending results unconfirmed after `confirmation_timeout_minutes` go to staff review, never auto-accepted
 - **Circuits**: `UpdateStandingsJob`
+- **Live** (Turbo Streams): `Live::BroadcastTableJob` (a participant's table), `Live::BroadcastPodJob`, `Live::BroadcastRoundJob` (organizer round page via state partial + morph refresh). Public pairings are not live yet
+- Tournaments record `final_position` at finish (used by circuit points)
 
 ### Database
 
@@ -148,6 +155,7 @@ Uses Solid Queue for job processing:
 - Fixtures in `test/fixtures/` with sample tournament data
 - Service tests in `test/services/`
 - Tournament-day flows (self-report/confirm/contest, judge calls, round close/cut/undo, roster, printing) have controller tests plus system tests
+- Performance: `bin/rails "grindin:lighthouse[url]"` (mobile Lighthouse, fails below 90); scores in `docs/superpowers/notes/2026-11-04-m3-lighthouse.md`
 - Run with parallel workers: `bin/rails test` (uses `:number_of_processors` workers)
 
 ## Code Conventions
@@ -177,10 +185,20 @@ GET  /                           → events#index
 POST /registrations              → registrations#create
 GET/POST /session                → sessions (create/destroy)
 POST /passwords/:token           → passwords (reset)
-GET  /tournaments                → tournaments#index/show
+GET  /tournaments                → tournaments#index (show redirects to /t/:slug)
 GET  /leagues                    → leagues#index/show
 GET  /circuits                   → circuits#index/show
 GET  /events                     → events#index
+GET  /auth/:provider/callback    → omniauth_callbacks#create (+ /auth/failure)
+GET/PATCH/DELETE /account        → accounts (DELETE /account/identities/:id unlinks)
+GET  /p/:handle                  → profiles#show (public profile, history)
+GET  /notifications              → notifications#index
+
+Play namespace (/t/:slug, public; draft/canceled events 404 for non-staff):
+GET  /t/:slug                    → event page (enrolled, waitlist, enrol/cancel)
+GET  /t/:slug/pairings           → pairings (?round=N)
+GET  /t/:slug/standings          → standings (Win %)
+GET  /t/:slug/timer, /t/:slug/me → round timer, player's table
 
 Organizer namespace (requires organizer auth):
 GET/POST /organizer              → organizer/tournaments#index (root)
@@ -205,5 +223,9 @@ REST /organizer/circuits         → CRUD + nested tournaments (new/create)
 - `app/services/tournaments/uneven_pod_generator.rb`: 3-5 player pod generation
 - `app/services/scoring/point_wager.rb`: League score/wager calculations
 - `app/services/circuits/calculate_points.rb`: Circuit point awards
+- `app/models/play/table_state.rb`: state of a player's table (page and Turbo broadcasts)
+- `app/queries/profiles/history.rb`: public profile history (position, W-L-D, seats, decklist rules)
+- `app/services/accounts/`: `ConnectIdentity` (OmniAuth), `Anonymize` (account deletion)
+- `app/jobs/live/`: Turbo Stream broadcast jobs
 - `app/controllers/concerns/authentication.rb`: Auth implementation
 - `app/controllers/application_controller.rb`: Base controller with Prosopite N+1 detection
