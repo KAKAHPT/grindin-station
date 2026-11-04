@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_05_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_05_110000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -42,6 +42,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_100000) do
     t.uuid "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "audit_events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "action", null: false
+    t.uuid "actor_user_id"
+    t.datetime "created_at", null: false
+    t.jsonb "data", default: {}, null: false
+    t.uuid "event_id"
+    t.string "ip"
+    t.string "request_id"
+    t.uuid "subject_id"
+    t.string "subject_type"
+    t.index ["action"], name: "index_audit_events_on_action"
+    t.index ["actor_user_id"], name: "index_audit_events_on_actor_user_id"
+    t.index ["created_at"], name: "index_audit_events_on_created_at"
+    t.index ["event_id"], name: "index_audit_events_on_event_id"
   end
 
   create_table "circuit_standings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -337,6 +353,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_100000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "audit_events", "events", on_delete: :nullify
+  add_foreign_key "audit_events", "users", column: "actor_user_id", on_delete: :nullify
   add_foreign_key "circuit_standings", "circuits"
   add_foreign_key "circuit_standings", "players"
   add_foreign_key "circuits", "event_organizers"
