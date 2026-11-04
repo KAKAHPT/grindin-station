@@ -19,14 +19,10 @@ class TournamentsController < ApplicationController
     @ongoing = Tournament.for_player(current_user&.player).ongoing
   end
 
-  # The event page lives at /t/:slug; the old page stays only for a tournament without a slug.
+  # The event page lives at /t/:slug (every event has one).
   def show
-    slug = Tournament.where(id: params[:id]).pick(:slug)
-    if slug.present?
-      flash.keep # notices from enrol/cancel, which still redirect here
-      return redirect_to(play_event_path(slug, locale: params[:locale]))
-    end
-
-    @tournament = Tournament.preload(rounds: :pods, event_participants: { player: :user }).find(params[:id])
+    slug = Tournament.where(id: params[:id]).pick(:slug) || raise(ActiveRecord::RecordNotFound)
+    flash.keep # notices from enrol/cancel, which still redirect here
+    redirect_to play_event_path(slug, locale: params[:locale])
   end
 end
