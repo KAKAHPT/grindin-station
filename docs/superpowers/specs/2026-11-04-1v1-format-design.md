@@ -60,8 +60,8 @@ Research with sources: `docs/superpowers/notes/2026-11-04-1v1-formats-research.m
 
 ## 5. Structure and top cut (1v1)
 
-- `Tournaments::Structure.suggested(players, format:)`: 1v1 per MTR Appendix E: `<4 → [0, 0]`, `4..7 → [0, 4]`
-  (straight single elimination, no Swiss), `8 → [0, 8]`, `9..16 → [5, 4]`, `17..32 → [5, 8]`, `33..64 → [6, 8]`,
+- `Tournaments::Structure.suggested(players, format:)`: 1v1 per MTR Appendix E: `<4 → [0, 0]`, `4 → [0, 4]`, `5..8 → [0, 8]`
+  (straight single elimination, no Swiss; a short field gets walkovers for the top seeds), `9..16 → [5, 4]`, `17..32 → [5, 8]`, `33..64 → [6, 8]`,
   `65..128 → [7, 8]`, `129..226 → [8, 8]`, `227..409 → [9, 8]`, `410.. → [10, 8]`. Multiplayer unchanged.
 - `Tournaments::TopCut` gains 1v1 sizes `2, 4, 8, 16, 32`: rounds = log2(size), one table of 2 per pair, no byes.
   Validation of `top_cut_size` uses the format's sizes.
@@ -69,7 +69,9 @@ Research with sources: `docs/superpowers/notes/2026-11-04-1v1-formats-research.m
   each next cut round pairs the winners of pods `i` and `k+1-i`. Names: Finals / Semifinals / Quarterfinals /
   Round of 16 / Round of 32.
 - A swiss_rounds_count of 0 is allowed for 1v1 (straight single elimination): `registration_closed → single_elimination`
-  is a legal transition when `swiss_rounds_count == 0`.
+  is a legal transition when `swiss_rounds_count == 0`. In that case the cut may be the next power of two at or
+  above the field (5–8 players → Top 8): vacant slots are walkovers for the top seeds (§5 bracket).
+- A bo3 match stopped on time at 1-0 is recorded 1-0-1 (the unfinished game is a draw, MTR); 1-0-0 is also accepted.
 
 ## 6. Results entry (1v1)
 
