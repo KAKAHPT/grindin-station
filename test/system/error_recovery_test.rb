@@ -114,7 +114,7 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
 
     assert_current_path root_path
     assert_text "Grindin Station"
-    assert_text "Log in"
+    assert_selector "[data-topbar] a", text: "Sign in"
     assert_no_text "Logout"
   end
 

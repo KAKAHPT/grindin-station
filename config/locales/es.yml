@@ -1,0 +1,14 @@
+es:
+  app:
+    name: "Grindin Station"
+  topbar:
+    events: "Eventos"
+    rankings: "Rankings"
+    about: "Acerca de"
+    language: "Idioma"
+    sign_in: "Iniciar sesión"
+    logout: "Cerrar sesión"
+    organizer_mode: "Modo organizador"
+    menu: "Menú"
+  accounts:
+    nav: "Cuenta"

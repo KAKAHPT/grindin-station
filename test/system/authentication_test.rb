@@ -103,7 +103,7 @@ class AuthenticationTest < ApplicationSystemTestCase
     click_link "Logout"
 
     # After logout, should see log in text instead of logout
-    assert_text "Log in"
+    assert_selector "[data-topbar] a", text: "Sign in"
     assert_no_text "Logout"
   end
 
@@ -139,7 +139,7 @@ class AuthenticationTest < ApplicationSystemTestCase
   test "forgot password modal cancel button stays inline" do
     visit root_path
 
-    find("nav a", text: "Log in").click
+    find("[data-topbar] a", text: "Sign in").click
     assert_selector "turbo-frame#modal"
 
     click_on "Forgot password?"
@@ -149,14 +149,14 @@ class AuthenticationTest < ApplicationSystemTestCase
 
     assert_text "Sign in"
     assert_field "session_email_address"
-    assert_selector "a", text: "Log in"
+    assert_selector "[data-topbar] a", text: "Sign in"
   end
 
   test "sign in modal cancel button closes the modal" do
     visit root_path
 
-    assert_selector "a", text: "Log in"
-    find("nav a", text: "Log in").click
+    assert_selector "[data-topbar] a", text: "Sign in"
+    find("[data-topbar] a", text: "Sign in").click
 
     assert_selector "turbo-frame#modal"
     assert_text "Sign in"
@@ -165,26 +165,26 @@ class AuthenticationTest < ApplicationSystemTestCase
     click_on "Cancel"
 
     assert_no_field "session_email_address"
-    assert_no_text "Sign in"
+    assert_no_button "Sign in"
     assert_no_text "Forgot password?"
   end
 
   test "successful sign in closes modal and refreshes page" do
     visit root_path
 
-    find("nav a", text: "Log in").click
+    find("[data-topbar] a", text: "Sign in").click
     fill_in "session_email_address", with: users(:player_one).email_address
     fill_in "session_password", with: "password123"
     click_button "Sign in"
 
-    assert_no_text "Log in"
+    assert_no_selector "[data-topbar] a", text: "Sign in"
     assert_text "Logout"
   end
 
   test "successful sign up logs in user and refreshes page" do
     visit root_path
 
-    find("nav a", text: "Log in").click
+    find("[data-topbar] a", text: "Sign in").click
     click_on "Sign up"
 
     fill_in "user_name", with: "New Test User"
@@ -194,7 +194,7 @@ class AuthenticationTest < ApplicationSystemTestCase
     click_button "Sign up"
 
     assert_text "Welcome! You have signed up successfully."
-    assert_no_text "Log in"
+    assert_no_selector "[data-topbar] a", text: "Sign in"
     assert_text "Logout"
   end
 end

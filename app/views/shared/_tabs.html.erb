@@ -1,0 +1,11 @@
+<%# Route tabs (underline teal). Local tabs: array of { label:, path:, active:, badge: } (badge optional). %>
+<nav class="tabs" data-tabs>
+  <% tabs.each do |tab| %>
+    <%= link_to tab[:path], class: tab_classes(tab[:active]), "aria-current": ("page" if tab[:active]) do %>
+      <%= tab[:label] %>
+      <% if tab[:badge].present? %>
+        <span class="tab-badge tabular"><%= tab[:badge] %></span>
+      <% end %>
+    <% end %>
+  <% end %>
+</nav>

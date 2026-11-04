@@ -55,6 +55,16 @@ module PaletteHelper
     "#{SEGMENT_ITEM} #{active ? SEGMENT_ACTIVE : SEGMENT_IDLE}"
   end
 
+  # Dark header band of a card or table (title row darker than the body; see .band in application.css).
+  def band_classes(extra = nil)
+    ["band", extra].compact.join(" ")
+  end
+
+  # Route tab of shared/_tabs (underline teal when active).
+  def tab_classes(active)
+    active ? "tab tab-on" : "tab"
+  end
+
   # Status chip: small dot plus uppercase label, coloured by tone (see CHIP_TONES).
   def status_chip(tone, data: nil, &block)
     tag.span(class: "inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide " \

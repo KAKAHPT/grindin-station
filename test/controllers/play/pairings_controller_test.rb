@@ -28,7 +28,7 @@ module Play
         end
       end
       assert_select "a[href*='/organizer']", count: 0
-      assert_select "button", count: 0
+      assert_select "main button", count: 0
     end
 
     test "the nav links the pairings and the new standings" do

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta http-equiv="refresh" content="30">
     <%= csp_meta_tag %>
+    <link rel="icon" type="image/svg+xml" href="<%= asset_path("mark.svg") %>">
     <%= render "layouts/phone_head", description: t("play.description", event: @event.name) %>
     <%= javascript_importmap_tags %>
     <style>

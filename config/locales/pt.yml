@@ -1,4 +1,13 @@
 pt:
+  topbar:
+    events: "Eventos"
+    rankings: "Rankings"
+    about: "Sobre"
+    language: "Idioma"
+    sign_in: "Entrar"
+    logout: "Sair"
+    organizer_mode: "Modo organizador"
+    menu: "Menu"
   app:
     name: "Grindin Station"
     description: "Emparelhamentos, classificações e resultados de eventos de cEDH, ao vivo no telemóvel."

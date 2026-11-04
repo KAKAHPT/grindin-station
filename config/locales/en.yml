@@ -1,4 +1,13 @@
 en:
+  topbar:
+    events: "Events"
+    rankings: "Rankings"
+    about: "About"
+    language: "Language"
+    sign_in: "Sign in"
+    logout: "Logout"
+    organizer_mode: "Organizer mode"
+    menu: "Menu"
   app:
     name: "Grindin Station"
     description: "Pairings, standings and results of cEDH events, live on your phone."

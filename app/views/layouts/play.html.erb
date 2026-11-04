@@ -5,24 +5,19 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <link rel="icon" type="image/svg+xml" href="<%= asset_path("mark.svg") %>">
     <%= yield :head %>
     <%= render "layouts/phone_head", description: t("play.description", event: current_event.name) %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
   <body class="min-h-screen bg-ground text-ink font-body antialiased">
-    <header class="sticky top-0 z-20 px-4 py-3 border-b border-line bg-surface/90 backdrop-blur shadow-card">
-      <div class="flex items-baseline justify-between gap-3">
-        <p class="text-[11px] font-semibold uppercase tracking-wide text-muted"><%= t("app.name") %></p>
-        <% if authenticated? %>
-          <div class="flex items-center gap-2 min-w-0">
-            <p data-play-player class="text-xs text-muted truncate"><%= profile_link(current_user) %></p>
-            <%= render "notifications/bell" %>
-          </div>
-        <% end %>
-      </div>
-      <h1 class="font-display text-lg font-semibold truncate"><%= current_event.name %></h1>
-    </header>
+    <%= render "shared/topbar" %>
+
+    <%# Pages give their own event header (content_for :event_header); until then the plain card with the name. %>
+    <div class="<%= content_for?(:wide_main) ? "max-w-6xl" : "max-w-md" %> mx-auto px-4 pt-5">
+      <%= content_for?(:event_header) ? yield(:event_header) : render("shared/event_header", event: current_event) %>
+    </div>
 
     <% flash.each do |key, message| %>
       <p role="alert" data-flash="<%= key %>"
