@@ -4,12 +4,16 @@
 module PublicEvent
   extend ActiveSupport::Concern
 
-  HIDDEN_STATES = %w[draft canceled].freeze
+  HIDDEN_STATES = Event::HIDDEN_STATES
 
   private
 
   def find_public_event!
-    event = Tournament.find_by!(slug: params.expect(:slug))
+    ensure_public!(Tournament.find_by!(slug: params.expect(:slug)))
+  end
+
+  # Works for any Event (tournament or league); returns the event.
+  def ensure_public!(event)
     hidden = event.state.in?(HIDDEN_STATES) && !current_user&.staff_role_for(event)
     raise ActiveRecord::RecordNotFound if hidden
 

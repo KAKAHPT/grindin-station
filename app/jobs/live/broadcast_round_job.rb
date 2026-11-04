@@ -6,6 +6,7 @@ module Live
   class BroadcastRoundJob < ApplicationJob
     def perform(round, tables: false, request_id: nil)
       LiveBroadcasts.refresh_round(round.id, request_id: request_id)
+      LiveBroadcasts.refresh_pairings(round.event_id, request_id: request_id)
       return unless tables && round.published?
 
       pod_of = pods_by_participant(round)

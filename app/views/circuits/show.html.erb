@@ -44,11 +44,11 @@
     </p>
   <% end %>
 
-  <% if @circuit.events.any? %>
+  <% if @tournaments.any? || @leagues.any? %>
     <p class="mb-4 text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400">
-      <%= number_to_currency @circuit.events.count %> event(s)
-      <% if @circuit.leagues.any? %>
-        (<%= @circuit.leagues.count %> leagues, <%= @circuit.tournaments.count %> tournaments)
+      <%= number_to_currency @tournaments.size + @leagues.size %> event(s)
+      <% if @leagues.any? %>
+        (<%= @leagues.size %> leagues, <%= @tournaments.size %> tournaments)
       <% end %>
     </p>
   <% end %>
@@ -90,22 +90,22 @@
   </div>
 
   <div class="mt-8">
-    <% if @circuit.events.any? %>
+    <% if @tournaments.any? || @leagues.any? %>
 
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Events</h2>
-      <% if @circuit.leagues.any? %>
+      <% if @leagues.any? %>
         <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">
           <%= icon('trophy', class: 'inline me-2 w-5 h-5') %>
           Leagues
         </h3>
-        <%= render @circuit.leagues %>
+        <%= render @leagues %>
       <% end %>
-      <% if @circuit.tournaments.any? %>
+      <% if @tournaments.any? %>
         <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">
           <%= icon('medal', class: 'inline me-2 w-5 h-5') %>
           Tournaments
         </h3>
-        <%= render @circuit.tournaments %>
+        <%= render @tournaments %>
       <% end %>
 
     <% else %>

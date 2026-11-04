@@ -4,8 +4,10 @@ module ApplicationCable
   class Connection < ActionCable::Connection::Base
     identified_by :current_user
 
+    # Visitors connect too (public pairings): every stream is subscribed by its signed name, which only
+    # the page that may show it carries, so the connection itself needs no identity.
     def connect
-      set_current_user || reject_unauthorized_connection
+      set_current_user
     end
 
     private

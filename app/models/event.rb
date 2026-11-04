@@ -19,6 +19,8 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   UNLOCKED_POINTS_STATES = %w[draft registration_open registration_closed].freeze
   RESULT_CONFIRMATIONS = %w[none one all].freeze
   TOP_CUT_TIMEOUT_RULES = %w[highest_seed_advances replay].freeze
+  # A draft or canceled event exists only for its staff: hidden from public pages.
+  HIDDEN_STATES = %w[draft canceled].freeze
 
   scope :for_organizer, ->(organizer) { where(event_organizer: organizer) }
   # Events the user owns (through their EventOrganizer) or works as staff.
@@ -26,6 +28,8 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
     staffed = where(id: EventStaff.where(user_id: user.id).select(:event_id))
     user.event_organizer ? for_organizer(user.event_organizer).or(staffed) : staffed
   }
+  # On Tournament or League: state is their enum (the names do not cast on Event itself).
+  scope :visible, -> { where.not(state: HIDDEN_STATES) }
   scope :past, -> { where(end_time: ...Time.current) }
   scope :upcoming, -> { where(start_time: Time.current..) }
   scope :for_player, ->(player) { joins(:event_participants).where(event_participants: { player: player }) }

@@ -21,7 +21,7 @@ class JudgeCall < ApplicationRecord
 
   # A call shows on the table (and the pod card when it has a pod).
   after_commit on: %i[create update] do
-    if pod_id then Live::BroadcastPodJob.perform_later(pod_id: pod_id)
+    if pod_id then Live::BroadcastPodJob.perform_later(pod_id: pod_id, pairings: false)
     elsif event_participant_id then Live::BroadcastTableJob.perform_later(event_participant_id)
     end
   end

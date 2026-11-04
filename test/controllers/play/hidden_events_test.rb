@@ -27,5 +27,49 @@ module Play
       get play_timer_path(@tournament.slug)
       assert_response :success
     end
+
+    test "legacy public pages are not found for draft and canceled events except for staff" do
+      round = @tournament.rounds.first
+      paths = [tournament_path(@tournament), tournament_round_path(@tournament, round),
+               tournament_event_participants_path(@tournament)]
+
+      %i[draft canceled].each do |state|
+        @tournament.update_column(:state, state) # rubocop:disable Rails/SkipsModelValidations
+        paths.each do |path|
+          get path
+          assert_response :not_found, "visitor #{state} #{path}"
+        end
+      end
+
+      sign_in_user(users(:player_one))
+      paths.each do |path|
+        get path
+        assert_response :not_found, "non-staff #{path}"
+      end
+
+      sign_in_user(users(:organizer_user))
+      get paths[0]
+      assert_redirected_to play_event_path(@tournament.slug)
+      get paths[1]
+      assert_response :success
+    end
+
+    test "legacy round routes are read-only and the public pod and round list routes are gone" do
+      assert_raises(ActionController::RoutingError) { Rails.application.routes.recognize_path("/tournaments/1/rounds/1/edit") }
+      assert_raises(ActionController::RoutingError) do
+        Rails.application.routes.recognize_path("/tournaments/1/rounds/1/pods", method: :post)
+      end
+      %w[/tournaments/1/rounds /tournaments/1/rounds/1/pods /tournaments/1/rounds/1/pods/1
+         /leagues/1/rounds /leagues/1/rounds/1/pods/1].each do |path|
+        assert_raises(ActionController::RoutingError, path) { Rails.application.routes.recognize_path(path) }
+      end
+    end
+
+    private
+
+    def sign_in_user(user)
+      user.update!(password: "password123")
+      post session_path, params: { session: { email_address: user.email_address, password: "password123" } }
+    end
   end
 end

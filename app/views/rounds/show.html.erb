@@ -105,6 +105,7 @@
           data-round-timer-round-time-value="<%= @round.duration %>"
           data-round-timer-started-at-value="<%= @round.started_at.iso8601 %>"
           data-round-timer-finished-at-value="<%= @round.finished_at&.iso8601 %>"
+          data-round-timer-finished-label-value="<%= t("rounds.finished_in", time: "%{time}") %>"
         >
           --:--
         </span>

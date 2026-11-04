@@ -42,11 +42,13 @@
             </p>
           <% end %>
 
-          <% if circuit.events.any? %>
+          <% leagues_count = @league_counts.fetch(circuit.id, 0) %>
+          <% events_count = @tournament_counts.fetch(circuit.id, 0) + leagues_count %>
+          <% if events_count.positive? %>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              <%= number_to_currency(circuit.events.count) %> event(s)
-              <% if circuit.leagues.any? %>
-                (<%= circuit.leagues.count %> leagues)
+              <%= number_to_currency(events_count) %> event(s)
+              <% if leagues_count.positive? %>
+                (<%= leagues_count %> leagues)
               <% end %>
             </p>
           <% end %>

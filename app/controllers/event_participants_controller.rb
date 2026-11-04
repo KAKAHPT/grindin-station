@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class EventParticipantsController < ApplicationController
+  include PublicEvent
+
   skip_before_action :require_authentication, only: %i[index]
   rescue_from(Registrations::Closed) { redirect_to load_event, alert: t("flash.alert.registration_closed") }
   rescue_from(Registrations::Full) { redirect_to load_event, alert: t("flash.alert.registration_full") }
@@ -96,7 +98,7 @@ class EventParticipantsController < ApplicationController
   end
 
   def load_event
-    Tournament.find params[:tournament_id]
+    ensure_public!(Tournament.find(params[:tournament_id]))
   end
 
   def load_participant(event)

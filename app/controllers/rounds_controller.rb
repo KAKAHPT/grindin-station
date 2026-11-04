@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 class RoundsController < ApplicationController
-  skip_before_action :require_authentication, only: %i[index show]
-  def index
-    @rounds = load_event.rounds
-  end
+  include PublicEvent
+
+  skip_before_action :require_authentication, only: :show
 
   def show
     event = load_event
@@ -20,7 +19,7 @@ class RoundsController < ApplicationController
   private
 
   def load_event
-    Tournament.find params[:tournament_id]
+    ensure_public!(Tournament.find(params[:tournament_id]))
   end
 
   def load_round(event)
