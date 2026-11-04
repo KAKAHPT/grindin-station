@@ -6,6 +6,8 @@
     "flowbite": "4.0.1"
   },
   "devDependencies": {
+    "@phosphor-icons/core": "^2.1.1",
+    "leaflet": "^1.9.4",
     "tailwindcss": "4.2.4"
   }
 }

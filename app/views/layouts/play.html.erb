@@ -5,11 +5,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@600;700&display=swap">
+    <%= render "layouts/phone_head", description: t("play.description", event: current_event.name) %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
   <body class="min-h-screen bg-ground text-ink font-body antialiased">
@@ -38,7 +35,7 @@
       <%= yield %>
     </main>
 
-    <nav data-play-nav class="fixed bottom-0 inset-x-0 z-20 border-t border-line bg-surface/95 backdrop-blur">
+    <nav data-play-nav aria-label="<%= current_event.name %>" class="fixed bottom-0 inset-x-0 z-20 border-t border-line bg-surface/95 backdrop-blur">
       <% nav = [[t("play.nav.event"), play_event_path(current_event.slug, locale: params[:locale])]]
          nav << [t("play.nav.pairings"), play_pairings_path(current_event.slug, locale: params[:locale])]
          nav << [t("play.nav.standings"), play_standings_path(current_event.slug, locale: params[:locale])]

@@ -1,8 +1,9 @@
 <% content_for :title, @user.display_name %>
+<% content_for :description, t("profiles.description", name: @user.display_name) %>
 <section class="p-5 rounded-2xl bg-surface border border-line shadow-raised">
   <div class="flex items-center gap-4">
     <% if @user.avatar.attached? %>
-      <%= image_tag url_for(@user.avatar.variant(:thumb)), alt: "", class: "size-16 shrink-0 rounded-full object-cover border border-line" %>
+      <%= image_tag url_for(@user.avatar.variant(:thumb)), alt: "", width: 64, height: 64, class: "size-16 shrink-0 rounded-full object-cover border border-line" %>
     <% else %>
       <span data-profile-initials aria-hidden="true"
             class="inline-flex size-16 shrink-0 items-center justify-center rounded-full bg-surface-raised border border-line font-display text-xl font-semibold text-muted"><%= profile_initials(@user) %></span>

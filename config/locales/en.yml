@@ -1,6 +1,7 @@
 en:
   app:
     name: "Grindin Station"
+    description: "Pairings, standings and results of cEDH events, live on your phone."
   activerecord:
     errors:
       models:
@@ -160,6 +161,7 @@ en:
       confirm_no_show: "Mark %{name} as a no-show?"
       confirm_undo_drop: "Re-enroll %{name}?"
   play:
+    description: "%{event}: pairings, standings and tables, live."
     not_a_participant: "Only players in this event can open that page."
     nav:
       my_table: "My table"
@@ -404,6 +406,7 @@ en:
       judge_call: "A judge was called at %{event}."
       result_contested: "A result at your table was contested at %{event}. A judge is on the way."
   profiles:
+    description: "%{name} on Grindin Station: events and results."
     sign_in: "Sign in"
     follow: "Follow"
     coming_soon: "Coming soon"

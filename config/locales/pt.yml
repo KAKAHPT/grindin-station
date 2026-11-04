@@ -1,6 +1,7 @@
 pt:
   app:
     name: "Grindin Station"
+    description: "Emparelhamentos, classificações e resultados de eventos de cEDH, ao vivo no telemóvel."
   activerecord:
     errors:
       models:
@@ -160,6 +161,7 @@ pt:
       confirm_no_show: "Marcar %{name} como não comparecido?"
       confirm_undo_drop: "Voltar a inscrever %{name}?"
   play:
+    description: "%{event}: emparelhamentos, classificação e mesas, ao vivo."
     not_a_participant: "Só os jogadores deste evento podem abrir essa página."
     nav:
       my_table: "A minha mesa"
@@ -404,6 +406,7 @@ pt:
       judge_call: "Foi chamado um juiz em %{event}."
       result_contested: "Um resultado da tua mesa foi contestado em %{event}. Vem aí um juiz."
   profiles:
+    description: "%{name} no Grindin Station: eventos e resultados."
     sign_in: "Entrar"
     follow: "Seguir"
     coming_soon: "Em breve"
