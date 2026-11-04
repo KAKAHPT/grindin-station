@@ -23,6 +23,11 @@ export default class extends Controller {
     else this.clear();
   }
 
+  // A live pod update replaces the rows (Turbo Stream replace of #pod_X_state, no morph): re-mark the picked seat.
+  rowTargetConnected(row) {
+    if (this.selectedSeat && row.dataset.seat === this.selectedSeat) this.mark(row);
+  }
+
   select(event) {
     // Swap / penalty links inside the row keep their own behaviour and do not pick the row.
     if (event.target.closest("a, button, form")) return;

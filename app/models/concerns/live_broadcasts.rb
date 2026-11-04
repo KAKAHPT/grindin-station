@@ -32,10 +32,11 @@ module LiveBroadcasts
     end
   end
 
-  # Morph-refreshes every open public pairings page of the event.
+  # Morph-refreshes every open public pairings page of the event. Debounced (a job per stream), so a burst of
+  # results on many tables sends visitors one refresh, not one per table.
   def refresh_pairings(event_id, request_id: nil)
     each_locale do |locale|
-      Turbo::StreamsChannel.broadcast_refresh_to(pairings_stream(event_id, locale), request_id: request_id)
+      Turbo::StreamsChannel.broadcast_refresh_later_to(pairings_stream(event_id, locale), request_id: request_id)
     end
   end
 

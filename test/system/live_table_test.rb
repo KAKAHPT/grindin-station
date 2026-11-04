@@ -62,6 +62,7 @@ class LiveTableTest < ApplicationSystemTestCase
       mark_winner(@pod, @player.name)
     end
     perform_enqueued_jobs
+    perform_enqueued_jobs(only: Turbo::Streams::BroadcastStreamJob) # the debounced pairings refresh
 
     Capybara.using_session(:visitor) do
       within("[data-pairings] [data-pod-number='#{@pod.number}']") do

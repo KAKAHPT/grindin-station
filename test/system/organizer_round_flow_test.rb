@@ -58,7 +58,31 @@ class OrganizerRoundFlowTest < ApplicationSystemTestCase
     end
   end
 
-  test "a selection on a pod completed meanwhile is dropped by the refresh" do
+  test "a winner selection survives a live replace of its own pod" do
+    round, = started_round_with_pods
+    pod = round.pods.find_by!(number: 2)
+    name = pod.seatings.order(:order).first.event_participant.name
+    sign_in_as(users(:organizer_user))
+    visit organizer_tournament_round_path(@tournament, round)
+    within("#pod_#{pod.id}") { find("li[role=button][data-name='#{name}']").click }
+    assert_selector "#pod_#{pod.id} li[data-selected=true]"
+
+    JudgeCall.create!(event: @tournament, pod: pod, reason: "Rules question")
+    I18n.with_locale(:en) do
+      Turbo::StreamsChannel.broadcast_replace_to(
+        LiveBroadcasts.round_stream(round.id, :en),
+        target: "pod_#{pod.id}_state", partial: "organizer/pods/state", locals: { pod: pod.reload }
+      )
+    end
+
+    within("#pod_#{pod.id}") do
+      assert_text(/judge called/i)
+      assert_selector "li[data-selected=true][data-name='#{name}']"
+      assert_selector "[data-pod-result-target=confirmLabel]", text: "#{name} wins"
+    end
+  end
+
+  test "a pod completed meanwhile loses its winner picker on refresh" do
     round, pod, = started_round_with_pods
     name = pod.seatings.order(:order).first.event_participant.name
     sign_in_as(users(:organizer_user))
@@ -68,7 +92,11 @@ class OrganizerRoundFlowTest < ApplicationSystemTestCase
 
     complete_and_refresh(round, pod)
 
-    within("#pod_#{pod.id}") { assert_no_selector "li[data-selected=true]" }
+    within("#pod_#{pod.id}") do
+      assert_no_selector "li[data-selected=true]"
+      assert_no_selector "[data-pod-result-target=confirm]"
+    end
+    assert_no_selector "#pod_#{pod.id}[data-controller~='pod-result']"
     assert_no_text "#{name} wins"
   end
 

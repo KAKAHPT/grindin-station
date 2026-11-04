@@ -4,18 +4,19 @@ module Live
   # Pushes a pod's state to the round page and, while its round is the current one, every seated
   # participant's table. The pod comes by id, or (for a result, which belongs to a participant and
   # a round, not a pod) by the round and the seated participant. refresh: also morph-refresh the
-  # round page, for changes that move the pod card's staff buttons.
+  # round page, for changes that move the pod card's staff buttons. pairings: false skips the public pairings
+  # page, for changes it does not show (judge calls).
   class BroadcastPodJob < ApplicationJob
     PRELOAD = [:event, :judge_calls, { round: :results },
                { seatings: { event_participant: [:event, { player: :user }] } },
                { event_participants: { player: :user } }].freeze
 
-    def perform(pod_id: nil, round_id: nil, event_participant_id: nil, refresh: false, request_id: nil)
+    def perform(pod_id: nil, round_id: nil, event_participant_id: nil, refresh: false, pairings: true, request_id: nil) # rubocop:disable Metrics/ParameterLists
       pod = find_pod(pod_id, round_id, event_participant_id)
       return unless pod&.round&.published?
 
       broadcast_state(pod)
-      LiveBroadcasts.refresh_pairings(pod.round.event_id, request_id: request_id)
+      LiveBroadcasts.refresh_pairings(pod.round.event_id, request_id: request_id) if pairings
       LiveBroadcasts.refresh_round(pod.round_id, request_id: request_id) if refresh
       broadcast_tables(pod) if current_round?(pod.round)
     end
