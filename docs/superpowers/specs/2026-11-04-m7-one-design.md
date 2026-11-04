@@ -77,3 +77,7 @@ requirements. Where the mock and this spec differ, this spec wins.
 - Every page in the inventory (`public/mock` session: 27 desktop + 10 phone) uses the same pieces; a regenerated
   inventory sheet shows no legacy styling; Lighthouse ≥ 90 on the four public pages; all tests green; the owner's
   mocks reproduced screen by screen.
+
+### Amendments (2026-11-04, evening)
+- Landing subtitle: "Built for cEDH and multiplayer games, but open to every format. Pairings, standings and tables update live on every phone in the room." (en/pt/es).
+- Seat board = Option 3 of `mock-snapshot/seatboard.html`: four pod cards in a 2×2 (label "Round N · Table M" + "seat k" accent at the right), each with its four numbered seats (Anne highlighted), a summary line "Every seat once · 12 different opponents · cost 0 + 1 + 1 + 0" with the "fair" chip, then the seat-1 note. The seat-board card and the "Why it is fair" card are the same height (grid `align-items: stretch`, note pushed to the bottom) and both carry the `.tex` texture from the mock (grain + hairline grid + soft accent light).
