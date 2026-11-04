@@ -26,6 +26,20 @@ Recorded from the design session so nothing is lost. Each item becomes a task in
   seeded ties) and `RematchRepair` run for every mode; the simulation gate (`grindin:simulate`) must pass for each.
 - The organizer can change the mode until the swiss starts (locked with the structure).
 
+## M9 — admin dashboard (owner: "seguir tudo o que se passa")
+- A site-admin role (separate from event organizer; the first admin is promoted by a rake task, never by sign-up).
+- `/admin` with: counts and trends (registered players, organizers, tournaments by state and format, events per
+  month, players per event), tournament-day health (open judge calls, disputed tables, rounds running late,
+  self-reports pending), errors (last exceptions with request id, 4xx/5xx rate, CSP violation reports, rate-limit
+  hits), and an **audit log** of sensitive actions (sign-ins and failures, password/e-mail changes, role changes,
+  result corrections on closed rounds, undo round, drops/no-shows, event state changes, staff added/removed,
+  deletions) with who/when/what/ip.
+- Implementation notes: an `audit_events` table written from the services/controllers that already know the
+  actor (`Current.user`), not from callbacks; errors via a Rails error subscriber (`Rails.error`) into an `errors`
+  table with grouping; counters from plain SQL, cached 60 s; pages built with the same components (cards,
+  compact tables, chips), charts as simple inline SVG sparklines. Read-only except "resolve" on an error group.
+- Retention: audit 12 months, errors 90 days, CSP reports 30 days; a nightly job trims them.
+
 ## Smaller
 - Organizer card copy for 1v1 ("Reported by …") in pt; `es.yml`.
 - Cut-round names for multiplayer into i18n (1v1 already is).
