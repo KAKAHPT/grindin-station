@@ -55,11 +55,6 @@ module PaletteHelper
     "#{SEGMENT_ITEM} #{active ? SEGMENT_ACTIVE : SEGMENT_IDLE}"
   end
 
-  # Dark header band of a card or table (title row darker than the body; see .band in application.css).
-  def band_classes(extra = nil)
-    ["band", extra].compact.join(" ")
-  end
-
   # Route tab of shared/_tabs (underline teal when active).
   def tab_classes(active)
     active ? "tab tab-on" : "tab"

@@ -1,6 +1,0 @@
-<%= turbo_frame_tag dom_id(@tournament, dom_id(current_user.player)) do %>
-  <%= link_to [@tournament, @event_participant], class: button_classes(:danger, "w-full", size: :sm), data: { turbo_method: :delete } do %>
-    <%= icon("receipt-x") %>
-    Cancel my registration
-  <% end %>
-<% end %>

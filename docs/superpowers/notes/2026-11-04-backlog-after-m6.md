@@ -27,7 +27,7 @@ Recorded from the design session so nothing is lost. Each item becomes a task in
 - The organizer can change the mode until the swiss starts (locked with the structure).
 
 ## Smaller
-- Organizer card copy for 1v1 ("Reported by …") in pt; `es.yml`.
+- Organizer card copy for 1v1 ("Reported by …") in pt; ~~`es.yml`~~ (done in M7: `config/locales/es.yml`, kept key for key by `test/i18n_parity_test.rb`).
 - Cut-round names for multiplayer into i18n (1v1 already is).
 - No-JS fallback for 1v1 points defaults on the create form.
 

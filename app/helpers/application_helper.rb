@@ -72,8 +72,4 @@ module ApplicationHelper
     options[:builder] = ModalFormBuilder
     form_for(record, options, &block)
   end
-
-  def current_player?(player)
-    current_user&.player == player
-  end
 end
