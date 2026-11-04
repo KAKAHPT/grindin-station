@@ -11,10 +11,6 @@ module Organizer
       event = load_tournament
       @round = load_round(event)
       load_pairings
-
-      return if params[:query].blank?
-
-      @users_map.filter! { |_, v| v[:name].downcase.include?(params[:query].downcase) }
     end
 
     def print
@@ -76,7 +72,6 @@ module Organizer
 
     def load_pairings
       @pods = load_pods(@round)
-      @users_map = load_users_map(@pods)
     end
 
     # Closing sets finished_at, which advances a swiss round to the next (unpublished) one.
@@ -108,22 +103,6 @@ module Organizer
     def load_pods(round)
       round.pods.preload(:event, :judge_calls, { round: :results }, seatings: { event_participant: { player: :user } },
                                                                     event_participants: { player: :user })
-    end
-
-    def load_users_map(pods)
-      users_map = {}
-      pods.each do |p|
-        p.seatings.each do |s|
-          users_map[s.event_participant_id] = {
-            tp: s.event_participant,
-            name: s.event_participant.name,
-            pod: "Pod #{p.number}",
-            pod_id: p.id,
-            seating: s.order.ordinalize
-          }
-        end
-      end
-      users_map
     end
   end
 end
