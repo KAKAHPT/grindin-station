@@ -28,7 +28,7 @@
     <% if content_for?(:event_header) %>
       <div class="max-w-screen-2xl mx-auto px-4 pt-6"><%= yield :event_header %></div>
     <% end %>
-    <div class="flex pt-4 overflow-hidden bg-ground">
+    <div class="flex <%= content_for?(:event_header) ? "pt-0" : "pt-4" %> overflow-hidden bg-ground">
       <div
         class="
           relative w-full max-w-screen-2xl mx-auto h-full overflow-y-auto
@@ -42,9 +42,11 @@
               xl:grid-cols-4
             "
           >
-            <div class="my-4 col-span-full xl:my-2">
-              <%= yield :sub_navigation %>
-            </div>
+            <% if content_for?(:sub_navigation) %>
+              <div class="my-4 col-span-full xl:my-2">
+                <%= yield :sub_navigation %>
+              </div>
+            <% end %>
 
             <%= content_for?(:page_content) ? yield(:page_content) : yield %>
           </div>

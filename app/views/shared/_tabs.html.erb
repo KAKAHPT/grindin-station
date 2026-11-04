@@ -1,11 +1,16 @@
-<%# Route tabs (underline teal). Local tabs: array of { label:, path:, active:, badge: } (badge optional). %>
+<%# Route tabs (underline teal). Local tabs: array of { label:, path:, active:, badge:, badge_data: } (badge optional;
+    a tab without a path shows disabled). %>
 <nav class="tabs" data-tabs>
   <% tabs.each do |tab| %>
-    <%= link_to tab[:path], class: tab_classes(tab[:active]), "aria-current": ("page" if tab[:active]) do %>
-      <%= tab[:label] %>
-      <% if tab[:badge].present? %>
-        <span class="tab-badge tabular"><%= tab[:badge] %></span>
+    <% if tab[:path] %>
+      <%= link_to tab[:path], class: tab_classes(tab[:active]), "aria-current": ("page" if tab[:active]) do %>
+        <%= tab[:label] %>
+        <% if tab[:badge].present? %>
+          <%= tag.span tab[:badge], class: "tab-badge tabular", data: tab[:badge_data] %>
+        <% end %>
       <% end %>
+    <% else %>
+      <span class="tab tab-off" aria-disabled="true"><%= tab[:label] %></span>
     <% end %>
   <% end %>
 </nav>
