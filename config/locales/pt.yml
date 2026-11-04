@@ -13,6 +13,11 @@ pt:
               too_big: "tem de ter 2 MB ou menos"
         event:
           attributes:
+            circuit:
+              other_organizer: "pertence a outro organizador"
+            cover:
+              content_type: "tem de ser uma imagem JPEG, PNG ou WebP"
+              too_big: "tem de ter 4 MB ou menos"
             format:
               locked: "não pode mudar depois de o torneio ser criado"
             match_games:
