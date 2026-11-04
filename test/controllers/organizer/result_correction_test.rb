@@ -38,6 +38,19 @@ module Organizer
       assert_equal 8, Result.where(round: @round).count
     end
 
+    test "an unexpected error shows a generic message, never the exception text" do
+      pod = @t.rounds.find_by!(number: 2).pods.first
+      Events::SubmitResultJob.define_singleton_method(:perform_now) { |**| raise "PG::Error secret internals" }
+
+      post organizer_tournament_round_pod_results_path(@t, pod.round, pod),
+           params: { result: { type: "Draw" } }
+
+      assert_equal I18n.t("flash.alert.result_failed"), flash[:alert]
+      assert_not_includes flash[:alert], "secret"
+    ensure
+      Events::SubmitResultJob.singleton_class.remove_method(:perform_now)
+    end
+
     test "a staff result locks the pod" do
       locks = []
       lock_spy = ->(*, payload) { locks << payload[:sql] if payload[:sql].match?(/FROM "pods".*FOR UPDATE/) }

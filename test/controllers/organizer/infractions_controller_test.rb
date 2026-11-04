@@ -31,6 +31,14 @@ module Organizer
       end
     end
 
+    test "removing an infraction that does not exist is not found, not a 500" do
+      participant = @tournament.event_participants.first
+
+      delete organizer_tournament_event_participant_infraction_path(@tournament, participant, SecureRandom.uuid)
+
+      assert_response :not_found
+    end
+
     private
 
     def record(player_id, pod_id)

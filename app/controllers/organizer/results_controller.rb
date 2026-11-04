@@ -21,7 +21,7 @@ module Organizer
     rescue Results::NotAllowed => e
       refuse_result(e)
     rescue StandardError => e
-      redirect_to [:organizer, @tournament, @round.becomes(Round)], alert: e
+      result_failed(e)
     end
 
     # "Time called" on a top-cut table: applies the event's timeout rule.
@@ -43,6 +43,12 @@ module Organizer
       @tournament = load_tournament
       @round = load_round(@tournament)
       @pod = load_pod(@round)
+    end
+
+    # The exception's text can carry SQL or internals: it goes to the log, the organiser gets a generic line.
+    def result_failed(error)
+      Rails.logger.error("Result not saved: #{error.class}: #{error.message}")
+      redirect_to [:organizer, @tournament, @round.becomes(Round)], alert: t("flash.alert.result_failed")
     end
 
     def refuse_result(error)

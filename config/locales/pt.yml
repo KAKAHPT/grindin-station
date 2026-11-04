@@ -395,6 +395,8 @@ pt:
       signed_in: "Iniciaste sessão."
       signed_out: "Terminaste a sessão."
     alert:
+      seating_not_found: "Esse lugar não é desta ronda: recarrega a página e tenta de novo."
+      result_failed: "Não foi possível gravar o resultado. Tenta de novo, ou pede ao organizador para ver a mesa."
       decklist_locked: "As decklists ficam fechadas depois de publicada a ronda 1: pede ao staff para a mudar."
       registration_closed: "Inscrições fechadas: o torneio já começou."
       registration_full: "Inscrições esgotadas."
