@@ -42,11 +42,13 @@ module Live
       @round.update!(published: true)
 
       %i[en pt].each do |locale|
+        call = nil
         assert_no_turbo_stream_broadcasts(LiveBroadcasts.pairings_stream(@tournament.id, locale)) do
           perform_enqueued_jobs do
-            JudgeCall.create!(event: @tournament, pod: @pod, reason: "Rules question")
+            call = JudgeCall.create!(event: @tournament, pod: @pod, reason: "Rules question")
           end
         end
+        call.destroy! # a pod has one open call at most
       end
     end
 
