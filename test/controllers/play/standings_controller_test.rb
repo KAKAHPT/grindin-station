@@ -21,6 +21,19 @@ module Play
       assert_select "turbo-frame#modal", count: 0
     end
 
+    test "the page follows the event's standings stream and refreshes by morph; the modal does not" do
+      signed = Turbo::StreamsChannel.signed_stream_name(LiveBroadcasts.standings_stream(@tournament.id, :en))
+
+      get play_standings_path(@tournament.slug)
+
+      assert_select "turbo-cable-stream-source[signed-stream-name=?]", signed
+      assert_select "meta[name='turbo-refresh-method'][content='morph']"
+
+      get tournament_event_participants_path(@tournament), headers: { "Turbo-Frame" => "modal" }
+
+      assert_select "turbo-cable-stream-source", count: 0
+    end
+
     test "the old standings address redirects to the new one" do
       get tournament_event_participants_path(@tournament, locale: "pt")
 

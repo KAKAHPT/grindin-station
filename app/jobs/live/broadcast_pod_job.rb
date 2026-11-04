@@ -16,12 +16,19 @@ module Live
       return unless pod&.round&.published?
 
       broadcast_state(pod)
-      LiveBroadcasts.refresh_pairings(pod.round.event_id, request_id: request_id) if pairings
+      refresh_public_pages(pod, request_id) if pairings
       LiveBroadcasts.refresh_round(pod.round_id, request_id: request_id) if refresh
       broadcast_tables(pod) if current_round?(pod.round)
     end
 
     private
+
+    # Pairings follow every pod change; standings only move when a round closes, so a pod change
+    # moves them only when it corrects a closed round.
+    def refresh_public_pages(pod, request_id)
+      LiveBroadcasts.refresh_pairings(pod.round.event_id, request_id: request_id)
+      LiveBroadcasts.refresh_standings(pod.round.event_id, request_id: request_id) if pod.round.past?
+    end
 
     def find_pod(pod_id, round_id, event_participant_id)
       pods = Pod.preload(*PRELOAD)
