@@ -652,10 +652,10 @@ en:
       CV: "Cape Verde"
   landing:
     title: "The tournament software with fair seats"
-    description: "Tournament software with fair seats. Built for multiplayer, open to every format, live on every phone in the room."
+    description: "Tournament software with fair seats. Built for cEDH and multiplayer games, open to every format, live on every phone in the room."
     eyebrow: "Grindin Station"
     headline_html: "The tournament software <br>with <em>fair seats</em>."
-    lead: "Built for multiplayer. Open to every format. Pairings, standings and tables update live on every phone in the room."
+    lead: "Built for cEDH and multiplayer games, but open to every format. Pairings, standings and tables update live on every phone in the room."
     cta_events: "Upcoming events"
     cta_organise: "Organise a tournament"
     attribution: "Card art is unofficial Fan Content permitted under the Fan Content Policy. Not approved or endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC."
@@ -677,6 +677,9 @@ en:
       cost: "Cost"
       round: "Round %{number}"
       total: "Total"
+      pod: "Round %{round} · Table %{table}"
+      seat_k: "seat %{number}"
+      summary: "Every seat once · 12 different opponents · cost 0 + 1 + 1 + 0"
       fair: "fair"
       note: "Seat 1 is dealt to whoever has had it least, the other seats follow at the lowest cost, and nobody meets the same opponent twice."
     why:

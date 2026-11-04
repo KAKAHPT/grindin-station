@@ -652,10 +652,10 @@ pt:
       CV: "Cabo Verde"
   landing:
     title: "O software de torneios com lugares justos"
-    description: "Software de torneios com lugares justos. Feito para multiplayer, aberto a todos os formatos, ao vivo em todos os telemóveis da sala."
+    description: "Software de torneios com lugares justos. Feito para cEDH e jogos multiplayer, aberto a todos os formatos, ao vivo em todos os telemóveis da sala."
     eyebrow: "Grindin Station"
     headline_html: "O software de torneios <br>com <em>lugares justos</em>."
-    lead: "Feito para multiplayer. Aberto a todos os formatos. Emparelhamentos, classificações e mesas atualizam ao vivo em todos os telemóveis da sala."
+    lead: "Feito para cEDH e jogos multiplayer, mas aberto a todos os formatos. Emparelhamentos, classificações e mesas atualizam ao vivo em todos os telemóveis da sala."
     cta_events: "Próximos eventos"
     cta_organise: "Organizar um torneio"
     attribution: "As ilustrações das cartas são Fan Content não oficial, permitido pela Fan Content Policy. Não aprovado nem apoiado pela Wizards. Partes dos materiais usados são propriedade da Wizards of the Coast. ©Wizards of the Coast LLC."
@@ -677,6 +677,9 @@ pt:
       cost: "Custo"
       round: "Ronda %{number}"
       total: "Total"
+      pod: "Ronda %{round} · Mesa %{table}"
+      seat_k: "lugar %{number}"
+      summary: "Cada lugar uma vez · 12 adversários diferentes · custo 0 + 1 + 1 + 0"
       fair: "justo"
       note: "O lugar 1 vai para quem o teve menos vezes, os outros lugares seguem ao menor custo, e ninguém defronta o mesmo adversário duas vezes."
     why:

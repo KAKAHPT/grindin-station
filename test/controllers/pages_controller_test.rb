@@ -12,8 +12,10 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", text: "The tournament software with fair seats."
-    assert_includes response.body, "Built for multiplayer. Open to every format."
-    assert_select "[data-seat-board] .lp-sb-p.me", count: 4, text: "Anne"
+    assert_includes response.body, "Built for cEDH and multiplayer games, but open to every format."
+    assert_select "[data-seat-board] .lp-pod", 4
+    assert_select "[data-seat-board] .lp-pod-p.me", count: 4, text: /Anne/
+    assert_select "[data-seat-board] .lp-pod-lab em", text: "seat 3"
     assert_select "h2", text: "Seats are weighted, not drawn"
     assert_select ".lp-why li", 4
     assert_select ".lp-mosaic img", 96

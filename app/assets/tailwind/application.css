@@ -1085,11 +1085,13 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
-    align-items: start;
+    align-items: stretch;
   }
 
   .lp-seatboard {
-    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 18px;
   }
 
   .lp-sb-hd {
@@ -1110,102 +1112,151 @@
     color: var(--color-muted);
   }
 
-  .lp-sb {
+  /* Seat board, option 3: four pod cards (round · table), numbered seats, Anne highlighted. */
+  .lp-pods {
+    flex: 1;
     display: grid;
-    gap: 5px;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-content: center;
   }
 
-  .lp-sb-row {
-    display: grid;
-    grid-template-columns: 62px repeat(4, 1fr) 44px;
-    gap: 5px;
-    align-items: center;
+  .lp-pod {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-line);
   }
 
-  .lp-sb-lab {
-    font: 600 10.5px var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-  }
-
-  .lp-sb-hdr {
-    padding-bottom: 2px;
+  .lp-pod-lab {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
     font: 600 10px var(--font-body);
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    text-align: center;
     color: var(--color-muted);
   }
 
-  .lp-sb-hdr:last-child {
-    text-align: right;
+  .lp-pod-lab em {
+    font-style: normal;
+    color: var(--color-accent);
   }
 
-  .lp-sb-p {
-    position: relative;
+  .lp-pod-seats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+  }
+
+  .lp-pod-p {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 6px;
-    height: 26px;
+    gap: 3px;
+    padding: 6px 2px;
     min-width: 0;
-    border-radius: 6px;
-    background: var(--color-surface-raised);
+    border-radius: 7px;
+    background: var(--color-surface);
     border: 1px solid var(--color-line);
-    font: 600 11px var(--font-body);
+    font: 600 10px var(--font-body);
     color: #c9d1d9;
   }
 
-  .lp-sb-p::before {
-    content: "";
-    flex-shrink: 0;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--color-line-strong);
+  .lp-pod-p i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 15px;
+    border-radius: 4px;
+    background: var(--color-surface-raised);
+    font: 700 9px var(--font-body);
+    font-style: normal;
+    color: var(--color-muted);
   }
 
-  .lp-sb-p.me {
-    background: linear-gradient(180deg, rgb(45 212 191 / 0.22), rgb(45 212 191 / 0.12));
-    border-color: rgb(45 212 191 / 0.5);
+  .lp-pod-p.me {
+    background: linear-gradient(180deg, rgb(45 212 191 / 0.26), rgb(45 212 191 / 0.1));
+    border-color: rgb(45 212 191 / 0.55);
     color: var(--color-accent);
-    box-shadow: 0 0 0 1px rgb(45 212 191 / 0.15), 0 6px 18px -10px rgb(45 212 191 / 0.8);
+    box-shadow: 0 0 12px -3px var(--color-accent);
   }
 
-  .lp-sb-p.me::before {
+  .lp-pod-p.me i {
+    background: var(--color-accent);
+    color: #0b2d29;
+  }
+
+  .lp-sb-sum {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--color-line-strong);
+    font-size: 12px;
+    color: var(--color-muted);
+  }
+
+  .lp-fairchip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: rgb(45 212 191 / 0.1);
+    border: 1px solid rgb(45 212 191 / 0.35);
+    font: 700 11px var(--font-body);
+    color: var(--color-accent);
+  }
+
+  .lp-fairchip::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
     background: var(--color-accent);
     box-shadow: 0 0 8px var(--color-accent);
   }
 
-  .lp-sb-cost {
-    font: 600 11px var(--font-body);
-    text-align: right;
-    color: var(--color-muted);
+  /* Texture on the two story cards: fine grain, a soft accent light and a hairline grid. */
+  .lp-tex {
+    position: relative;
+    overflow: hidden;
   }
 
-  .lp-sb-total .lp-sb-lab {
-    padding-top: 6px;
+  .lp-tex::before,
+  .lp-tex::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
   }
 
-  .lp-sb-tot {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 26px;
-    border-radius: 6px;
-    font: 700 13px var(--font-display);
-    color: var(--color-accent);
-    background: rgb(45 212 191 / 0.08);
-    border: 1px dashed rgb(45 212 191 / 0.35);
+  .lp-tex::before {
+    opacity: 0.5;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .06 0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
   }
 
-  .lp-sb-cost.lp-sb-fair {
-    color: var(--color-accent);
+  .lp-tex::after {
+    background:
+      radial-gradient(120% 80% at 0% 0%, rgb(45 212 191 / 0.07), transparent 55%),
+      linear-gradient(rgb(255 255 255 / 0.025) 1px, transparent 1px) 0 0 / 100% 28px,
+      linear-gradient(90deg, rgb(255 255 255 / 0.018) 1px, transparent 1px) 0 0 / 28px 100%;
+    mask: linear-gradient(180deg, #000, rgb(0 0 0 / 0.35));
+  }
+
+  .lp-tex > * {
+    position: relative;
+    z-index: 1;
   }
 
   .lp-sb-note {
-    margin-top: 12px;
+    margin-top: auto;
+    padding-top: 12px;
     font-size: 12.5px;
     line-height: 1.5;
     color: var(--color-muted);
@@ -1429,19 +1480,12 @@
       padding: 0 16px 8px;
     }
 
-    .lp-sb-row {
-      grid-template-columns: 52px repeat(4, 1fr) 34px;
-      gap: 4px;
+    .lp-pods {
+      gap: 8px;
     }
 
-    .lp-sb-p {
-      gap: 4px;
-      font-size: 10.5px;
-    }
-
-    .lp-sb-p::before {
-      width: 5px;
-      height: 5px;
+    .lp-pod-p {
+      font-size: 9.5px;
     }
 
     .lp-upc {

@@ -9,7 +9,7 @@
 <% url_locale = params[:locale] %>
 <% arts = (1..48).map { |n| image_path("landing/c#{n}.jpg") } %>
 <% seat_rows = [%w[Anne Mike Chris Sarah], %w[Tom Anne Emma Jake], %w[Lucy Ben Anne Alex], %w[Sam Kate Dan Anne]] %>
-<% seat_costs = [0, 1, 1, 0] %>
+<% seat_tables = [3, 1, 2, 1] %>
 
 <div class="landing">
   <section class="lp-hero">
@@ -39,40 +39,35 @@
   </section>
 
   <div class="lp-fair" id="about">
-    <section class="card lp-seatboard" data-seat-board>
+    <section class="card lp-seatboard lp-tex" data-seat-board>
       <div class="lp-sb-hd">
         <h2><%= t("landing.seats.title") %></h2>
         <span><%= t("landing.seats.subtitle") %></span>
       </div>
-      <div class="lp-sb" role="table" aria-label="<%= t("landing.seats.title") %>">
-        <div class="lp-sb-row" role="row">
-          <span role="columnheader"></span>
-          <% (1..4).each do |seat| %>
-            <span class="lp-sb-hdr" role="columnheader"><%= t("landing.seats.seat", number: seat) %></span>
-          <% end %>
-          <span class="lp-sb-hdr" role="columnheader"><%= t("landing.seats.cost") %></span>
-        </div>
+      <div class="lp-pods">
         <% seat_rows.each_with_index do |names, index| %>
-          <div class="lp-sb-row" role="row">
-            <span class="lp-sb-lab" role="rowheader"><%= t("landing.seats.round", number: index + 1) %></span>
-            <% names.each do |name| %>
-              <span class="lp-sb-p<%= " me" if name == "Anne" %>" role="cell"><%= name %></span>
-            <% end %>
-            <span class="lp-sb-cost" role="cell"><%= seat_costs[index] %></span>
+          <% mine = names.index("Anne") + 1 %>
+          <div class="lp-pod" role="group" aria-label="<%= t("landing.seats.pod", round: index + 1, table: seat_tables[index]) %>">
+            <div class="lp-pod-lab">
+              <span><%= t("landing.seats.pod", round: index + 1, table: seat_tables[index]) %></span>
+              <em><%= t("landing.seats.seat_k", number: mine) %></em>
+            </div>
+            <div class="lp-pod-seats">
+              <% names.each_with_index do |name, seat| %>
+                <span class="lp-pod-p<%= " me" if name == "Anne" %>"><i><%= seat + 1 %></i><%= name %></span>
+              <% end %>
+            </div>
           </div>
         <% end %>
-        <div class="lp-sb-row lp-sb-total" role="row">
-          <span class="lp-sb-lab" role="rowheader"><%= t("landing.seats.total") %></span>
-          <% 4.times do %>
-            <span class="lp-sb-tot" role="cell">1</span>
-          <% end %>
-          <span class="lp-sb-cost lp-sb-fair" role="cell"><%= t("landing.seats.fair") %></span>
-        </div>
+      </div>
+      <div class="lp-sb-sum">
+        <span><%= t("landing.seats.summary") %></span>
+        <span class="lp-fairchip"><%= t("landing.seats.fair") %></span>
       </div>
       <p class="lp-sb-note"><%= t("landing.seats.note") %></p>
     </section>
 
-    <section class="card lp-why">
+    <section class="card lp-why lp-tex">
       <p class="lp-eyebrow"><%= t("landing.why.eyebrow") %></p>
       <h2><%= t("landing.why.title") %></h2>
       <p><%= t("landing.why.intro") %></p>
