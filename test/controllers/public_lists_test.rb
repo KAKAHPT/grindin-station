@@ -19,6 +19,22 @@ class PublicListsTest < ActionDispatch::IntegrationTest
     assert_select "[data-list-filter] a.seg-on", text: "Upcoming"
   end
 
+  # A browser would ask for the resized variant, which needs libvips (not on CI); the markup is checked here.
+  test "events show each cover blurred behind its ticket" do
+    tournament = events(:medium_tournament)
+    league = leagues(:standard_league)
+    [[tournament, "cover1.jpg"], [league, "cover2.jpg"]].each do |event, file|
+      event.cover.attach(io: Rails.root.join("test/fixtures/files", file).open, filename: file,
+                         content_type: "image/jpeg")
+    end
+
+    get events_path
+
+    [tournament, league].each do |event|
+      assert_select "[data-upcoming-event=?] .lp-evr-ban[style*='/rails/active_storage/representations/']", event.slug
+    end
+  end
+
   test "past events show finished tournaments and mark Past" do
     get events_path(filter: "past")
 

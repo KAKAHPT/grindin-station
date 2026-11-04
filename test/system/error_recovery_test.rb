@@ -128,24 +128,4 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
     assert_text "Free entry"
     assert_link "View event"
   end
-
-  test "logged out user sees cover images on the events page" do
-    events(:medium_tournament).cover.attach(
-      io: File.open(Rails.root.join("test/fixtures/files/cover1.jpg")),
-      filename: "cover1.jpg",
-      content_type: "image/jpeg"
-    )
-
-    leagues(:standard_league).cover.attach(
-      io: File.open(Rails.root.join("test/fixtures/files/cover2.jpg")),
-      filename: "cover2.jpg",
-      content_type: "image/jpeg"
-    )
-
-    visit events_path
-
-    [events(:medium_tournament), leagues(:standard_league)].each do |event|
-      assert_selector "[data-upcoming-event='#{event.slug}'] .lp-evr-ban[style*='/rails/active_storage/']"
-    end
-  end
 end
