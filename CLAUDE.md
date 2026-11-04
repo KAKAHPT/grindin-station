@@ -57,6 +57,7 @@ Event (abstract base)
 - **Scoring**: per-event points (`points_win`/`points_draw`/`points_loss`/`points_bye`, default 7/1/0/7), locked once the swiss starts
 - **Fair seats**: `Tournaments::SeatAssigner` gives seat 1 to whoever had it least, then the cheapest order; ties drawn from the event seed; audited in `seatings.assigned_by`/`cost`. Within equal points, `PlayerSorter.deal` spreads players across pods by the seat they need
 - **Rematch repair**: `Tournaments::RematchRepair` swaps players between pods while rematches decrease, nearest pods and closest points first; `CreatePodsJob` widens the allowed points gap (0, a draw, a win, two wins, …, any) only while rematches remain
+- **Pairing modes** (M8, multiplayer only): `events.pairing_mode` `swiss` (default: round 2 spread, then top-down by points) | `power` (strict top-down every round, never spread) | `random` (seeded shuffle of the whole field, dealt by seat need as one group; rematch gap = any). Chosen in Settings, locked with the structure; `RematchRepair` and `SeatAssigner` run in every mode; `grindin:simulate` gates every mode; `Feeds::Info` exposes `pairingMode` (nil for 1v1). Spec `docs/superpowers/specs/2026-11-05-m8-pairing-modes.md`, numbers in `docs/superpowers/notes/2026-11-05-m8-pairing-modes.md`
 - **Pod Sizing**: Prefers 4-player pods, allows 3-5 players with sophisticated balancing
 - **Byes**: a bye scores `points_bye` but is not an opponent; byes do not count in opponents' win rate (OWR)
 - **Spread Matching**: Serpentine pod assignment for spread-based rounds

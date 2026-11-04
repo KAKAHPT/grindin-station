@@ -203,7 +203,7 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     tournament.pairing_mode = "bubble"
     tournament.valid?
     assert_includes tournament.errors[:pairing_mode], I18n.t("errors.messages.inclusion")
-    assert_equal %w[swiss random power], Event::PAIRING_MODES
+    assert_equal %w[swiss power random], Event::PAIRING_MODES
   end
 
   test "pairing mode is locked once the swiss starts" do

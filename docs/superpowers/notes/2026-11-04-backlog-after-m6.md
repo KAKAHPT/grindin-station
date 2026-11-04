@@ -18,7 +18,7 @@ Recorded from the design session so nothing is lost. Each item becomes a task in
   grey line-icon trophy; multiplayer screens identical with seats 1·2·3·4.
 - Public event page (no login): only the count of enrolled players; the list with decklists is staff-only.
 
-## M8 — multiplayer pairing modes (owner: "like TopDeck")
+## M8 — multiplayer pairing modes (owner: "like TopDeck") — DONE 2026-11-05 (spec `../specs/2026-11-05-m8-pairing-modes.md`; "true Swiss" not offered: it is plain Swiss)
 - Event setting `pairing_mode` for multiplayer events, chosen in Settings: **Swiss pods** (by points, today's
   default), **Random pods** (ignore points every round), **Power pods** (strict top-down by points, no spread), and
   TopDeck's "true Swiss" if we find it differs from Swiss pods. Last-round behaviour per mode documented.

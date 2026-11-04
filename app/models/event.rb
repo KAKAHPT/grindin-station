@@ -17,7 +17,7 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   LARGER_POD_SIZE = 5
 
   FORMATS = %w[multiplayer one_v_one].freeze
-  PAIRING_MODES = %w[swiss random power].freeze
+  PAIRING_MODES = %w[swiss power random].freeze
   MATCH_GAMES = [1, 3].freeze
   # MTR match points for 1v1 events (win/draw/loss/bye); multiplayer keeps the column defaults.
   ONE_V_ONE_POINTS = { points_win: 3, points_draw: 1, points_loss: 0, points_bye: 3 }.freeze
