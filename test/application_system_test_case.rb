@@ -27,6 +27,13 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     options.add_option("goog:loggingPrefs", { browser: "ALL" }) # console messages, read by the CSP test
   end
 
+  # Phone emulation stays on the browser between tests, so every session that used it is put back.
+  teardown do
+    (@phone_sessions || []).uniq.each do |name|
+      Capybara.using_session(name) { page.driver.browser.execute_cdp("Emulation.clearDeviceMetricsOverride") }
+    end
+  end
+
   private
 
   # Waits for the sign-in redirect so the next visit does not race the session cookie.
@@ -38,8 +45,12 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     assert_text I18n.t("flash.notice.signed_in")
   end
 
-  # Player pages are built for phones; organizer flows keep the default desktop window.
-  def use_phone_viewport
-    page.driver.browser.manage.window.resize_to(390, 844)
+  # Player pages are built for phones; organizer flows keep the default desktop window. Headless Chrome will not
+  # shrink the window below 500 px, so the phone is emulated (CDP device metrics) for the current session.
+  def use_phone_viewport(width: 390, height: 844)
+    page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride",
+                                    width: width, height: height, deviceScaleFactor: 2, mobile: true)
+    (@phone_sessions ||= []) << Capybara.session_name
+    assert_equal width, page.evaluate_script("screen.width")
   end
 end

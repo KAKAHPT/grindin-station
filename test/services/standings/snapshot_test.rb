@@ -59,8 +59,11 @@ module Standings
     test "correcting a result in a closed swiss round writes the snapshot again" do
       Snapshot.call(@t, @round1)
       pod = @round1.pods.find_by!(number: 2)
-      winner = pod.seatings.order(:order).last.event_participant
-      assert_operator @t.standings_snapshots.find_by!(event_participant: winner).rank, :>, 2
+      # The four drawers share 1 point and take ranks 2-5 in tiebreak order; the last of them is surely rank 5.
+      rows = @t.standings_snapshots.where(event_participant: pod.event_participants)
+      ranks = rows.to_h { |row| [row.event_participant, row.rank] }
+      winner = ranks.max_by { |_, rank| rank }.first
+      assert_equal 5, ranks[winner]
 
       Results::Apply.call(pod: pod, type: "Win", winner: winner)
 
