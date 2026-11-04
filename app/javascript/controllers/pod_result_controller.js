@@ -64,6 +64,8 @@ export default class extends Controller {
       delete row.dataset.selected;
       row.setAttribute("aria-pressed", "false");
     });
+    // A pod completed meanwhile has no footer buttons left to reset.
+    if (!this.hasDrawTarget || !this.hasConfirmTarget) return;
     this.drawTarget.hidden = false;
     this.confirmTarget.hidden = true;
   }
