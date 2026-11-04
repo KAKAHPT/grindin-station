@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class LeaguesController < ApplicationController
+  include PublicEvent
+
   skip_before_action :require_authentication
 
   def index
@@ -21,6 +23,6 @@ class LeaguesController < ApplicationController
   end
 
   def show
-    @league = League.preload(rounds: :pods, event_participants: { player: :user }).find(params[:id])
+    @league = ensure_public!(League.preload(rounds: :pods, event_participants: { player: :user }).find(params[:id]))
   end
 end

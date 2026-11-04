@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class PodsController < ApplicationController
+  include PublicEvent
+
+  skip_before_action :require_authentication, only: %i[index show]
+
   def index
     tournament = load_tournament
     round = load_round(tournament)
@@ -17,7 +21,7 @@ class PodsController < ApplicationController
   private
 
   def load_tournament
-    Tournament.find params[:tournament_id]
+    ensure_public!(Tournament.find(params[:tournament_id]))
   end
 
   def load_round(tournament)

@@ -17,8 +17,8 @@ Rails.application.routes.draw do
   end
 
   resources :tournaments, only: %i[index show] do
-    resources :rounds do
-      resources :pods
+    resources :rounds, only: %i[index show] do
+      resources :pods, only: %i[index show]
     end
 
     resources :event_participants do
@@ -29,8 +29,8 @@ Rails.application.routes.draw do
   end
 
   resources :leagues, only: %i[index show] do
-    resources :rounds do
-      resources :pods
+    resources :rounds, only: %i[index show] do
+      resources :pods, only: %i[index show]
     end
 
     resources :event_participants do
