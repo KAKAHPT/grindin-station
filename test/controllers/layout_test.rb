@@ -53,6 +53,20 @@ class LayoutTest < ActionDispatch::IntegrationTest
     assert_select "link[rel=icon][type='image/svg+xml'][href*=mark]"
   end
 
+  test "the mark ids are the same on every render, so a morph refresh keeps the gear turning" do
+    tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+    ids =
+      Array.new(2) do
+        get play_standings_path(tournament.slug)
+        css_select(".gslogo [id]").map { |node| node["id"] }
+      end
+
+    assert_equal ids.first, ids.last
+    assert_includes ids.first, "gsT-topbar"
+    assert_includes ids.first, "gsT-evhead"
+    assert_equal ids.first.uniq, ids.first
+  end
+
   private
 
   def assert_top_bar

@@ -8,8 +8,9 @@ module PublicEvent
 
   private
 
+  # The cover is preloaded for the event header card (attachment + blob only, no variant/preview lookups).
   def find_public_event!
-    ensure_public!(Tournament.find_by!(slug: params.expect(:slug)))
+    ensure_public!(Tournament.preload(cover_attachment: :blob).find_by!(slug: params.expect(:slug)))
   end
 
   # Works for any Event (tournament or league); returns the event.

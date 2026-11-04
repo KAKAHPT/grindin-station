@@ -140,6 +140,21 @@ module Play
       assert_response :not_found
     end
 
+    test "the event header shows the cover, loaded with the event (one attachment and one blob query)" do
+      @tournament.cover.attach(io: Rails.root.join("test/fixtures/files/cover1.jpg").open, filename: "cover1.jpg",
+                               content_type: "image/jpeg")
+      queries = []
+      count = ->(*, payload) { queries << payload[:sql] if payload[:sql].include?("active_storage") }
+      ActiveSupport::Notifications.subscribed(count, "sql.active_record") { get play_event_path(@tournament.slug) }
+
+      assert_response :success
+      assert_select "[data-event-header] .evhead-ban[style*='cover1.jpg']"
+      assert_equal 1, queries.count { |sql|
+        sql.start_with?(%(SELECT "active_storage_attachments"))
+      }, queries.join("\n")
+      assert_equal 1, queries.count { |sql| sql.start_with?(%(SELECT "active_storage_blobs")) }, queries.join("\n")
+    end
+
     private
 
     def waitlist!(position)

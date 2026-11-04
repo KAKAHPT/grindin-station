@@ -1,9 +1,11 @@
 <%# The Grindin Station mark: point-down teal slab, dark gear, teal S. Locals: size (px, default 30), rotating
     (true only in the top bar and the event-header corner; the gear turns, see .gslogo .gear in application.css).
-    Gradient ids are made unique per render (suffix below), so any number of marks can sit on one page, inside
-    hidden menus or Turbo-replaced fragments, without sharing or losing <defs>. %>
+    Each mark carries its own gradient <defs>; the ids get a deterministic suffix (local id_suffix, else a per-request
+    counter) so several marks can share a page and a Turbo morph refresh sees identical markup (the gear keeps
+    turning instead of restarting). %>
 <% size = local_assigns.fetch(:size, 30) %>
-<% uid = "-#{SecureRandom.alphanumeric(6)}" %>
+<% @mark_seq = @mark_seq.to_i + 1 %>
+<% uid = "-#{local_assigns[:id_suffix] || @mark_seq}" %>
 <% if local_assigns[:rotating] %>
 <svg class="<%= ["gslogo", local_assigns[:class]].compact.join(" ") %>" viewBox="0 0 100 100" width="<%= size %>" height="<%= size %>" aria-hidden="true" focusable="false" data-rotating>
 <% else %>
