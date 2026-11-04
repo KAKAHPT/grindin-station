@@ -4,7 +4,7 @@
 module PublicEvent
   extend ActiveSupport::Concern
 
-  HIDDEN_STATES = %w[draft canceled].freeze
+  HIDDEN_STATES = Event::HIDDEN_STATES
 
   private
 

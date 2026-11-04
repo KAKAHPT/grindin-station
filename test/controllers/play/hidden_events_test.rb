@@ -30,9 +30,7 @@ module Play
 
     test "legacy public pages are not found for draft and canceled events except for staff" do
       round = @tournament.rounds.first
-      pod = round.pods.first || round.pods.create!(number: 1)
-      paths = [tournament_rounds_path(@tournament), tournament_round_path(@tournament, round),
-               tournament_round_pods_path(@tournament, round), tournament_round_pod_path(@tournament, round, pod),
+      paths = [tournament_path(@tournament), tournament_round_path(@tournament, round),
                tournament_event_participants_path(@tournament)]
 
       %i[draft canceled].each do |state|
@@ -50,14 +48,20 @@ module Play
       end
 
       sign_in_user(users(:organizer_user))
+      get paths[0]
+      assert_redirected_to play_event_path(@tournament.slug)
       get paths[1]
       assert_response :success
     end
 
-    test "legacy round and pod routes are read-only" do
+    test "legacy round routes are read-only and the public pod and round list routes are gone" do
       assert_raises(ActionController::RoutingError) { Rails.application.routes.recognize_path("/tournaments/1/rounds/1/edit") }
       assert_raises(ActionController::RoutingError) do
         Rails.application.routes.recognize_path("/tournaments/1/rounds/1/pods", method: :post)
+      end
+      %w[/tournaments/1/rounds /tournaments/1/rounds/1/pods /tournaments/1/rounds/1/pods/1
+         /leagues/1/rounds /leagues/1/rounds/1/pods/1].each do |path|
+        assert_raises(ActionController::RoutingError, path) { Rails.application.routes.recognize_path(path) }
       end
     end
 

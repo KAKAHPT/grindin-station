@@ -3,10 +3,7 @@
 class RoundsController < ApplicationController
   include PublicEvent
 
-  skip_before_action :require_authentication, only: %i[index show]
-  def index
-    @rounds = load_event.rounds
-  end
+  skip_before_action :require_authentication, only: :show
 
   def show
     event = load_event
