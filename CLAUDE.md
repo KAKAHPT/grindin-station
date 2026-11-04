@@ -18,7 +18,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `bin/rubocop` (Ruby linting with Rails Omakase configuration)
   - `bin/brakeman` (security analysis)
 - **Asset compilation**: `bin/rails tailwindcss:build`
-- **Backups** (run on the VPS): `bin/backup` (pg_dump of the primary DB, keeps 14, optional rclone), `bin/restore <file>`
+- **Backups** (run on the VPS): `bin/backup` (pg_dump of the primary DB, `umask 077`, keeps 14, optional rclone), `bin/restore <file>` (hands the tables back to `grindin_app`)
 - **Docker/deploy**: `bin/docker-smoke` (builds the image and boots production; prints "docker not available" without Docker), `bin/kamal` (needs `GS_VPS_HOST`/`GS_DOMAIN` exported; CI normally deploys)
 
 ## Architecture Overview
@@ -160,9 +160,9 @@ Uses Solid Queue for job processing:
 
 ### Deployment
 
-- **Kamal 2** (`config/deploy.yml`, `.kamal/secrets`) to a single VPS: image `ghcr.io/kakahpt/grindin-station`, kamal-proxy with Let's Encrypt, Postgres/PostGIS accessory on `127.0.0.1` (`config/postgres/init.sql` creates the 4 databases), Active Storage on `/rails/storage` (`production_local`), Solid Queue inside Puma. Host/domain from `GS_VPS_HOST`/`GS_DOMAIN`; health check `/up`
+- **Kamal 2** (`config/deploy.yml`, `.kamal/secrets`) to a single VPS: image `ghcr.io/kakahpt/grindin-station`, kamal-proxy with Let's Encrypt, Postgres/PostGIS accessory on `127.0.0.1` (`config/postgres/init.sql` creates the `grindin_app` role, not a superuser, and the 4 databases it owns, plus the extensions; the app connects as `grindin_app`, the `grindin` superuser is for the accessory and backups), Active Storage on `/rails/storage` (`production_local`), Solid Queue inside Puma. Host/domain from `GS_VPS_HOST`/`GS_DOMAIN`; health check `/up`
 - **Workflows**: `.github/workflows/ci.yml` (tests, lint, simulation, and a `docker` job that builds the image); `.github/workflows/deploy.yml` deploys after green CI on `main`, or manually via Run workflow (`setup` for the first deploy, `deploy` otherwise)
-- Secrets: `RAILS_MASTER_KEY`, `POSTGRES_PASSWORD` (hex only), `SSH_PRIVATE_KEY`, optional `SSH_KNOWN_HOSTS`, OAuth and SMTP; see `docs/superpowers/notes/2026-11-04-m4-vps-checklist.md`
+- Secrets: `RAILS_MASTER_KEY`, `POSTGRES_PASSWORD` (superuser) and `POSTGRES_APP_PASSWORD` (app role), hex only, `SSH_PRIVATE_KEY`, optional `SSH_KNOWN_HOSTS`, OAuth and SMTP; see `docs/superpowers/notes/2026-11-04-m4-vps-checklist.md`
 - Not yet verified without a VPS/Docker: image build, Let's Encrypt, `init.sql`, workflow, cron, restore
 
 ### Database

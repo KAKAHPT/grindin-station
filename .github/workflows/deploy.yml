@@ -38,6 +38,7 @@ jobs:
       GS_DOMAIN: ${{ secrets.GS_DOMAIN }}
       RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_APP_PASSWORD: ${{ secrets.POSTGRES_APP_PASSWORD }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
@@ -54,7 +55,7 @@ jobs:
       - name: Check required secrets
         run: |
           missing=()
-          for name in GS_VPS_HOST GS_DOMAIN RAILS_MASTER_KEY POSTGRES_PASSWORD SSH_PRIVATE_KEY; do
+          for name in GS_VPS_HOST GS_DOMAIN RAILS_MASTER_KEY POSTGRES_PASSWORD POSTGRES_APP_PASSWORD SSH_PRIVATE_KEY; do
             if [ -z "${!name}" ]; then missing+=("$name"); fi
           done
           if [ ${#missing[@]} -gt 0 ]; then

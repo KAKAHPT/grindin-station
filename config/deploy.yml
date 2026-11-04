@@ -82,6 +82,8 @@ accessories:
         POSTGRES_DB: postgres
       secret:
         - POSTGRES_PASSWORD
+        # init.sql gives it to the grindin_app role the app connects as.
+        - POSTGRES_APP_PASSWORD
     directories:
       - data:/var/lib/postgresql/data
     files:
