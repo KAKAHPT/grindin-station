@@ -62,6 +62,15 @@ Event (abstract base)
 - **Spread Matching**: Serpentine pod assignment for spread-based rounds
 - **Forced Pairing**: Rank-diff-based pairing with swap logic for forced rounds
 
+### Event Formats
+
+- `events.format`: `multiplayer` (default; pods of 3–5, seat fairness, cEDH tiebreakers) or `one_v_one` (tables of two). Chosen at creation, locked afterwards (`Event#format_locked_after_start`); leagues are multiplayer only. `events.match_games` (3 = best-of-3, 1 = best-of-1) is editable until the swiss starts, like points. 1v1 points default to 3/1/0, bye 3.
+- **1v1 pairing**: `Tournaments::OneVOnePairer` (dispatched from `CreatePodsJob`): round 1 seeded shuffle; later rounds grouped by match points, seeded random inside the group, odd group pairs its last player down, last swiss round pairs top-down; `RematchRepair` with the same escalating gap; odd field → bye (`Advance`, no seating, 2-0) to the lowest-ranked player without one. Seats are a seeded coin flip (`assigned_by: "random"`); no seat fairness.
+- **1v1 cut**: `Tournaments::OneVOneBracket` (from `CreateSingleEliminationPodsJob`): sizes 2/4/8/16/32, first round 1vN, 2vN-1 …, later rounds winners of pods `i` and `k+1-i`; vacant slots (short field, dropped winner) are walkovers. Names Finals / Semifinals / Quarterfinals / Round of 16 / Round of 32. `Tournaments::Structure.suggested(n, format:)` follows MTR Appendix E for 1v1 (5–8 players → straight single elimination, `swiss_rounds_count: 0`).
+- **1v1 scoring**: results carry `games_won/lost/drawn`; `Results::Apply` takes `games:` (`{ winner: [w,l,d] }` or `{ games: [w,l,d] }` for a draw) and validates against `match_games` (bo3: 2-0, 2-1, draws 1-1-1 / 1-1-0 / 0-0-1; bo1: 1-0, 0-0-1); `Results::Timeout` writes `UNSCORED` (0-0-0, Advance only). Tiebreakers (MTR Appendix C): match points, opponents' match-win % (floor 0.33, byes excluded), game-win %, opponents' game-win %, then the seeded salt (`EventParticipant#rank_score`, integer). `standing_columns` → `{points, omw, gw, ogw}`.
+- **1v1 pages/feeds**: no seat squares anywhere; scores next to the winner; standings columns Pts / OMW% / GW% / OGW% / Win % / W-L-D; feeds add `format`, `matchGames`, `games` per table and `omw/gw/ogw` per row (no `seats`). Multiplayer keys unchanged.
+- Research and spec: `docs/superpowers/notes/2026-11-04-1v1-formats-research.md`, `docs/superpowers/specs/2026-11-04-1v1-format-design.md`.
+
 ### Tournament State Machine
 
 ```

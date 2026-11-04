@@ -1,6 +1,6 @@
 # 1v1 formats: how the incumbents pair and rank (research, 2026-11-04)
 
-Goal: let an organiser choose the event **format** (multiplayer pods, as today, or **1v1**) so Grindin Station
+Goal (spec: `docs/superpowers/specs/2026-11-04-1v1-format-design.md`): let an organiser choose the event **format** (multiplayer pods, as today, or **1v1**) so Grindin Station
 can serve stores and communities that run Standard/Modern/Pioneer/Limited, Pokémon-style or any two-player
 game. This note records what the reference systems actually do, with sources, so the spec argues from facts.
 
