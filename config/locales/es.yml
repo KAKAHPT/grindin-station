@@ -480,8 +480,13 @@ es:
     cannot_undo_first: "La primera ronda no se puede anular."
     cannot_undo_older: "Solo se puede anular la última ronda."
     extra_time_added: "Tiempo extra añadido a la mesa %{table}."
+  common:
+    close: "Cerrar"
   standings:
     columns:
+      rank: "Puesto"
+      player: "Jugador"
+      wld: "V-D-E"
       win_rate: "Win %"
       points: "Pts"
       owr: "OWR"
@@ -494,6 +499,8 @@ es:
     order_tooltip: "Pts > OWR > Vencidos > Únicos > sorteo con semilla"
     order_tooltip_one_v_one: "Pts > OMW% > GW% > OGW% > sorteo con semilla"
     help:
+      rank: "El puesto de cada jugador se calcula con los criterios de desempate que ves en esta tabla:"
+      wld: "V-D-E es el registro en este evento: Victorias - Derrotas - Empates"
       win_rate: "Win %: porcentaje de partidas ganadas (sin byes). No es criterio de desempate."
       points: "Puntos de match: %{win} por victoria, %{draw} por empate, %{loss} por derrota."
       owr: "Win rate de los rivales: la media de los puntos de tus rivales sobre el máximo de cada uno, con un mínimo igual a un empate."

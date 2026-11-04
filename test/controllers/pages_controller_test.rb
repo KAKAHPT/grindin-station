@@ -59,6 +59,16 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     assert_select "[data-upcoming-event='#{finished.slug}']", count: 0
   end
 
+  test "a running tournament's chip names the latest published round, not the rounds created" do
+    live = upcoming(:swiss, "Live Cup", -2.hours)
+    live.rounds.create!(type: SwissRound, number: 1).update!(published: true)
+    live.rounds.create!(type: SwissRound, number: 2)
+
+    get root_path
+
+    assert_select "[data-upcoming-event='#{live.slug}'] .lp-evr-st", text: "Swiss round 1"
+  end
+
   test "the open-for-registration count covers every listed event, not only the six shown" do
     7.times { |index| upcoming(:registration_open, "Open #{index}", (index + 1).minutes) }
     expected = PagesController.listed_tournaments.registration_open.count

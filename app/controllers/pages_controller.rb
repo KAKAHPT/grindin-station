@@ -25,10 +25,11 @@ class PagesController < ApplicationController
 
   private
 
-  # One preload and one count for the featured and the upcoming tickets together.
+  # One preload, the latest published rounds and one count for the featured and the upcoming tickets together.
   def ticket_counts(events)
     associations = [{ cover_attachment: :blob }, { event_organizer: :user }]
     ActiveRecord::Associations::Preloader.new(records: events, associations: associations).call
+    Event.load_latest_published_round_numbers(events)
     EventParticipant.enrolled.where(event_id: events.map(&:id)).group(:event_id).count
   end
 end

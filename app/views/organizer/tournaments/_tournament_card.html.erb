@@ -3,7 +3,7 @@
 <% latest = tournament.rounds.max_by(&:number) %>
 <article class="card evc" data-tournament-card id="<%= dom_id(tournament, :card) %>">
   <% if tournament.cover.attached? %>
-    <div class="evc-ban" style="background-image: url('<%= rails_blob_path(tournament.cover, only_path: true) %>')" aria-hidden="true"></div>
+    <div class="evc-ban" style="background-image: url('<%= tournament.cover.representable? ? ticket_banner(tournament, size: 960) : rails_blob_path(tournament.cover, only_path: true) %>')" aria-hidden="true"></div>
   <% end %>
   <div class="evc-shade" aria-hidden="true"></div>
   <div class="evc-in">

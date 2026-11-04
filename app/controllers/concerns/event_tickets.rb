@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # The public event lists (/events, /tournaments, /leagues, /circuits/:id) render shared/_event_ticket: covers and
-# organizers preloaded, enrolled counts in one query.
+# organizers preloaded, enrolled counts and latest published round numbers in one query each.
 module EventTickets
   extend ActiveSupport::Concern
 
@@ -21,6 +21,7 @@ module EventTickets
   def ticket_preload(scope) = scope.preload(cover_attachment: :blob, event_organizer: :user)
 
   def enrolled_counts(events)
+    Event.load_latest_published_round_numbers(events)
     EventParticipant.enrolled.where(event_id: events.map(&:id)).group(:event_id).count
   end
 end

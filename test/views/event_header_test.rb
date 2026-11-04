@@ -28,6 +28,7 @@ class EventHeaderTest < ActionView::TestCase
 
     assert_select ".evhead-corner .gslogo"
     assert_select ".evhead-ban[style*=?]", "cover1.jpg"
+    assert_select ".evhead-ban[style*=?]", "/rails/active_storage/representations/" # resized, as on the tickets
     assert_select "h1.evhead-title", text: @event.name
     assert_select ".evhead-actions", count: 0
   end

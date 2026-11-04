@@ -116,6 +116,21 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
     end
   end
 
+  # The latest published round's number (nil before round 1 is published); the ticket lists set it for a whole
+  # page in one query (Event.load_latest_published_round_numbers).
+  attr_writer :latest_published_round_number
+
+  def latest_published_round_number
+    return @latest_published_round_number if defined?(@latest_published_round_number)
+
+    @latest_published_round_number = rounds.published.maximum(:number)
+  end
+
+  def self.load_latest_published_round_numbers(events)
+    numbers = Round.published.where(event_id: events.map(&:id)).group(:event_id).maximum(:number)
+    events.each { |event| event.latest_published_round_number = numbers[event.id] }
+  end
+
   def available_states
     return self.class.states.slice(:draft) if new_record?
 

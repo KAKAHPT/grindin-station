@@ -65,7 +65,7 @@ module EventTicketHelper
   def ticket_state_chip(event, sold_out)
     return desk_chip(:warn) { t("play.events.state.sold_out") } if ticket_sold_out?(event, sold_out)
 
-    event_state_chip(event, (event.rounds_count if event.rounds_count.positive?))
+    event_state_chip(event, event.latest_published_round_number)
   end
 
   # Register while a tournament's registration is open; Join waiting list once it is full (when the event keeps

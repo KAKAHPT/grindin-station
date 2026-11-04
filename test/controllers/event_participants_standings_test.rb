@@ -27,6 +27,32 @@ class EventParticipantsStandingsTest < ActionDispatch::IntegrationTest
     assert_select "p", text: I18n.t("standings.help.beaten", locale: :pt)
   end
 
+  test "the portuguese standings have no english headers or tooltips" do
+    get play_standings_path(@tournament.slug, locale: "pt")
+
+    %w[Rank Player W-L-D].each { |header| assert_select "th", text: /\A\s*#{header}\s*\z/, count: 0 }
+    assert_select "th", text: /\A\s*Jogador\s*\z/
+    assert_no_match(/Player rank is calculated|Wins - Losses - Draws/, response.body)
+  end
+
+  test "the public list before the swiss hides waitlisted players and player keys" do
+    tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                         state: :registration_open)
+    waiting = tournament.event_participants.create!(player_name: "Espera Dois", accepted_terms: true,
+                                                    player_email: "espera-#{SecureRandom.hex(3)}@example.com")
+    waiting.update_columns(waitlisted: true, waitlist_position: 1) # rubocop:disable Rails/SkipsModelValidations
+
+    get play_standings_path(tournament.slug)
+
+    assert_response :success
+    assert_select "tbody tr", 4
+    assert_no_match(/Espera Dois/, response.body)
+    tournament.event_participants.where(waitlisted: false).includes(:player).find_each do |participant|
+      assert_not_includes response.body, "##{participant.player.key[0, 5]}"
+      assert_select "#tooltip-#{participant.id}", text: /\A\s*#{Regexp.escape(participant.name)}\s*\z/
+    end
+  end
+
   test "public standings render before any round is published" do
     tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
     tournament.rounds.create!(type: SwissRound, number: 1)

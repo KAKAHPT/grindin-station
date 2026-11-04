@@ -24,7 +24,7 @@ class PasswordsController < ApplicationController
   end
 
   def update
-    if @user.update(params.permit(:password, :password_confirmation).merge(password_set: true))
+    if reset_password
       @user.sessions.destroy_all
       redirect_to new_session_path, notice: t("flash.notice.password_reset")
     else
@@ -33,6 +33,12 @@ class PasswordsController < ApplicationController
   end
 
   private
+
+  # has_secure_password ignores a blank password, which would "succeed" without changing it.
+  def reset_password
+    params[:password].present? &&
+      @user.update(params.permit(:password, :password_confirmation).merge(password_set: true))
+  end
 
   def set_user_by_token
     @user = User.find_by_token_for!(:password_reset, params[:token])

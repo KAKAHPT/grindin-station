@@ -2,14 +2,9 @@
 
 # The organizer tournament page shell: state chip, event header (eyebrow, info line, state action), route tabs.
 module OrganizerShellHelper
-  ORGANIZER_STATE_TONES = {
-    draft: :warn, registration_open: :info, registration_closed: :warn, swiss: :ok,
-    single_elimination: :ok, finished: :missing, canceled: :bad
-  }.with_indifferent_access.freeze
-
   # "Registration open", "Swiss round 2", "Top 4", ... as a flat chip; swiss uses the latest round number.
   def organizer_state_chip(tournament)
-    tone = ORGANIZER_STATE_TONES.fetch(tournament.state)
+    tone = EventsHelper::EVENT_STATE_TONES.fetch(tournament.state)
     tag.span(data: { state_chip: tournament.state }) { desk_chip(tone) { organizer_state_label(tournament) } }
   end
 

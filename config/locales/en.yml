@@ -480,8 +480,13 @@ en:
     cannot_undo_first: "The first round cannot be undone."
     cannot_undo_older: "Only the latest round can be undone."
     extra_time_added: "Extra time added to table %{table}."
+  common:
+    close: "Close"
   standings:
     columns:
+      rank: "Rank"
+      player: "Player"
+      wld: "W-L-D"
       win_rate: "Win %"
       points: "Pts"
       owr: "OWR"
@@ -494,6 +499,8 @@ en:
     order_tooltip: "Pts > OWR > Beaten > Unique > seeded draw"
     order_tooltip_one_v_one: "Pts > OMW% > GW% > OGW% > seeded draw"
     help:
+      rank: "Player rank is calculated according to the tiebreakers you can see in this table:"
+      wld: "W-L-D is the record in this event: Wins - Losses - Draws"
       win_rate: "Win %: share of games won (byes excluded). Not a tiebreaker."
       points: "Match points: %{win} per win, %{draw} per draw, %{loss} per loss."
       owr: "Opponents' win rate: the average of your opponents' points out of their maximum, floored at a draw."
