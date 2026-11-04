@@ -216,7 +216,8 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
   end
 
   test "a 1v1 tournament is normalised to swiss pairing" do
-    t = TournamentBuilder.build(players: 0, organizer: event_organizers(:standard_organizer), state: :draft, format: "one_v_one")
+    t = TournamentBuilder.build(players: 0, organizer: event_organizers(:standard_organizer), state: :draft,
+                                format: "one_v_one")
     t.update!(pairing_mode: "power")
     assert_equal "swiss", t.reload.pairing_mode
   end
