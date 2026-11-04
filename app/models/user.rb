@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
-class User < ApplicationRecord
+class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
   VISIBILITIES = %w[public participants private].freeze
   HANDLE_FORMAT = /\A[a-z0-9-]{3,30}\z/
   AVATAR_TYPES = %w[image/jpeg image/png image/webp].freeze
   AVATAR_MAX_SIZE = 2.megabytes
+  HANDLE_TRIES = 3
 
   attribute :organizer, :boolean, default: false
 
@@ -41,6 +42,15 @@ class User < ApplicationRecord
   validates :country, format: { with: /\A[A-Z]{2}\z/ }, allow_nil: true
   validates :bio, length: { maximum: 500 }
   validate :avatar_type_and_size
+
+  # A retry has to wrap the whole save (callbacks run inside it), so these override save itself.
+  def save(**) # rubocop:disable Rails/ActiveRecordOverride
+    with_handle_retry { super }
+  end
+
+  def save!(**)
+    with_handle_retry { super }
+  end
 
   def anonymized?
     anonymized_at.present?
@@ -109,13 +119,41 @@ class User < ApplicationRecord
   private
 
   # "Fábio Batista" -> "fabio-batista", then "fabio-batista-2", "-3"... until no other user has it.
+  # The name as a handle, with -2, -3, … when taken (one query); handles that lost a race are skipped.
   def assign_handle
+    base = handle_base
+    taken = User.where(handle: base).or(User.where("handle LIKE ?", "#{base}-%")).pluck(:handle).to_set
+    self.handle = first_free_handle(base, taken.merge(@lost_handles.to_a))
+    @handle_generated = true
+  end
+
+  def handle_base
     base = name.to_s.parameterize.tr("_", "-").first(26).delete_suffix("-")
-    base = "player" if base.length < 3
-    candidate = base
-    suffix = 1
-    candidate = "#{base}-#{suffix += 1}" while User.exists?(handle: candidate)
-    self.handle = candidate
+    base.length < 3 ? "player" : base
+  end
+
+  def first_free_handle(base, taken)
+    return base unless taken.include?(base)
+
+    (2..).lazy.map { |n| "#{base}-#{n}" }.find { |candidate| taken.exclude?(candidate) }
+  end
+
+  # Two sign-ups with the same name can both pass validation; the one whose insert hits the unique
+  # index retries with the next suffix, at most HANDLE_TRIES times. The savepoint keeps an outer
+  # transaction usable after the failed insert.
+  def with_handle_retry(&block)
+    return yield unless new_record?
+
+    tries = 0
+    begin
+      self.class.transaction(requires_new: true, &block)
+    rescue ActiveRecord::RecordNotUnique => e
+      raise unless @handle_generated && e.message.include?("index_users_on_handle") && (tries += 1) < HANDLE_TRIES
+
+      (@lost_handles ||= []) << handle
+      self.handle = nil
+      retry
+    end
   end
 
   def shares_event_with?(other)

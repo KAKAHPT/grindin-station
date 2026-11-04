@@ -18,6 +18,31 @@ class UserHandleTest < ActiveSupport::TestCase
     assert_equal "fabio-batista-3", create_user("fabio batista", "fabio3@example.com").handle
   end
 
+  test "a handle taken between validation and insert retries with the next suffix" do
+    racing(times: 1) do
+      user = create_user("Fábio Batista", "fabio@example.com")
+
+      assert user.persisted?
+      assert_equal "fabio-batista-2", user.handle
+      assert user.player.present?
+    end
+  end
+
+  test "the retry is bounded" do
+    racing(times: 3) do
+      assert_raises(ActiveRecord::RecordNotUnique) { create_user("Fábio Batista", "fabio@example.com") }
+    end
+  end
+
+  test "a duplicate name signs up without an N+1 on handles" do
+    2.times { |i| create_user("Same Name", "same#{i}@example.com") }
+    Prosopite.scan
+    create_user("Same Name", "same2@example.com")
+    Prosopite.finish
+
+    assert_equal "same-name-3", User.find_by(email_address: "same2@example.com").handle
+  end
+
   test "short names still produce a valid handle" do
     user = create_user("Al", "al@example.com")
 
@@ -62,5 +87,24 @@ class UserHandleTest < ActiveSupport::TestCase
 
     assert_equal "Removed player", user.display_name
     I18n.with_locale(:pt) { assert_equal "Jogador removido", user.reload.player.name }
+  end
+
+  private
+
+  # Another sign-up takes the chosen handle right before the insert, `times` times (inside the
+  # same savepoint, as a concurrent commit would look to the insert).
+  def racing(times:)
+    races = 0
+    test_case = self # the callback runs on the user
+    racer = ->(user) { test_case.send(:take_handle, user.handle, races += 1) if races < times }
+    User.set_callback(:create, :before, racer)
+    yield
+  ensure
+    User.skip_callback(:create, :before, racer)
+  end
+
+  def take_handle(handle, number)
+    User.insert!({ name: "Racer", email_address: "racer#{number}@example.com", handle: handle, # rubocop:disable Rails/SkipsModelValidations
+                   password_digest: "x" })
   end
 end
