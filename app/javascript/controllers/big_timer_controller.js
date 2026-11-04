@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus";
 
-// Big-screen countdown: computed from the client clock, keeps counting past zero as -mm:ss in red.
+// Big-screen countdown: computed from the client clock, stops at 00:00 in red once time is up.
 export default class extends Controller {
   static values = { startedAt: String, minutes: Number };
 
@@ -17,10 +17,10 @@ export default class extends Controller {
   tick() {
     const elapsed = Math.floor((Date.now() - this.startedAtMs) / 1000);
     const remaining = this.minutesValue * 60 - elapsed;
-    const abs = Math.abs(remaining);
-    const mm = String(Math.floor(abs / 60)).padStart(2, "0");
-    const ss = String(abs % 60).padStart(2, "0");
-    this.element.textContent = `${remaining < 0 ? "-" : ""}${mm}:${ss}`;
+    const clamped = Math.max(remaining, 0);
+    const mm = String(Math.floor(clamped / 60)).padStart(2, "0");
+    const ss = String(clamped % 60).padStart(2, "0");
+    this.element.textContent = `${mm}:${ss}`;
     this.element.style.color = remaining < 0 ? "#f87171" : "";
   }
 }

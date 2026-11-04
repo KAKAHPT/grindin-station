@@ -29,11 +29,14 @@ export default class extends Controller {
     const ellapsed = ~~((Date.now() - started_at) / 1000);
     const remaining = this.roundTimeValue == 0 ? ellapsed : this.roundTimeValue - ellapsed;
 
-    const minutes = ~~(remaining / 60);
-    const seconds = Math.abs(remaining % 60);
+    // Time is up: stop at 0:00 in red instead of counting into negatives.
     if (remaining < 0) {
       this.element.classList.add("!text-red-400", "font-black");
+      this.element.textContent = "0:00";
+      return;
     }
+    const minutes = ~~(remaining / 60);
+    const seconds = remaining % 60;
     this.element.textContent = `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
   }
 
