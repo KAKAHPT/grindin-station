@@ -1,44 +1,24 @@
+<% content_for :title, t("auth.sign_in") %>
+
 <%= modal_form_for :session, url: session_url, html: { id: "login-form", data: { turbo: false } } do |f| %>
-  <% content_for :title do %>
-    Sign in
-  <% end %>
-
-  <% if alert %>
-    <div class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-      <%= alert %>
-    </div>
-  <% end %>
-
-  <% if notice %>
-    <div class="mb-4 p-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
-      <%= notice %>
-    </div>
-  <% end %>
-
-  <%= f.email_field_with_label :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address] %>
-  <%= f.password_field_with_label :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72 %>
-
-  <% content_for :footer do %>
-    <%= f.submit "Sign in" %>
-    <%= link_to new_password_path, data: modal_nav_data, class:"py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" do %>
-      Forgot password?
-    <% end %>
-    <%= link_to new_registration_path, data: modal_nav_data, class:"py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" do %>
-      Sign up
-    <% end %>
-
-    <%= link_to root_path, data: modal_nav_data, class:"py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" do %>
-      Cancel
-    <% end %>
-  <% end %>
+  <%= f.email_field_with_label :email_address, required: true, autofocus: true, autocomplete: "username",
+                               placeholder: t("auth.placeholders.email"), value: params[:email_address],
+                               label: { text: User.human_attribute_name(:email_address) } %>
+  <%= f.password_field_with_label :password, required: true, autocomplete: "current-password",
+                                  placeholder: t("auth.placeholders.password"), maxlength: 72,
+                                  label: { text: User.human_attribute_name(:password) } %>
+  <%= f.submit t("auth.sign_in"), class: button_classes(:primary, "w-full mt-1") %>
 <% end %>
 
-<% oauth_providers = { google_oauth2: "auth.continue_with_google", discord: "auth.continue_with_discord" }.select { |provider, _| oauth_enabled?(provider) } %>
-<% if oauth_providers.any? %>
-  <div class="mt-4 flex flex-col gap-2">
-    <p class="text-center text-sm text-muted"><%= t("auth.or") %></p>
-    <% oauth_providers.each do |provider, label| %>
-      <%= button_to t(label), "/auth/#{provider}", method: :post, data: { turbo: false }, class: button_classes(:secondary, "w-full"), form_class: "contents" %>
-    <% end %>
-  </div>
-<% end %>
+<%= render "auth/oauth" %>
+
+<div class="auth-foot" data-sign-up-copy>
+  <%= t("auth.new_here") %> <%= link_to t("auth.create_account"), new_registration_path, data: modal_nav_data %>
+  <div class="mt-1 text-[11.5px]"><%= t("auth.no_oauth_needed") %></div>
+</div>
+<div class="mt-2 flex items-center justify-center gap-4 text-xs text-muted">
+  <%= link_to t("auth.forgot_password"), new_password_path, data: modal_nav_data, class: "hover:text-ink" %>
+  <% if turbo_frame_request_id == "modal" %>
+    <%= link_to t("auth.cancel"), root_path, data: modal_nav_data, class: "hover:text-ink" %>
+  <% end %>
+</div>

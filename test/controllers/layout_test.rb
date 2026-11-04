@@ -41,11 +41,13 @@ class LayoutTest < ActionDispatch::IntegrationTest
     assert_select "#toggleSidebarMobile", count: 0
   end
 
-  test "the language switch keeps the page and marks the current locale" do
+  test "the language switch posts each locale and marks the current one" do
     get profile_path(users(:player_one).handle, locale: "pt")
 
-    assert_select "[data-lang-switch] a.on[hreflang=pt]", text: "PT"
-    assert_select "[data-lang-switch] a[href=?]", "#{profile_path(users(:player_one).handle)}?locale=en"
+    assert_select "[data-lang-switch] form[action=?][method=post]", locale_path, count: 3
+    assert_select "[data-lang-switch] button.on[aria-pressed=true][data-locale=pt]", text: "PT"
+    assert_select "[data-lang-switch] button.on", count: 1
+    assert_select "[data-lang-switch] form:has(button[data-locale=es]) input[name=locale][value=es]"
   end
 
   test "the layouts link the mark as the favicon" do
@@ -76,9 +78,10 @@ class LayoutTest < ActionDispatch::IntegrationTest
     assert_select "[data-topbar] nav a[href^=?]", events_path, text: "Events"
     assert_select "[data-topbar] nav a[href^=?]", circuits_path, text: "Rankings"
     assert_select "[data-topbar] nav a[href$=?]", "#about", text: "About"
-    assert_select "[data-topbar] [data-lang-switch] a", count: I18n.available_locales.size
-    assert_select "[data-lang-switch] a[hreflang=en]", text: "EN"
-    assert_select "[data-lang-switch] a[hreflang=pt]", text: "PT"
+    assert_select "[data-topbar] [data-lang-switch] button", count: I18n.available_locales.size
+    assert_select "[data-lang-switch] button[data-locale=en]", text: "EN"
+    assert_select "[data-lang-switch] button[data-locale=pt]", text: "PT"
+    assert_select "[data-lang-switch] button[data-locale=es]", text: "ES"
   end
 
   def sign_in(user)

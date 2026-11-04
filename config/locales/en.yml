@@ -592,6 +592,27 @@ en:
     linked: "%{provider} linked."
     oauth_failed: "Could not sign you in with that account. Try again or use your e-mail and password."
     or: "or"
+    sign_in: "Sign in"
+    sign_up: "Sign up"
+    new_here: "New here?"
+    create_account: "Create an account with any e-mail"
+    no_oauth_needed: "No Google or Discord needed. You can link them later from your account."
+    have_account: "Already have an account?"
+    forgot_password: "Forgot password?"
+    forgot_title: "Forgot your password?"
+    forgot_help: "Enter your e-mail address and we'll send you a link to reset your password."
+    send_reset: "Email reset instructions"
+    reset_title: "Update your password"
+    save_password: "Save"
+    back_to_sign_in: "Back to sign in"
+    cancel: "Cancel"
+    organizer: "I want to organize events"
+    placeholders:
+      email: "you@example.com"
+      name: "Your full name"
+      password: "Your password"
+      new_password: "At least 8 characters"
+      repeat_password: "Repeat the password"
   passwords_mailer:
     reset:
       subject: "Reset your password"
@@ -683,3 +704,5 @@ en:
       of_max: "of %{max} enrolled"
       view: "View event"
       register: "Register"
+  helpers:
+    required: "required"

@@ -5,7 +5,7 @@ require "application_system_test_case"
 class AuthenticationTest < ApplicationSystemTestCase
   test "user can sign up successfully as player" do
     visit new_session_path
-    click_link "Sign up"
+    click_link "Create an account with any e-mail"
 
     assert_current_path new_registration_path
     assert_text "Sign up"
@@ -31,7 +31,7 @@ class AuthenticationTest < ApplicationSystemTestCase
 
   test "user can sign up successfully as organizer" do
     visit new_session_path
-    click_link "Sign up"
+    click_link "Create an account with any e-mail"
 
     fill_in "user_name", with: "New Organizer"
     fill_in "user_email_address", with: "new_organizer@example.com"
@@ -185,7 +185,7 @@ class AuthenticationTest < ApplicationSystemTestCase
     visit events_path
 
     find("[data-topbar] a", text: "Sign in").click
-    click_on "Sign up"
+    click_on "Create an account with any e-mail"
 
     fill_in "user_name", with: "New Test User"
     fill_in "user_email_address", with: "newuser@example.com"

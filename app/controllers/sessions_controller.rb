@@ -2,6 +2,7 @@
 
 class SessionsController < ApplicationController
   allow_unauthenticated_access only: %i[new create]
+  layout "auth"
   # Per e-mail against password guessing; per address only loosely, since a venue's players share one.
   rate_limit to: 10, within: 3.minutes, only: :create, name: "email",
              by: -> { login_email },

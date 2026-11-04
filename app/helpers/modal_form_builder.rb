@@ -19,18 +19,19 @@ class ModalFormBuilder < ActionView::Helpers::FormBuilder
     name, *rest = args
     options = rest.extract_options!
     required = !options[:required].nil?
+    label_options = options[:label] || {}
     label_html =
-      label(name, { class: LABEL_CLASSES }.merge(options[:label] || {})) do |translation|
+      label(name, { class: LABEL_CLASSES }.merge(label_options.except(:text))) do |translation|
         @template.safe_join(
           [
-            @template.content_tag(:span, translation),
-            required ? @template.content_tag(:span, "required", class: REQUIRED_BADGE_CLASSES) : nil
+            @template.content_tag(:span, label_options[:text] || translation),
+            required ? @template.content_tag(:span, @template.t("helpers.required"), class: REQUIRED_BADGE_CLASSES) : nil
           ].compact
         )
       end
     field_html = public_send(
       original_method, name,
-      *(rest + [{ class: "#{FIELD_CLASSES.fetch(original_method, FIELD_CLASSES['default'])} #{options[:class]}" }.merge(options.except(:class))]), &block
+      *(rest + [{ class: "#{FIELD_CLASSES.fetch(original_method, FIELD_CLASSES['default'])} #{options[:class]}" }.merge(options.except(:class, :label))]), &block
     )
 
     @template.content_tag(:div, class: WRAPPER_CLASSES) do

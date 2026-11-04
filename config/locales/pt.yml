@@ -592,6 +592,27 @@ pt:
     linked: "%{provider} ligado."
     oauth_failed: "Não foi possível entrar com essa conta. Tenta novamente ou usa o e-mail e a palavra-passe."
     or: "ou"
+    sign_in: "Entrar"
+    sign_up: "Criar conta"
+    new_here: "És novo aqui?"
+    create_account: "Cria uma conta com qualquer e-mail"
+    no_oauth_needed: "Não precisas de Google nem de Discord. Podes ligá-los mais tarde na tua conta."
+    have_account: "Já tens conta?"
+    forgot_password: "Esqueceste a palavra-passe?"
+    forgot_title: "Esqueceste a palavra-passe?"
+    forgot_help: "Escreve o teu e-mail e enviamos-te uma ligação para repores a palavra-passe."
+    send_reset: "Enviar instruções"
+    reset_title: "Muda a tua palavra-passe"
+    save_password: "Guardar"
+    back_to_sign_in: "Voltar a entrar"
+    cancel: "Cancelar"
+    organizer: "Quero organizar eventos"
+    placeholders:
+      email: "tu@exemplo.com"
+      name: "O teu nome completo"
+      password: "A tua palavra-passe"
+      new_password: "Pelo menos 8 caracteres"
+      repeat_password: "Repete a palavra-passe"
   passwords_mailer:
     reset:
       subject: "Repõe a tua palavra-passe"
@@ -683,3 +704,5 @@ pt:
       of_max: "de %{max} inscritos"
       view: "Ver evento"
       register: "Inscrever"
+  helpers:
+    required: "obrigatório"

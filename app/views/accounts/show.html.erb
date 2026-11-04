@@ -1,8 +1,9 @@
-<% input = "block w-full h-12 px-3 rounded-md border border-line bg-surface text-ink placeholder:text-muted focus:ring-accent focus:border-accent" %>
-<% label = "block mb-1 text-sm font-medium text-ink" %>
-<% card = "p-5 rounded-2xl bg-surface border border-line shadow-raised" %>
+<%# Account (spec §4): the same cards (dark title band) and Settings-look fields as the organizer pages. %>
+<% input = "field-input" %>
+<% field = "field" %>
+<% hint = "form-help" %>
 
-<div class="max-w-2xl mx-auto w-full p-4 space-y-6 text-ink">
+<div class="col-span-full max-w-2xl mx-auto w-full py-4 space-y-5 text-ink" data-account>
   <h1 class="font-display text-2xl font-semibold"><%= t(".title") %></h1>
 
   <%= form_with model: @user, url: account_path(locale: params[:locale]), method: :patch, class: "space-y-6" do |f| %>
@@ -16,75 +17,78 @@
       </div>
     <% end %>
 
-    <section class="<%= card %> space-y-4">
-      <h2 class="font-display text-lg font-semibold"><%= t(".profile") %></h2>
-
-      <div class="flex items-center gap-4">
-        <% if @user.avatar.attached? && @user.avatar.blob.persisted? %>
-          <%= image_tag @user.avatar.variant(:thumb), alt: "", class: "size-24 rounded-full object-cover border border-line" %>
-        <% else %>
-          <div class="size-24 rounded-full bg-surface-raised border border-line flex items-center justify-center font-display text-2xl text-muted">
-            <%= @user.name.to_s.first.upcase %>
+    <section class="card">
+      <h2 class="card-title"><%= t(".profile") %></h2>
+      <div class="p-4 space-y-4">
+        <div class="flex items-center gap-4">
+          <% if @user.avatar.attached? && @user.avatar.blob.persisted? %>
+            <%= image_tag @user.avatar.variant(:thumb), alt: "", class: "size-20 rounded-full object-cover border border-line" %>
+          <% else %>
+            <div class="size-20 rounded-full bg-surface-raised border border-line flex items-center justify-center font-display text-2xl text-muted">
+              <%= @user.name.to_s.first.upcase %>
+            </div>
+          <% end %>
+          <div class="flex-1 <%= field %>">
+            <%= f.label :avatar %>
+            <%= f.file_field :avatar, accept: User::AVATAR_TYPES.join(","), class: "#{input} file:me-3 file:rounded file:border-0 file:bg-surface-raised file:px-2 file:py-1 file:text-ink" %>
+            <p class="<%= hint %>"><%= t(".avatar_hint") %></p>
           </div>
-        <% end %>
-        <div class="flex-1">
-          <%= f.label :avatar, class: label %>
-          <%= f.file_field :avatar, accept: User::AVATAR_TYPES.join(","), class: "block w-full text-sm text-muted file:me-3 file:rounded-md file:border-0 file:bg-surface-raised file:px-3 file:py-2 file:text-ink" %>
-          <p class="mt-1 text-xs text-muted"><%= t(".avatar_hint") %></p>
         </div>
-      </div>
 
-      <div>
-        <%= f.label :name, class: label %>
-        <%= f.text_field :name, required: true, class: input %>
-      </div>
-      <div>
-        <%= f.label :email_address, class: label %>
-        <%= f.email_field :email_address, required: true, autocomplete: "username", class: input %>
-        <% if @user.password_set %>
-          <p class="mt-1 text-xs text-muted"><%= t(".email_hint") %></p>
-        <% end %>
-      </div>
-      <div>
-        <%= f.label :handle, class: label %>
-        <%= f.text_field :handle, required: true, pattern: "[a-z0-9-]{3,30}", class: input %>
-        <p class="mt-1 text-xs text-muted"><%= t(".handle_hint") %></p>
-      </div>
-      <div class="grid sm:grid-cols-2 gap-4">
-        <div>
-          <%= f.label :country, class: label %>
-          <%= f.text_field :country, maxlength: 2, placeholder: "PT", class: "#{input} uppercase" %>
+        <div class="<%= field %>">
+          <%= f.label :name %>
+          <%= f.text_field :name, required: true, class: input %>
         </div>
-        <div>
-          <%= f.label :visibility, class: label %>
-          <%= f.select :visibility, User::VISIBILITIES.map { |v| [ t(".visibility.#{v}"), v ] }, {}, class: input %>
+        <div class="<%= field %>">
+          <%= f.label :email_address %>
+          <%= f.email_field :email_address, required: true, autocomplete: "username", class: input %>
+          <% if @user.password_set %>
+            <p class="<%= hint %>"><%= t(".email_hint") %></p>
+          <% end %>
         </div>
-      </div>
-      <div>
-        <%= f.label :bio, class: label %>
-        <%= f.text_area :bio, rows: 4, maxlength: 500, class: input.sub("h-12", "py-2") %>
+        <div class="<%= field %>">
+          <%= f.label :handle %>
+          <%= f.text_field :handle, required: true, pattern: "[a-z0-9-]{3,30}", class: input %>
+          <p class="<%= hint %>"><%= t(".handle_hint") %></p>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="<%= field %>">
+            <%= f.label :country %>
+            <%= f.text_field :country, maxlength: 2, placeholder: "PT", class: "#{input} uppercase" %>
+          </div>
+          <div class="<%= field %>">
+            <%= f.label :visibility %>
+            <%= f.select :visibility, User::VISIBILITIES.map { |v| [ t(".visibility.#{v}"), v ] }, {}, class: input %>
+          </div>
+        </div>
+        <div class="<%= field %>">
+          <%= f.label :bio %>
+          <%= f.text_area :bio, rows: 4, maxlength: 500, class: input %>
+        </div>
       </div>
     </section>
 
-    <section class="<%= card %> space-y-4">
-      <h2 class="font-display text-lg font-semibold"><%= t(".password") %></h2>
-      <% unless @user.password_set %>
-        <p class="text-sm text-muted"><%= t(".password_not_set") %></p>
-      <% end %>
-      <% if @user.password_set %>
-        <div>
-          <%= label_tag "user_current_password", User.human_attribute_name(:current_password), class: label %>
-          <%= password_field_tag "user[current_password]", nil, id: "user_current_password", autocomplete: "current-password", class: input %>
-        </div>
-      <% end %>
-      <div class="grid sm:grid-cols-2 gap-4">
-        <div>
-          <%= f.label :password, t(".new_password"), class: label %>
-          <%= f.password_field :password, autocomplete: "new-password", minlength: 8, maxlength: 72, class: input %>
-        </div>
-        <div>
-          <%= f.label :password_confirmation, t("accounts.confirm_new_password"), class: label %>
-          <%= f.password_field :password_confirmation, autocomplete: "new-password", minlength: 8, maxlength: 72, class: input %>
+    <section class="card">
+      <h2 class="card-title"><%= t(".password") %></h2>
+      <div class="p-4 space-y-4">
+        <% unless @user.password_set %>
+          <p class="<%= hint %>"><%= t(".password_not_set") %></p>
+        <% end %>
+        <% if @user.password_set %>
+          <div class="<%= field %>">
+            <%= label_tag "user_current_password", User.human_attribute_name(:current_password) %>
+            <%= password_field_tag "user[current_password]", nil, id: "user_current_password", autocomplete: "current-password", class: input %>
+          </div>
+        <% end %>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="<%= field %>">
+            <%= f.label :password, t(".new_password") %>
+            <%= f.password_field :password, autocomplete: "new-password", minlength: 8, maxlength: 72, class: input %>
+          </div>
+          <div class="<%= field %>">
+            <%= f.label :password_confirmation, t("accounts.confirm_new_password") %>
+            <%= f.password_field :password_confirmation, autocomplete: "new-password", minlength: 8, maxlength: 72, class: input %>
+          </div>
         </div>
       </div>
     </section>
@@ -92,46 +96,52 @@
     <%= f.button t(".save"), class: button_classes(:primary, "w-full sm:w-auto") %>
   <% end %>
 
-  <section class="<%= card %> space-y-4">
-    <h2 class="font-display text-lg font-semibold"><%= t(".identities") %></h2>
-    <% if @user.identities.empty? %>
-      <p class="text-sm text-muted"><%= t(".no_identities") %></p>
-    <% else %>
-      <ul class="divide-y divide-line">
-        <% can_unlink = @user.can_unlink_identity? %>
-        <% @user.identities.each do |identity| %>
-          <li class="flex items-center justify-between gap-3 py-3">
-            <span>
-              <span class="font-display font-semibold"><%= OmniauthCallbacksController::PROVIDER_NAMES.fetch(identity.provider, identity.provider) %></span>
-              <span class="text-sm text-muted"><%= identity.email.presence || identity.name %></span>
-            </span>
-            <% if can_unlink %>
-              <%= button_to t(".unlink"), unlink_identity_path(identity, locale: params[:locale]), method: :delete, class: small_button_classes(:secondary) %>
-            <% end %>
-          </li>
+  <section class="card">
+    <h2 class="card-title"><%= t(".identities") %></h2>
+    <div class="p-4 space-y-4">
+      <% if @user.identities.empty? %>
+        <p class="<%= hint %>"><%= t(".no_identities") %></p>
+      <% else %>
+        <ul class="divide-y divide-line">
+          <% can_unlink = @user.can_unlink_identity? %>
+          <% @user.identities.each do |identity| %>
+            <li class="flex items-center justify-between gap-3 py-3">
+              <span>
+                <span class="font-display font-semibold"><%= OmniauthCallbacksController::PROVIDER_NAMES.fetch(identity.provider, identity.provider) %></span>
+                <span class="text-sm text-muted"><%= identity.email.presence || identity.name %></span>
+              </span>
+              <% if can_unlink %>
+                <%= button_to t(".unlink"), unlink_identity_path(identity, locale: params[:locale]), method: :delete, class: small_button_classes(:secondary) %>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+        <% unless can_unlink %>
+          <p class="<%= hint %>"><%= t(".unlink_hint") %></p>
         <% end %>
-      </ul>
-      <% unless can_unlink %>
-        <p class="text-xs text-muted"><%= t(".unlink_hint") %></p>
       <% end %>
-    <% end %>
-    <% linkable = OmniauthCallbacksController::PROVIDER_NAMES.select { |provider, _| oauth_enabled?(provider) && @user.identities.none? { |i| i.provider == provider } } %>
-    <% if linkable.any? %>
-      <div class="flex flex-wrap gap-2">
-        <% linkable.each do |provider, name| %>
-          <%= button_to t(".link", provider: name), "/auth/#{provider}", method: :post, data: { turbo: false }, class: small_button_classes(:secondary) %>
-        <% end %>
-      </div>
-    <% end %>
+      <% linkable = OmniauthCallbacksController::PROVIDER_NAMES.select { |provider, _| oauth_enabled?(provider) && @user.identities.none? { |i| i.provider == provider } } %>
+      <% if linkable.any? %>
+        <div class="flex flex-wrap gap-2">
+          <% linkable.each do |provider, name| %>
+            <%= button_to t(".link", provider: name), "/auth/#{provider}", method: :post, data: { turbo: false }, class: small_button_classes(:secondary) %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
   </section>
 
-  <section class="<%= card %> space-y-4 border-danger/40">
-    <h2 class="font-display text-lg font-semibold text-danger"><%= t(".delete_title") %></h2>
-    <p class="text-sm text-muted"><%= t(".delete_explanation") %></p>
-    <%= form_with url: account_path(locale: params[:locale]), method: :delete, class: "space-y-3" do |f| %>
-      <%= f.label :confirmation, t(".delete_prompt", word: t(".delete_word")), class: label %>
-      <%= f.text_field :confirmation, required: true, autocomplete: "off", class: input %>
-      <%= f.button t(".delete_button"), class: button_classes(:danger, "w-full sm:w-auto") %>
-    <% end %>
+  <section class="card border-danger/40">
+    <h2 class="card-title text-danger"><%= t(".delete_title") %></h2>
+    <div class="p-4 space-y-3">
+      <p class="<%= hint %>"><%= t(".delete_explanation") %></p>
+      <%= form_with url: account_path(locale: params[:locale]), method: :delete, class: "space-y-3" do |f| %>
+        <div class="<%= field %>">
+          <%= f.label :confirmation, t(".delete_prompt", word: t(".delete_word")) %>
+          <%= f.text_field :confirmation, required: true, autocomplete: "off", class: input %>
+        </div>
+        <%= f.button t(".delete_button"), class: button_classes(:danger, "w-full sm:w-auto") %>
+      <% end %>
+    </div>
   </section>
 </div>

@@ -29,6 +29,15 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     assert_select "input[name=confirmation]"
   end
 
+  test "the account page is cards with title bands and Settings-look fields" do
+    get account_path
+
+    assert_select "[data-account] section.card", count: 4
+    assert_select "[data-account] section.card > .card-title", count: 4
+    assert_select "[data-account] .field input.field-input[name='user[name]']"
+    assert_no_match(/purple|orange-700|dark:|gray-\d/, css_select("[data-account]").to_html)
+  end
+
   test "link buttons only for enabled providers that are not linked yet" do
     @user.identities.create!(provider: "discord", uid: "d-1", name: "p1")
 

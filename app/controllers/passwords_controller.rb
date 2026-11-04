@@ -2,6 +2,7 @@
 
 class PasswordsController < ApplicationController
   allow_unauthenticated_access
+  layout "auth"
   before_action :set_user_by_token, only: %i[edit update]
   # Per address loosely (a venue's players share one), per e-mail tightly.
   rate_limit to: 20, within: 10.minutes, only: :create, name: "ip",
