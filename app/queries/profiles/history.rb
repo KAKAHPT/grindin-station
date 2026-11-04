@@ -36,13 +36,20 @@ module Profiles
       EventParticipant.where(event_id: participations.map(&:event_id), waitlisted: false).group(:event_id).count
     end
 
+    # Multiplayer events only: 1v1 seats are random and never shown.
     def seat_counts(participations)
-      Seating.joins(pod: :round).where(event_participant_id: participations.map(&:id), rounds: { type: "SwissRound" })
+      ids = participations.reject { |participation| participation.event.one_v_one? }.map(&:id)
+      Seating.joins(pod: :round).where(event_participant_id: ids, rounds: { type: "SwissRound" })
         .where("rounds.finished_at IS NOT NULL OR rounds.published = TRUE")
         .group(:event_participant_id, :order).count
         .each_with_object({}) do |((participant_id, position), times), all|
           (all[participant_id] ||= EventParticipant.empty_seat_counts)[position] = times
         end
+    end
+
+    # nil for 1v1 (no seats shown).
+    def seats_of(participation, seats)
+      seats.fetch(participation.id) { EventParticipant.empty_seat_counts } unless participation.event.one_v_one?
     end
 
     def row(participation, sizes, seats)
@@ -51,7 +58,7 @@ module Profiles
       Row.new(event: event, position: participation.final_position, participants: sizes.fetch(event.id, 0),
               wins: participation.number_of_wins, losses: participation.number_of_losses,
               draws: participation.number_of_draws,
-              seats: seats.fetch(participation.id) { EventParticipant.empty_seat_counts },
+              seats: seats_of(participation, seats),
               decklist_visible: visible, decklist: (participation.decklist if visible))
     end
   end

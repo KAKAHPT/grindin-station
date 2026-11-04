@@ -10,7 +10,7 @@
         <% participant = seating.event_participant %>
         <label class="flex items-center gap-3 min-h-12 px-4 rounded-md bg-surface-raised border border-line has-[:checked]:border-accent/60 has-[:checked]:bg-accent/[0.08]">
           <%= radio_button_tag :winner_id, participant.id, participant.id == current_participant.id, class: "text-accent bg-surface border-line focus:ring-accent" %>
-          <span><span class="font-display font-semibold text-muted"><%= seating.order %></span> <%= participant.name %></span>
+          <span><% unless @pod.event.one_v_one? %><span class="font-display font-semibold text-muted"><%= seating.order %></span> <% end %><%= participant.name %></span>
         </label>
       <% end %>
     </fieldset>

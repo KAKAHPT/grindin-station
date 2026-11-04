@@ -27,15 +27,22 @@
     </th>
     <% columns = event_participant.standing_columns %>
     <td class="px-2.5 py-1 tabular text-right font-display font-semibold text-accent"><%= columns[:points] %></td>
-    <td class="px-2.5 py-1 tabular text-right"><%= win_rate_label(event_participant.win_rate) %></td>
-    <td class="px-2.5 py-1 tabular text-right">
-      <%= number_to_percentage(columns[:owr] * 100, precision: 1) %>
-    </td>
-    <td class="px-2.5 py-1 tabular text-right"><%= columns[:beaten] %></td>
-    <td class="px-2.5 py-1 tabular text-right"><%= columns[:unique] %></td>
-    <td class="px-2.5 py-1 text-nowrap">
-      <%= seat_grid(columns[:seats], seat_five: local_assigns.fetch(:seat_five, false)) %>
-    </td>
+    <% if @event.one_v_one? %>
+      <% %i[omw gw ogw].each do |column| %>
+        <td class="px-2.5 py-1 tabular text-right"><%= rate_label(columns[column]) %></td>
+      <% end %>
+      <td class="px-2.5 py-1 tabular text-right"><%= win_rate_label(event_participant.win_rate) %></td>
+    <% else %>
+      <td class="px-2.5 py-1 tabular text-right"><%= win_rate_label(event_participant.win_rate) %></td>
+      <td class="px-2.5 py-1 tabular text-right">
+        <%= number_to_percentage(columns[:owr] * 100, precision: 1) %>
+      </td>
+      <td class="px-2.5 py-1 tabular text-right"><%= columns[:beaten] %></td>
+      <td class="px-2.5 py-1 tabular text-right"><%= columns[:unique] %></td>
+      <td class="px-2.5 py-1 text-nowrap">
+        <%= seat_grid(columns[:seats], seat_five: local_assigns.fetch(:seat_five, false)) %>
+      </td>
+    <% end %>
     <td class="px-2.5 py-1 tabular text-right text-nowrap">
       <%= event_participant.number_of_wins -%>
       &nbsp;-&nbsp;

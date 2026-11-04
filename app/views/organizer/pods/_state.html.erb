@@ -64,7 +64,9 @@
           class="group flex items-center gap-2.5 px-4 h-8 transition-colors <%= won ? "bg-accent/[0.08]" : "hover:bg-white/[0.03]" %>"
         >
       <% end %>
-        <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= won ? "text-accent" : "text-muted" %>"><%= seats[player.id] %></span>
+        <% unless pod.event.one_v_one? %>
+          <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= won ? "text-accent" : "text-muted" %>"><%= seats[player.id] %></span>
+        <% end %>
         <span class="flex-1 min-w-0 truncate text-[13px]"><%= result_indicator(pod:, player:) %><% if score.present? %><span class="ms-1 font-display font-semibold text-muted">· <%= score %></span><% end %></span>
         <% unless pod.round.published? %>
           <%= link_to [:swap, :organizer, pod.event, pod.round.becomes(Round), :seatings], data: {action: 'click->swap#selectPlayer', 'swap-player-param' => player.id, 'swap-pod-param' => pod.id, 'turbo-method': 'patch'}, class: "hidden group-hover:inline-flex items-center text-muted border border-line hover:text-ink hover:border-muted rounded-[4px] text-xs px-1 py-0.5" do %>

@@ -1,4 +1,6 @@
 <%# Role-free public card of one table: number, status, seats in order, the winner. No staff links or buttons. %>
+<%# 1v1: two names, no seat squares, the winner's score. %>
+<% one_v_one = event.one_v_one? %>
 <% results = pod.current_results.index_by(&:event_participant_id) %>
 <% status = pod.report_status %>
 <% drawn = status == :completed && results.values.all? { |result| result.is_a?(Draw) } %>
@@ -19,15 +21,20 @@
     <% pod.seatings.each do |seating| %>
       <% seated = seating.event_participant %>
       <% won = results[seated.id].class.in?([Win, Advance]) %>
-      <%= tag.li data: { seat: seating.order, participant_id: seated.id, winner: (true if won) },
+      <%= tag.li data: { seat: (seating.order unless one_v_one), participant_id: seated.id, winner: (true if won) },
                  class: ["flex items-center gap-2.5 px-4 py-1.5 min-h-9", ("bg-accent/[0.08]" if won)] do %>
-        <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= won ? "text-accent" : "text-muted" %>"><%= seating.order %></span>
+        <% unless one_v_one %>
+          <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= won ? "text-accent" : "text-muted" %>"><%= seating.order %></span>
+        <% end %>
         <span class="flex-1 min-w-0 text-[13px]">
           <span data-name class="block truncate <%= "font-semibold text-ink" if won %>"><%= profile_link(seated.player&.user, seated.name) %></span>
           <% if event.show_commanders_in_standings && commander_text(seated) %>
             <span class="block truncate text-xs text-muted"><%= commander_text(seated) %></span>
           <% end %>
         </span>
+        <% if won && one_v_one && (score = result_score(results[seated.id])) %>
+          <span data-score class="font-display text-[12px] font-semibold text-accent"><%= score %></span>
+        <% end %>
         <% if won %>
           <%= icon("medal", class: "text-[14px] text-accent") %><span class="sr-only"><%= t("play.pairings.winner") %></span>
         <% end %>

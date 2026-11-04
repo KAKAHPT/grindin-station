@@ -8,6 +8,7 @@
   <%= turbo_stream_from LiveBroadcasts.standings_stream(@tournament.id) %>
 <% end %>
 <% latest_published = @tournament.rounds.published.max_by(&:number) %>
+<% one_v_one = @tournament.one_v_one? %>
 <% content_for :close do %>
   <% if latest_published %>
     <%= link_to [@tournament, latest_published.becomes(Round)], class: "ms-auto #{icon_button_classes}" do %>
@@ -36,7 +37,7 @@
 <% end %>
 <% if @standings.any? %>
   <div class="<%= @standings_in_modal ? "-m-4 md:-m-5 overflow-x-auto" : "-mx-4 sm:mx-0 rounded-none sm:rounded-xl bg-surface border-y sm:border border-line shadow-card overflow-clip" %>">
-  <%# In the narrow play column (a container) OWR, Beaten, Unique and Seats show only from 32rem up; the modal shows all. %>
+  <%# In the narrow play column (a container) OWR, Beaten, Unique and Seats (1v1: GW% and OGW%) show only from 32rem up; the modal shows all. %>
   <% wide_only = @standings_in_modal ? "" : "hidden @lg:table-cell" %>
   <% pad = @standings_in_modal ? "px-3" : "px-2 @lg:px-3" %>
   <div class="<%= "@container" unless @standings_in_modal %> overflow-x-auto">
@@ -54,19 +55,28 @@
         <th scope="col" class="<%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-points">
           <%= t("standings.columns.points") %>
         </th>
-        <th scope="col" class="<%= pad %> py-2 whitespace-nowrap text-right"><%= t("standings.columns.win_rate") %></th>
-        <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-owr">
-          <%= t("standings.columns.owr") %>
-        </th>
-        <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-beaten">
-          <%= t("standings.columns.beaten") %>
-        </th>
-        <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-unique">
-          <%= t("standings.columns.unique") %>
-        </th>
-        <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap">
-          <%= t("standings.columns.seats") %>
-        </th>
+        <% if one_v_one %>
+          <% %w[omw gw ogw].each do |column| %>
+            <th scope="col" class="<%= wide_only unless column == "omw" %> <%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-<%= column %>">
+              <%= t("standings.columns.#{column}") %>
+            </th>
+          <% end %>
+          <th scope="col" class="<%= pad %> py-2 whitespace-nowrap text-right"><%= t("standings.columns.win_rate") %></th>
+        <% else %>
+          <th scope="col" class="<%= pad %> py-2 whitespace-nowrap text-right"><%= t("standings.columns.win_rate") %></th>
+          <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-owr">
+            <%= t("standings.columns.owr") %>
+          </th>
+          <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-beaten">
+            <%= t("standings.columns.beaten") %>
+          </th>
+          <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-unique">
+            <%= t("standings.columns.unique") %>
+          </th>
+          <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap">
+            <%= t("standings.columns.seats") %>
+          </th>
+        <% end %>
         <th scope="col" class="<%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-wld">
           W-L-D
         </th>
@@ -83,7 +93,7 @@
           Player rank is calculated according to the tiebreakers you can see in
           this table:
           <br>
-          <%= t("standings.order_tooltip") %>
+          <%= t(one_v_one ? "standings.order_tooltip_one_v_one" : "standings.order_tooltip") %>
           <div class="tooltip-arrow" data-popper-arrow="true"></div>
         </div>
         <div
@@ -98,42 +108,59 @@
           <%= t("standings.help.points", win: @tournament.points_win, draw: @tournament.points_draw, loss: @tournament.points_loss) %>
           <div class="tooltip-arrow" data-popper-arrow="true"></div>
         </div>
-        <div
-          id="tooltip-owr"
-          role="tooltip"
-          class="
-            absolute z-10 invisible inline-block px-3 py-2 text-sm
-            font-medium text-ink transition-opacity duration-300
-            bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
-          "
-        >
-          <%= t("standings.help.owr") %>
-          <div class="tooltip-arrow" data-popper-arrow="true"></div>
-        </div>
-        <div
-          id="tooltip-beaten"
-          role="tooltip"
-          class="
-            absolute z-10 invisible inline-block px-3 py-2 text-sm
-            font-medium text-ink transition-opacity duration-300
-            bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
-          "
-        >
-          <%= t("standings.help.beaten") %>
-          <div class="tooltip-arrow" data-popper-arrow="true"></div>
-        </div>
-        <div
-          id="tooltip-unique"
-          role="tooltip"
-          class="
-            absolute z-10 invisible inline-block px-3 py-2 text-sm
-            font-medium text-ink transition-opacity duration-300
-            bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
-          "
-        >
-          <%= t("standings.help.unique") %>
-          <div class="tooltip-arrow" data-popper-arrow="true"></div>
-        </div>
+        <% if one_v_one %>
+          <% %w[omw gw ogw].each do |column| %>
+            <div
+              id="tooltip-<%= column %>"
+              role="tooltip"
+              class="
+                absolute z-10 invisible inline-block px-3 py-2 text-sm
+                font-medium text-ink transition-opacity duration-300
+                bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
+              "
+            >
+              <%= t("standings.help.#{column}") %>
+              <div class="tooltip-arrow" data-popper-arrow="true"></div>
+            </div>
+          <% end %>
+        <% else %>
+          <div
+            id="tooltip-owr"
+            role="tooltip"
+            class="
+              absolute z-10 invisible inline-block px-3 py-2 text-sm
+              font-medium text-ink transition-opacity duration-300
+              bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
+            "
+          >
+            <%= t("standings.help.owr") %>
+            <div class="tooltip-arrow" data-popper-arrow="true"></div>
+          </div>
+          <div
+            id="tooltip-beaten"
+            role="tooltip"
+            class="
+              absolute z-10 invisible inline-block px-3 py-2 text-sm
+              font-medium text-ink transition-opacity duration-300
+              bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
+            "
+          >
+            <%= t("standings.help.beaten") %>
+            <div class="tooltip-arrow" data-popper-arrow="true"></div>
+          </div>
+          <div
+            id="tooltip-unique"
+            role="tooltip"
+            class="
+              absolute z-10 invisible inline-block px-3 py-2 text-sm
+              font-medium text-ink transition-opacity duration-300
+              bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
+            "
+          >
+            <%= t("standings.help.unique") %>
+            <div class="tooltip-arrow" data-popper-arrow="true"></div>
+          </div>
+        <% end %>
         <div
           id="tooltip-wld"
           role="tooltip"
@@ -161,7 +188,7 @@
         <% standings = @standings.reject(&:waitlisted?).sort_by do |p|
              [final && p.final_position ? 0 : 1, (p.final_position if final).to_i, p.playing? ? 0 : 1, -p.rank_score, p.name]
            end %>
-        <%= render partial: "event_participants/event_participant", collection: standings, locals: { seat_five: seat_five?(standings), wide_only: wide_only, pad: pad, final: final } %>
+        <%= render partial: "event_participants/event_participant", collection: standings, locals: { seat_five: !one_v_one && seat_five?(standings), wide_only: wide_only, pad: pad, final: final } %>
       <% end %>
     </tbody>
   </table>

@@ -1,5 +1,7 @@
 <%# Rendered from locals only (Play::TableState#locals plus locale): the page and its live broadcasts share it. %>
 <% url_locale = (locale.to_s unless locale.to_s == I18n.default_locale.to_s) %>
+<%# 1v1: the table number alone (seats are random), two names without seat squares, the winner's score. %>
+<% one_v_one = event.one_v_one? %>
 <div id="my_table">
   <% if pod %>
     <section class="p-5 rounded-2xl bg-surface border border-line shadow-raised">
@@ -7,23 +9,28 @@
         <p class="text-[11px] font-semibold uppercase tracking-wide text-muted"><%= t("play.tables.round", number: round.number) %></p>
         <%= status_chip(pod_status_tone(status), data: { report_status: true }) { t("play.status.#{status}") } %>
       </div>
-      <div class="mt-4 grid grid-cols-2 gap-3 text-center">
+      <div class="mt-4 grid <%= one_v_one ? "grid-cols-1" : "grid-cols-2" %> gap-3 text-center">
         <div class="py-5 rounded-xl bg-surface-raised shadow-[inset_0_1px_0_rgb(255_255_255/0.05)]">
           <p class="text-[11px] font-semibold uppercase tracking-wide text-muted"><%= t("play.tables.table") %></p>
           <p data-table-number class="font-display text-6xl font-bold leading-none mt-2 text-ink"><%= pod.number %></p>
         </div>
-        <div class="py-5 rounded-xl bg-surface-raised shadow-[inset_0_1px_0_rgb(255_255_255/0.05),0_0_0_4px_rgb(45_212_191/0.08)] ring-1 ring-accent/40">
-          <p class="text-[11px] font-semibold uppercase tracking-wide text-muted"><%= t("play.tables.seat") %></p>
-          <p data-seat-number class="font-display text-6xl font-bold leading-none mt-2 text-accent"><%= seat %></p>
-        </div>
+        <% unless one_v_one %>
+          <div class="py-5 rounded-xl bg-surface-raised shadow-[inset_0_1px_0_rgb(255_255_255/0.05),0_0_0_4px_rgb(45_212_191/0.08)] ring-1 ring-accent/40">
+            <p class="text-[11px] font-semibold uppercase tracking-wide text-muted"><%= t("play.tables.seat") %></p>
+            <p data-seat-number class="font-display text-6xl font-bold leading-none mt-2 text-accent"><%= seat %></p>
+          </div>
+        <% end %>
       </div>
 
+      <% winner = (pod.current_results.find { |result| result.is_a?(Win) || result.is_a?(Advance) } if one_v_one && status == :completed) %>
       <ol class="mt-5 divide-y divide-line/60 border-t border-line">
         <% seatings.each do |seating| %>
           <% seated = seating.event_participant %>
           <% me = seated.id == participant.id %>
           <%= tag.li data: { me: (true if me) }, class: ["py-3 flex items-center gap-3", ("font-semibold bg-accent/[0.08] -mx-5 px-5" if me)] do %>
-            <span class="<%= PaletteHelper::SEAT_SQUARE %> <%= me ? "text-accent" : "text-muted" %>"><%= seating.order %></span>
+            <% unless one_v_one %>
+              <span class="<%= PaletteHelper::SEAT_SQUARE %> <%= me ? "text-accent" : "text-muted" %>"><%= seating.order %></span>
+            <% end %>
             <span class="flex-1 min-w-0 text-[15px]">
               <%= seated.name %>
               <% if me %><span class="ms-1 text-[11px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-md bg-accent/15 text-accent"><%= t("play.tables.you") %></span><% end %>
@@ -31,6 +38,9 @@
                 <span class="block text-xs font-normal text-muted"><%= commander_text(seated) %></span>
               <% end %>
             </span>
+            <% if winner&.event_participant_id == seated.id && (score = result_score(winner)) %>
+              <span data-score class="font-display text-[15px] font-semibold text-accent"><%= score %></span>
+            <% end %>
           <% end %>
         <% end %>
       </ol>

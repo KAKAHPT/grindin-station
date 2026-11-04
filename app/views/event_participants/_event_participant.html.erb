@@ -22,15 +22,22 @@
   </th>
   <% columns = event_participant.standing_columns %>
   <td class="<%= pad %> py-0.5 tabular text-right font-display text-[12px] font-semibold text-accent"><%= columns[:points] %></td>
-  <td class="<%= pad %> py-0.5 tabular text-right"><%= win_rate_label(event_participant.win_rate) %></td>
-  <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right">
-    <%= number_to_percentage(columns[:owr] * 100, precision: 1) %>
-  </td>
-  <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right"><%= columns[:beaten] %></td>
-  <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right"><%= columns[:unique] %></td>
-  <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 text-nowrap">
-    <%= seat_grid(columns[:seats], seat_five: local_assigns.fetch(:seat_five, false)) %>
-  </td>
+  <% if event_participant.event.one_v_one? %>
+    <td class="<%= pad %> py-0.5 tabular text-right"><%= rate_label(columns[:omw]) %></td>
+    <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right"><%= rate_label(columns[:gw]) %></td>
+    <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right"><%= rate_label(columns[:ogw]) %></td>
+    <td class="<%= pad %> py-0.5 tabular text-right"><%= win_rate_label(event_participant.win_rate) %></td>
+  <% else %>
+    <td class="<%= pad %> py-0.5 tabular text-right"><%= win_rate_label(event_participant.win_rate) %></td>
+    <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right">
+      <%= number_to_percentage(columns[:owr] * 100, precision: 1) %>
+    </td>
+    <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right"><%= columns[:beaten] %></td>
+    <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right"><%= columns[:unique] %></td>
+    <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 text-nowrap">
+      <%= seat_grid(columns[:seats], seat_five: local_assigns.fetch(:seat_five, false)) %>
+    </td>
+  <% end %>
   <td class="<%= pad %> py-0.5 tabular text-right text-nowrap">
     <% wld = [event_participant.number_of_wins, event_participant.number_of_losses, event_participant.number_of_draws] %>
     <% if local_assigns[:wide_only].present? %>

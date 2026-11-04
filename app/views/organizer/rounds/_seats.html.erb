@@ -2,7 +2,9 @@
   <% pod.seatings.sort_by(&:order).each do |seating| %>
     <% participant = seating.event_participant %>
     <li>
-      <span class="seat-no"><%= seating.order %></span>
+      <% unless event.one_v_one? %>
+        <span class="seat-no"><%= seating.order %></span>
+      <% end %>
       <span class="seat-name"><%= participant.name %></span>
       <% if event.show_commanders_in_standings && commander_text(participant) %>
         <span class="seat-commander"><%= commander_text(participant) %></span>

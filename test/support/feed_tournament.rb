@@ -18,6 +18,16 @@ module FeedTournament
     @t.reload
   end
 
+  # 1v1, 4 players: round 1 closed (table 1 won 2-1, table 2 drawn 1-1), round 2 published and unplayed.
+  def build_1v1_feed_tournament(match_games: 3)
+    t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer), format: "one_v_one")
+    t.update_columns(swiss_rounds_count: 3, top_cut_size: 0, match_games: match_games) # rubocop:disable Rails/SkipsModelValidations
+    t.rounds.create!(type: SwissRound, number: 1)
+    TournamentBuilder.play_1v1_round!(t, scores: { 1 => [2, 1], 2 => [1, 1] })
+    t.rounds.create!(type: SwissRound, number: 2).update_columns(published: true) # rubocop:disable Rails/SkipsModelValidations
+    t.reload
+  end
+
   # Seated participants of the pod, seat 1 first.
   def seated(round, pod_number)
     round.pods.find_by!(number: pod_number).seatings.map(&:event_participant)

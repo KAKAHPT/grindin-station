@@ -5,7 +5,8 @@ module Feeds
   # players: [...]}]}]}. Like the TopDeck relay: updated, start, end and ended are epoch seconds, clock is the round's
   # length in seconds; start is nil before the clock starts, end nil until the round is closed, clock nil without a
   # limit, ended nil until the table is completed. Published rounds only; byes are not tables. A player's seed is
-  # their current overall rank.
+  # their current overall rank. 1v1 tables also have games: the score ("2-1", the winner's games; a draw's "1-1"),
+  # null before a scored result.
   class Rounds
     def self.call(event, updated: Feeds.last_change(event)) = new(event).to_h(updated)
 
@@ -45,6 +46,16 @@ module Feeds
       { table: pod.number, status: status, winner: winner(results, draw), draw: draw,
         ended: (Feeds.epoch(results.map(&:created_at).max) if status == "Completed"),
         players: pod.seatings.map { |seating| player(@by_id.fetch(seating.event_participant_id)) } }
+        .merge(games(results))
+    end
+
+    # 1v1 only: the winner's score, else a draw's; nil without a scored result.
+    def games(results)
+      return {} unless @event.one_v_one?
+
+      scored = results.find { |result| result.is_a?(Win) || result.is_a?(Advance) } ||
+               results.find { |result| result.is_a?(Draw) }
+      { games: scored&.score }
     end
 
     def status(round, pod, results)

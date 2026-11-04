@@ -2,7 +2,8 @@
 
 module Feeds
   # {tid, name, updated (epoch seconds), standings: [{rank, name, id, commander, wins, losses, draws, points, winRate,
-  # seats}]}. id is the player's UUID: opaque and stable. Not player.key, which is MD5(e-mail + name): fast to
+  # seats}]}; 1v1 rows have omw, gw, ogw (4 decimals) instead of seats.
+  # id is the player's UUID: opaque and stable. Not player.key, which is MD5(e-mail + name): fast to
   # brute-force from a public name, changes on every rename, and survives account removal.
   class Standings
     def self.call(event, updated: Feeds.last_change(event)) = new(event).to_h(updated)
@@ -31,8 +32,14 @@ module Feeds
       { rank: rank, name: participant.name, id: participant.player_id,
         commander: Feeds.commander(@event, participant),
         wins: participant.number_of_wins, losses: participant.number_of_losses, draws: participant.number_of_draws,
-        points: participant.match_points, winRate: participant.win_rate&.round(4),
-        seats: seats(participant.seat_counts) }
+        points: participant.match_points, winRate: participant.win_rate&.round(4) }.merge(tiebreakers(participant))
+    end
+
+    def tiebreakers(participant)
+      return { seats: seats(participant.seat_counts) } unless @event.one_v_one?
+
+      { omw: participant.opponents_match_win_rate.round(4), gw: participant.game_win_rate.round(4),
+        ogw: participant.opponents_game_win_rate.round(4) }
     end
 
     # Seats 1-4 always; seat 5 only for someone who sat there (5-player pods).

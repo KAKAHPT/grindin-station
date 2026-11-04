@@ -118,7 +118,8 @@ module Organizer
       waitlist, ranked = roster_participants(event).partition(&:waitlisted?)
       ranked =
         ranked.sort_by do |p|
-          seats = p.seat_counts
+          # 1v1 seats are random: no seat ordering.
+          seats = event.one_v_one? ? EventParticipant.empty_seat_counts : p.seat_counts
           [p.playing? ? 0 : 1, -p.rank_score, -seats[4], -seats[3], -seats[2], -seats[1], p.name]
         end
       ranked.each.with_index(1) { |p, rank| p.rank = rank }

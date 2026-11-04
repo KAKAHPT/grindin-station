@@ -75,6 +75,8 @@ module Organizer
                       price
                       currency
                       cover
+                      format
+                      match_games
                       points_win
                       points_draw
                       points_loss

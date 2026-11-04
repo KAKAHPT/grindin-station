@@ -80,5 +80,22 @@ module Feeds
       assert_equal 16, Feeds::Standings.call(@t.reload)[:standings].size
       assert_equal [nil] * 4, Feeds::Standings.call(fresh)[:standings].pluck(:winRate)
     end
+
+    test "multiplayer rows keep their keys: seats and no 1v1 rates" do
+      row = Feeds::Standings.call(@t)[:standings].first
+
+      assert_equal %i[rank name id commander wins losses draws points winRate seats], row.keys
+    end
+
+    test "1v1 rows carry OMW, GW and OGW to 4 decimals and no seats" do
+      t = build_1v1_feed_tournament
+      rows = Feeds::Standings.call(t)[:standings]
+      winner = rows.first
+
+      assert_equal %i[rank name id commander wins losses draws points winRate omw gw ogw], winner.keys
+      assert_equal [1, 0, 0, 3], winner.values_at(:wins, :losses, :draws, :points)
+      assert_equal [0.33, 0.6667, 0.3333], winner.values_at(:omw, :gw, :ogw)
+      assert(rows.all? { |row| [row[:omw], row[:gw], row[:ogw]].all?(Float) })
+    end
   end
 end

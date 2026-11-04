@@ -6,6 +6,9 @@
 <section class="space-y-3">
   <div class="flex flex-wrap items-center gap-2">
     <span data-event-state><%= event_state_chip(event, @round_number) %></span>
+    <% if event.one_v_one? %>
+      <span data-event-format><%= desk_chip(:info) { t("play.events.format_badge", games: event.match_games) } %></span>
+    <% end %>
   </div>
   <h2 class="font-display text-2xl font-semibold leading-tight"><%= event.name %></h2>
 

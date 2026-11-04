@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module TournamentsHelper
+module TournamentsHelper # rubocop:disable Metrics/ModuleLength
   CURRENCY_SYMBOLS = {
     euro: "€",
     dollar: "$"
@@ -61,12 +61,8 @@ module TournamentsHelper
 
   def draw_score_options(event) = DRAW_SCORE_OPTIONS.fetch(event.match_games)
 
-  # "2-1" from a 1v1 result's games (won-lost, then drawn games when there are any: "1-1-1"); nil when
-  # unscored (an Advance by time called).
-  def result_score(result)
-    won, lost, drawn = result.games
-    [won, lost, (drawn if drawn.positive?)].compact.join("-") unless (won + lost + drawn).zero?
-  end
+  # "2-1" from a 1v1 result's games (see Result#score); nil when unscored (an Advance by time called).
+  def result_score(result) = result.score
 
   def currency_options
     EventOrganizer::CURRENCIES.keys.map { |c| [CURRENCY_SYMBOLS[c], c] }
@@ -74,6 +70,20 @@ module TournamentsHelper
 
   def top_cut_options(format = "multiplayer")
     [[t("organizer.no_cut"), 0]] + Tournaments::TopCut.sizes_for(format).map { |size| [t("organizer.top_cut_option", size: size), size] }
+  end
+
+  def format_options
+    Event::FORMATS.map { |format| [t("organizer.format_options.#{format}"), format] }
+  end
+
+  def match_games_options
+    Event::MATCH_GAMES.sort.reverse.map { |games| [t("organizer.match_games_options.bo#{games}"), games] }
+  end
+
+  # Default points per format, for the form to switch untouched points with the format.
+  def format_points_defaults
+    { "multiplayer" => Event.column_defaults.slice(*Event::POINT_ATTRIBUTES.map(&:to_s)),
+      "one_v_one" => Event::ONE_V_ONE_POINTS.stringify_keys }
   end
 
   def result_confirmation_options
@@ -126,6 +136,11 @@ module TournamentsHelper
   # True when anyone in the list sat in seat 5 of a swiss pod.
   def seat_five?(participants)
     participants.any? { |participant| participant.seat_counts[5].positive? }
+  end
+
+  # A 1v1 rate (OMW, GW, OGW) as "66.7%".
+  def rate_label(rate)
+    number_to_percentage(rate * 100, precision: 1)
   end
 
   def number_to_currency_options(currency)

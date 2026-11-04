@@ -127,7 +127,10 @@ class EventParticipant < ApplicationRecord
   end
 
   # { participant id => { position => times } } for the whole event (or the given participants) in one query.
+  # Empty for 1v1 events: their seats are random and never shown.
   def self.seat_counts_for(event, participant_ids: nil)
+    return {} if event.one_v_one?
+
     scope = Seating.joins(pod: :round).where(rounds: { event_id: event.id, type: "SwissRound" })
       .where("rounds.finished_at IS NOT NULL OR rounds.published = TRUE")
     scope = scope.where(event_participant_id: participant_ids) if participant_ids
