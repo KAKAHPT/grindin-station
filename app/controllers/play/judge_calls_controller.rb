@@ -3,6 +3,9 @@
 module Play
   # A player calls a judge, for their current pod when they have one. A standing call is not repeated.
   class JudgeCallsController < BaseController
+    rate_limit to: 5, within: 1.minute, only: :create, by: -> { current_user&.id || request.remote_ip },
+               with: -> { redirect_to my_table_path, alert: t("flash.alert.try_again_later") }
+
     def create
       unless judge_called?
         reason = params[:reason].presence || t("play.judge_requested")

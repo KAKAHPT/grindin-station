@@ -46,6 +46,24 @@ class JudgeCallTest < ActiveSupport::TestCase
     assert_equal @judge, call.reload.acknowledged_by
   end
 
+  test "the reason is 500 characters at most" do
+    assert_not JudgeCall.new(event: @tournament, reason: "x" * 501).valid?
+    assert JudgeCall.new(event: @tournament, reason: "x" * 500).valid?
+  end
+
+  test "a pod has one open call at most; opening another returns it without telling the staff again" do
+    pod = @tournament.rounds.create!(type: SwissRound, number: 1).pods.first
+    first = JudgeCalls::Open.call(event: @tournament, pod: pod, reason: "First")
+
+    assert_no_difference -> { Notification.count } do
+      assert_equal first, JudgeCalls::Open.call(event: @tournament, pod: pod, reason: "x" * 600)
+    end
+    assert_raises(ActiveRecord::RecordNotUnique) { JudgeCall.create!(event: @tournament, pod: pod, reason: "Race") }
+
+    first.acknowledge!(by: @judge)
+    assert_not_equal first, JudgeCalls::Open.call(event: @tournament, pod: pod, reason: "Again")
+  end
+
   test "needs a reason and a known status" do
     assert_not JudgeCall.new(event: @tournament, reason: "").valid?
     assert_not JudgeCall.new(event: @tournament, reason: "x", status: "lost").valid?

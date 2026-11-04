@@ -4,6 +4,8 @@ require "test_helper"
 
 module Play
   class JudgeCallsTest < ActionDispatch::IntegrationTest
+    include RateLimitStore
+
     setup do
       @tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
       @round = @tournament.rounds.create!(type: SwissRound, number: 1)
@@ -51,6 +53,26 @@ module Play
       assert_includes response.body, "Waiting for pairings"
       assert_includes response.body, "Judge called"
       assert_select "button", text: "Call a judge", count: 0
+    end
+
+    test "a player can call a judge five times a minute" do
+      sign_in(@seats[2])
+
+      with_memory_rate_limit_store do
+        5.times { post play_judge_calls_path(@tournament.slug) }
+        assert_equal I18n.t("play.notices.judge_called"), flash[:notice]
+
+        post play_judge_calls_path(@tournament.slug)
+        assert_equal I18n.t("flash.alert.try_again_later"), flash[:alert]
+      end
+    end
+
+    test "a long reason is cut to 500 characters" do
+      sign_in(@seats[2])
+
+      post play_judge_calls_path(@tournament.slug), params: { reason: "x" * 900 }
+
+      assert_equal 500, JudgeCall.order(:created_at).last.reason.length
     end
 
     private
