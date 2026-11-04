@@ -27,6 +27,26 @@ module Feeds
       assert_equal [seated(@round2, 1)[0].name, "", "", ""], two.pluck(:winner)
     end
 
+    test "matches the relay's clock keys: updated, start, clock and end in epoch seconds, ended per table" do
+      @round1.update_columns(finished_at: ROUND_TWO_STARTED_AT - 10.minutes) # rubocop:disable Rails/SkipsModelValidations
+      feed = Feeds::Rounds.call(@t)
+      one, two = feed[:rounds]
+
+      assert_equal Feeds.last_change(@t).to_i, feed[:updated]
+      assert_equal [(ROUND_TWO_STARTED_AT - 2.hours).to_i, 80 * 60, (ROUND_TWO_STARTED_AT - 10.minutes).to_i],
+                   one.values_at(:start, :clock, :end)
+      assert_equal [ROUND_TWO_STARTED_AT.to_i, 80 * 60, nil], two.values_at(:start, :clock, :end)
+
+      reported = Result.where(round: @round2, event_participant: seated(@round2, 1)).maximum(:created_at)
+      assert_equal [reported.to_i, nil, nil, nil], two[:tables].pluck(:ended)
+      assert(one[:tables].all? { |table| table[:ended].is_a?(Integer) })
+    end
+
+    test "a round that has not started has no start and no end" do
+      @round2.update_columns(started_at: nil) # rubocop:disable Rails/SkipsModelValidations
+      assert_equal [nil, 80 * 60, nil], Feeds::Rounds.call(@t)[:rounds].last.values_at(:start, :clock, :end)
+    end
+
     test "players sit in seat order with their current rank as seed, each once per round" do
       feed = Feeds::Rounds.call(@t)
       ranks = Feeds::Standings.call(@t)[:standings].to_h { |row| [row[:name], row[:rank]] }
@@ -68,6 +88,7 @@ module Feeds
       assert_equal ["1", "2", "Top 4"], feed[:rounds].pluck(:round)
       assert_equal "Top 4", feed[:latest]
       assert_nil feed[:roundTime]
+      assert_nil feed[:rounds].last[:clock]
       assert_equal 4, feed[:rounds].last[:tables].sole[:players].size
       assert_nil Feeds::Info.call(@t)[:timerEnd]
     end

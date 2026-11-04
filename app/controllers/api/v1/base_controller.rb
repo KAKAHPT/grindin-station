@@ -3,10 +3,13 @@
 module Api
   module V1
     # Public, unauthenticated JSON for the stream kit: cached 30 s by anyone, validated by the event's
-    # latest change. Draft and canceled events are not found, whoever asks.
+    # latest change, 120 requests a minute per address (no CDN in front). Draft and canceled events are not
+    # found, whoever asks.
     class BaseController < ApplicationController
       skip_before_action :require_authentication
       skip_forgery_protection
+      rate_limit to: 120, within: 1.minute, by: -> { request.remote_ip },
+                 with: -> { render json: { error: "rate_limited" }, status: :too_many_requests }
       before_action :set_cache
 
       rescue_from ActiveRecord::RecordNotFound do

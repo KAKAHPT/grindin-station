@@ -11,6 +11,15 @@ module Api
 
       FEEDS = %i[standings rounds info].freeze
 
+      def with_memory_rate_limit_store
+        store = BaseController.cache_store
+        memory = ActiveSupport::Cache::MemoryStore.new
+        store.define_singleton_method(:increment) { |*args, **options| memory.increment(*args, **options) }
+        yield
+      ensure
+        store.singleton_class.remove_method(:increment)
+      end
+
       test "the three feeds answer JSON with public 30 s caching and open CORS, without a session cookie" do
         FEEDS.each do |feed|
           get "/api/v1/events/#{@t.slug}/#{feed}", headers: { "Origin" => "https://obs.example" }
@@ -126,6 +135,37 @@ module Api
           get "/api/v1/events/#{@t.slug}/rounds", headers: { "If-None-Match" => etag }
           assert_response :success
           assert_not_equal etag, response.headers["ETag"]
+        end
+      end
+
+      test "renaming a player changes the ETag" do
+        get "/api/v1/events/#{@t.slug}/standings"
+        etag = response.headers["ETag"]
+
+        travel 1.minute do
+          seated(@round1, 1).first.player.user.update!(name: "Novo Nome")
+          get "/api/v1/events/#{@t.slug}/standings", headers: { "If-None-Match" => etag }
+          assert_response :success
+          assert_includes response.parsed_body["standings"].pluck("name"), "Novo Nome"
+        end
+      end
+
+      # The test environment caches nothing (null store); the limiter's store is swapped for a memory
+      # store just for this test.
+      test "the 121st request from one address within a minute is a JSON 429" do
+        with_memory_rate_limit_store do
+          120.times do
+            get "/api/v1/events/#{@t.slug}/info"
+            assert_response :success
+          end
+          get "/api/v1/events/#{@t.slug}/standings"
+          assert_response :too_many_requests
+          assert_equal({ "error" => "rate_limited" }, response.parsed_body)
+
+          travel 61.seconds do
+            get "/api/v1/events/#{@t.slug}/info"
+            assert_response :success
+          end
         end
       end
 

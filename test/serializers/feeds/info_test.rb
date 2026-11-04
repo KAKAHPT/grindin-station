@@ -19,6 +19,7 @@ module Feeds
       assert_equal 16, feed[:players]
       assert_equal "2", feed[:round]
       assert_equal "2026-11-04T16:20:00Z", feed[:timerEnd]
+      assert_equal Feeds.last_change(@t).to_i, feed[:updated]
     end
 
     test "no round and no timer before the first round is published" do

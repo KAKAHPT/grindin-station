@@ -87,10 +87,16 @@ Teste manual em telemóvel real (iOS e Android), por fazer:
   Let's Encrypt, Postgres/PostGIS como accessory preso a `127.0.0.1` (volume de dados e `config/postgres/init.sql`
   que cria as 4 bases), Active Storage no volume `/rails/storage` e Solid Queue dentro do Puma. Saúde em `/up`.
 - **Feeds para o OBS.** `https://<domínio>/api/v1/events/<slug>/standings`, `.../rounds` e `.../info`: JSON público,
-  cache de 30 s, CORS aberto, sem decklists, rondas do corte como "Top N", `seats` como objecto e `timerEnd` no `info`.
-  O kit tem de mudar três coisas: `const API` passa a `https://<domínio>/api/v1/events/<slug>/` com o nome do feed
-  como caminho (em vez de `?feed=`); o relógio lê `roundTime`/`timerEnd` em vez de `start/clock` por ronda; `seats`
-  é um objecto, por isso usar `Object.values(pl.seats)`.
+  cache de 30 s, CORS aberto, 120 pedidos por minuto por IP (depois 429), sem decklists, rondas do corte como "Top N".
+  As chaves seguem o relay do TopDeck: `updated` em segundos epoch, `start`/`clock`/`end` por ronda, `ended` por mesa,
+  `id` = UUID do jogador. O que o kit (`src/kit.js`) ainda tem de mudar:
+  1. `const API` e o `fetch`: `https://<domínio>/api/v1/events/` + `<slug>/<feed>` em vez de `?feed=X&tid=Y`;
+  2. `standingsTid`: o regex tem de aceitar o slug sozinho ou um link `/t/<slug>`;
+  3. o feed `commanders` (`crew.php`) não tem equivalente: usar o `commander` do feed (com `show_commanders_in_standings`
+     ligado no evento) ou desligar o autoCmd;
+  4. o texto "Live from TopDeck".
+  O resto (`json.standings`, `r.round`, `r.tables`, `t.*`, `p.seed`, `r.start/clock/end`, `t.ended`, `updated`) já
+  coincide.
 - **Segredos (GitHub, environment `production`).** Obrigatórios: `GS_VPS_HOST`, `GS_DOMAIN`, `RAILS_MASTER_KEY`,
   `POSTGRES_PASSWORD` (só hex: `openssl rand -hex 32`) e `SSH_PRIVATE_KEY`. Opcionais: `SSH_KNOWN_HOSTS`, OAuth
   (`GOOGLE_*`, `DISCORD_*`) e SMTP (`SMTP_ADDRESS`, `SMTP_PORT`, `SMTP_DOMAIN`, `SMTP_USER_NAME`, `SMTP_PASSWORD`;

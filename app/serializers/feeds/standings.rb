@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module Feeds
-  # {tid, name, updated, standings: [{rank, name, id, commander, wins, losses, draws, points, winRate, seats}]}
+  # {tid, name, updated (epoch seconds), standings: [{rank, name, id, commander, wins, losses, draws, points, winRate,
+  # seats}]}. id is the player's UUID: opaque and stable. Not player.key, which is MD5(e-mail + name): fast to
+  # brute-force from a public name, changes on every rename, and survives account removal.
   class Standings
     def self.call(event, updated: Feeds.last_change(event)) = new(event).to_h(updated)
 
@@ -19,14 +21,14 @@ module Feeds
     end
 
     def to_h(updated)
-      { tid: @event.slug, name: @event.name, updated: Feeds.iso(updated),
+      { tid: @event.slug, name: @event.name, updated: Feeds.epoch(updated),
         standings: self.class.ranked(@event).each.with_index(1).map { |participant, rank| row(participant, rank) } }
     end
 
     private
 
     def row(participant, rank)
-      { rank: rank, name: participant.name, id: participant.player.key,
+      { rank: rank, name: participant.name, id: participant.player_id,
         commander: Feeds.commander(@event, participant),
         wins: participant.number_of_wins, losses: participant.number_of_losses, draws: participant.number_of_draws,
         points: participant.match_points, winRate: participant.win_rate&.round(4),

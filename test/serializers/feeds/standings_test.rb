@@ -37,18 +37,28 @@ module Feeds
         expected = { "1" => 0, "2" => 0, "3" => 0, "4" => 0 }
         expected[seat_of.call(@round1, participant).to_s] += 1
         expected[seat_of.call(@round2, participant).to_s] += 1
-        assert_equal expected, rows.fetch(participant.player.key)[:seats], participant.name
+        assert_equal expected, rows.fetch(participant.player_id)[:seats], participant.name
       end
     end
 
-    test "uses the player key as id and keeps commanders out unless the event shows them" do
+    test "the id is the opaque player id and updated is epoch seconds" do
+      feed = Feeds::Standings.call(@t)
+      ids = @t.event_participants.pluck(:player_id)
+
+      assert_equal ids.sort, feed[:standings].pluck(:id).sort
+      assert(feed[:standings].none? { |row| row[:id].in?(Player.where(id: ids).pluck(:key)) })
+      assert_kind_of Integer, feed[:updated]
+      assert_equal Feeds.last_change(@t).to_i, feed[:updated]
+    end
+
+    test "uses the player id as id and keeps commanders out unless the event shows them" do
       participant = seated(@round1, 1).first
       participant.update_columns(decklist: "Tymna / Thrasios") # rubocop:disable Rails/SkipsModelValidations
-      row = Feeds::Standings.call(@t)[:standings].find { |r| r[:id] == participant.player.key }
+      row = Feeds::Standings.call(@t)[:standings].find { |r| r[:id] == participant.player_id }
       assert_equal "", row[:commander]
 
       @t.update_columns(show_commanders_in_standings: true) # rubocop:disable Rails/SkipsModelValidations
-      row = Feeds::Standings.call(@t.reload)[:standings].find { |r| r[:id] == participant.player.key }
+      row = Feeds::Standings.call(@t.reload)[:standings].find { |r| r[:id] == participant.player_id }
       assert_equal "Tymna / Thrasios", row[:commander]
     end
 
@@ -56,7 +66,7 @@ module Feeds
       @t.update_columns(show_commanders_in_standings: true) # rubocop:disable Rails/SkipsModelValidations
       participant = seated(@round1, 1).first
       participant.update_columns(decklist: "https://moxfield.com/decks/abc") # rubocop:disable Rails/SkipsModelValidations
-      row = Feeds::Standings.call(@t.reload)[:standings].find { |r| r[:id] == participant.player.key }
+      row = Feeds::Standings.call(@t.reload)[:standings].find { |r| r[:id] == participant.player_id }
       assert_equal "", row[:commander]
     end
 

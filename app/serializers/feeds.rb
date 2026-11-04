@@ -14,12 +14,14 @@ module Feeds
       (SELECT MAX(seatings.updated_at) FROM seatings JOIN pods ON pods.id = seatings.pod_id
          JOIN rounds ON rounds.id = pods.round_id WHERE rounds.event_id = :id),
       (SELECT MAX(results.updated_at) FROM results JOIN rounds ON rounds.id = results.round_id
-         WHERE rounds.event_id = :id)
+         WHERE rounds.event_id = :id),
+      (SELECT MAX(users.updated_at) FROM users JOIN players ON players.user_id = users.id
+         JOIN event_participants ON event_participants.player_id = players.id WHERE event_participants.event_id = :id)
     )
   SQL
 
-  # Latest change to anything a feed shows (the event, its participants, rounds, pods, seatings and
-  # results), in one query: the feeds' "updated" and the HTTP cache validator.
+  # Latest change to anything a feed shows (the event, its participants and their users' names, rounds,
+  # pods, seatings and results), in one query: the feeds' "updated" and the HTTP cache validator.
   def last_change(event)
     Event.connection.select_all(Event.sanitize_sql([LAST_CHANGE_SQL, { id: event.id }])).cast_values.first.utc
   end
@@ -52,4 +54,7 @@ module Feeds
   end
 
   def iso(time) = time&.utc&.iso8601
+
+  # The relay's timestamps: whole epoch seconds, nil stays nil.
+  def epoch(time) = time&.to_i
 end

@@ -132,8 +132,9 @@ Infractions have a hierarchical enum structure:
 
 ### Public API (stream kit feeds)
 
-- **Namespace** `Api::V1` (`app/controllers/api/v1/`): `BaseController` has no auth/CSRF, `expires_in 30.seconds, public: true`, ETag/Last-Modified from `Feeds.last_change`; draft/canceled events and unknown slugs return 404 `{"error":"not_found"}`
-- **Serializers** `Feeds::Standings`, `Feeds::Rounds`, `Feeds::Info` (`app/serializers/feeds/`, POROs with `call(event, updated:)`) plus `Feeds` helpers; keys mirror the TopDeck relay the OBS kit reads; no decklists, cut rounds named "Top N", `seats` is an object, `roundTime`/`timerEnd` are top-level
+- **Namespace** `Api::V1` (`app/controllers/api/v1/`): `BaseController` has no auth/CSRF, `expires_in 30.seconds, public: true`, ETag/Last-Modified from `Feeds.last_change` (includes participants' users, so renames invalidate), `rate_limit` 120/min per IP → 429 `{"error":"rate_limited"}`; draft/canceled events and unknown slugs return 404 `{"error":"not_found"}`
+- **Serializers** `Feeds::Standings`, `Feeds::Rounds`, `Feeds::Info` (`app/serializers/feeds/`, POROs with `call(event, updated:)`) plus `Feeds` helpers; keys mirror the TopDeck relay the OBS kit reads: `updated` epoch seconds (all three), per round `start`/`end` epoch seconds (nil until started/closed) and `clock` seconds, per table `ended` epoch seconds (completed only); standings `id` = `player_id` (UUID, never `player.key`); no decklists, cut rounds named "Top N", `seats` is an object (the kit ignores it), `latest`/`roundTime`/`timerEnd` kept
+- **Kit adaptations still needed** (P9Q SetUp `src/kit.js`): `const API` + fetch path (`<base>/<slug>/<feed>` instead of `?feed=X&tid=Y`); `standingsTid` regex must accept a bare slug or `/t/<slug>`; the `commanders` feed (`crew.php`) has no equivalent (use the feed's `commander` or set autoCmd off); the "Live from TopDeck" label. Everything else matches
 - CORS `*` for `/api/v1/*` only (`config/initializers/cors.rb`, rack-cors)
 
 ### Background Jobs
