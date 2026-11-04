@@ -61,7 +61,7 @@
   `/t/:slug/pairings` (`?round=N`), `/t/:slug/standings` (com Win %) e `/t/:slug/timer`. Eventos em rascunho ou
   cancelados dão 404 a quem não é equipa; os antigos `/tournaments/:id` redirecionam.
 - **Ao vivo.** Turbo Streams: a mesa de cada jogador e a página da ronda do organizador atualizam sozinhas
-  (`Live::*Job`). Os emparelhamentos públicos ainda não são ao vivo.
+  (`Live::*Job`). Os emparelhamentos públicos também atualizam sozinhos.
 - **Notificações.** `/notifications` e o sino no cabeçalho.
 - **Feeds para o stream (OBS).** `/api/v1/events/:slug/standings`, `/rounds` e `/info`: JSON público, sem sessão,
   `Cache-Control: public, max-age=30`, ETag pela última alteração do evento e CORS `*` só em `/api/v1/*`. As chaves

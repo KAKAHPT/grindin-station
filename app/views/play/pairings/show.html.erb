@@ -1,4 +1,7 @@
 <% content_for :wide_main, "1" %>
+<%# Live: any change to the event's pods morph-refreshes this page, on whichever round it shows. %>
+<% turbo_refreshes_with method: :morph, scroll: :preserve %>
+<%= turbo_stream_from LiveBroadcasts.pairings_stream(current_event.id) %>
 <% url_locale = params[:locale] %>
 <h2 class="mb-3 font-display text-xl font-semibold"><%= t("play.nav.pairings") %></h2>
 

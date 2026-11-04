@@ -16,6 +16,11 @@ module LiveBroadcasts
     "round:#{round_id}:#{locale}"
   end
 
+  # Public pairings page (/t/:slug/pairings), whatever round it shows.
+  def pairings_stream(event_id, locale = I18n.locale)
+    "pairings:#{event_id}:#{locale}"
+  end
+
   def each_locale
     I18n.available_locales.each { |locale| I18n.with_locale(locale) { yield locale } }
   end
@@ -24,6 +29,13 @@ module LiveBroadcasts
   def refresh_round(round_id, request_id: nil)
     each_locale do |locale|
       Turbo::StreamsChannel.broadcast_refresh_to(round_stream(round_id, locale), request_id: request_id)
+    end
+  end
+
+  # Morph-refreshes every open public pairings page of the event.
+  def refresh_pairings(event_id, request_id: nil)
+    each_locale do |locale|
+      Turbo::StreamsChannel.broadcast_refresh_to(pairings_stream(event_id, locale), request_id: request_id)
     end
   end
 

@@ -144,6 +144,19 @@ module Play
       assert_each_once(cut.seatings.pluck(:event_participant_id) + [bye.id])
     end
 
+    test "the page follows the event's pairings stream and morph-refreshes, on any round" do
+      TournamentBuilder.play_round!(@tournament, winners: { 1 => 0, 2 => 0 })
+      @tournament.rounds.create!(type: SwissRound, number: 2).update!(published: true)
+      signed = Turbo::StreamsChannel.signed_stream_name(LiveBroadcasts.pairings_stream(@tournament.id, :en))
+
+      [play_pairings_path(@tournament.slug), play_pairings_path(@tournament.slug, round: 1)].each do |path|
+        get path
+
+        assert_select "turbo-cable-stream-source[signed-stream-name=?]", signed
+        assert_select "meta[name='turbo-refresh-method'][content='morph']"
+      end
+    end
+
     test "renders in portuguese" do
       get play_pairings_path(@tournament.slug, locale: "pt")
 

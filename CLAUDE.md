@@ -145,7 +145,7 @@ Uses Solid Queue for job processing:
 - **Events**: `GeocodeJob`, `SubmitResultJob`
 - **Results**: `Results::ExpirePendingJob` (recurring, every minute): pending results unconfirmed after `confirmation_timeout_minutes` go to staff review, never auto-accepted
 - **Circuits**: `UpdateStandingsJob`
-- **Live** (Turbo Streams): `Live::BroadcastTableJob` (a participant's table), `Live::BroadcastPodJob`, `Live::BroadcastRoundJob` (organizer round page via state partial + morph refresh). Public pairings are not live yet
+- **Live** (Turbo Streams): `Live::BroadcastTableJob` (a participant's table), `Live::BroadcastPodJob`, `Live::BroadcastRoundJob` (organizer round page via state partial + morph refresh). `refresh_pairings` morph-refreshes the public pairings page (all rounds, any pod change)
 - Tournaments record `final_position` at finish (used by circuit points)
 
 ### Deployment

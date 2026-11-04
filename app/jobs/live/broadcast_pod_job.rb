@@ -15,6 +15,7 @@ module Live
       return unless pod&.round&.published?
 
       broadcast_state(pod)
+      LiveBroadcasts.refresh_pairings(pod.round.event_id, request_id: request_id)
       LiveBroadcasts.refresh_round(pod.round_id, request_id: request_id) if refresh
       broadcast_tables(pod) if current_round?(pod.round)
     end

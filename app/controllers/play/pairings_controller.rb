@@ -2,7 +2,7 @@
 
 module Play
   # Public pairings of one event (/t/:slug/pairings): the tables of the latest published round, or of any
-  # published round with ?round=N. Read-only; it follows no live stream (the page is correct on reload).
+  # published round with ?round=N. Read-only; it follows the event's pairings stream (morph refresh).
   class PairingsController < BaseController
     public_actions :show
 

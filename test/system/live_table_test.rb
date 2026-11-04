@@ -46,6 +46,33 @@ class LiveTableTest < ApplicationSystemTestCase
     end
   end
 
+  test "a visitor's public pairings update by themselves and stay on the round they show" do
+    @tournament.rounds.create!(type: SwissRound, number: 2).update!(published: true, started_at: Time.current)
+    clear_enqueued_jobs
+
+    Capybara.using_session(:visitor) do
+      visit play_pairings_path(@tournament.slug, round: 1)
+      assert_selector "[data-round-number='1']"
+      assert_no_selector "[data-pod-number='#{@pod.number}'] li[data-winner]"
+      mark_page
+    end
+
+    in_organizer_session do
+      visit organizer_tournament_round_path(@tournament, @round)
+      mark_winner(@pod, @player.name)
+    end
+    perform_enqueued_jobs
+
+    Capybara.using_session(:visitor) do
+      within("[data-pairings] [data-pod-number='#{@pod.number}']") do
+        assert_selector "[data-pod-status]", text: /completed/i
+        assert_selector "li[data-winner][data-participant-id='#{@player.id}']"
+      end
+      assert_selector "[data-round-number='1']"
+      assert_page_kept
+    end
+  end
+
   private
 
   def in_player_session
