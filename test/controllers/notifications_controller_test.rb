@@ -5,7 +5,7 @@ require "test_helper"
 class NotificationsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
-    @round = @tournament.rounds.create!(type: SwissRound, number: 1)
+    @round = @tournament.rounds.create!(type: SwissRound, number: 1, started_at: 1.hour.ago)
     @round.update!(published: true)
     @pod = @round.pods.order(:number).first
     @seats = @pod.event_participants.to_a

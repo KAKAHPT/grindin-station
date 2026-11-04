@@ -266,6 +266,7 @@ en:
     confirm_correction: "I understand, apply the correction"
     not_allowed:
       self_report_disabled: "Players cannot report results at this event."
+      round_not_started: "The round has not started yet: report once it is under way."
       not_seated: "You are not seated at this table."
       already_finished: "This table already has a result."
       disputed: "This table's result is disputed; a judge will sort it out."

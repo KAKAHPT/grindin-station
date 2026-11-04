@@ -266,6 +266,7 @@ pt:
     confirm_correction: "Compreendo, aplicar a correção"
     not_allowed:
       self_report_disabled: "Neste evento os jogadores não podem reportar resultados."
+      round_not_started: "A ronda ainda não começou: reporta quando estiver a decorrer."
       not_seated: "Não estás sentado nesta mesa."
       already_finished: "Esta mesa já tem resultado."
       disputed: "O resultado desta mesa está em disputa; um juiz vai resolver."

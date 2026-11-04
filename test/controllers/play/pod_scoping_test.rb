@@ -7,7 +7,7 @@ module Play
   class PodScopingTest < ActionDispatch::IntegrationTest
     setup do
       @tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
-      @round = @tournament.rounds.create!(type: SwissRound, number: 1)
+      @round = @tournament.rounds.create!(type: SwissRound, number: 1, started_at: 1.hour.ago)
       @round.update!(published: true)
       @pod = @round.pods.order(:number).first
       @seats = @pod.event_participants.to_a
@@ -51,7 +51,7 @@ module Play
 
     test "a player cannot act on a table of another event" do
       other = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
-      other_round = other.rounds.create!(type: SwissRound, number: 1)
+      other_round = other.rounds.create!(type: SwissRound, number: 1, started_at: 1.hour.ago)
       other_round.update!(published: true)
       other_pod = other_round.pods.first
       sign_in(@seats[0])

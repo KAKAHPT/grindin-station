@@ -159,6 +159,8 @@ Garantias e medição (medidas a 27-10-2026 em 2000 torneios simulados, 16–140
   - `one`: basta mais um jogador da mesa confirmar para fechar.
   - `all`: os outros três têm de confirmar (para eventos onde se queira esse rigor).
   - Em `one` e `all`, passado o timeout (predefinição 5 min) o pod passa a "a rever" e o staff fecha-o.
+  - O auto-reporte só é aceite depois de a ronda começar (`round.started_at`); antes disso é recusado (`round_not_started`).
+  - No corte (`SingleEliminationRound`) o auto-reporte precisa sempre da confirmação do adversário: `none` funciona como `one`. O staff reporta como antes.
 - Staff pode sempre reportar, corrigir ou sobrepor-se, independentemente do modo. Toda a disputa é resolvida pelo staff; o sistema só a regista.
 - Ronda termina quando todos os pods têm resultado; o organizador clica "fechar ronda" (não é automático), o que publica standings e permite "nova ronda" / "fazer corte".
 - Correção depois de fechado: só staff; cria resultado novo, mantém o antigo como `superseded`, recalcula standings; se já há ronda seguinte publicada, avisa que os pods seguintes podem ficar errados e exige confirmação.

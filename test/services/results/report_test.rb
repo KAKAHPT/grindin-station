@@ -6,7 +6,7 @@ module Results
   class ReportTest < ActiveSupport::TestCase
     setup do
       @t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
-      @pod = @t.rounds.create!(type: SwissRound, number: 1).pods.first
+      @pod = @t.rounds.create!(type: SwissRound, number: 1, started_at: 1.hour.ago).pods.first
       @seats = @pod.event_participants.to_a
     end
 
@@ -74,6 +74,16 @@ module Results
       assert_equal "Conflicting result reports: seat #{seat.call(@seats[0])} says Win by #{@seats[2].name}; " \
                    "seat #{seat.call(@seats[3])} says Draw", call.reason
       assert_equal @seats[3], call.participant
+    end
+
+    test "a report before the round has started is refused" do
+      @t.update!(result_confirmation: "none")
+      @pod.round.update!(started_at: nil)
+
+      error = assert_raises(NotAllowed) { Report.call(pod: @pod, participant: @seats[0], type: "Draw") }
+      assert_equal "round_not_started", error.message
+      assert_empty @pod.reload.results
+      assert_nil @pod.pending_result
     end
 
     test "self-reporting disabled is refused" do

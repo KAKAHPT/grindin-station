@@ -56,6 +56,13 @@ class Pod < ApplicationRecord
     current_results.size == seatings.size
   end
 
+  # The event's result_confirmation, except that a cut table never closes on one player's word:
+  # "none" needs the opponent's confirmation there, like "one".
+  def result_confirmation
+    mode = round.event.result_confirmation
+    mode == "none" && round.is_a?(SingleEliminationRound) ? "one" : mode
+  end
+
   def seated?(participant)
     participant.present? && seatings.exists?(event_participant_id: participant.id)
   end

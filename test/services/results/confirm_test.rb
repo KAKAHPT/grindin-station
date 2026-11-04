@@ -7,7 +7,7 @@ module Results
     def pod_of(players, confirmation)
       t = TournamentBuilder.build(players: players, organizer: event_organizers(:standard_organizer))
       t.update!(result_confirmation: confirmation)
-      pod = t.rounds.create!(type: SwissRound, number: 1).pods.first
+      pod = t.rounds.create!(type: SwissRound, number: 1, started_at: 1.hour.ago).pods.first
       [pod, pod.event_participants.to_a]
     end
 
