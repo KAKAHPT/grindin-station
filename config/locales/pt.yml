@@ -395,6 +395,7 @@ pt:
       signed_in: "Iniciaste sessão."
       signed_out: "Terminaste a sessão."
     alert:
+      decklist_locked: "As decklists ficam fechadas depois de publicada a ronda 1: pede ao staff para a mudar."
       registration_closed: "Inscrições fechadas: o torneio já começou."
       registration_full: "Inscrições esgotadas."
       staff_user_not_found: "Não há nenhum utilizador com esse e-mail. Tem de se registar primeiro."
