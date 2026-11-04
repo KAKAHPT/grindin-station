@@ -20,11 +20,13 @@
       </p>
     <% end %>
 
-    <main class="max-w-md mx-auto px-4 pt-4 pb-12">
+    <%# A full-width page (the landing) sets content_for(:full_main) and lays out its own columns. %>
+    <main class="<%= content_for?(:full_main) ? "pb-12" : "max-w-md mx-auto px-4 pt-4 pb-12" %>">
       <%= yield %>
     </main>
 
-    <footer class="max-w-md mx-auto px-4 py-6 border-t border-line text-sm text-muted">
+    <footer class="<%= content_for?(:full_main) ? "max-w-5xl" : "max-w-md" %> mx-auto px-4 py-6 border-t border-line text-sm text-muted">
+      <%= yield :footer_note %>
       <% if authenticated? %>
         <%= link_to t("accounts.nav"), account_path(locale: params[:locale]), class: "hover:text-ink" %>
       <% else %>

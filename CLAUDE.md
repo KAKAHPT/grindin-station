@@ -207,7 +207,8 @@ Uses Solid Queue for job processing:
 ## Routes Structure
 
 ```
-GET  /                           → events#index
+GET  /                           → pages#home (landing: fair seats, waiting list, upcoming tournaments)
+POST /waitlist                   → waitlist_signups#create (organiser waiting list, 5 per 10 min per IP)
 POST /registrations              → registrations#create
 GET/POST /session                → sessions (create/destroy)
 POST /passwords/:token           → passwords (reset)

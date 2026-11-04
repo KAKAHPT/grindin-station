@@ -119,17 +119,17 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
     assert_no_text "Logout"
   end
 
-  test "logged out user sees tournaments on root path" do
-    visit root_path
+  test "logged out user sees tournaments on the events page" do
+    visit events_path
 
-    assert_current_path root_path
+    assert_current_path events_path
     assert_text "Upcoming events"
     assert_text "Medium Tournament"
     assert_text "Free entry"
     assert_text "View details"
   end
 
-  test "logged out user sees cover images on root path" do
+  test "logged out user sees cover images on the events page" do
     events(:medium_tournament).cover.attach(
       io: File.open(Rails.root.join("test/fixtures/files/cover1.jpg")),
       filename: "cover1.jpg",
@@ -142,7 +142,7 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
       content_type: "image/jpeg"
     )
 
-    visit root_path
+    visit events_path
 
     assert_selector "img[alt='Cover image for Medium Tournament']"
     assert_selector "img[alt='Cover image for Standard League']"

@@ -126,5 +126,7 @@ Rails.application.routes.draw do
     end
   end
 
-  root "events#index"
+  post "waitlist", to: "waitlist_signups#create", as: :waitlist_signups
+
+  root "pages#home"
 end

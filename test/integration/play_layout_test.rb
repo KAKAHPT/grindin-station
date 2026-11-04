@@ -24,7 +24,7 @@ class PlayLayoutTest < ActionDispatch::IntegrationTest
   end
 
   test "the organizer layout keeps Flowbite through the organizer entry point" do
-    get root_path
+    get events_path
 
     assert_includes response.body, %(import "organizer")
     assert_not_includes response.body, "@phosphor-icons/web"
