@@ -412,6 +412,7 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
   test "1v1 cut must fit the field and bracket rounds are named by rounds remaining" do
     t = TournamentBuilder.build(players: 6, organizer: event_organizers(:standard_organizer),
                                 format: "one_v_one", state: :registration_closed)
+    t.swiss_rounds_count = 3
     t.top_cut_size = 8
     assert_not t.valid?
     t.top_cut_size = 4
@@ -419,9 +420,52 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     t.update!(swiss_rounds_count: 0)
     assert_equal 2, t.number_of_single_elimination_rounds
     assert_equal(%w[Semifinals Finals], [1, 2].map { |n| t.single_elimination_round_name(n) })
+    I18n.with_locale(:pt) do
+      assert_equal(%w[Meias-finais Final], [1, 2].map { |n| t.single_elimination_round_name(n) })
+    end
     t.top_cut_size = 0
     t.swiss_rounds_count = 3
     assert_equal 0, t.number_of_single_elimination_rounds
+  end
+
+  test "a 1v1 straight single elimination takes a cut up to the next power of two above the field" do
+    { 5 => [8], 8 => [8], 9 => [16], 16 => [16] }.each do |players, sizes|
+      t = TournamentBuilder.build(players: players, organizer: event_organizers(:standard_organizer),
+                                  format: "one_v_one", state: :registration_closed)
+      t.swiss_rounds_count = 0
+      sizes.each do |size|
+        t.top_cut_size = size
+        assert t.valid?, "top #{size} for #{players} players: #{t.errors.full_messages}"
+      end
+      t.top_cut_size = sizes.max * 2
+      assert_not t.valid?, "top #{sizes.max * 2} for #{players} players"
+      t.swiss_rounds_count = 3
+      t.top_cut_size = sizes.max
+      assert_equal players >= sizes.max, t.valid?, "top #{sizes.max} with swiss for #{players} players"
+    end
+  end
+
+  test "a 1v1 with 5 players goes straight to a top 8 with walkovers for the top seeds" do
+    t = TournamentBuilder.build(players: 5, organizer: event_organizers(:standard_organizer),
+                                format: "one_v_one", state: :registration_closed)
+    assert_equal({ swiss_rounds: 0, top_cut_size: 8 }, t.suggested_structure)
+    t.update!(state: :single_elimination)
+    round = t.reload.rounds.sole
+    assert_equal [8, 0], [t.top_cut_size, t.swiss_rounds_count]
+    assert_equal 1, round.pods.count
+    assert_equal 3, round.all_results.where(type: "Advance").count
+  end
+
+  test "a 1v1 with no swiss rounds and no cut never starts a swiss" do
+    t = TournamentBuilder.build(players: 6, organizer: event_organizers(:standard_organizer),
+                                format: "one_v_one", state: :registration_closed)
+    t.update!(swiss_rounds_count: 0, top_cut_size: 0)
+    assert_not_includes t.available_states.keys, "swiss"
+    assert_not_includes t.available_states.keys, "single_elimination"
+    assert_not_includes t.transitions[:registration_closed], :swiss
+    assert_not t.update(state: :swiss)
+    assert_includes t.errors[:state], I18n.t("activerecord.errors.models.event.attributes.state.no_swiss_rounds")
+    assert_empty t.reload.rounds
   end
 
   test "only a 1v1 with zero swiss rounds can go registration_closed to single_elimination" do

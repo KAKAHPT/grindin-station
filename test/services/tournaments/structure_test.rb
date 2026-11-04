@@ -15,7 +15,8 @@ module Tournaments
     end
 
     test "1v1 suggestions follow MTR Appendix E" do
-      expected = { 3 => [0, 0], 4 => [0, 4], 7 => [0, 4], 8 => [0, 8], 9 => [5, 4], 16 => [5, 4], 17 => [5, 8],
+      expected = { 3 => [0, 0], 4 => [0, 4], 5 => [0, 8], 7 => [0, 8], 8 => [0, 8], 9 => [5, 4], 16 => [5, 4],
+                   17 => [5, 8],
                    33 => [6, 8], 65 => [7, 8], 129 => [8, 8], 227 => [9, 8], 410 => [10, 8] }
       expected.each do |n, (rounds, cut)|
         s = Tournaments::Structure.suggested(n, format: "one_v_one")
@@ -31,6 +32,16 @@ module Tournaments
       assert_not t.valid?
       assert_includes t.errors[:top_cut_size],
                       I18n.t("activerecord.errors.models.event.attributes.top_cut_size.too_big")
+    end
+
+    test "a 1v1 cut may be the next power of two at or above the field only without swiss rounds" do
+      assert TopCut.valid_for?(8, players: 5, format: "one_v_one", walkovers: true)
+      assert_not TopCut.valid_for?(8, players: 5, format: "one_v_one")
+      assert TopCut.valid_for?(16, players: 9, format: "one_v_one", walkovers: true)
+      assert TopCut.valid_for?(16, players: 16, format: "one_v_one", walkovers: true)
+      assert_not TopCut.valid_for?(16, players: 8, format: "one_v_one", walkovers: true)
+      assert_not TopCut.valid_for?(32, players: 16, format: "one_v_one", walkovers: true)
+      assert TopCut.valid_for?(4, players: 4, format: "one_v_one", walkovers: true)
     end
 
     test "rounds_info strategies: 1 standard, 2 spread, last forced" do

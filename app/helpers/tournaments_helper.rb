@@ -118,11 +118,16 @@ module TournamentsHelper # rubocop:disable Metrics/ModuleLength
     return if players < Tournament::PREFERRED_POD_SIZE
 
     suggested = Tournaments::Structure.suggested(players, format: tournament.format)
-    if suggested[:top_cut_size].zero?
-      t("organizer.structure_suggestion_no_cut", players: players, rounds: suggested[:swiss_rounds])
-    else
-      t("organizer.structure_suggestion", players: players, rounds: suggested[:swiss_rounds],
-                                          cut: suggested[:top_cut_size])
+    rounds = suggested[:swiss_rounds]
+    cut = suggested[:top_cut_size]
+    t("organizer.#{structure_suggestion_key(rounds, cut)}", players: players, rounds: rounds, cut: cut)
+  end
+
+  # No swiss rounds: a 1v1 straight single elimination.
+  def structure_suggestion_key(rounds, cut)
+    if rounds.zero? then "structure_suggestion_elimination_only"
+    elsif cut.zero? then "structure_suggestion_no_cut"
+    else "structure_suggestion"
     end
   end
 

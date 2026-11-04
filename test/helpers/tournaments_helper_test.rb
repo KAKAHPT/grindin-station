@@ -32,6 +32,15 @@ class TournamentsHelperTest < ActionView::TestCase
     end
   end
 
+  test "a 1v1 straight single elimination suggestion names the cut, not swiss rounds" do
+    t = TournamentBuilder.build(players: 6, organizer: event_organizers(:standard_organizer), format: "one_v_one",
+                                state: :registration_open)
+    assert_equal "Suggested for 6 players: single elimination, top 8", structure_suggestion(t)
+    I18n.with_locale(:pt) do
+      assert_equal "Sugestão para 6 jogadores: eliminação direta, top 8", structure_suggestion(t)
+    end
+  end
+
   test "structure suggestion counts only players still playing" do
     t = TournamentBuilder.build(players: 25, organizer: event_organizers(:standard_organizer),
                                 state: :registration_open)

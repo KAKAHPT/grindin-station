@@ -14,8 +14,10 @@ module Tournaments
 
       def self.rounds_for(size, format: "multiplayer") = self.for(size, format: format).rounds
 
-      def self.valid_for?(size, players:, format: "multiplayer")
-        sizes_for(format).include?(size) && self.for(size, format: format).valid_for?(players)
+      # walkovers: a 1v1 straight single elimination (no swiss) may fill the bracket up to the next power of
+      # two at or above the field, the vacant slots being walkovers for the top seeds.
+      def self.valid_for?(size, players:, format: "multiplayer", walkovers: false)
+        sizes_for(format).include?(size) && self.for(size, format: format).valid_for?(players, walkovers: walkovers)
       end
 
       # 1v1: no byes, a single table of 2 per pair, halving every round (log2(size) rounds).
@@ -30,8 +32,8 @@ module Tournaments
         stages.size
       end
 
-      def valid_for?(player_count)
-        player_count >= players
+      def valid_for?(player_count, walkovers: false)
+        walkovers ? players < 2 * player_count : player_count >= players
       end
     end
 

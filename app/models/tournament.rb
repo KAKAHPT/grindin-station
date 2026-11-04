@@ -10,6 +10,8 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
   POINTS_PER_LOSS = 0
   POINTS_PER_DRAW = 1
   POINTS_PER_BYE = POINTS_PER_WIN
+  # 1v1 cut round names by rounds remaining after this one (finals first); copy in rounds.cut_names.
+  ONE_V_ONE_CUT_ROUND_KEYS = %w[finals semifinals quarterfinals round_of_16 round_of_32].freeze
 
   enum :state, {
     draft: 0,
@@ -41,6 +43,7 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
   STRUCTURE_ATTRIBUTES = %i[swiss_rounds_count top_cut_size round_minutes top_cut_round_minutes].freeze
 
   validate :top_cut_fits_the_field
+  validate :swiss_has_rounds, if: -> { will_save_change_to_state? && swiss? }
   validate :structure_locked_after_start, on: :update
   before_update :snapshot_structure, if: lambda {
     will_save_change_to_state? && (swiss? || straight_to_single_elimination?)
@@ -65,16 +68,20 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
   def available_states
     top = rounds_info[:top]
     states = top ? super : super.except(:single_elimination)
-    return states unless registration_closed? && no_swiss? && top
+    return states unless registration_closed? && no_swiss?
 
-    states.except(:swiss).merge(self.class.states.slice(:single_elimination))
+    states = states.except(:swiss)
+    top ? states.merge(self.class.states.slice(:single_elimination)) : states
   end
 
-  # The multiplayer map; a 1v1 with no swiss rounds goes registration_closed -> single_elimination instead of swiss.
+  # The multiplayer map; a 1v1 with no swiss rounds goes registration_closed -> single_elimination instead of
+  # swiss, and nowhere (but canceled) without a cut either: a swiss of zero rounds would never end.
   def transitions
-    return TRANSITIONS unless no_swiss? && top_cut_size_or_suggested.positive?
+    return TRANSITIONS unless no_swiss?
 
-    TRANSITIONS.merge(registration_closed: TRANSITIONS[:registration_closed] - [:swiss] + [:single_elimination])
+    to = TRANSITIONS[:registration_closed] - [:swiss]
+    to += [:single_elimination] if top_cut_size_or_suggested.positive?
+    TRANSITIONS.merge(registration_closed: to)
   end
 
   def progress_percent
@@ -94,14 +101,11 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
   end
 
   def single_elimination_round_name(round_number)
-    names =
-      if one_v_one?
-        ["Finals", "Semifinals", "Quarterfinals", "Round of 16",
-         "Round of 32"]
-      else
-        %w[Finals Semi-Finals Quarter-Finals]
-      end
-    names[number_of_swiss_rounds + number_of_single_elimination_rounds - round_number]
+    remaining = number_of_swiss_rounds + number_of_single_elimination_rounds - round_number
+    return %w[Finals Semi-Finals Quarter-Finals][remaining] unless one_v_one?
+
+    key = ONE_V_ONE_CUT_ROUND_KEYS[remaining]
+    I18n.t("rounds.cut_names.#{key}") if key
   end
 
   def ongoing?
@@ -158,9 +162,15 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
     return unless Tournaments::TopCut.sizes_for(format).include?(top_cut_size)
 
     participants = playing_participants_count
-    return if participants.zero? || Tournaments::TopCut.for(top_cut_size, format: format).valid_for?(participants)
+    return if participants.zero? || Tournaments::TopCut.valid_for?(top_cut_size, players: participants, format: format,
+                                                                                 walkovers: no_swiss?)
 
     errors.add(:top_cut_size, :too_big)
+  end
+
+  # A 1v1 with no swiss rounds never starts a swiss (it would never end): it goes straight to the cut.
+  def swiss_has_rounds
+    errors.add(:state, :no_swiss_rounds) if no_swiss?
   end
 
   # The cut must fit the playing field while registration is closed and when the swiss starts; once it is

@@ -18,11 +18,11 @@ module Tournaments
       128.. => [7, 40]
     }.freeze
 
-    # 1v1 per MTR Appendix E (straight single elimination below 9 players)
+    # 1v1 per MTR Appendix E (straight single elimination below 9 players; 5-7 give the top seeds walkovers)
     ONE_V_ONE_SUGGESTIONS = {
       ...4 => [0, 0],
-      4..7 => [0, 4],
-      8..8 => [0, 8],
+      4..4 => [0, 4],
+      5..8 => [0, 8],
       9..16 => [5, 4],
       17..32 => [5, 8],
       33..64 => [6, 8],

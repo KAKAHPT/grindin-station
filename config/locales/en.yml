@@ -31,6 +31,8 @@ en:
               locked: "cannot change once the tournament has started"
             top_cut_round_minutes:
               locked: "cannot change once the tournament has started"
+            state:
+              no_swiss_rounds: "can't be swiss: the tournament has no swiss rounds"
             top_cut_size:
               locked: "cannot change once the tournament has started"
               too_big: "is bigger than the number of players"
@@ -76,6 +78,7 @@ en:
       bo1: "Best of 1"
     structure_suggestion: "Suggested for %{players} players: %{rounds} swiss rounds, top %{cut}"
     structure_suggestion_no_cut: "Suggested for %{players} players: %{rounds} swiss rounds, no cut"
+    structure_suggestion_elimination_only: "Suggested for %{players} players: single elimination, top %{cut}"
     structure_use_suggestion: "Suggested"
     no_cut: "No cut"
     top_cut_option: "Top %{size}"
@@ -311,6 +314,12 @@ en:
     player_wins: "%{name} wins"
     score: "Score"
     draw_scores: "Draw score"
+    cut_names:
+      finals: "Finals"
+      semifinals: "Semifinals"
+      quarterfinals: "Quarterfinals"
+      round_of_16: "Round of 16"
+      round_of_32: "Round of 32"
     score_on_time: "%{score} on time: match stopped at time, the unfinished game is a draw"
     on_time_hint: "time"
     finished_in: "Finished in %{time}"
