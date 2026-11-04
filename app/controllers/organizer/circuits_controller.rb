@@ -13,7 +13,7 @@ module Organizer
       @circuit = Circuit.for_organizer(current_organizer).preload(
         :events, :leagues, { event_organizer: :user },
         tournaments: [:rounds, { cover_attachment: :blob }],
-        circuit_standings: :player
+        circuit_standings: { player: :user }
       ).find(params[:id])
     rescue ActiveRecord::RecordNotFound
       redirect_to [:organizer, :circuits], alert: t("flash.alert.not_authorized_circuit")

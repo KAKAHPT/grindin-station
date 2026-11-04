@@ -41,12 +41,12 @@
         </tr>
       </thead>
       <tbody>
-        <% @circuit.circuit_standings.each_with_index do |standing, idx| %>
+        <% @circuit.circuit_standings.sort_by { |standing| -standing.points }.each_with_index do |standing, idx| %>
           <tr>
             <td class="text-muted tabular"><%= idx + 1 %></td>
-            <td class="font-semibold"><%= standing.player_name %></td>
-            <td class="r font-display font-semibold text-accent tabular"><%= standing.points %></td>
-            <td class="r tabular"><%= standing.tournament_count %></td>
+            <td class="font-semibold"><%= standing.player.name %></td>
+            <td class="r font-display font-semibold text-accent tabular"><%= number_with_precision(standing.points, precision: 2, strip_insignificant_zeros: true) %></td>
+            <td class="r tabular"><%= standing.events_count %></td>
           </tr>
         <% end %>
       </tbody>
