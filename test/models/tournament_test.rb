@@ -443,6 +443,25 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     assert_not multi.update(swiss_rounds_count: 0)
   end
 
+  test "1v1 with no swiss rounds is not offered swiss" do
+    t = TournamentBuilder.build(players: 6, organizer: event_organizers(:standard_organizer),
+                                format: "one_v_one", state: :registration_closed)
+    assert_not_includes t.available_states.keys, "swiss"
+    assert_includes t.available_states.keys, "single_elimination"
+    assert_not t.transitions[:registration_closed].include?(:swiss)
+  end
+
+  test "multiplayer cut still starts after drops leave fewer players than the cut" do
+    t = TournamentBuilder.build(players: 17, organizer: event_organizers(:standard_organizer),
+                                state: :registration_closed)
+    t.update!(swiss_rounds_count: 4, top_cut_size: 16)
+    t.update!(state: :swiss)
+    t.event_participants.first(2).each { |p| p.update_columns(dropped: true) } # rubocop:disable Rails/SkipsModelValidations
+    t.reload
+    t.state = :single_elimination
+    assert t.valid?, t.errors.full_messages.to_s
+  end
+
   # ===== LOCATION TESTS =====
 
   test "latitude and longitude setters create location point" do

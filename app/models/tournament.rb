@@ -63,17 +63,18 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
 
   # Without a top cut there is no single elimination stage to move to.
   def available_states
-    states = rounds_info[:top] ? super : super.except(:single_elimination)
-    return states unless registration_closed? && no_swiss? && rounds_info[:top]
+    top = rounds_info[:top]
+    states = top ? super : super.except(:single_elimination)
+    return states unless registration_closed? && no_swiss? && top
 
-    states.merge(self.class.states.slice(:single_elimination))
+    states.except(:swiss).merge(self.class.states.slice(:single_elimination))
   end
 
-  # The multiplayer map, plus registration_closed -> single_elimination for a 1v1 with no swiss rounds.
+  # The multiplayer map; a 1v1 with no swiss rounds goes registration_closed -> single_elimination instead of swiss.
   def transitions
-    return TRANSITIONS if !one_v_one? || !no_swiss?
+    return TRANSITIONS unless no_swiss? && top_cut_size_or_suggested.positive?
 
-    TRANSITIONS.merge(registration_closed: TRANSITIONS[:registration_closed] + [:single_elimination])
+    TRANSITIONS.merge(registration_closed: TRANSITIONS[:registration_closed] - [:swiss] + [:single_elimination])
   end
 
   def progress_percent
@@ -124,7 +125,9 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
 
   def no_swiss? = one_v_one? && (swiss_rounds_count || suggested_structure[:swiss_rounds]).zero?
 
-  def straight_to_single_elimination? = single_elimination? && state_was == "registration_closed"
+  def top_cut_size_or_suggested = top_cut_size || suggested_structure[:top_cut_size]
+
+  def straight_to_single_elimination? = no_swiss? && single_elimination? && state_was == "registration_closed"
 
   def swiss_round_strategy(number, total)
     if number == 2 && total >= 3 then :spread
@@ -162,5 +165,7 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
 
   # The cut must fit the playing field while registration is closed and when the swiss starts; once it is
   # running the structure is locked, so later drops must not make the record invalid.
-  def top_cut_checked? = registration_closed? || ((swiss? || single_elimination?) && will_save_change_to_state?)
+  def top_cut_checked?
+    registration_closed? || ((swiss? || straight_to_single_elimination?) && will_save_change_to_state?)
+  end
 end
