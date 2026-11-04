@@ -10,7 +10,7 @@ class CspReportsController < ApplicationController
   rate_limit to: 10, within: 1.minute, with: -> { head :too_many_requests }
 
   def create
-    Rails.logger.warn("CSP violation: #{request.raw_post.to_s.byteslice(0, MAX_LOGGED_BYTES)}")
+    Rails.logger.warn("CSP violation: #{request.raw_post.to_s.byteslice(0, MAX_LOGGED_BYTES).scrub.inspect}")
     head :no_content
   end
 end
