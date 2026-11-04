@@ -23,14 +23,9 @@ module Accounts
       end
     end
 
-    test "e-mail igual liga à conta existente sem criar user" do
-      assert_no_difference -> { User.count } do
-        assert_difference -> { Identity.count }, 1 do
-          user = ConnectIdentity.call(auth: auth(email: "  Player1@Example.com "))
-
-          assert_equal users(:player_one), user
-          assert_equal %w[google_oauth2 g-1], [user.identities.last.provider, user.identities.last.uid]
-        end
+    test "e-mail verificado de conta existente sem sessão recusa sem ligar" do
+      assert_no_difference [-> { User.count }, -> { Identity.count }] do
+        assert_raises(ConnectIdentity::EmailTaken) { ConnectIdentity.call(auth: auth(email: "  Player1@Example.com ")) }
       end
     end
 
@@ -67,15 +62,17 @@ module Accounts
       end
     end
 
-    test "discord verificado liga à conta existente" do
-      assert_equal users(:player_one), ConnectIdentity.call(auth: discord_auth(verified: true))
+    test "discord verificado de conta existente sem sessão recusa" do
+      assert_no_difference -> { Identity.count } do
+        assert_raises(ConnectIdentity::EmailTaken) { ConnectIdentity.call(auth: discord_auth(verified: true)) }
+      end
     end
 
-    test "e-mail não verificado sem conta existente cria user novo" do
-      assert_difference -> { User.count } => 1, -> { Identity.count } => 1 do
-        user = ConnectIdentity.call(auth: auth(email: "fresh@example.com", verified: false))
-
-        assert_equal "fresh@example.com", user.email_address
+    test "e-mail não verificado sem conta existente nunca cria user" do
+      assert_no_difference [-> { User.count }, -> { Identity.count }] do
+        assert_raises(ConnectIdentity::UnverifiedEmail) do
+          ConnectIdentity.call(auth: auth(email: "fresh@example.com", verified: false))
+        end
       end
     end
 
@@ -83,6 +80,27 @@ module Accounts
       current = users(:player_three)
 
       assert_equal current, ConnectIdentity.call(auth: auth(verified: false), current_user: current)
+    end
+
+    test "com current_user, identidade de outro user recusa sem mudar nada" do
+      owner = users(:player_two)
+      owner.identities.create!(provider: "google_oauth2", uid: "g-1")
+
+      assert_no_difference -> { Identity.count } do
+        assert_raises(ConnectIdentity::IdentityTaken) do
+          ConnectIdentity.call(auth: auth, current_user: users(:player_three))
+        end
+      end
+      assert_equal owner, Identity.find_by(provider: "google_oauth2", uid: "g-1").user
+    end
+
+    test "com current_user, identidade já sua devolve esse user" do
+      current = users(:player_three)
+      current.identities.create!(provider: "google_oauth2", uid: "g-1")
+
+      assert_no_difference -> { Identity.count } do
+        assert_equal current, ConnectIdentity.call(auth: auth, current_user: current)
+      end
     end
   end
 end

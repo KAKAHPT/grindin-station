@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class OmniauthCallbacksControllerTest < ActionDispatch::IntegrationTest
+class OmniauthCallbacksControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
   setup do
     OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
       provider: "google_oauth2", uid: "g-123", info: { email: "player1@example.com", name: "Player One" },
@@ -10,15 +10,85 @@ class OmniauthCallbacksControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
-  test "callback signs the user in and redirects to after_authentication_url" do
-    assert_difference -> { Session.count } => 1, -> { Identity.count } => 1 do
+  test "callback with a new verified e-mail creates the user, signs in and redirects" do
+    mock_email("new@example.com")
+    OmniAuth.config.mock_auth[:google_oauth2].info.name = "New Person"
+
+    assert_difference -> { Session.count } => 1, -> { Identity.count } => 1, -> { User.count } => 1 do
       post "/auth/google_oauth2"
       follow_redirect!
     end
 
     assert_redirected_to root_url
     assert cookies[:session_id].present?
-    assert_equal users(:player_one), Identity.find_by(uid: "g-123").user
+    assert_equal "new@example.com", Identity.find_by(uid: "g-123").user.email_address
+  end
+
+  test "known identity signs its owner in" do
+    users(:player_two).identities.create!(provider: "google_oauth2", uid: "g-123")
+
+    assert_difference -> { Session.count } => 1 do
+      post "/auth/google_oauth2"
+      follow_redirect!
+    end
+
+    assert_equal users(:player_two), Session.last.user
+  end
+
+  test "verified e-mail of an existing account is refused without linking or a session" do
+    assert_no_difference [-> { Session.count }, -> { Identity.count }] do
+      post "/auth/google_oauth2"
+      follow_redirect!
+    end
+
+    assert_redirected_to new_session_path
+    assert_equal I18n.t("auth.email_taken", provider: "Google"), flash[:alert]
+  end
+
+  test "unverified e-mail without an account never creates a user" do
+    mock_email("fresh@example.com", verified: false)
+
+    assert_no_difference [-> { User.count }, -> { Session.count }, -> { Identity.count }] do
+      post "/auth/google_oauth2"
+      follow_redirect!
+    end
+
+    assert_redirected_to new_session_path
+    assert_equal I18n.t("auth.email_unverified", provider: "Google"), flash[:alert]
+  end
+
+  test "signed in, the callback links to the current user and returns to the account page" do
+    sign_in users(:player_three)
+    mock_email("someone-else@example.com")
+
+    assert_no_difference -> { Session.count } do
+      assert_difference -> { Identity.count }, 1 do
+        post "/auth/google_oauth2"
+        follow_redirect!
+      end
+    end
+
+    assert_redirected_to account_path
+    assert_equal I18n.t("auth.linked", provider: "Google"), flash[:notice]
+    assert_equal users(:player_three), Identity.find_by(uid: "g-123").user
+  end
+
+  test "signed in, an identity of another user is refused and the session stays" do
+    users(:player_two).identities.create!(provider: "google_oauth2", uid: "g-123")
+    sign_in users(:player_three)
+    session_id = Session.last.id
+
+    assert_no_difference [-> { Session.count }, -> { Identity.count }] do
+      post "/auth/google_oauth2"
+      follow_redirect!
+    end
+
+    assert_redirected_to account_path
+    assert_equal I18n.t("auth.identity_taken", provider: "Google"), flash[:alert]
+    assert_equal users(:player_two), Identity.find_by(uid: "g-123").user
+    get account_path
+    assert_response :success
+    assert_equal users(:player_three), Session.find(session_id).user
   end
 
   test "unverified e-mail of an existing account is refused without a session" do
@@ -60,6 +130,17 @@ class OmniauthCallbacksControllerTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def sign_in(user)
+    post session_path, params: { session: { email_address: user.email_address, password: "password123" } }
+  end
+
+  def mock_email(email, verified: true)
+    auth = OmniAuth.config.mock_auth[:google_oauth2]
+    auth.info.email = email
+    auth.extra.raw_info.email = email
+    auth.extra.raw_info.email_verified = verified
+  end
 
   def with_env(vars)
     old = vars.keys.index_with { |k| ENV.fetch(k, nil) }

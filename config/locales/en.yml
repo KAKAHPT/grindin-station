@@ -376,6 +376,7 @@ en:
       save: "Save changes"
       identities: "Linked sign-ins"
       no_identities: "No Google or Discord account linked."
+      link: "Link %{provider}"
       unlink: "Unlink"
       unlink_hint: "Set a password or link another account before unlinking this one."
       delete_title: "Delete account"
@@ -392,7 +393,10 @@ en:
   auth:
     continue_with_google: "Continue with Google"
     continue_with_discord: "Continue with Discord"
-    email_unverified: "Sign in with your password, then link %{provider} in your account."
+    email_unverified: "%{provider} did not verify your e-mail. Sign in with your password and link %{provider} in your account."
+    email_taken: "An account with this e-mail already exists. Sign in with your password, then link %{provider} in your account."
+    identity_taken: "That %{provider} account is already linked to another user."
+    linked: "%{provider} linked."
     oauth_failed: "Could not sign you in with that account. Try again or use your e-mail and password."
     or: "or"
   passwords_mailer:

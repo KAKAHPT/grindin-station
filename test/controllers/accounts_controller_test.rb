@@ -29,6 +29,19 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     assert_select "input[name=confirmation]"
   end
 
+  test "link buttons only for enabled providers that are not linked yet" do
+    @user.identities.create!(provider: "discord", uid: "d-1", name: "p1")
+
+    with_env("GOOGLE_CLIENT_ID" => "id", "DISCORD_CLIENT_ID" => "id") { get account_path }
+
+    assert_select "form[action='/auth/google_oauth2'][method='post']"
+    assert_select "form[action='/auth/discord']", count: 0
+
+    with_env("GOOGLE_CLIENT_ID" => nil, "DISCORD_CLIENT_ID" => nil) { get account_path }
+
+    assert_select "form[action^='/auth/']", count: 0
+  end
+
   test "updates the profile fields" do
     patch account_path, params: { user: { name: "Player Uno", handle: "uno", country: "pt", bio: "Hi",
                                           visibility: "participants" } }
@@ -151,5 +164,15 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     get root_path
 
     assert_select "a[href=?]", account_path
+  end
+
+  private
+
+  def with_env(vars)
+    old = vars.keys.index_with { |k| ENV.fetch(k, nil) }
+    vars.each { |k, v| ENV[k] = v }
+    yield
+  ensure
+    old.each { |k, v| ENV[k] = v }
   end
 end

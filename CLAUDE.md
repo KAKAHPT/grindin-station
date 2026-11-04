@@ -103,7 +103,7 @@ Infractions have a hierarchical enum structure:
 
 - Rails 8 built-in authentication (removed Devise)
 - Session-based authentication via `Session` model
-- Sign in with Google/Discord via OmniAuth (`config/initializers/omniauth.rb`, `Identity` model/`identities` table, `Accounts::ConnectIdentity`); needs `GOOGLE_CLIENT_ID/SECRET`, `DISCORD_CLIENT_ID/SECRET` (buttons hidden when unset); links to an existing user by verified e-mail
+- Sign in with Google/Discord via OmniAuth (`config/initializers/omniauth.rb`, `Identity` model/`identities` table, `Accounts::ConnectIdentity`); needs `GOOGLE_CLIENT_ID/SECRET`, `DISCORD_CLIENT_ID/SECRET` (buttons hidden when unset); never auto-links by e-mail (an existing account signs in with its password and links from `/account`); an unverified provider e-mail never creates a user
 - `/account` (profile, handle, visibility `public|participants|private`, avatar via Active Storage, needs libvips; delete = `Accounts::Anonymize`, "Removed player")
 - Password reset functionality with `PasswordsMailer`
 - `EventOrganizer` namespace for tournament management functions

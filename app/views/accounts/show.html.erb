@@ -112,6 +112,14 @@
         <p class="text-xs text-muted"><%= t(".unlink_hint") %></p>
       <% end %>
     <% end %>
+    <% linkable = OmniauthCallbacksController::PROVIDER_NAMES.select { |provider, _| oauth_enabled?(provider) && @user.identities.none? { |i| i.provider == provider } } %>
+    <% if linkable.any? %>
+      <div class="flex flex-wrap gap-2">
+        <% linkable.each do |provider, name| %>
+          <%= button_to t(".link", provider: name), "/auth/#{provider}", method: :post, data: { turbo: false }, class: small_button_classes(:secondary) %>
+        <% end %>
+      </div>
+    <% end %>
   </section>
 
   <section class="<%= card %> space-y-4 border-danger/40">

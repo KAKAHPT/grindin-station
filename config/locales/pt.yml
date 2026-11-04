@@ -376,6 +376,7 @@ pt:
       save: "Guardar alterações"
       identities: "Contas ligadas"
       no_identities: "Nenhuma conta Google ou Discord ligada."
+      link: "Ligar %{provider}"
       unlink: "Desligar"
       unlink_hint: "Define uma palavra-passe ou liga outra conta antes de desligar esta."
       delete_title: "Eliminar conta"
@@ -392,7 +393,10 @@ pt:
   auth:
     continue_with_google: "Continuar com Google"
     continue_with_discord: "Continuar com Discord"
-    email_unverified: "Entra com a tua palavra-passe e depois liga o %{provider} na tua conta."
+    email_unverified: "O %{provider} não verificou o teu e-mail. Entra com a tua palavra-passe e liga o %{provider} na tua conta."
+    email_taken: "Já existe uma conta com este e-mail. Entra com a tua palavra-passe e depois liga o %{provider} na tua conta."
+    identity_taken: "Essa conta %{provider} já está ligada a outro utilizador."
+    linked: "%{provider} ligado."
     oauth_failed: "Não foi possível entrar com essa conta. Tenta novamente ou usa o e-mail e a palavra-passe."
     or: "ou"
   passwords_mailer:
