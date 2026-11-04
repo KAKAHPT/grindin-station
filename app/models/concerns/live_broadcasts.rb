@@ -21,6 +21,11 @@ module LiveBroadcasts
     "pairings:#{event_id}:#{locale}"
   end
 
+  # Public standings page (/t/:slug/standings): changes when a round closes or a closed result is corrected.
+  def standings_stream(event_id, locale = I18n.locale)
+    "standings:#{event_id}:#{locale}"
+  end
+
   def each_locale
     I18n.available_locales.each { |locale| I18n.with_locale(locale) { yield locale } }
   end
@@ -37,6 +42,13 @@ module LiveBroadcasts
   def refresh_pairings(event_id, request_id: nil)
     each_locale do |locale|
       Turbo::StreamsChannel.broadcast_refresh_later_to(pairings_stream(event_id, locale), request_id: request_id)
+    end
+  end
+
+  # Morph-refreshes every open public standings page of the event (debounced like the pairings).
+  def refresh_standings(event_id, request_id: nil)
+    each_locale do |locale|
+      Turbo::StreamsChannel.broadcast_refresh_later_to(standings_stream(event_id, locale), request_id: request_id)
     end
   end
 

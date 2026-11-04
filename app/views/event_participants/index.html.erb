@@ -3,6 +3,10 @@
   Participants
 <% end %>
 
+<% unless @standings_in_modal %>
+  <% turbo_refreshes_with method: :morph, scroll: :preserve %>
+  <%= turbo_stream_from LiveBroadcasts.standings_stream(@tournament.id) %>
+<% end %>
 <% latest_published = @tournament.rounds.published.max_by(&:number) %>
 <% content_for :close do %>
   <% if latest_published %>
