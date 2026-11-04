@@ -396,6 +396,53 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     assert_equal [4, 10, 13, 16, 40], Tournaments::TopCut::SIZES
   end
 
+  test "1v1 top cut sizes: 8 valid, 10 invalid; multiplayer 8 invalid" do
+    t = TournamentBuilder.build(players: 20, organizer: event_organizers(:standard_organizer), format: "one_v_one",
+                                state: :registration_closed)
+    t.top_cut_size = 8
+    assert t.valid?, t.errors.full_messages.to_s
+    t.top_cut_size = 10
+    assert_not t.valid?
+    m = TournamentBuilder.build(players: 20, organizer: event_organizers(:standard_organizer),
+                                state: :registration_closed)
+    m.top_cut_size = 8
+    assert_not m.valid?
+  end
+
+  test "1v1 cut must fit the field and bracket rounds are named by rounds remaining" do
+    t = TournamentBuilder.build(players: 6, organizer: event_organizers(:standard_organizer),
+                                format: "one_v_one", state: :registration_closed)
+    t.top_cut_size = 8
+    assert_not t.valid?
+    t.top_cut_size = 4
+    assert t.valid?
+    t.update!(swiss_rounds_count: 0)
+    assert_equal 2, t.number_of_single_elimination_rounds
+    assert_equal(%w[Semifinals Finals], [1, 2].map { |n| t.single_elimination_round_name(n) })
+    t.top_cut_size = 0
+    t.swiss_rounds_count = 3
+    assert_equal 0, t.number_of_single_elimination_rounds
+  end
+
+  test "only a 1v1 with zero swiss rounds can go registration_closed to single_elimination" do
+    t = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer),
+                                format: "one_v_one", state: :registration_closed)
+    t.update!(swiss_rounds_count: 0, top_cut_size: 8)
+    assert_includes t.available_states.keys, "single_elimination"
+    t.update!(state: :single_elimination)
+    assert t.reload.single_elimination?
+
+    swiss = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer),
+                                    format: "one_v_one", state: :registration_closed)
+    swiss.update!(swiss_rounds_count: 5, top_cut_size: 4)
+    assert_not_includes swiss.available_states.keys, "single_elimination"
+
+    multi = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer),
+                                    state: :registration_closed)
+    assert_not_includes multi.available_states.keys, "single_elimination"
+    assert_not multi.update(swiss_rounds_count: 0)
+  end
+
   # ===== LOCATION TESTS =====
 
   test "latitude and longitude setters create location point" do

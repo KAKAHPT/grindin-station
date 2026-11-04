@@ -31,23 +31,29 @@ class Tournament < Event
     canceled: [:canceled]
   }.with_indifferent_access.freeze
 
-  validates :top_cut_size, inclusion: { in: [0] + Tournaments::TopCut::SIZES }, allow_nil: true
-  validates :swiss_rounds_count, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_nil: true
+  validates :top_cut_size, inclusion: { in: ->(t) { [0] + Tournaments::TopCut.sizes_for(t.format) } }, allow_nil: true
+  # 0 swiss rounds (straight single elimination) only makes sense for 1v1
+  validates :swiss_rounds_count, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_nil: true,
+                                 unless: :one_v_one?
+  validates :swiss_rounds_count, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true,
+                                 if: :one_v_one?
   validates :round_minutes, :top_cut_round_minutes, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
   STRUCTURE_ATTRIBUTES = %i[swiss_rounds_count top_cut_size round_minutes top_cut_round_minutes].freeze
 
   validate :top_cut_fits_the_field
   validate :structure_locked_after_start, on: :update
-  before_update :snapshot_structure, if: -> { will_save_change_to_state? && swiss? }
+  before_update :snapshot_structure, if: lambda {
+    will_save_change_to_state? && (swiss? || straight_to_single_elimination?)
+  }
 
   def suggested_structure
-    Tournaments::Structure.suggested(playing_participants_count)
+    Tournaments::Structure.suggested(playing_participants_count, format: format)
   end
 
   def rounds_info
     total = swiss_rounds_count || suggested_structure[:swiss_rounds]
     cut_size = top_cut_size || suggested_structure[:top_cut_size]
-    cut = Tournaments::TopCut.for(cut_size) if cut_size.positive?
+    cut = Tournaments::TopCut.for(cut_size, format: format) if cut_size.positive?
 
     {
       rounds: (1..total).map { |number| { swiss_round: swiss_round_strategy(number, total) } },
@@ -56,7 +62,19 @@ class Tournament < Event
   end
 
   # Without a top cut there is no single elimination stage to move to.
-  def available_states = rounds_info[:top] ? super : super.except(:single_elimination)
+  def available_states
+    states = rounds_info[:top] ? super : super.except(:single_elimination)
+    return states unless registration_closed? && no_swiss? && rounds_info[:top]
+
+    states.merge(self.class.states.slice(:single_elimination))
+  end
+
+  # The multiplayer map, plus registration_closed -> single_elimination for a 1v1 with no swiss rounds.
+  def transitions
+    return TRANSITIONS if !one_v_one? || !no_swiss?
+
+    TRANSITIONS.merge(registration_closed: TRANSITIONS[:registration_closed] + [:single_elimination])
+  end
 
   def progress_percent
     finished = rounds.loaded? ? rounds.count(&:past?) : rounds.finished.count
@@ -75,7 +93,14 @@ class Tournament < Event
   end
 
   def single_elimination_round_name(round_number)
-    %w[Finals Semi-Finals Quarter-Finals][number_of_swiss_rounds + number_of_single_elimination_rounds - round_number]
+    names =
+      if one_v_one?
+        ["Finals", "Semifinals", "Quarterfinals", "Round of 16",
+         "Round of 32"]
+      else
+        %w[Finals Semi-Finals Quarter-Finals]
+      end
+    names[number_of_swiss_rounds + number_of_single_elimination_rounds - round_number]
   end
 
   def ongoing?
@@ -83,7 +108,7 @@ class Tournament < Event
   end
 
   def perform_state_based_actions
-    return unless TRANSITIONS[state_previously_was.to_sym].include?(state.to_sym)
+    return unless transitions[state_previously_was.to_sym].include?(state.to_sym)
 
     case state.to_sym
     when :swiss
@@ -96,6 +121,10 @@ class Tournament < Event
   end
 
   private
+
+  def no_swiss? = one_v_one? && (swiss_rounds_count || suggested_structure[:swiss_rounds]).zero?
+
+  def straight_to_single_elimination? = single_elimination? && state_was == "registration_closed"
 
   def swiss_round_strategy(number, total)
     if number == 2 && total >= 3 then :spread
@@ -123,15 +152,15 @@ class Tournament < Event
 
   def top_cut_fits_the_field
     return unless top_cut_size.to_i.positive? && top_cut_checked?
-    return unless Tournaments::TopCut::SIZES.include?(top_cut_size)
+    return unless Tournaments::TopCut.sizes_for(format).include?(top_cut_size)
 
     participants = playing_participants_count
-    return if participants.zero? || Tournaments::TopCut.for(top_cut_size).valid_for?(participants)
+    return if participants.zero? || Tournaments::TopCut.for(top_cut_size, format: format).valid_for?(participants)
 
     errors.add(:top_cut_size, :too_big)
   end
 
   # The cut must fit the playing field while registration is closed and when the swiss starts; once it is
   # running the structure is locked, so later drops must not make the record invalid.
-  def top_cut_checked? = registration_closed? || (swiss? && will_save_change_to_state?)
+  def top_cut_checked? = registration_closed? || ((swiss? || single_elimination?) && will_save_change_to_state?)
 end

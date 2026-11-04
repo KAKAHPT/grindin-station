@@ -47,7 +47,7 @@
   <% end %>
   <div class="flex gap-2">
     <%= f.number_field_with_label :swiss_rounds_count, min: 1, step: 1, placeholder: t("organizer.structure_use_suggestion"), disabled: tournament.points_locked? %>
-    <%= f.select_with_label :top_cut_size, top_cut_options, { include_blank: t("organizer.structure_use_suggestion"), selected: tournament.top_cut_size }, disabled: tournament.points_locked? %>
+    <%= f.select_with_label :top_cut_size, top_cut_options(tournament.format), { include_blank: t("organizer.structure_use_suggestion"), selected: tournament.top_cut_size }, disabled: tournament.points_locked? %>
   </div>
   <div class="flex gap-2">
     <%= f.number_field_with_label :round_minutes, min: 1, step: 1, disabled: tournament.points_locked? %>

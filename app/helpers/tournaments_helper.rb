@@ -57,8 +57,8 @@ module TournamentsHelper
     EventOrganizer::CURRENCIES.keys.map { |c| [CURRENCY_SYMBOLS[c], c] }
   end
 
-  def top_cut_options
-    [[t("organizer.no_cut"), 0]] + Tournaments::TopCut::SIZES.map { |size| [t("organizer.top_cut_option", size: size), size] }
+  def top_cut_options(format = "multiplayer")
+    [[t("organizer.no_cut"), 0]] + Tournaments::TopCut.sizes_for(format).map { |size| [t("organizer.top_cut_option", size: size), size] }
   end
 
   def result_confirmation_options
@@ -74,7 +74,7 @@ module TournamentsHelper
     players = tournament.playing_participants_count
     return if players < Tournament::PREFERRED_POD_SIZE
 
-    suggested = Tournaments::Structure.suggested(players)
+    suggested = Tournaments::Structure.suggested(players, format: tournament.format)
     if suggested[:top_cut_size].zero?
       t("organizer.structure_suggestion_no_cut", players: players, rounds: suggested[:swiss_rounds])
     else

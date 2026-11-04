@@ -14,6 +14,16 @@ module Tournaments
       end
     end
 
+    test "1v1 suggestions follow MTR Appendix E" do
+      expected = { 3 => [0, 0], 4 => [0, 4], 7 => [0, 4], 8 => [0, 8], 9 => [5, 4], 16 => [5, 4], 17 => [5, 8],
+                   33 => [6, 8], 65 => [7, 8], 129 => [8, 8], 227 => [9, 8], 410 => [10, 8] }
+      expected.each do |n, (rounds, cut)|
+        s = Tournaments::Structure.suggested(n, format: "one_v_one")
+        assert_equal [rounds, cut], [s[:swiss_rounds], s[:top_cut_size]], "for #{n} players"
+      end
+      assert_equal({ swiss_rounds: 3, top_cut_size: 0 }, Tournaments::Structure.suggested(4, format: "multiplayer"))
+    end
+
     test "tournament rejects a cut bigger than the field" do
       t = TournamentBuilder.build(players: 12, organizer: event_organizers(:standard_organizer),
                                   state: :registration_closed)

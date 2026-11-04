@@ -18,8 +18,23 @@ module Tournaments
       128.. => [7, 40]
     }.freeze
 
-    def suggested(player_count)
-      swiss_rounds, top_cut_size = SUGGESTIONS.find { |range, _| range.cover?(player_count) }.last
+    # 1v1 per MTR Appendix E (straight single elimination below 9 players)
+    ONE_V_ONE_SUGGESTIONS = {
+      ...4 => [0, 0],
+      4..7 => [0, 4],
+      8..8 => [0, 8],
+      9..16 => [5, 4],
+      17..32 => [5, 8],
+      33..64 => [6, 8],
+      65..128 => [7, 8],
+      129..226 => [8, 8],
+      227..409 => [9, 8],
+      410.. => [10, 8]
+    }.freeze
+
+    def suggested(player_count, format: "multiplayer")
+      table = format == "one_v_one" ? ONE_V_ONE_SUGGESTIONS : SUGGESTIONS
+      swiss_rounds, top_cut_size = table.find { |range, _| range.cover?(player_count) }.last
       { swiss_rounds: swiss_rounds, top_cut_size: top_cut_size }
     end
   end
