@@ -80,7 +80,7 @@
           <%= f.password_field :password, autocomplete: "new-password", minlength: 8, maxlength: 72, class: input %>
         </div>
         <div>
-          <%= f.label :password_confirmation, class: label %>
+          <%= f.label :password_confirmation, t("accounts.confirm_new_password"), class: label %>
           <%= f.password_field :password_confirmation, autocomplete: "new-password", minlength: 8, maxlength: 72, class: input %>
         </div>
       </div>

@@ -39,7 +39,7 @@ pt:
         visibility: "Visibilidade do perfil"
         avatar: "Avatar"
         password: "Palavra-passe"
-        password_confirmation: "Confirmar nova palavra-passe"
+        password_confirmation: "Confirmação da palavra-passe"
         current_password: "Palavra-passe atual"
       event:
         points_win: "Pontos por vitória"
@@ -317,6 +317,7 @@ pt:
       try_again_later: "Tenta novamente mais tarde."
       invalid_credentials: "Tenta outro e-mail ou outra palavra-passe."
   accounts:
+    confirm_new_password: "Confirmar nova palavra-passe"
     nav: "Conta"
     removed_player: "Jogador removido"
     show:

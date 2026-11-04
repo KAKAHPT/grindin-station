@@ -39,7 +39,7 @@ en:
         visibility: "Profile visibility"
         avatar: "Avatar"
         password: "Password"
-        password_confirmation: "Confirm new password"
+        password_confirmation: "Password confirmation"
         current_password: "Current password"
       event:
         points_win: "Points for a win"
@@ -317,6 +317,7 @@ en:
       try_again_later: "Try again later."
       invalid_credentials: "Try another email address or password."
   accounts:
+    confirm_new_password: "Confirm new password"
     nav: "Account"
     removed_player: "Removed player"
     show:
