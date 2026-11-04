@@ -30,3 +30,9 @@ Recorded from the design session so nothing is lost. Each item becomes a task in
 - Organizer card copy for 1v1 ("Reported by …") in pt; `es.yml`.
 - Cut-round names for multiplayer into i18n (1v1 already is).
 - No-JS fallback for 1v1 points defaults on the create form.
+
+## M10 — Export tournament data for official reporting (added 2026-11-04)
+
+Stores must report results to Wizards (EventLink) or risk penalties, so without an export they have little reason to use Grindin. Requirement from the user: an "Export" option on the organizer tournament page that produces the data needed to report the event on the official platforms (Wizards EventLink; also whatever the local store-reporting flow needs).
+
+Open research before specifying: what EventLink actually accepts today (as of 2020 it has no import of third-party results, only manual entry; Companion runs sanctioned events itself). If no import exists, the export must at least make manual entry fast: a one-page results sheet per round (table, players, Wizards account e-mail/ DCI-less identifier, result) plus final standings, as CSV + printable PDF, and a Melee/TopDeck-compatible CSV for premier/third-party platforms. Decide after checking the current EventLink docs.
