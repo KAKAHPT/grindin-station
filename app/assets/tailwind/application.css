@@ -1333,6 +1333,16 @@
   }
 
   @media (max-width: 760px) {
+    .lp-mosaic {
+      filter: blur(2px) saturate(0.9) brightness(0.9);
+      opacity: 0.6;
+    }
+
+    .lp-sheet {
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
     .lp-hero {
       padding: 36px 16px 40px;
       min-height: 0;

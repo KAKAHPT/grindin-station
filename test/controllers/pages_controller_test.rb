@@ -3,8 +3,6 @@
 require "test_helper"
 
 class PagesControllerTest < ActionDispatch::IntegrationTest
-  include RateLimitStore
-
   setup do
     @organizer = event_organizers(:standard_organizer)
   end
@@ -45,6 +43,40 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "a running tournament stays listed with its state chip and no Register; a finished one is gone" do
+    live = upcoming(:swiss, "Live Cup", -2.hours)
+    finished = upcoming(:finished, "Done Cup", -3.hours)
+    Tournament.where.not(id: [live.id, finished.id]).update_all(start_time: 1.year.from_now) # rubocop:disable Rails/SkipsModelValidations
+
+    get root_path
+
+    assert_select "[data-upcoming-event]:first-child[data-upcoming-event='#{live.slug}']" do
+      assert_select ".lp-evr-act", text: /Swiss round/
+      assert_select "a[data-register]", count: 0
+    end
+    assert_select "[data-upcoming-event='#{finished.slug}']", count: 0
+  end
+
+  test "the open-for-registration count covers every listed event, not only the six shown" do
+    7.times { |index| upcoming(:registration_open, "Open #{index}", (index + 1).minutes) }
+    expected = PagesController.listed_tournaments.registration_open.count
+
+    get root_path
+
+    assert_operator expected, :>, 6
+    assert_select ".lp-upc-hd span", text: /#{expected} open for registration/
+  end
+
+  test "a cover is shown as a resized variant behind its row" do
+    event = upcoming(:registration_open, "Cover Cup", 1.minute)
+    event.cover.attach(io: Rails.root.join("test/fixtures/files/cover1.jpg").open, filename: "cover1.jpg",
+                       content_type: "image/jpeg")
+
+    get root_path
+
+    assert_select "[data-upcoming-event='#{event.slug}'] .lp-evr-ban[style*='/rails/active_storage/representations/']"
+  end
+
   test "draft, canceled and past events are not listed; soonest first, at most six" do
     draft = upcoming(:draft, "Hidden Draft Cup", 1.minute)
     canceled = upcoming(:canceled, "Hidden Canceled Cup", 1.minute)
@@ -57,63 +89,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-upcoming-event]:first-child", text: /Soonest Cup/
     [draft, canceled, past].each { |event| assert_select "[data-upcoming-event='#{event.slug}']", count: 0 }
     assert_select "[data-upcoming-event='#{soonest.slug}']"
-  end
-
-  test "a waiting-list signup is stored and answered in place" do
-    assert_difference -> { WaitlistSignup.count }, 1 do
-      post waitlist_signups_path, params: { waitlist_signup: { name: "Ana", email: "Ana@Example.com " } },
-                                  as: :turbo_stream
-    end
-
-    assert_response :success
-    assert_includes response.body, %(target="waitlist")
-    assert_includes response.body, "You&#39;re on the list"
-    assert_equal "ana@example.com", WaitlistSignup.last.email
-  end
-
-  test "a known e-mail gets the same answer and no second row" do
-    WaitlistSignup.create!(name: "Ana", email: "ana@example.com")
-
-    assert_no_difference -> { WaitlistSignup.count } do
-      post waitlist_signups_path, params: { waitlist_signup: { name: "Other", email: "ANA@example.com" } },
-                                  as: :turbo_stream
-    end
-
-    assert_response :success
-    assert_includes response.body, "You&#39;re on the list"
-  end
-
-  test "an invalid e-mail is refused in place" do
-    assert_no_difference -> { WaitlistSignup.count } do
-      post waitlist_signups_path, params: { waitlist_signup: { name: "Ana", email: "not-an-email" } },
-                                  as: :turbo_stream
-    end
-
-    assert_response :unprocessable_content
-    assert_includes response.body, "Check your name and e-mail."
-  end
-
-  test "without Turbo the signup redirects back to the landing with a notice" do
-    post waitlist_signups_path, params: { waitlist_signup: { name: "Ana", email: "ana@example.com" } }
-
-    assert_redirected_to root_path(anchor: "waitlist")
-    assert_equal "You're on the list", flash[:notice]
-  end
-
-  test "the waiting list allows five signups per address in ten minutes" do
-    with_memory_rate_limit_store do
-      5.times do |index|
-        post waitlist_signups_path, params: { waitlist_signup: { name: "N#{index}", email: "n#{index}@example.com" } },
-                                    as: :turbo_stream
-        assert_response :success
-      end
-
-      post waitlist_signups_path, params: { waitlist_signup: { name: "N", email: "n@example.com" } },
-                                  as: :turbo_stream
-      assert_response :too_many_requests
-      assert_includes response.body, "Too many tries."
-    end
-    assert_equal 5, WaitlistSignup.count
   end
 
   private

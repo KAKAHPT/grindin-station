@@ -10,7 +10,6 @@
 <% arts = (1..48).map { |n| image_path("landing/c#{n}.jpg") } %>
 <% seat_rows = [%w[Anne Mike Chris Sarah], %w[Tom Anne Emma Jake], %w[Lucy Ben Anne Alex], %w[Sam Kate Dan Anne]] %>
 <% seat_costs = [0, 1, 1, 0] %>
-<% open_count = @upcoming.count(&:registration_open?) %>
 
 <div class="landing">
   <section class="lp-hero">
@@ -90,7 +89,7 @@
     <div class="lp-upc-hd">
       <h2><%= t("landing.upcoming.title") %></h2>
       <span>
-        <% if open_count.positive? %><%= t("landing.upcoming.open", count: open_count) %> · <% end %>
+        <% if @open_count.positive? %><%= t("landing.upcoming.open", count: @open_count) %> · <% end %>
         <%= link_to t("landing.upcoming.see_all"), events_path(locale: url_locale) %>
       </span>
     </div>

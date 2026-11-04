@@ -24,14 +24,12 @@ class WaitlistSignupsController < ApplicationController
                                                               locals: { signup: signup, state: state }),
                status: status
       end
-      format.html { respond_without_turbo(state, status) }
+      format.html { respond_without_turbo(state) }
     end
   end
 
-  def respond_without_turbo(state, status)
+  def respond_without_turbo(state)
     message = t("landing.waitlist.#{state || :invalid}")
-    return render(plain: message, status: status) if state == :limited
-
     redirect_to root_path(locale: params[:locale], anchor: "waitlist"),
                 (state == :done ? :notice : :alert) => message
   end
