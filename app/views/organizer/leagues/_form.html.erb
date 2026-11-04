@@ -34,14 +34,14 @@
   <%= f.number_field_with_label :wager_percentage, placeholder: "Wager % (e.g. 10)", min: 0, max: 100 %>
 
   <div class="flex gap-2">
-    <%= f.collection_select_with_label :circuit_id, Circuit.all, :id, :name, { include_hidden: false, include_blank: true }, class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" %>
+    <%= f.collection_select_with_label :circuit_id, Circuit.all, :id, :name, { include_hidden: false, include_blank: true } %>
   </div>
 
   <%= f.text_area_with_label :description, rows: 4, placeholder: "Additional info about the league." %>
 
   <% content_for :footer do %>
     <%= f.submit %>
-    <%= link_to [:organizer, league], class:"py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" do %>
+    <%= link_to [:organizer, league], class: "ms-3 #{small_button_classes(:ghost)}" do %>
       Cancel
     <% end %>
   <% end %>

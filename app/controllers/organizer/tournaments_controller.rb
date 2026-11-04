@@ -6,9 +6,20 @@ module Organizer
     require_organizer only: %i[new create]
     allow_roles :organizer, only: %i[edit update]
     allow_roles :organizer, :judge, :scorekeeper, only: :show
+    # New and Settings are full pages (the tournament page's Settings tab), never the modal.
+    layout "application"
 
+    PAST_STATES = %i[finished canceled].freeze
+
+    # Active (not finished/canceled) or, with ?past=1, past tournaments as cards.
     def index
-      @tournaments = Tournament.with_attached_cover.where.not(state: :canceled).staffed_by(current_user).preload(:rounds)
+      @past = params[:past].present?
+      scope = Tournament.with_attached_cover.staffed_by(current_user).preload(:rounds)
+      @tournaments =
+        if @past then scope.where(state: PAST_STATES).order(start_time: :desc)
+        else scope.where.not(state: PAST_STATES).order(:start_time)
+        end
+      @editable_ids = editable_ids(@tournaments)
     end
 
     def show
@@ -59,6 +70,13 @@ module Organizer
     end
 
     private
+
+    # Tournaments the user may edit: owned, or staffed as an organizer (one query for the staff roles).
+    def editable_ids(tournaments)
+      organizer_id = current_organizer&.id
+      staffed = EventStaff.where(user: current_user, role: "organizer", event_id: tournaments.map(&:id)).pluck(:event_id)
+      tournaments.select { |t| organizer_id && t.event_organizer_id == organizer_id }.map(&:id) + staffed
+    end
 
     def tournament_params
       params.expect(tournament: %i[

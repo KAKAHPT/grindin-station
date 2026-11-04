@@ -1,29 +1,39 @@
-<%= content_for :sub_navigation do %>
-  <h1 class="font-display text-xl font-semibold text-ink sm:text-2xl">
-    <%= t("organizer.judge_calls.title", event: @tournament.name) %>
-    <%= link_to t("organizer.judge_calls.back"), [:organizer, @tournament], class: "float-right font-body text-sm font-medium text-accent hover:underline" %>
-  </h1>
+<%= render "organizer/tournaments/shell", tournament: @tournament %>
+
+<section class="col-span-full card overflow-clip" data-judge-center>
+  <h2 class="card-title"><%= t("organizer.judge_calls.active") %></h2>
+  <% if @active_calls.any? %>
+    <table class="ctable">
+      <thead>
+        <tr>
+          <th><%= t("play.tables.table") %></th>
+          <th><%= t("organizer.judge_calls.player") %></th>
+          <th><%= t("organizer.judge_calls.reason") %></th>
+          <th><%= t("organizer.judge_calls.opened") %></th>
+          <th><%= t("organizer.judge_calls.status") %></th>
+          <th class="r"><span class="sr-only"><%= t("organizer.judge_calls.actions") %></span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= render partial: "judge_call", collection: @active_calls, locals: { tournament: @tournament } %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="px-4 py-6 text-center text-[12px] text-muted"><%= t("organizer.judge_calls.empty") %></p>
+  <% end %>
+</section>
+
+<% if @closed_calls.any? %>
+  <details class="col-span-full card overflow-clip">
+    <summary class="card-title cursor-pointer text-muted hover:text-ink"><%= t("organizer.judge_calls.closed", count: Organizer::JudgeCallsController::CLOSED_SHOWN) %></summary>
+    <table class="ctable text-muted">
+      <tbody>
+        <%= render partial: "judge_call", collection: @closed_calls, locals: { tournament: @tournament } %>
+      </tbody>
+    </table>
+  </details>
 <% end %>
 
-<div class="col-span-full p-5 bg-surface border border-line rounded-2xl shadow-card">
-  <h2 class="mb-2 font-display text-lg font-semibold text-ink"><%= t("organizer.judge_calls.active") %></h2>
-  <ul class="divide-y divide-line/60">
-    <%= render partial: "judge_call", collection: @active_calls, locals: { tournament: @tournament } %>
-  </ul>
-  <% if @active_calls.empty? %>
-    <p class="py-6 px-4 text-center text-muted border border-dashed border-line rounded-xl"><%= t("organizer.judge_calls.empty") %></p>
-  <% end %>
-
-  <% if @closed_calls.any? %>
-    <details class="mt-4">
-      <summary class="cursor-pointer text-sm font-medium text-muted hover:text-ink"><%= t("organizer.judge_calls.closed", count: Organizer::JudgeCallsController::CLOSED_SHOWN) %></summary>
-      <ul class="divide-y divide-line/60 text-muted">
-        <%= render partial: "judge_call", collection: @closed_calls, locals: { tournament: @tournament } %>
-      </ul>
-    </details>
-  <% end %>
-
-  <p class="mt-4">
-    <%= link_to t("organizer.judge_calls.infractions"), organizer_tournament_event_participants_path(@tournament, layout: "application"), class: "text-sm font-medium text-accent hover:underline" %>
-  </p>
-</div>
+<p class="col-span-full">
+  <%= link_to t("organizer.judge_calls.infractions"), organizer_tournament_event_participants_path(@tournament, layout: "application"), class: button_classes(:secondary, size: :sm) %>
+</p>

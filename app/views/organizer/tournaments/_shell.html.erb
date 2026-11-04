@@ -1,0 +1,21 @@
+<%# The tournament page shell: event header card + route tabs (Overview, Roster, Rounds, Judge Center, Staff,
+    Settings), rendered at the top of each tab's view. Local tournament:. %>
+<% role = staff_role(tournament) %>
+<% structure = tournament_structure(tournament) %>
+<% open_calls = tournament.judge_calls.where(status: "open").count %>
+<% next_state = tournament_next_state(tournament) if role == "organizer" %>
+<% content_for :event_header do %>
+  <%= render "shared/event_header", event: tournament,
+             eyebrow: tournament_eyebrow(tournament),
+             line: tournament_info_line(tournament, structure),
+             actions: capture {
+               concat link_to(t("organizer.shell.view_public"), play_event_path(tournament.slug), target: "_blank", rel: "noopener", class: button_classes(:secondary, size: :sm))
+               if next_state
+                 concat button_to(transition_for(state: next_state), organizer_tournament_path(tournament),
+                                  method: :patch, params: { tournament: { state: next_state } },
+                                  data: { turbo_confirm: t("organizer.shell.confirm_state") },
+                                  class: button_classes(:primary, size: :sm))
+               end
+             } %>
+  <%= render "shared/tabs", tabs: tournament_tabs(tournament, role: role, active: tournament_active_tab, open_calls: open_calls) %>
+<% end %>

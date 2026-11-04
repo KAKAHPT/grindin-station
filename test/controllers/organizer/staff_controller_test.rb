@@ -21,7 +21,7 @@ module Organizer
       assert_equal [users(:player_one), "judge"], [staff.user, staff.role]
 
       get organizer_tournament_staff_index_path(@tournament)
-      assert_select "li", text: /Player One/
+      assert_select "[data-staff] tr", text: /Player One/
 
       assert_difference -> { @tournament.event_staff.count }, -1 do
         delete organizer_tournament_staff_path(@tournament, staff)

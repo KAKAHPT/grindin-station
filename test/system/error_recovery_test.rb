@@ -11,12 +11,13 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
     # Draft state shows Open Registrations button
     visit organizer_tournament_path(tournament)
 
-    # registration_open state shows Close Registrations and Cancel buttons
+    # registration_open state shows Close Registrations; Cancel event lives in Settings
     assert_button "Close Registrations"
     assert_no_button "Open Registrations"
 
     # Cancel requires a confirm dialog
-    accept_confirm { click_button "Cancel" }
+    click_link "Settings"
+    accept_confirm { click_button "Cancel event" }
     assert_text "Tournament updated successfully"
 
     tournament.reload
@@ -29,7 +30,7 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
     sign_in_as(organizer)
 
     visit organizer_tournaments_path
-    click_link "Organize Tournament"
+    click_link "New tournament"
 
     # Submit form with missing required fields
     fill_in "Start time", with: Time.zone.now.tomorrow.change(sec: 0)
@@ -104,7 +105,7 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
     visit organizer_tournament_path(tournament)
 
     # Should show current state, not cached state
-    # registration_closed state shows "Move to Swiss stage" and "Cancel" buttons
+    # registration_closed state shows "Move to Swiss stage"
     assert_button "Move to Swiss stage"
     assert_no_button "Close Registrations"
   end

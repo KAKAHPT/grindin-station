@@ -1,66 +1,68 @@
-<%= content_for :sub_navigation do %>
-  <nav class="flex mb-5" aria-label="Breadcrumb">
-    <ol class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2">
-      <li class="inline-flex items-center">
-        <%= link_to root_url, class:"inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white" do %>
-          <svg
-            class="w-5 h-5 mr-2.5"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
-            ></path>
-          </svg>
-          Home
-        <% end %>
-      </li>
-      <li>
-        <div class="flex items-center">
-          <svg
-            class="w-6 h-6 text-gray-400"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-              clip-rule="evenodd"
-            ></path>
-          </svg>
-          <%= link_to [:organizer, :tournaments], class: 'ml-1 text-gray-700 hover:text-primary-600 md:ml-2 dark:text-gray-300 dark:hover:text-white' do %>
-            Tournaments
+<%= render "organizer/tournaments/shell", tournament: @tournament %>
+<% counters = tournament_counters(@tournament) %>
+<% structure = tournament_structure(@tournament) %>
+<% yes_no = ->(on) { on ? t("organizer.overview.on") : t("organizer.overview.off") } %>
+
+<div class="col-span-full kpi" data-overview-counters>
+  <div class="card"><b class="tabular"><%= counters[:enrolled] %></b><span><%= t("organizer.overview.enrolled", count: counters[:waitlist]) %></span></div>
+  <div class="card"><b class="tabular"><%= counters[:checked_in] %></b><span><%= t("organizer.roster.counters.checked_in") %></span></div>
+  <div class="card"><b class="tabular"><%= counters[:unpaid] %></b><span><%= t("organizer.roster.counters.unpaid") %></span></div>
+  <div class="card"><b class="tabular"><%= counters[:no_decklist] %></b><span><%= t("organizer.overview.without_decklist") %></span></div>
+</div>
+
+<div class="col-span-full grid grid-cols-1 gap-3.5 lg:grid-cols-2">
+  <section class="card overflow-clip" data-overview-format>
+    <h2 class="card-title"><%= t("organizer.overview.format") %></h2>
+    <table class="ctable">
+      <tbody>
+        <tr>
+          <td><%= t("organizer.overview.swiss_rounds") %></td>
+          <td class="r tabular"><%= t("organizer.overview.swiss_line", count: structure[:swiss], minutes: @tournament.round_minutes) %></td>
+        </tr>
+        <tr>
+          <td><%= t("organizer.overview.top_cut") %></td>
+          <td class="r tabular">
+            <%= structure[:cut].positive? ? t("organizer.overview.cut_line", size: structure[:cut], minutes: @tournament.top_cut_round_minutes) : t("organizer.no_cut") %>
+          </td>
+        </tr>
+        <tr>
+          <td><%= t("organizer.overview.points") %></td>
+          <td class="r tabular"><%= tournament_points_line(@tournament) %></td>
+        </tr>
+        <tr>
+          <td><%= t("organizer.overview.self_report") %></td>
+          <td class="r">
+            <% if @tournament.self_report_enabled %>
+              <%= desk_chip(:ok) { t("organizer.overview.self_report_on", confirmation: t("organizer.overview.confirmation.#{@tournament.result_confirmation}")) } %>
+            <% else %>
+              <%= desk_chip(:missing) { yes_no.(false) } %>
+            <% end %>
+          </td>
+        </tr>
+        <tr>
+          <td><%= t("organizer.overview.commanders") %></td>
+          <td class="r"><%= desk_chip(@tournament.show_commanders_in_standings ? :ok : :missing) { yes_no.(@tournament.show_commanders_in_standings) } %></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card overflow-clip" data-overview-lately>
+    <h2 class="card-title"><%= t("organizer.overview.lately.title") %></h2>
+    <% lately = tournament_lately(@tournament) %>
+    <% if lately.any? %>
+      <table class="ctable">
+        <tbody>
+          <% lately.each do |text, time| %>
+            <tr>
+              <td><%= text %></td>
+              <td class="r whitespace-nowrap text-muted"><%= t("organizer.judge_calls.ago", time: time_ago_in_words(time)) %></td>
+            </tr>
           <% end %>
-        </div>
-      </li>
-      <li>
-        <div class="flex items-center">
-          <svg
-            class="w-6 h-6 text-gray-400"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-              clip-rule="evenodd"
-            ></path>
-          </svg>
-          <span
-            class="ml-1 text-gray-400 md:ml-2 dark:text-gray-500"
-            aria-current="page"
-          >
-            <%= @tournament.name %>
-          </span>
-        </div>
-      </li>
-    </ol>
-  </nav>
-<% end %>
-
-<%= render "tournaments/tournament_header", tournament: @tournament %>
-
-<%= render "tournaments/tournament_detailed_info", tournament: @tournament %>
+        </tbody>
+      </table>
+    <% else %>
+      <p class="px-4 py-6 text-center text-[12px] text-muted"><%= t("organizer.overview.lately.empty") %></p>
+    <% end %>
+  </section>
+</div>
