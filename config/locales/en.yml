@@ -559,6 +559,7 @@ en:
       not_authorized_tournament: "Not authorized to manage the selected tournament"
       not_allowed: "Not allowed"
       passwords_no_match: "Passwords did not match."
+      password_too_short: "The password needs at least 8 characters."
       password_reset_link_invalid: "Password reset link is invalid or has expired."
       try_again_later: "Try again later."
       invalid_credentials: "Try another email address or password."

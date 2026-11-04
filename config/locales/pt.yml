@@ -559,6 +559,7 @@ pt:
       not_authorized_tournament: "Não tens permissão para gerir o torneio selecionado"
       not_allowed: "Não permitido"
       passwords_no_match: "As palavras-passe não coincidem."
+      password_too_short: "A palavra-passe precisa de pelo menos 8 caracteres."
       password_reset_link_invalid: "A ligação para repor a palavra-passe é inválida ou expirou."
       try_again_later: "Tenta novamente mais tarde."
       invalid_credentials: "Tenta outro e-mail ou outra palavra-passe."

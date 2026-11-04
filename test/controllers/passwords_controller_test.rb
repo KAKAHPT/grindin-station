@@ -36,7 +36,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
       put password_path(user.password_reset_token), params: { password: password, password_confirmation: password }
 
       assert_match %r{/passwords/[^/]+/edit\z}, response.location
-      assert_equal I18n.t("flash.alert.passwords_no_match"), flash[:alert]
+      assert_equal I18n.t("flash.alert.password_too_short"), flash[:alert]
     end
     user.reload
     assert_not user.password_set

@@ -28,7 +28,7 @@ class PasswordsController < ApplicationController
       @user.sessions.destroy_all
       redirect_to new_session_path, notice: t("flash.notice.password_reset")
     else
-      redirect_to edit_password_path(params[:token]), alert: t("flash.alert.passwords_no_match")
+      redirect_to edit_password_path(params[:token]), alert: t(reset_failure_key)
     end
   end
 
@@ -38,6 +38,10 @@ class PasswordsController < ApplicationController
   def reset_password
     params[:password].present? &&
       @user.update(params.permit(:password, :password_confirmation).merge(password_set: true))
+  end
+
+  def reset_failure_key
+    params[:password].to_s.length < 8 ? "flash.alert.password_too_short" : "flash.alert.passwords_no_match"
   end
 
   def set_user_by_token
