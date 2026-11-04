@@ -353,6 +353,13 @@ pt:
     standings:
       final_title: "Classificação final"
       movement: "Movimento desde a última ronda"
+      moved_up:
+        one: "Subiu 1 lugar desde a última ronda"
+        other: "Subiu %{count} lugares desde a última ronda"
+      moved_down:
+        one: "Desceu 1 lugar desde a última ronda"
+        other: "Desceu %{count} lugares desde a última ronda"
+      moved_none: "Mesmo lugar da última ronda"
     pairings:
       search: "Procurar um jogador"
       your_table: "A tua mesa"
@@ -487,6 +494,7 @@ pt:
       beaten: "Adversários batidos: jogadores distintos nas mesas que ganhaste."
       unique: "Adversários únicos: jogadores distintos que defrontaste."
       seed: "Restantes empates: sorteio com semente feito na ronda 1, fixo durante todo o evento."
+      movement: "Setas pequenas: lugares ganhos ou perdidos desde a última ronda."
       omw: "OMW%: a média das percentagens de matches ganhos dos teus adversários, cada uma com um mínimo de 33% (sem byes)."
       gw: "GW%: os teus pontos de jogo (3 por jogo ganho, 1 por jogo empatado) sobre 3 por jogo jogado, com um mínimo de 33%."
       ogw: "OGW%: a média das percentagens de jogos ganhos dos teus adversários, cada uma com um mínimo de 33% (sem byes)."

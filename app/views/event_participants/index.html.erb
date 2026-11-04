@@ -12,10 +12,10 @@
 <% latest_published = @tournament.rounds.published.max_by(&:number) %>
 <% one_v_one = @tournament.one_v_one? %>
 <%# No Seats column for anyone (seat history is on the player's own table and in the organizer roster's
-    expanded row). Public standings mark the viewer's row "You" and add the movement arrows column once
-    shared/_movement exists. %>
+    expanded row). Public standings mark the viewer's row "You"; both the page and the modal show the
+    movement arrows (shared/_movement). %>
 <% me_id = (current_participant&.id unless @standings_in_modal) %>
-<% movement = !@standings_in_modal && lookup_context.exists?("shared/movement", [], true) %>
+<% movement = true %>
 <% content_for :close do %>
   <% if latest_published %>
     <%= link_to [@tournament, latest_published.becomes(Round)], class: "ms-auto #{icon_button_classes}" do %>
@@ -196,7 +196,7 @@
   </table>
   </div>
   </div>
-  <%= render "tournaments/standings_help", event: @tournament %>
+  <%= render "tournaments/standings_help", event: @tournament, movement: movement %>
 <% end %>
 
 <% content_for :footer do %>

@@ -175,6 +175,13 @@ es:
     standings:
       final_title: "Clasificación final"
       movement: "Movimiento desde la última ronda"
+      moved_up:
+        one: "Subió 1 puesto desde la última ronda"
+        other: "Subió %{count} puestos desde la última ronda"
+      moved_down:
+        one: "Bajó 1 puesto desde la última ronda"
+        other: "Bajó %{count} puestos desde la última ronda"
+      moved_none: "Mismo puesto que en la última ronda"
     pairings:
       search: "Buscar un jugador"
       your_table: "Tu mesa"
@@ -243,3 +250,6 @@ es:
       of_max: "de %{max} inscritos"
       view: "Ver evento"
       register: "Inscribirme"
+  standings:
+    help:
+      movement: "Flechas pequeñas: puestos ganados o perdidos desde la última ronda."

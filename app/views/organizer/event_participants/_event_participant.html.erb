@@ -18,6 +18,7 @@
     >
       <span class="tabular text-muted"><%= event_participant.rank || t("organizer.roster.desk.waitlist", position: event_participant.waitlist_position) %></span>
     </th>
+    <td class="px-1 py-1 text-nowrap"><%= render "shared/movement", participant: event_participant %></td>
     <th
       scope="row"
       data-tooltip-target="tooltip-<%= event_participant.id %>"

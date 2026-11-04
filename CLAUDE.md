@@ -143,7 +143,7 @@ Infractions have a hierarchical enum structure:
 ### Public API (stream kit feeds)
 
 - **Namespace** `Api::V1` (`app/controllers/api/v1/`): `BaseController` has no auth/CSRF, `expires_in 30.seconds, public: true`, ETag/Last-Modified from `Feeds.last_change` (includes participants' users, so renames invalidate), `rate_limit` 120/min per IP → 429 `{"error":"rate_limited"}`; draft/canceled events and unknown slugs return 404 `{"error":"not_found"}`
-- **Serializers** `Feeds::Standings`, `Feeds::Rounds`, `Feeds::Info` (`app/serializers/feeds/`, POROs with `call(event, updated:)`) plus `Feeds` helpers; keys mirror the TopDeck relay the OBS kit reads: `updated` epoch seconds (all three), per round `start`/`end` epoch seconds (nil until started/closed) and `clock` seconds, per table `ended` epoch seconds (completed only); standings `id` = `player_id` (UUID, never `player.key`); no decklists, cut rounds named "Top N", `seats` is an object (the kit ignores it), `latest`/`roundTime`/`timerEnd` kept
+- **Serializers** `Feeds::Standings`, `Feeds::Rounds`, `Feeds::Info` (`app/serializers/feeds/`, POROs with `call(event, updated:)`) plus `Feeds` helpers; keys mirror the TopDeck relay the OBS kit reads: `updated` epoch seconds (all three), per round `start`/`end` epoch seconds (nil until started/closed) and `clock` seconds, per table `ended` epoch seconds (completed only); standings `id` = `player_id` (UUID, never `player.key`); no decklists, cut rounds named "Top N", `seats` is an object (the kit ignores it), `latest`/`roundTime`/`timerEnd` kept; standings `movement` = places moved up between the two latest closed rounds (null before round 2)
 - **Stream kits**: the generic "cEDH PT" kit (`~/Desktop/cEDH PT/Content/Stream Kit/cEDH PT/src`, Podcast tab) accepts a Grindin event link (`https://<host>/t/<slug>`) and reads `standings`/`rounds`/`info` straight from this API (`pod.js`, `control.html`; done 2026-11-04). The P9Q kit (`P9Q 2026/src/kit.js`) is untouched by decision of the owner; if it is ever adapted: `const API` + fetch path (`<base>/api/v1/events/<slug>/<feed>`), `standingsTid` must accept `/t/<slug>`, the `commanders` feed (`crew.php`) has no equivalent (use the feed's `commander` or set autoCmd off), and the "Live from TopDeck" label
 - CORS `*` for `/api/v1/*` only (`config/initializers/cors.rb`, rack-cors)
 
@@ -157,6 +157,7 @@ Uses Solid Queue for job processing:
 - **Circuits**: `UpdateStandingsJob`
 - **Live** (Turbo Streams): `Live::BroadcastTableJob` (a participant's table), `Live::BroadcastPodJob`, `Live::BroadcastRoundJob` (organizer round page via state partial + morph refresh). `refresh_pairings` morph-refreshes the public pairings page (all rounds, any pod change); `refresh_standings` morph-refreshes the public standings page (round published/closed, or a pod change on a closed round)
 - Tournaments record `final_position` at finish (used by circuit points)
+- **Standings snapshots**: `Round#round_finished` writes `Standings::Snapshot` (each participant's rank, `Feeds::Standings.ranked` order, keyed by round number) before advancing; undoing a round discards the reopened round's snapshot and later ones. `EventParticipant#movement_since_last_round` (one query per standings load) feeds the ▲n/▼n/– arrows (`shared/_movement`) and the feed
 
 ### Deployment
 

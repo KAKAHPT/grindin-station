@@ -1,0 +1,9 @@
+<%# Places moved since the last round: ▲n up, ▼n down, – unchanged, blank before two rounds have closed.
+    Tiny and near-background grey, never coloured. %>
+<% moved = participant.movement_since_last_round %>
+<% unless moved.nil? %>
+  <% title = if moved.positive? then t("play.standings.moved_up", count: moved)
+             elsif moved.negative? then t("play.standings.moved_down", count: -moved)
+             else t("play.standings.moved_none") end %>
+  <span data-movement="<%= moved %>" title="<%= title %>" class="tabular text-[10px] font-medium text-muted/60 whitespace-nowrap"><span aria-hidden="true"><%= if moved.positive? then "▲#{moved}" elsif moved.negative? then "▼#{-moved}" else "–" end %></span><span class="sr-only"><%= title %></span></span>
+<% end %>

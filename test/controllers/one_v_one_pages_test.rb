@@ -5,7 +5,8 @@ require "test_helper"
 # The tournament pages of a 1v1 event: "Table N" with two names and no seat squares, the score next to
 # the winner, and the 1v1 standings columns (OMW%, GW%, OGW%; no Seats, Beaten or Unique).
 class OneVOnePagesTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
-  ONE_V_ONE_COLUMNS = ["Rank", "Player", "Pts", "OMW%", "GW%", "OGW%", "Win %", "W-L-D"].freeze
+  ONE_V_ONE_COLUMNS = ["Rank", "Movement since the last round", "Player", "Pts", "OMW%", "GW%", "OGW%", "Win %",
+                       "W-L-D"].freeze
 
   setup do
     @t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer), format: "one_v_one")

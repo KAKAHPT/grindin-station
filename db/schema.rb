@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_04_160000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_04_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -297,6 +297,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_04_160000) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
+  create_table "standings_snapshots", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.uuid "event_id", null: false
+    t.uuid "event_participant_id", null: false
+    t.integer "rank", null: false
+    t.integer "round_number", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "round_number", "event_participant_id"], name: "index_standings_snapshots_unique", unique: true
+    t.index ["event_participant_id"], name: "index_standings_snapshots_on_event_participant_id"
+  end
+
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "anonymized_at"
     t.text "bio"
@@ -352,4 +363,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_04_160000) do
   add_foreign_key "seatings", "event_participants"
   add_foreign_key "seatings", "pods"
   add_foreign_key "sessions", "users"
+  add_foreign_key "standings_snapshots", "event_participants", on_delete: :cascade
+  add_foreign_key "standings_snapshots", "events", on_delete: :cascade
 end

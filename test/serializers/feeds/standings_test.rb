@@ -84,7 +84,7 @@ module Feeds
     test "multiplayer rows keep their keys: seats and no 1v1 rates" do
       row = Feeds::Standings.call(@t)[:standings].first
 
-      assert_equal %i[rank name id commander wins losses draws points winRate seats], row.keys
+      assert_equal %i[rank name id commander wins losses draws points winRate movement seats], row.keys
     end
 
     test "1v1 rows carry OMW, GW and OGW to 4 decimals and no seats" do
@@ -92,10 +92,27 @@ module Feeds
       rows = Feeds::Standings.call(t)[:standings]
       winner = rows.first
 
-      assert_equal %i[rank name id commander wins losses draws points winRate omw gw ogw], winner.keys
+      assert_equal %i[rank name id commander wins losses draws points winRate movement omw gw ogw], winner.keys
       assert_equal [1, 0, 0, 3], winner.values_at(:wins, :losses, :draws, :points)
       assert_equal [0.33, 0.6667, 0.3333], winner.values_at(:omw, :gw, :ogw)
       assert(rows.all? { |row| [row[:omw], row[:gw], row[:ogw]].all?(Float) })
+    end
+
+    test "movement is null until two rounds have closed, then places moved up since the last round" do
+      ::Standings::Snapshot.call(@t, @round1)
+      assert(Feeds::Standings.call(@t)[:standings].all? { |row| row.key?(:movement) && row[:movement].nil? })
+
+      first, third = @t.standings_snapshots.where(rank: [1, 3]).order(:rank).map(&:event_participant)
+      swapped = { first.id => 3, third.id => 1 }
+      @t.standings_snapshots.find_each do |row|
+        @t.standings_snapshots.create!(round_number: 2, event_participant_id: row.event_participant_id,
+                                       rank: swapped.fetch(row.event_participant_id, row.rank))
+      end
+
+      rows = Feeds::Standings.call(@t)[:standings].index_by { |row| row[:id] }
+      assert_equal(-2, rows.fetch(first.player_id)[:movement])
+      assert_equal 2, rows.fetch(third.player_id)[:movement]
+      assert_equal [0] * 14, rows.except(first.player_id, third.player_id).values.pluck(:movement)
     end
   end
 end

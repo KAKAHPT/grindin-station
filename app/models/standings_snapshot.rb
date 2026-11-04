@@ -1,0 +1,23 @@
+# frozen_string_literal: true
+
+# A participant's rank in the standings when a round closed (Standings::Snapshot), keyed by round number.
+class StandingsSnapshot < ApplicationRecord
+  belongs_to :event
+  belongs_to :event_participant
+
+  # participant id => places moved between the two latest snapshots of the event (positive = up);
+  # empty before two rounds have closed. One query.
+  def self.movements_for(event_id)
+    before, after = latest_two_ranks(event_id)
+    return {} unless after
+
+    after.filter_map { |id, rank| [id, before[id] - rank] if before[id] }.to_h
+  end
+
+  # [{participant id => rank}, ...] for the event's two latest round numbers, older first.
+  def self.latest_two_ranks(event_id)
+    numbers = where(event_id: event_id).select(:round_number).distinct.order(round_number: :desc).limit(2)
+    where(event_id: event_id, round_number: numbers).pluck(:round_number, :event_participant_id, :rank)
+      .group_by(&:first).sort.map { |_, rows| rows.to_h { |_, id, rank| [id, rank] } }
+  end
+end
