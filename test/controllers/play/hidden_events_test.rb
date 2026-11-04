@@ -54,6 +54,16 @@ module Play
       assert_response :success
     end
 
+    test "the legacy round page does not show an unpublished round" do
+      unpublished = @tournament.rounds.create!(type: SwissRound, number: 2)
+
+      get tournament_round_path(@tournament, unpublished)
+      assert_response :not_found
+
+      get tournament_round_path(@tournament, @tournament.rounds.find_by!(number: 1))
+      assert_response :success
+    end
+
     test "legacy round routes are read-only and the public pod and round list routes are gone" do
       assert_raises(ActionController::RoutingError) { Rails.application.routes.recognize_path("/tournaments/1/rounds/1/edit") }
       assert_raises(ActionController::RoutingError) do
