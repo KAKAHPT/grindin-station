@@ -105,6 +105,7 @@ module Organizer
                       top_cut_size
                       round_minutes
                       top_cut_round_minutes
+                      pairing_mode
                       self_report_enabled
                       result_confirmation
                       confirmation_timeout_minutes

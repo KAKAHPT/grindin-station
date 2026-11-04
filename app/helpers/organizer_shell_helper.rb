@@ -29,12 +29,17 @@ module OrganizerShellHelper
     parts.join(" · ")
   end
 
-  # "4 Nov 2026, 14:15 – 22:15 · Lisboa · Free entry · 4 Swiss rounds · Top 4"
+  # "4 Nov 2026, 14:15 – 22:15 · Lisboa · Free entry · 4 Swiss rounds · Swiss pods · Top 4" (no pods for 1v1)
   def tournament_info_line(tournament, structure = tournament_structure(tournament))
     [tournament_when(tournament), tournament.address.presence, tournament_price(tournament),
-     t("organizer.shell.swiss_rounds", count: structure[:swiss]),
+     t("organizer.shell.swiss_rounds", count: structure[:swiss]), pairing_mode_name(tournament),
      structure[:cut].positive? ? t("organizer.top_cut_option", size: structure[:cut]) : t("organizer.no_cut")]
       .compact.join(" · ")
+  end
+
+  # "Power pods"; nil for 1v1 (always paired the same way).
+  def pairing_mode_name(event)
+    t("organizer.pairing_modes.#{event.pairing_mode}") unless event.one_v_one?
   end
 
   # Swiss rounds and top cut as set, else as suggested for the field (one count query).

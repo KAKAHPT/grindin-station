@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 module Feeds
-  # {tid, name, updated (epoch seconds), state, starts_at, ends_at, players, round, timerEnd, format, matchGames}:
-  # round is the latest published one; format is "multiplayer" or "one_v_one", matchGames 1 or 3 (best of).
+  # {tid, name, updated (epoch seconds), state, starts_at, ends_at, players, round, timerEnd, format, matchGames,
+  # pairingMode}: round is the latest published one; format is "multiplayer" or "one_v_one", matchGames 1 or 3
+  # (best of), pairingMode "swiss", "random" or "power" (nil for 1v1).
   class Info
     def self.call(event, updated: Feeds.last_change(event)) = new(event).to_h(updated)
 
@@ -19,7 +20,10 @@ module Feeds
 
     private
 
-    def format_keys = { format: @event.format, matchGames: @event.match_games }
+    def format_keys
+      { format: @event.format, matchGames: @event.match_games,
+        pairingMode: (@event.pairing_mode unless @event.one_v_one?) }
+    end
 
     def round_keys(round)
       { players: @event.playing_participants_count, round: round && Feeds.round_label(round),

@@ -127,6 +127,7 @@ es:
       swiss_line: "%{count} × %{minutes} min"
       top_cut: "Top cut"
       cut_line: "Top %{size} · %{minutes} min"
+      pairing: "Emparejamiento"
       points: "Puntos"
       points_line: "%{win} / %{draw} / %{loss} · bye %{bye}"
       self_report: "Resultados por los jugadores"
@@ -185,6 +186,14 @@ es:
     match_games_options:
       bo3: "Al mejor de 3"
       bo1: "Al mejor de 1"
+    pairing_modes:
+      swiss: "Mesas suizas"
+      power: "Mesas Power"
+      random: "Mesas aleatorias"
+    pairing_help:
+      swiss: "Mesas según los resultados; la ronda 2 reparte a los líderes entre las mesas."
+      power: "Estrictamente de arriba abajo por la clasificación en cada ronda, como en una ronda final."
+      random: "Los resultados se ignoran; cada ronda es un sorteo."
     structure_suggestion: "Sugerencia para %{players} jugadores: %{rounds} rondas suizas, top %{cut}"
     structure_suggestion_no_cut: "Sugerencia para %{players} jugadores: %{rounds} rondas suizas, sin corte"
     structure_suggestion_elimination_only: "Sugerencia para %{players} jugadores: eliminación directa, top %{cut}"

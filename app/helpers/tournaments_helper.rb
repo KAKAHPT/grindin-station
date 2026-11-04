@@ -98,6 +98,10 @@ module TournamentsHelper # rubocop:disable Metrics/ModuleLength
     Event::MATCH_GAMES.sort.reverse.map { |games| [t("organizer.match_games_options.bo#{games}"), games] }
   end
 
+  def pairing_mode_options
+    Event::PAIRING_MODES.map { |mode| [t("organizer.pairing_modes.#{mode}"), mode] }
+  end
+
   # Default points per format, for the form to switch untouched points with the format.
   def format_points_defaults
     { "multiplayer" => Event.column_defaults.slice(*Event::POINT_ATTRIBUTES.map(&:to_s)),
