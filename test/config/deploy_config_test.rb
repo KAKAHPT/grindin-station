@@ -92,9 +92,27 @@ class DeployConfigTest < ActiveSupport::TestCase
     assert_equal ["main"], trigger.dig("workflow_run", "branches")
     assert_equal({ "group" => "deploy", "cancel-in-progress" => false }, workflow["concurrency"])
 
+    assert_equal %w[deploy setup], trigger.dig("workflow_dispatch", "inputs", "command", "options")
+
     job = workflow["jobs"]["deploy"]
     assert_match(/workflow_run\.conclusion == 'success'/, job["if"])
     names = job["steps"].pluck("name")
     assert_operator names.index("Check required secrets"), :<, names.index("Deploy with Kamal")
+    deploy = job["steps"].find { |step| step["name"] == "Deploy with Kamal" }
+    assert_equal "${{ inputs.command || 'deploy' }}", deploy.dig("env", "KAMAL_COMMAND")
+  end
+
+  test "CI builds the production image and the runtime stage links the ghcr package to the repo" do
+    ci = YAML.safe_load(Rails.root.join(".github/workflows/ci.yml").read)
+    docker = ci.dig("jobs", "docker")
+    assert docker, "CI must have a docker job"
+    assert_nil docker["needs"]
+    assert(docker["steps"].any? { |step| step["uses"].to_s.start_with?("docker/build-push-action") })
+
+    dockerfile = Rails.root.join("Dockerfile").read
+    runtime = dockerfile.split(/^FROM base$/).last
+    assert_includes runtime, 'LABEL org.opencontainers.image.source="https://github.com/KAKAHPT/grindin-station"'
+    assert_no_match(/\bpostgis\b/, dockerfile[/FROM base AS build.*?(?=^FROM)/m])
+    assert_match(/rm -rf node_modules/, dockerfile)
   end
 end

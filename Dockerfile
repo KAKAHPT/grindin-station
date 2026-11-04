@@ -30,7 +30,7 @@ FROM base AS build
 
 # Install packages needed to build gems
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libpq-dev postgis pkg-config nodejs npm && \
+    apt-get install --no-install-recommends -y build-essential git libpq-dev pkg-config nodejs npm && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # JS packages are build-time only: the Tailwind build imports flowbite/plugin from node_modules.
@@ -57,6 +57,9 @@ RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile && \
 
 # Final stage for app image
 FROM base
+
+# Links the ghcr.io package to the repository so the workflow's GITHUB_TOKEN can push it.
+LABEL org.opencontainers.image.source="https://github.com/KAKAHPT/grindin-station"
 
 # Copy built artifacts: gems, application
 COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"

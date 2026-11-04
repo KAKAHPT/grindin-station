@@ -75,6 +75,10 @@ Rails.application.configure do # rubocop:disable Metrics/BlockLength -- one envi
       authentication: :plain,
       enable_starttls_auto: true
     }.compact
+  else
+    # No mail server configured: drop outgoing mail instead of failing jobs against localhost:25.
+    config.action_mailer.perform_deliveries = false
+    config.action_mailer.raise_delivery_errors = false
   end
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to

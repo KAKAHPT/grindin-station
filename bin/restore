@@ -18,5 +18,9 @@ if [ "$answer" != "$DB_NAME" ]; then
   exit 1
 fi
 
-docker exec -i "$DB_CONTAINER" pg_restore -U grindin -d "$DB_NAME" --clean --if-exists --no-owner < "$1"
+# One transaction, stop at the first error: a failed restore leaves the database as it was.
+# postgis: --clean drops and recreates the postgis extension (grindin is superuser); errors about spatial_ref_sys
+# rows mean the dump and the accessory run different PostGIS versions — restore into the same image tag.
+docker exec -i "$DB_CONTAINER" pg_restore -U grindin -d "$DB_NAME" \
+  --clean --if-exists --no-owner --single-transaction --exit-on-error < "$1"
 echo "restored $1 into $DB_NAME"
