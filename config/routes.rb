@@ -52,6 +52,14 @@ Rails.application.routes.draw do
     resources :judge_calls, only: :create
   end
 
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      get "events/:slug/standings", to: "events#standings", as: :event_standings
+      get "events/:slug/rounds", to: "events#rounds", as: :event_rounds
+      get "events/:slug/info", to: "events#info", as: :event_info
+    end
+  end
+
   resources :events, only: %i[index]
   resources :circuits, only: %i[index show]
 

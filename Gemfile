@@ -10,6 +10,7 @@ gem "tzinfo-data", platforms: %i[windows jruby]
 gem "kaminari"
 gem "kamal", require: false
 gem "thruster", require: false
+gem "rack-cors"
 
 # Sign in with Google / Discord
 gem "omniauth", "~> 2.1"

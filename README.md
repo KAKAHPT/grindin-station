@@ -63,6 +63,12 @@
 - **Ao vivo.** Turbo Streams: a mesa de cada jogador e a página da ronda do organizador atualizam sozinhas
   (`Live::*Job`). Os emparelhamentos públicos ainda não são ao vivo.
 - **Notificações.** `/notifications` e o sino no cabeçalho.
+- **Feeds para o stream (OBS).** `/api/v1/events/:slug/standings`, `/rounds` e `/info`: JSON público, sem sessão,
+  `Cache-Control: public, max-age=30`, ETag pela última alteração do evento e CORS `*` só em `/api/v1/*`. As chaves
+  são as do relay TopDeck que o kit lia (`standings`, `rounds[].tables[]`, `latest`, `roundTime`, `timerEnd`); só
+  rondas publicadas, sem byes nas mesas, `seed` = posição atual na classificação, rondas do corte como "Top 16".
+  Nunca decklists nem links; comandantes só com `show_commanders_in_standings`. Rascunho ou cancelado → 404
+  `{"error":"not_found"}`.
 - **Desempenho.** Sprite de ícones local, Flowbite só no organizador, Leaflet local e carregado a pedido, fontes
   sem bloquear. `bin/rails "grindin:lighthouse[url]"` mede e falha abaixo de 90; resultados em
   `docs/superpowers/notes/2026-11-04-m3-lighthouse.md`.

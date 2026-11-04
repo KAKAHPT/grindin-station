@@ -1,0 +1,75 @@
+# frozen_string_literal: true
+
+require "test_helper"
+
+module Feeds
+  class RoundsTest < ActiveSupport::TestCase
+    include FeedTournament
+
+    setup { build_feed_tournament }
+
+    test "lists the published rounds with their tables, winners and statuses" do
+      feed = Feeds::Rounds.call(@t)
+
+      assert_equal @t.slug, feed[:tid]
+      assert_equal "2", feed[:latest]
+      assert_equal 80, feed[:roundTime]
+      assert_equal %w[1 2], feed[:rounds].pluck(:round)
+
+      one, two = feed[:rounds].pluck(:tables)
+      assert_equal [1, 2, 3, 4], one.pluck(:table)
+      assert_equal ["Completed"] * 4, one.pluck(:status)
+      assert_equal [seated(@round1, 1)[0].name, seated(@round1, 2)[1].name, "Draw", seated(@round1, 4)[3].name],
+                   one.pluck(:winner)
+      assert_equal [false, false, true, false], one.pluck(:draw)
+
+      assert_equal %w[Completed Active Active Active], two.pluck(:status)
+      assert_equal [seated(@round2, 1)[0].name, "", "", ""], two.pluck(:winner)
+    end
+
+    test "players sit in seat order with their current rank as seed, each once per round" do
+      feed = Feeds::Rounds.call(@t)
+      ranks = Feeds::Standings.call(@t)[:standings].to_h { |row| [row[:name], row[:rank]] }
+
+      feed[:rounds].each do |round|
+        names = round[:tables].flat_map { |table| table[:players].pluck(:name) }
+        assert_equal 16, names.size
+        assert_equal names.uniq, names
+      end
+      table = feed[:rounds].first[:tables].first
+      assert_equal seated(@round1, 1).map(&:name), table[:players].pluck(:name)
+      assert_equal(table[:players].map { |p| ranks.fetch(p[:name]) }, table[:players].pluck(:seed))
+      assert_equal [""] * 4, table[:players].pluck(:commander)
+    end
+
+    test "a round that has not started shows its tables as pending and no timer" do
+      @round2.update_columns(started_at: nil) # rubocop:disable Rails/SkipsModelValidations
+      Result.where(round: @round2).delete_all
+      @round2.pods.update_all(pending_result: nil) # rubocop:disable Rails/SkipsModelValidations
+
+      assert_equal ["Pending"] * 4, Feeds::Rounds.call(@t)[:rounds].last[:tables].pluck(:status)
+      assert_nil Feeds::Info.call(@t)[:timerEnd]
+    end
+
+    test "unpublished rounds are left out" do
+      @round2.update_columns(published: false) # rubocop:disable Rails/SkipsModelValidations
+      feed = Feeds::Rounds.call(@t)
+
+      assert_equal %w[1], feed[:rounds].pluck(:round)
+      assert_equal "1", feed[:latest]
+    end
+
+    test "a top cut round is named after the players in it and has no timer when it is the final" do
+      TournamentBuilder.play_round!(@t, winners: { 2 => 0, 3 => 0, 4 => 0 }) # pod 1 is reported
+      cut = @t.rounds.create!(type: SingleEliminationRound, number: 3)
+      cut.update_columns(published: true, started_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
+      feed = Feeds::Rounds.call(@t.reload)
+
+      assert_equal ["1", "2", "Top 4"], feed[:rounds].pluck(:round)
+      assert_equal "Top 4", feed[:latest]
+      assert_nil feed[:roundTime]
+      assert_equal 4, feed[:rounds].last[:tables].sole[:players].size
+      assert_nil Feeds::Info.call(@t)[:timerEnd]
+    end
+  end
+end

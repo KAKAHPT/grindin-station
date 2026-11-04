@@ -60,6 +60,20 @@ class QueryBudgetTest < ActionDispatch::IntegrationTest
     assert_queries_under(60, "event page (visitor)") { get play_event_path(@t.slug) }
   end
 
+  test "stream feeds of a 64-player, 5-round event run under 15 queries each" do
+    @t.update_columns(swiss_rounds_count: 5) # rubocop:disable Rails/SkipsModelValidations
+    (2..5).each do |number|
+      @t.rounds.create!(type: SwissRound, number: number)
+      TournamentBuilder.play_round!(@t, winners: (1..16).index_with { |n| n.even? ? :draw : 0 })
+    end
+    delete session_path
+
+    %w[standings rounds info].each do |feed|
+      ActiveRecord::Base.connection.clear_query_cache # each feed counted cold
+      assert_queries_under(15, "feed #{feed}") { get "/api/v1/events/#{@t.slug}/#{feed}" }
+    end
+  end
+
   private
 
   def assert_queries_under(limit, label, &block)
