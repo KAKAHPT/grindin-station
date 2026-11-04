@@ -8,13 +8,13 @@
 # For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
-ARG RUBY_VERSION=3.4.5
+ARG RUBY_VERSION=4.0.3
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
 # Rails app lives here
 WORKDIR /rails
 
-# Install base packages
+# Install base packages (libvips: avatar variants; postgresql-client: dbconsole)
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y curl libjemalloc2 libyaml-dev libvips postgresql-client && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
@@ -30,11 +30,12 @@ FROM base AS build
 
 # Install packages needed to build gems
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libpq-dev postgis pkg-config nodejs npm && \
+    apt-get install --no-install-recommends -y build-essential git libpq-dev pkg-config nodejs npm && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
+# JS packages are build-time only: the Tailwind build imports flowbite/plugin from node_modules.
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm ci
 
 # Install application gems
 COPY Gemfile Gemfile.lock ./
@@ -48,11 +49,17 @@ COPY . .
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
 
-# Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+# Precompiling assets for production without requiring secret RAILS_MASTER_KEY.
+# tailwindcss-rails enhances assets:precompile with tailwindcss:build, so the CSS is built here,
+# then node_modules is dropped so the runtime image ships neither node_modules nor a Tailwind build step.
+RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile && \
+    rm -rf node_modules
 
 # Final stage for app image
 FROM base
+
+# Links the ghcr.io package to the repository so the workflow's GITHUB_TOKEN can push it.
+LABEL org.opencontainers.image.source="https://github.com/KAKAHPT/grindin-station"
 
 # Copy built artifacts: gems, application
 COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"

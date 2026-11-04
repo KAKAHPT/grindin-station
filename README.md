@@ -63,6 +63,12 @@
 - **Ao vivo.** Turbo Streams: a mesa de cada jogador e a página da ronda do organizador atualizam sozinhas
   (`Live::*Job`). Os emparelhamentos públicos ainda não são ao vivo.
 - **Notificações.** `/notifications` e o sino no cabeçalho.
+- **Feeds para o stream (OBS).** `/api/v1/events/:slug/standings`, `/rounds` e `/info`: JSON público, sem sessão,
+  `Cache-Control: public, max-age=30`, ETag pela última alteração do evento e CORS `*` só em `/api/v1/*`. As chaves
+  são as do relay TopDeck que o kit lia (`standings`, `rounds[].tables[]`, `latest`, `roundTime`, `timerEnd`); só
+  rondas publicadas, sem byes nas mesas, `seed` = posição atual na classificação, rondas do corte como "Top 16".
+  Nunca decklists nem links; comandantes só com `show_commanders_in_standings`. Rascunho ou cancelado → 404
+  `{"error":"not_found"}`.
 - **Desempenho.** Sprite de ícones local, Flowbite só no organizador, Leaflet local e carregado a pedido, fontes
   sem bloquear. `bin/rails "grindin:lighthouse[url]"` mede e falha abaixo de 90; resultados em
   `docs/superpowers/notes/2026-11-04-m3-lighthouse.md`.
@@ -74,6 +80,40 @@ Teste manual em telemóvel real (iOS e Android), por fazer:
 3. Reportar um resultado.
 4. Abrir a classificação (`/t/<slug>/standings`).
 5. Abrir o próprio perfil (`/p/<handle>`).
+
+## Produção
+
+- **Arquitectura.** Kamal 2 num VPS: imagem Docker em `ghcr.io/kakahpt/grindin-station`, kamal-proxy com HTTPS
+  Let's Encrypt, Postgres/PostGIS como accessory preso a `127.0.0.1` (volume de dados e `config/postgres/init.sql`
+  que cria as 4 bases), Active Storage no volume `/rails/storage` e Solid Queue dentro do Puma. Saúde em `/up`.
+- **Feeds para o OBS.** `https://<domínio>/api/v1/events/<slug>/standings`, `.../rounds` e `.../info`: JSON público,
+  cache de 30 s, CORS aberto, 120 pedidos por minuto por IP (depois 429), sem decklists, rondas do corte como "Top N".
+  As chaves seguem o relay do TopDeck: `updated` em segundos epoch, `start`/`clock`/`end` por ronda, `ended` por mesa,
+  `id` = UUID do jogador. O que o kit (`src/kit.js`) ainda tem de mudar:
+  1. `const API` e o `fetch`: `https://<domínio>/api/v1/events/` + `<slug>/<feed>` em vez de `?feed=X&tid=Y`;
+  2. `standingsTid`: o regex tem de aceitar o slug sozinho ou um link `/t/<slug>`;
+  3. o feed `commanders` (`crew.php`) não tem equivalente: usar o `commander` do feed (com `show_commanders_in_standings`
+     ligado no evento) ou desligar o autoCmd;
+  4. o texto "Live from TopDeck".
+  O resto (`json.standings`, `r.round`, `r.tables`, `t.*`, `p.seed`, `r.start/clock/end`, `t.ended`, `updated`) já
+  coincide.
+- **Segredos (GitHub, environment `production`).** Obrigatórios: `GS_VPS_HOST`, `GS_DOMAIN`, `RAILS_MASTER_KEY`,
+  `POSTGRES_PASSWORD` (só hex: `openssl rand -hex 32`) e `SSH_PRIVATE_KEY`. Opcionais: `SSH_KNOWN_HOSTS`, OAuth
+  (`GOOGLE_*`, `DISCORD_*`) e SMTP (`SMTP_ADDRESS`, `SMTP_PORT`, `SMTP_DOMAIN`, `SMTP_USER_NAME`, `SMTP_PASSWORD`;
+  sem `SMTP_ADDRESS` não saem e-mails).
+  `RAILS_MASTER_KEY` = o conteúdo de `config/master.key` nesta máquina (gerado em 2026-11-04, junto com o
+  `config/credentials.yml.enc` novo; guarda-o no gestor de palavras-passe; sem ele a app não arranca; não está no git).
+- **Primeiro deploy.** Com o DNS a apontar para o VPS: GitHub, Actions, Deploy, Run workflow, `command: setup`.
+  Instala o Docker, arranca a base, constrói e envia a imagem e faz o primeiro deploy.
+- **Organizador.** Nunca correr `db:seed` em produção (cria organizadores com palavra-passe conhecida; o
+  `db/seeds.rb` aborta em produção). Criar a conta no site e promovê-la a organizador:
+  `ssh root@$GS_VPS_HOST "docker exec -e EMAIL='tu@exemplo.pt' \$(docker ps -q -f label=service=grindin-station -f label=role=web) bin/rails runner 'EventOrganizer.find_or_create_by!(user: User.find_by!(email_address: ENV.fetch(\"EMAIL\")))'"`.
+- **Deploy contínuo.** Cada push para `main` com a CI verde (que agora também constrói a imagem) corre `kamal deploy`.
+- **Backups.** `bin/backup` corre todos os dias às 04:00 (cron, `config/backup.cron`), guarda 14 dumps e copia para
+  fora do VPS se `RCLONE_REMOTE` estiver definido. `bin/restore <ficheiro>` repõe um dump (pede confirmação).
+- **Por verificar.** Sem VPS e sem Docker no Mac, nada disto foi corrido a sério: `docker build`, Let's Encrypt,
+  `init.sql`, workflow, cron e restore. Passos e checklist em
+  [`docs/superpowers/notes/2026-11-04-m4-vps-checklist.md`](docs/superpowers/notes/2026-11-04-m4-vps-checklist.md).
 
 ## Setup no macOS
 

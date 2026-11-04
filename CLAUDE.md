@@ -18,6 +18,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `bin/rubocop` (Ruby linting with Rails Omakase configuration)
   - `bin/brakeman` (security analysis)
 - **Asset compilation**: `bin/rails tailwindcss:build`
+- **Backups** (run on the VPS): `bin/backup` (pg_dump of the primary DB, keeps 14, optional rclone), `bin/restore <file>`
+- **Docker/deploy**: `bin/docker-smoke` (builds the image and boots production; prints "docker not available" without Docker), `bin/kamal` (needs `GS_VPS_HOST`/`GS_DOMAIN` exported; CI normally deploys)
 
 ## Architecture Overview
 
@@ -128,6 +130,13 @@ Infractions have a hierarchical enum structure:
 - **Stimulus**: `pod_result` (tap a row to pick the winner, then confirm), `row_expander` (expandable roster stats)
 - **Printing**: `GET /organizer/{tournaments,leagues}/:id/rounds/:id/print` (12 pods per A4) and `/slips` (6 QR slips per A4)
 
+### Public API (stream kit feeds)
+
+- **Namespace** `Api::V1` (`app/controllers/api/v1/`): `BaseController` has no auth/CSRF, `expires_in 30.seconds, public: true`, ETag/Last-Modified from `Feeds.last_change` (includes participants' users, so renames invalidate), `rate_limit` 120/min per IP → 429 `{"error":"rate_limited"}`; draft/canceled events and unknown slugs return 404 `{"error":"not_found"}`
+- **Serializers** `Feeds::Standings`, `Feeds::Rounds`, `Feeds::Info` (`app/serializers/feeds/`, POROs with `call(event, updated:)`) plus `Feeds` helpers; keys mirror the TopDeck relay the OBS kit reads: `updated` epoch seconds (all three), per round `start`/`end` epoch seconds (nil until started/closed) and `clock` seconds, per table `ended` epoch seconds (completed only); standings `id` = `player_id` (UUID, never `player.key`); no decklists, cut rounds named "Top N", `seats` is an object (the kit ignores it), `latest`/`roundTime`/`timerEnd` kept
+- **Kit adaptations still needed** (P9Q SetUp `src/kit.js`): `const API` + fetch path (`<base>/<slug>/<feed>` instead of `?feed=X&tid=Y`); `standingsTid` regex must accept a bare slug or `/t/<slug>`; the `commanders` feed (`crew.php`) has no equivalent (use the feed's `commander` or set autoCmd off); the "Live from TopDeck" label. Everything else matches
+- CORS `*` for `/api/v1/*` only (`config/initializers/cors.rb`, rack-cors)
+
 ### Background Jobs
 
 Uses Solid Queue for job processing:
@@ -138,6 +147,13 @@ Uses Solid Queue for job processing:
 - **Circuits**: `UpdateStandingsJob`
 - **Live** (Turbo Streams): `Live::BroadcastTableJob` (a participant's table), `Live::BroadcastPodJob`, `Live::BroadcastRoundJob` (organizer round page via state partial + morph refresh). Public pairings are not live yet
 - Tournaments record `final_position` at finish (used by circuit points)
+
+### Deployment
+
+- **Kamal 2** (`config/deploy.yml`, `.kamal/secrets`) to a single VPS: image `ghcr.io/kakahpt/grindin-station`, kamal-proxy with Let's Encrypt, Postgres/PostGIS accessory on `127.0.0.1` (`config/postgres/init.sql` creates the 4 databases), Active Storage on `/rails/storage` (`production_local`), Solid Queue inside Puma. Host/domain from `GS_VPS_HOST`/`GS_DOMAIN`; health check `/up`
+- **Workflows**: `.github/workflows/ci.yml` (tests, lint, simulation, and a `docker` job that builds the image); `.github/workflows/deploy.yml` deploys after green CI on `main`, or manually via Run workflow (`setup` for the first deploy, `deploy` otherwise)
+- Secrets: `RAILS_MASTER_KEY`, `POSTGRES_PASSWORD` (hex only), `SSH_PRIVATE_KEY`, optional `SSH_KNOWN_HOSTS`, OAuth and SMTP; see `docs/superpowers/notes/2026-11-04-m4-vps-checklist.md`
+- Not yet verified without a VPS/Docker: image build, Let's Encrypt, `init.sql`, workflow, cron, restore
 
 ### Database
 
@@ -193,6 +209,8 @@ GET  /auth/:provider/callback    → omniauth_callbacks#create (+ /auth/failure)
 GET/PATCH/DELETE /account        → accounts (DELETE /account/identities/:id unlinks)
 GET  /p/:handle                  → profiles#show (public profile, history)
 GET  /notifications              → notifications#index
+GET  /up                         → rails/health#show (health check)
+GET  /api/v1/events/:slug/{standings,rounds,info} → api/v1/events (public JSON, 30 s cache, CORS)
 
 Play namespace (/t/:slug, public; draft/canceled events 404 for non-staff):
 GET  /t/:slug                    → event page (enrolled, waitlist, enrol/cancel)

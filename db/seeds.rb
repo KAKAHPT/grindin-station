@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+abort("Seeds are for development only") if Rails.env.production?
+
 # Create an initial list of users
 users = User.create(
   [

@@ -1,0 +1,16 @@
+<%# A modal-style page (sign in, sign up, new/edit forms) opened as a full page: the modal card inside the application layout. %>
+<% content_for :page_content do %>
+  <div class="mx-auto max-w-xl py-8 font-body text-ink">
+    <div class="bg-surface border border-line rounded-2xl shadow-card overflow-hidden">
+      <div class="flex items-center justify-between p-4 md:p-5 border-b border-line">
+        <h3 class="font-display text-xl font-semibold text-ink"><%= yield :title %></h3>
+        <%= yield :close %>
+      </div>
+      <div class="p-4 md:p-5 bg-ground"><%= yield %></div>
+      <% if content_for?(:footer) %>
+        <div class="flex items-center p-4 md:p-5 border-t border-line"><%= yield :footer %></div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+<%= render template: "layouts/application" %>

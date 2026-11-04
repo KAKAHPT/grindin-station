@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  # kamal-proxy health check: 200 when the app boots, 500 otherwise.
+  get "up" => "rails/health#show", as: :rails_health_check
+
   resource :session
   get "/auth/:provider/callback", to: "omniauth_callbacks#create", as: :omniauth_callback
   get "/auth/failure", to: "omniauth_callbacks#failure", as: :omniauth_failure
@@ -50,6 +53,14 @@ Rails.application.routes.draw do
       post "contest", to: "reports#contest"
     end
     resources :judge_calls, only: :create
+  end
+
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      get "events/:slug/standings", to: "events#standings", as: :event_standings
+      get "events/:slug/rounds", to: "events#rounds", as: :event_rounds
+      get "events/:slug/info", to: "events#info", as: :event_info
+    end
   end
 
   resources :events, only: %i[index]

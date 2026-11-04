@@ -1,0 +1,106 @@
+name: Deploy
+
+# Deploys only after the whole CI workflow (scans, lint, tests, docker image build) finished green on a push to main.
+# Run it by hand (Actions → Deploy → Run workflow) with command "setup" for the first deploy.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      command:
+        description: "Kamal command"
+        type: choice
+        options: [deploy, setup]
+        default: deploy
+
+# One deploy at a time; a queued deploy waits instead of cancelling one in flight.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  deploy:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-24.04
+    environment: production
+    timeout-minutes: 30
+
+    env:
+      GS_VPS_HOST: ${{ secrets.GS_VPS_HOST }}
+      GS_DOMAIN: ${{ secrets.GS_DOMAIN }}
+      RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
+      DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
+      SMTP_ADDRESS: ${{ secrets.SMTP_ADDRESS }}
+      SMTP_PORT: ${{ secrets.SMTP_PORT }}
+      SMTP_DOMAIN: ${{ secrets.SMTP_DOMAIN }}
+      SMTP_USER_NAME: ${{ secrets.SMTP_USER_NAME }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+
+    steps:
+      - name: Check required secrets
+        run: |
+          missing=()
+          for name in GS_VPS_HOST GS_DOMAIN RAILS_MASTER_KEY POSTGRES_PASSWORD SSH_PRIVATE_KEY; do
+            if [ -z "${!name}" ]; then missing+=("$name"); fi
+          done
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Missing repository secrets: ${missing[*]} (see docs/superpowers/notes/2026-11-04-m4-vps-checklist.md)"
+            exit 1
+          fi
+          echo "All required secrets are set."
+
+      - name: Checkout the commit CI tested
+        uses: actions/checkout@v4
+        with:
+          # workflow_run: the commit CI tested; workflow_dispatch: the selected ref.
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Trust the VPS host key
+        run: |
+          mkdir -p ~/.ssh
+          if [ -n "$SSH_KNOWN_HOSTS" ]; then
+            printf '%s\n' "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+          else
+            ssh-keyscan -H "$GS_VPS_HOST" >> ~/.ssh/known_hosts
+          fi
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy with Kamal
+        env:
+          KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          KAMAL_COMMAND: ${{ inputs.command || 'deploy' }}
+        run: bin/kamal "$KAMAL_COMMAND"

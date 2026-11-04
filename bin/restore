@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Restore a bin/backup dump into the grindin-station-db Kamal accessory. Runs on the VPS host.
+#   bin/restore /var/backups/grindin-station/20261104T040000Z.dump
+# Stop the app first (bin/kamal app stop) so nothing writes during the restore.
+set -euo pipefail
+
+DB_CONTAINER=${DB_CONTAINER:-grindin-station-db}
+DB_NAME=${DB_NAME:-grindin_station_production}
+
+if [ $# -ne 1 ] || [ ! -f "$1" ]; then
+  echo "usage: bin/restore <file.dump>" >&2
+  exit 64
+fi
+
+read -r -p "Replace every table in $DB_NAME with $1? Type '$DB_NAME' to confirm: " answer
+if [ "$answer" != "$DB_NAME" ]; then
+  echo "aborted" >&2
+  exit 1
+fi
+
+# One transaction, stop at the first error: a failed restore leaves the database as it was.
+# postgis: --clean drops and recreates the postgis extension (grindin is superuser); errors about spatial_ref_sys
+# rows mean the dump and the accessory run different PostGIS versions — restore into the same image tag.
+docker exec -i "$DB_CONTAINER" pg_restore -U grindin -d "$DB_NAME" \
+  --clean --if-exists --no-owner --single-transaction --exit-on-error < "$1"
+echo "restored $1 into $DB_NAME"

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Local smoke test of the production image: build it and boot Rails once inside it.
+# Exits 0 with "docker not available" when Docker is missing or its daemon is not running.
+set -euo pipefail
+
+if ! command -v docker > /dev/null 2>&1 || ! docker info > /dev/null 2>&1; then
+  echo "docker not available"
+  exit 0
+fi
+
+cd "$(dirname "$0")/.."
+docker build -t gs-smoke .
+# The runtime image must not carry node_modules (CSS is built at image build time).
+docker run --rm --entrypoint /bin/sh gs-smoke -c 'test ! -d /rails/node_modules'
+docker run --rm -e SECRET_KEY_BASE_DUMMY=1 gs-smoke bin/rails runner 'puts Rails.env'
