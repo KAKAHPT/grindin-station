@@ -38,7 +38,7 @@
                 <span class="block text-xs font-normal text-muted"><%= commander_text(seated) %></span>
               <% end %>
             </span>
-            <% if winner&.event_participant_id == seated.id && (score = result_score(winner)) %>
+            <% if winner&.event_participant_id == seated.id && (score = winner.score) %>
               <span data-score class="font-display text-[15px] font-semibold text-accent"><%= score %></span>
             <% end %>
           <% end %>

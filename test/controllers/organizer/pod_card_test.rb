@@ -145,8 +145,8 @@ module Organizer
     private
 
     def one_v_one_round(match_games: 3)
-      t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer), format: "one_v_one")
-      t.update!(match_games: match_games)
+      t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer), format: "one_v_one",
+                                  match_games: match_games)
       round = t.rounds.create!(type: SwissRound, number: 1)
       round.update!(published: true, started_at: Time.current)
       [t, round, round.pods.order(:number).first]

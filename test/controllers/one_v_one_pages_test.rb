@@ -4,7 +4,7 @@ require "test_helper"
 
 # The tournament pages of a 1v1 event: "Table N" with two names and no seat squares, the score next to
 # the winner, and the 1v1 standings columns (OMW%, GW%, OGW%; no Seats, Beaten or Unique).
-class OneVOnePagesTest < ActionDispatch::IntegrationTest
+class OneVOnePagesTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
   ONE_V_ONE_COLUMNS = ["Rank", "Player", "Pts", "OMW%", "GW%", "OGW%", "Win %", "W-L-D"].freeze
 
   setup do
@@ -119,7 +119,41 @@ class OneVOnePagesTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "report page: the two players without seat numbers" do
+    pod = next_round_pod
+    a, b = pod.seatings.order(:order).map(&:event_participant)
+    sign_in(a.player.user)
+
+    get play_pod_report_new_path(@t.slug, pod)
+
+    assert_response :success
+    assert_select "label:has(input[name=winner_id])", 2
+    assert_select "label:has(input[name=winner_id]) span", text: /\A\s*\d\s*\z/, count: 0
+    assert_select "label", text: /#{b.name}/
+  end
+
+  test "organizer card: who reported and who confirmed by name, not seat" do
+    pod = next_round_pod
+    a, b = pod.seatings.order(:order).map(&:event_participant)
+    now = Time.current
+    pod.update_columns(pending_result: { "type" => "Win", "winner_id" => a.id }, reported_by_participant_id: a.id, # rubocop:disable Rails/SkipsModelValidations
+                       reported_at: now, confirmations: { a.id => now.iso8601, b.id => now.iso8601 })
+    sign_in(users(:organizer_user))
+
+    get organizer_tournament_round_path(@t, pod.round)
+
+    assert_select "#pod_#{pod.id}", text: /Reported by #{a.name} · #{now.strftime('%H:%M')}/
+    assert_select "#pod_#{pod.id}", text: /Confirmed: #{a.name}, #{b.name}/
+    assert_select "#pod_#{pod.id}", text: /Reported by seat|Confirmed: \d/, count: 0
+  end
+
   private
+
+  def next_round_pod
+    round = @t.rounds.create!(type: SwissRound, number: 2)
+    round.update!(published: true, started_at: Time.current)
+    round.pods.order(:number).first
+  end
 
   def sign_in(user)
     user.update!(password: "password123")

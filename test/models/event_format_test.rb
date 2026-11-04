@@ -33,7 +33,7 @@ class EventFormatTest < ActiveSupport::TestCase
   end
 
   test "match_games must be 1 or 3" do
-    t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+    t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer), state: :registration_open)
     t.match_games = 2
     assert_not t.valid?
     assert t.errors.of_kind?(:match_games, :inclusion)
@@ -51,10 +51,26 @@ class EventFormatTest < ActiveSupport::TestCase
     assert t.errors.of_kind?(:format, :locked)
   end
 
-  test "format can change before any round exists" do
-    t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+  test "format is chosen at creation and locked afterwards, even before any round" do
+    t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                state: :registration_open)
     t.format = "one_v_one"
+    assert_not t.valid?
+    assert t.errors.of_kind?(:format, :locked)
+    assert Tournament.new(format: "one_v_one").errors.none?
+  end
+
+  test "match_games is locked once the swiss starts" do
+    t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                state: :registration_open, format: "one_v_one")
+    t.match_games = 1
     assert t.valid?, t.errors.full_messages.to_sentence
+
+    t.update_column(:state, :swiss) # rubocop:disable Rails/SkipsModelValidations
+    t.match_games = 1
+    assert_not t.valid?
+    assert t.errors.of_kind?(:match_games, :locked)
+    I18n.with_locale(:pt) { assert_includes t.errors.full_messages.to_sentence, "não pode mudar" }
   end
 
   test "Result#game_points is 3 per game won and 1 per game drawn" do

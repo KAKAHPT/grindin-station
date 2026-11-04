@@ -38,7 +38,7 @@
     <%= f.select_with_label :currency, currency_options, selected: tournament.currency %>
   </div>
 
-  <%# The format is chosen at creation only (the model also locks it once rounds exist). %>
+  <%# The format is chosen at creation only (the model refuses a later change). %>
   <div class="flex gap-2">
     <%= f.select_with_label :format, format_options, { selected: tournament.format }, disabled: tournament.persisted?, data: { format_fields_target: "format", action: "format-fields#change" } %>
     <%= tag.div class: "flex-1", hidden: !tournament.one_v_one?, data: { format_fields_target: "matchGames" } do %>

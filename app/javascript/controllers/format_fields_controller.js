@@ -6,6 +6,15 @@ export default class extends Controller {
   static targets = ["format", "matchGames", "points", "topCut"];
   static values = { points: Object, cutOptions: Object };
 
+  // Points that came back from the server off the format's defaults (a failed create) count as typed.
+  connect() {
+    const defaults = this.pointsValue[this.formatTarget.value] || {};
+    this.pointsTargets.forEach((input) => {
+      const value = defaults[input.dataset.attribute];
+      if (value !== undefined && input.value !== String(value)) input.dataset.touched = "true";
+    });
+  }
+
   touch(event) {
     event.currentTarget.dataset.touched = "true";
   }

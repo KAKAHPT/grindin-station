@@ -42,7 +42,7 @@
     <% pod.event_participants.each do |player| %>
       <% player_result = pod.current_results.find { |r| r.event_participant_id == player.id } %>
       <% won = player_result.class.in?([Win, Advance]) %>
-      <% score = result_score(player_result) if pod.event.one_v_one? && player_result.class.in?([Win, Advance, Draw]) %>
+      <% score = player_result.score if pod.event.one_v_one? && player_result.class.in?([Win, Advance, Draw]) %>
       <% if show_results %>
         <li
           data-tooltip-placement="left"

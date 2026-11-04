@@ -89,6 +89,26 @@ module Organizer
       assert_select "[data-format-fields-target=matchGames]:not([hidden]) select[name='tournament[match_games]']"
     end
 
+    test "a tampered update cannot switch the format" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_open)
+
+      patch organizer_tournament_path(tournament), params: { tournament: { format: "one_v_one", name: "Renomeado" } }
+
+      assert_redirected_to organizer_tournament_path(tournament)
+      assert_equal ["multiplayer", "Renomeado"], tournament.reload.values_at(:format, :name)
+    end
+
+    test "a mid-swiss update cannot switch the match length" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                           format: "one_v_one")
+
+      patch organizer_tournament_path(tournament), params: { tournament: { match_games: "1" } }
+
+      assert_response :unprocessable_entity
+      assert_equal 3, tournament.reload.match_games
+    end
+
     private
 
     def sign_in(user)

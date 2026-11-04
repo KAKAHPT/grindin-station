@@ -14,6 +14,8 @@ en:
         event:
           attributes:
             format:
+              locked: "cannot change once the tournament is created"
+            match_games:
               locked: "cannot change once the tournament has started"
             points_win:
               locked: "cannot change once the tournament has started"
@@ -295,7 +297,9 @@ en:
       completed: "Completed"
     judge_called: "Judge called"
     reported_by: "Reported by seat %{seat} · %{time}"
+    reported_by_player: "Reported by %{name} · %{time}"
     confirmed: "Confirmed: %{seats}"
+    confirmed_by_players: "Confirmed: %{names}"
     disputed: "Disputed — needs staff"
     win: "Seat %{seat} wins"
     draw: "Draw"

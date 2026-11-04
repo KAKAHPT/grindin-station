@@ -51,7 +51,7 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   validate :points_locked_after_start, on: :update
   validates :format, inclusion: { in: FORMATS }
   validates :match_games, inclusion: { in: MATCH_GAMES }
-  validate :format_locked_after_start, on: :update
+  validate :format_locked_after_creation, on: :update
   validates :result_confirmation, inclusion: { in: RESULT_CONFIRMATIONS }
   validates :top_cut_timeout_rule, inclusion: { in: TOP_CUT_TIMEOUT_RULES }
   validates :confirmation_timeout_minutes, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
@@ -198,7 +198,8 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   def points_locked_after_start
     return unless points_locked?
 
-    POINT_ATTRIBUTES.each do |attribute|
+    # The match length goes with the points: results already scored would not fit another best-of.
+    [*POINT_ATTRIBUTES, :match_games].each do |attribute|
       errors.add(attribute, :locked) if attribute_changed?(attribute)
     end
   end
@@ -211,7 +212,8 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def format_locked_after_start
-    errors.add(:format, :locked) if format_changed? && rounds.exists?
+  # The format is chosen at creation only (spec §1).
+  def format_locked_after_creation
+    errors.add(:format, :locked) if format_changed?
   end
 end

@@ -6,11 +6,12 @@ module TournamentBuilder
 
   # Persisted Tournament with `players` participants, put straight into `state`
   # without running the state-transition jobs.
-  def build(players:, organizer:, state: :swiss, format: "multiplayer")
+  def build(players:, organizer:, state: :swiss, format: "multiplayer", match_games: 3)
     suffix = SecureRandom.hex(4)
     tournament = Tournament.create!(
       name: "Torneio #{suffix}", event_organizer: organizer, state: :draft,
-      start_time: Time.current, end_time: 1.day.from_now, format: format
+      start_time: Time.current, end_time: 1.day.from_now, format: format,
+      match_games: match_games
     )
     add_players(tournament, players, suffix)
     tournament.update_column(:state, state) # rubocop:disable Rails/SkipsModelValidations

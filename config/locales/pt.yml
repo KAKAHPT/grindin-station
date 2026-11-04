@@ -14,6 +14,8 @@ pt:
         event:
           attributes:
             format:
+              locked: "não pode mudar depois de o torneio ser criado"
+            match_games:
               locked: "não pode mudar depois de o torneio começar"
             points_win:
               locked: "não pode mudar depois de o torneio começar"
@@ -295,7 +297,9 @@ pt:
       completed: "Concluída"
     judge_called: "Juiz chamado"
     reported_by: "Reportado pelo lugar %{seat} · %{time}"
+    reported_by_player: "Reportado por %{name} · %{time}"
     confirmed: "Confirmado: %{seats}"
+    confirmed_by_players: "Confirmado: %{names}"
     disputed: "Em disputa — precisa do staff"
     win: "Lugar %{seat} ganha"
     draw: "Draw"

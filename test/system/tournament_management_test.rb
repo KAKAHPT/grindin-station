@@ -2,7 +2,7 @@
 
 require "application_system_test_case"
 
-class TournamentManagementTest < ApplicationSystemTestCase
+class TournamentManagementTest < ApplicationSystemTestCase # rubocop:disable Metrics/ClassLength
   test "organizer can create tournament with all fields" do
     organizer = users(:organizer_user)
     sign_in_as(organizer)
@@ -24,6 +24,48 @@ class TournamentManagementTest < ApplicationSystemTestCase
     tournament = Tournament.find_by(name: "Grand Championship 2024")
     assert_not_nil tournament
     assert_equal "registration_open", tournament.state
+  end
+
+  test "the form follows the format: 1v1 points, match length and cut sizes; typed points survive" do
+    sign_in_as(users(:organizer_user))
+    visit new_organizer_tournament_path
+
+    assert_no_selector "#tournament_match_games"
+    select "1v1", from: "Format"
+
+    assert_equal(%w[3 1 0 3],
+                 %w[win draw loss bye].map { |kind| find_field("tournament[points_#{kind}]").value })
+    assert_selector "#tournament_match_games", visible: true
+    cut_sizes = find_by_id("tournament_top_cut_size").all("option").map(&:text)
+    assert_includes cut_sizes, "Top 8"
+    assert_not_includes cut_sizes, "Top 10"
+
+    fill_in "tournament[points_win]", with: "5"
+    select "Multiplayer pods", from: "Format"
+    assert_no_selector "#tournament_match_games"
+    assert_includes find_by_id("tournament_top_cut_size").all("option").map(&:text), "Top 10"
+    select "1v1", from: "Format"
+
+    assert_field "tournament[points_win]", with: "5"
+    assert_field "tournament[points_bye]", with: "3"
+  end
+
+  test "typed points kept by a failed create are not reset by a format switch" do
+    sign_in_as(users(:organizer_user))
+    visit new_organizer_tournament_path
+
+    fill_in "Name", with: "Duelos"
+    fill_in "Start time", with: Time.zone.now.tomorrow.change(sec: 0)
+    fill_in "End time", with: Time.zone.now.tomorrow.change(sec: 0)
+    select "1v1", from: "Format"
+    fill_in "tournament[points_win]", with: "5"
+    fill_in "tournament[round_minutes]", with: "0"
+    click_button "Create Tournament"
+
+    assert_field "tournament[points_win]", with: "5"
+    select "Multiplayer pods", from: "Format"
+    assert_field "tournament[points_win]", with: "5"
+    assert_field "tournament[points_bye]", with: "3"
   end
 
   test "organizer can edit tournament details" do

@@ -39,18 +39,31 @@ module TournamentsHelper # rubocop:disable Metrics/ModuleLength
     pod.seatings.to_h { |seating| [seating.event_participant_id, seating.order] }
   end
 
-  # "Reported by seat 2 · 14:05", nil when no player reported.
+  # "Reported by seat 2 · 14:05" (1v1: "Reported by <name> · 14:05", seats are random), nil when no player reported.
   def pod_reported_line(pod)
     seat = pod_seats(pod)[pod.reported_by_participant_id]
     return if seat.nil? || pod.reported_at.nil?
 
-    t("rounds.reported_by", seat: seat, time: l(pod.reported_at, format: "%H:%M"))
+    time = l(pod.reported_at, format: "%H:%M")
+    return t("rounds.reported_by", seat: seat, time: time) unless pod.event.one_v_one?
+
+    t("rounds.reported_by_player", name: pod_names(pod)[pod.reported_by_participant_id], time: time)
   end
 
-  # "Confirmed: 1, 3" for the seats that confirmed the pending report.
+  # "Confirmed: 1, 3" for the seats that confirmed the pending report (1v1: the players' names).
   def pod_confirmed_line(pod)
-    seats = pod_seats(pod).values_at(*pod.confirmations.keys).compact.sort
-    t("rounds.confirmed", seats: seats.join(", ")) if seats.any?
+    one_v_one = pod.event.one_v_one?
+    labels = (one_v_one ? pod_names(pod) : pod_seats(pod)).values_at(*pod.confirmations.keys).compact
+    return if labels.empty?
+
+    if one_v_one then t("rounds.confirmed_by_players", names: labels.join(", "))
+    else t("rounds.confirmed", seats: labels.sort.join(", "))
+    end
+  end
+
+  # Name of each participant at the pod, by participant id.
+  def pod_names(pod)
+    pod.seatings.to_h { |seating| [seating.event_participant_id, seating.event_participant.name] }
   end
 
   # 1v1 score buttons as [label, "won-lost-drawn" form value] for the event's best-of-N.
@@ -60,9 +73,6 @@ module TournamentsHelper # rubocop:disable Metrics/ModuleLength
   def winner_score_options(event) = WINNER_SCORE_OPTIONS.fetch(event.match_games)
 
   def draw_score_options(event) = DRAW_SCORE_OPTIONS.fetch(event.match_games)
-
-  # "2-1" from a 1v1 result's games (see Result#score); nil when unscored (an Advance by time called).
-  def result_score(result) = result.score
 
   def currency_options
     EventOrganizer::CURRENCIES.keys.map { |c| [CURRENCY_SYMBOLS[c], c] }

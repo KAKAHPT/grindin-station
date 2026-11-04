@@ -32,7 +32,7 @@
             <span class="block truncate text-xs text-muted"><%= commander_text(seated) %></span>
           <% end %>
         </span>
-        <% if won && one_v_one && (score = result_score(results[seated.id])) %>
+        <% if won && one_v_one && status == :completed && (score = results[seated.id].score) %>
           <span data-score class="font-display text-[12px] font-semibold text-accent"><%= score %></span>
         <% end %>
         <% if won %>
