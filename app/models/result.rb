@@ -17,6 +17,13 @@ class Result < ApplicationRecord
   scope :publishable, -> { joins(:round).where.not(rounds: { finished_at: nil }) }
   scope :current, -> { where(superseded_by_id: nil) }
 
+  # A new or changed result moves its pod to (or within) :completed: push the pod live and refresh
+  # the round page, whose staff buttons depend on it. The job finds the pod; no query here.
+  after_commit on: %i[create update] do
+    Live::BroadcastPodJob.perform_later(round_id: round_id, event_participant_id: event_participant_id,
+                                        refresh: true, request_id: Turbo.current_request_id)
+  end
+
   validates(
     :event_participant_id,
     {

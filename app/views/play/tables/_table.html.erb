@@ -1,0 +1,65 @@
+<%# Rendered from locals only (Play::TableState#locals plus locale): the page and its live broadcasts share it. %>
+<% url_locale = (locale.to_s unless locale.to_s == I18n.default_locale.to_s) %>
+<div id="my_table">
+  <% if pod %>
+    <section class="p-5 rounded-2xl bg-surface border border-line shadow-raised">
+      <div class="flex items-center justify-between gap-3">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-muted"><%= t("play.tables.round", number: round.number) %></p>
+        <%= status_chip(pod_status_tone(status), data: { report_status: true }) { t("play.status.#{status}") } %>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-3 text-center">
+        <div class="py-5 rounded-xl bg-surface-raised shadow-[inset_0_1px_0_rgb(255_255_255/0.05)]">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-muted"><%= t("play.tables.table") %></p>
+          <p data-table-number class="font-display text-6xl font-bold leading-none mt-2 text-ink"><%= pod.number %></p>
+        </div>
+        <div class="py-5 rounded-xl bg-surface-raised shadow-[inset_0_1px_0_rgb(255_255_255/0.05),0_0_0_4px_rgb(45_212_191/0.08)] ring-1 ring-accent/40">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-muted"><%= t("play.tables.seat") %></p>
+          <p data-seat-number class="font-display text-6xl font-bold leading-none mt-2 text-accent"><%= seat %></p>
+        </div>
+      </div>
+
+      <ol class="mt-5 divide-y divide-line/60 border-t border-line">
+        <% seatings.each do |seating| %>
+          <% seated = seating.event_participant %>
+          <% me = seated.id == participant.id %>
+          <%= tag.li data: { me: (true if me) }, class: ["py-3 flex items-center gap-3", ("font-semibold bg-accent/[0.08] -mx-5 px-5" if me)] do %>
+            <span class="<%= PaletteHelper::SEAT_SQUARE %> <%= me ? "text-accent" : "text-muted" %>"><%= seating.order %></span>
+            <span class="flex-1 min-w-0 text-[15px]">
+              <%= seated.name %>
+              <% if me %><span class="ms-1 text-[11px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-md bg-accent/15 text-accent"><%= t("play.tables.you") %></span><% end %>
+              <% if event.show_commanders_in_standings && seated.decklist.present? %>
+                <span class="block text-xs font-normal text-muted"><%= seated.decklist %></span>
+              <% end %>
+            </span>
+          <% end %>
+        <% end %>
+      </ol>
+    </section>
+
+    <section class="mt-4 flex flex-col gap-3">
+      <% if can_report %>
+        <%= link_to t("play.report_result"), play_pod_report_new_path(event.slug, pod, locale: url_locale),
+                    class: button_classes(:primary, "w-full") %>
+      <% end %>
+
+      <% if can_confirm %>
+        <%= button_to t("play.confirm"), play_pod_confirm_path(event.slug, pod, locale: url_locale),
+                      class: button_classes(:primary, "w-full") %>
+      <% end %>
+
+      <% if can_contest %>
+        <%= form_with url: play_pod_contest_path(event.slug, pod, locale: url_locale), class: "flex gap-2" do |f| %>
+          <%= f.text_field :reason, required: true, placeholder: t("play.contest_reason"), "aria-label": t("play.contest_reason"),
+                           class: "flex-1 h-12 rounded-md bg-surface border-line text-ink placeholder:text-muted text-sm focus:ring-accent focus:border-accent" %>
+          <%= f.button t("play.contest"), class: button_classes(:secondary) %>
+        <% end %>
+      <% end %>
+    </section>
+  <% elsif round %>
+    <%= render "play/tables/bye", round: round %>
+  <% else %>
+    <%= render "play/tables/waiting" %>
+  <% end %>
+
+  <%= render "play/tables/judge_button", called: judge_called, event: event, url_locale: url_locale %>
+</div>
