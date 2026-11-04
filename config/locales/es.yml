@@ -384,7 +384,7 @@ es:
     reports:
       who_won: "¿Quién ganó?"
     report_result: "Reportar resultado"
-    draw: "Empate"
+    draw: "Draw"
     score: "Resultado"
     submit: "Enviar"
     call_judge: "Llamar a un juez"
@@ -450,7 +450,7 @@ es:
     confirmed_by_players: "Confirmado: %{names}"
     disputed: "En disputa — necesita al staff"
     win: "Gana el asiento %{seat}"
-    draw: "Empate"
+    draw: "Draw"
     extra_time: "+%{minutes} min"
     add_extra_time: "+5 min"
     time_called: "Tiempo"

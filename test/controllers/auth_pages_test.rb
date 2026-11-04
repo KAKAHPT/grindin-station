@@ -61,6 +61,37 @@ class AuthPagesTest < ActionDispatch::IntegrationTest
     assert_select "#password-reset-form input[type=email][name=email_address]"
   end
 
+  test "the reset page posts the top-level password fields the controller reads" do
+    get edit_password_path(users(:player_one).password_reset_token)
+
+    assert_select "#password-reset-form input[type=password][name=password]"
+    assert_select "#password-reset-form input[type=password][name=password_confirmation]"
+  end
+
+  test "a reset request from the form sends one e-mail and the reset changes the password" do
+    user = users(:player_one)
+
+    assert_enqueued_emails 1 do
+      post passwords_path, params: { email_address: user.email_address }
+    end
+    assert_redirected_to new_session_path
+
+    patch password_path(user.password_reset_token),
+          params: { password: "brand-new-pass", password_confirmation: "brand-new-pass" }
+
+    assert_redirected_to new_session_path
+    assert user.reload.authenticate("brand-new-pass")
+  end
+
+  test "posts from the modal frame redirect instead of rendering a stream" do
+    post session_path, params: { session: { email_address: "nobody@example.com", password: "wrong-pass" } },
+                       headers: { "Turbo-Frame" => "modal" }
+    assert_redirected_to new_session_path
+
+    post passwords_path, params: { email_address: users(:player_one).email_address }, headers: { "Turbo-Frame" => "modal" }
+    assert_redirected_to new_session_path
+  end
+
   test "the auth pages follow the locale" do
     get new_session_path(locale: "es")
 

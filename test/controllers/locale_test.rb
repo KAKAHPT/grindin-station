@@ -47,6 +47,23 @@ class LocaleTest < ActionDispatch::IntegrationTest
     assert_select "html[lang=es]"
   end
 
+  test "the switch keeps the page's array params" do
+    post locale_path, params: { locale: "es" },
+                      headers: { "Referer" => "http://www.example.com/events?locale=pt&tags%5B%5D=a&tags%5B%5D=b" }
+
+    assert_redirected_to "http://www.example.com/events?tags%5B%5D=a&tags%5B%5D=b"
+  end
+
+  test "the public API sets no locale cookie" do
+    tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+    tournament.update!(state: :registration_open) if tournament.draft?
+
+    get "/api/v1/events/#{tournament.slug}/info", params: { locale: "pt" }
+
+    assert_response :success
+    assert_no_match(/locale=/, Array(response.headers["Set-Cookie"]).join("\n"))
+  end
+
   test "the switch ignores another host's referer" do
     post locale_path, params: { locale: "pt" }, headers: { "Referer" => "https://evil.example/x" }
 

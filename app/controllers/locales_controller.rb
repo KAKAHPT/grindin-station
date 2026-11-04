@@ -18,7 +18,7 @@ class LocalesController < ApplicationController
     return root_path unless back
 
     uri = URI.parse(back)
-    uri.query = Rack::Utils.parse_query(uri.query.to_s).except("locale").to_query.presence
+    uri.query = Rack::Utils.parse_nested_query(uri.query.to_s).except("locale").to_query.presence
     uri.to_s
   rescue URI::InvalidURIError
     root_path
