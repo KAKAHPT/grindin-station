@@ -60,8 +60,11 @@ class TournamentManagementTest < ApplicationSystemTestCase # rubocop:disable Met
     select "1v1", from: "Format"
     fill_in "tournament[points_win]", with: "5"
     fill_in "tournament[round_minutes]", with: "0"
+    execute_script("document.getElementById('tournament_round_minutes').closest('form').noValidate = true")
     click_button "Create Tournament"
 
+    # The re-rendered page (a fresh format-fields connect()), not the page that was submitted.
+    assert_text "must be greater than or equal to 1"
     assert_field "tournament[points_win]", with: "5"
     select "Multiplayer pods", from: "Format"
     assert_field "tournament[points_win]", with: "5"

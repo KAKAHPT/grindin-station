@@ -207,6 +207,8 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   def apply_one_v_one_points
     return unless one_v_one?
 
+    # Not *_changed?: a value given explicitly that equals the column (multiplayer) default, such as
+    # points_win: 7, is not "changed", yet the organiser chose it and it must not become the 1v1 value.
     ONE_V_ONE_POINTS.each do |attribute, value|
       self[attribute] = value unless attribute_came_from_user?(attribute.to_s)
     end
