@@ -6,10 +6,13 @@ module Tournaments
   # seat need (PlayerSorter.deal), pods of 4 filled in that order with the remainder as pods of 3 at the bottom,
   # seats by Tournaments::SeatAssigner (seating: :random shuffles each pod instead, the baseline). Results: DRAW_RATE
   # of the pods draw (1 point each), otherwise one random winner (7 points). Rematch repair is skipped.
+  # mode: :swiss as above; :random shuffles the whole field each round and deals it as one group; :power is identical
+  # to :swiss here, because the simulator never modelled the spread (power-matching) round.
   class SeatSimulator
     DRAW_RATE = 0.3
     WIN_POINTS = 7
     DRAW_POINTS = 1
+    MODES = %i[swiss power random].freeze
     POSITIONS = (1..5)
     SPREAD_POSITIONS = (1..4)
 
@@ -17,7 +20,10 @@ module Tournaments
     # max - min count over seats 1..4 is at most 1. worst: the 3 players with the largest spread => their counts.
     Report = Data.define(:never_first_rate, :max_spread_le1_rate, :worst, :seat_counts)
 
-    def initialize(players:, rounds:, rng:, seating: :fair)
+    def initialize(players:, rounds:, rng:, seating: :fair, mode: :swiss)
+      raise ArgumentError, "unknown mode #{mode.inspect}" unless MODES.include?(mode)
+
+      @mode = mode
       @players = (1..players).to_a
       @seating = seating
       @rounds = rounds
@@ -49,6 +55,8 @@ module Tournaments
     end
 
     def sorted_players
+      return PlayerSorter.deal(@players.shuffle(random: @rng), @seat_counts) if @mode == :random
+
       ranked = @players.shuffle(random: @rng).sort_by.with_index { |player, i| [-@points[player], i] }
       ranked.chunk_while { |a, b| @points[a] == @points[b] }.flat_map { |group| PlayerSorter.deal(group, @seat_counts) }
     end

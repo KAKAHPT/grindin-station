@@ -24,5 +24,24 @@ module Tournaments
       second = Tournaments::SeatSimulator.new(players: 37, rounds: 6, rng: Random.new(7)).run
       assert_equal first, second
     end
+
+    test "random mode runs and reports for every player" do
+      report = Tournaments::SeatSimulator.new(players: 16, rounds: 5, rng: Random.new(1), seating: :fair,
+                                              mode: :random).run
+      assert_equal 16, report.seat_counts.size
+      assert_equal 5, report.seat_counts.values.sum { |counts| counts.values.sum } / 16
+    end
+
+    test "power mode is identical to swiss in the simulator" do
+      swiss = Tournaments::SeatSimulator.new(players: 37, rounds: 5, rng: Random.new(9), mode: :swiss).run
+      power = Tournaments::SeatSimulator.new(players: 37, rounds: 5, rng: Random.new(9), mode: :power).run
+      assert_equal swiss, power
+    end
+
+    test "an unknown mode raises ArgumentError" do
+      assert_raises(ArgumentError) do
+        Tournaments::SeatSimulator.new(players: 16, rounds: 5, rng: Random.new(1), mode: :bubble)
+      end
+    end
   end
 end
