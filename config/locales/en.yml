@@ -33,6 +33,7 @@ en:
               locked: "cannot change once the tournament has started"
             state:
               no_swiss_rounds: "can't be swiss: the tournament has no swiss rounds"
+              invalid_transition: "cannot change from %{from} to %{to}"
             top_cut_size:
               locked: "cannot change once the tournament has started"
               too_big: "is bigger than the number of players"

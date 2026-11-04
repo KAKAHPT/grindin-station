@@ -23,7 +23,7 @@ class LeagueTest < ActiveSupport::TestCase
 
   test "league transitions from draft to registration_open" do
     league = leagues(:standard_league)
-    league.update!(state: "draft")
+    league.update_column(:state, League.states[:draft]) # rubocop:disable Rails/SkipsModelValidations
     league.update!(state: "registration_open")
     assert league.registration_open?
   end
@@ -58,11 +58,13 @@ class LeagueTest < ActiveSupport::TestCase
     assert league.finished?
   end
 
-  test "league can be canceled at any stage" do
+  test "league can be canceled once registration opens, not from draft" do
     league = leagues(:standard_league)
-    league.update!(state: "draft")
     league.update!(state: "canceled")
     assert league.canceled?
+
+    league.update_column(:state, League.states[:draft]) # rubocop:disable Rails/SkipsModelValidations
+    assert_not league.update(state: "canceled")
   end
 
   test "ongoing scope returns play and finals leagues" do

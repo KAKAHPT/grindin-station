@@ -35,6 +35,7 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     tournament = events(:medium_tournament) # 6 players: top 4, so single elimination is on offer
 
     # From swiss state, should not include registration_open
+    tournament.update!(state: :registration_closed)
     tournament.update!(state: :swiss)
     available = tournament.available_states.keys.map(&:to_sym)
     assert_not_includes available, :registration_open, "Swiss should not allow transition to registration_open"
@@ -50,6 +51,13 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     assert_equal %w[finished canceled], tournament.available_states.keys
   end
 
+  test "a state outside the transition map is refused" do
+    tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+
+    assert_not tournament.update(state: :registration_open)
+    assert tournament.errors.added?(:state, :invalid_transition, from: "swiss", to: "registration_open")
+  end
+
   test "canceled state can be reached from most states" do
     tournament = events(:small_tournament)
 
@@ -57,9 +65,10 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     tournament.update!(state: :registration_open)
     assert tournament.update(state: :canceled)
 
-    tournament.update!(state: :registration_closed)
+    tournament.update_column(:state, :registration_closed) # rubocop:disable Rails/SkipsModelValidations
     assert tournament.update(state: :canceled)
 
+    tournament.update_column(:state, :registration_closed) # rubocop:disable Rails/SkipsModelValidations
     tournament.update!(state: :swiss)
     assert tournament.update(state: :canceled)
   end

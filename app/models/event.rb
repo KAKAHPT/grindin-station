@@ -49,6 +49,7 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   validates :points_win, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
   validates :points_draw, :points_loss, :points_bye, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validate :points_locked_after_start, on: :update
+  validate :valid_transition, on: :update, if: :will_save_change_to_state?
   validates :format, inclusion: { in: FORMATS }
   validates :match_games, inclusion: { in: MATCH_GAMES }
   validate :format_locked_after_creation, on: :update
@@ -70,8 +71,14 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   def multiplayer? = self[:format] == "multiplayer"
 
+  # Locked in the state being saved or the one it leaves, so a state change cannot unlock them.
   def points_locked?
-    UNLOCKED_POINTS_STATES.exclude?(state)
+    UNLOCKED_POINTS_STATES.exclude?(state) || UNLOCKED_POINTS_STATES.exclude?(state_was)
+  end
+
+  # The state machine: Tournament adapts it for a 1v1 with no swiss.
+  def transitions
+    self.class::TRANSITIONS
   end
 
   # Registered players who have not dropped and are off the waitlist (from the loaded association when there is one).
@@ -195,6 +202,12 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   def slugs_starting_with(base)
     Event.where(slug: base).or(Event.where("slug LIKE ?", "#{Event.sanitize_sql_like(base)}-%")).pluck(:slug).to_set
+  end
+
+  def valid_transition
+    return if transitions[state_was]&.include?(state.to_sym)
+
+    errors.add(:state, :invalid_transition, from: state_was, to: state)
   end
 
   def points_locked_after_start
