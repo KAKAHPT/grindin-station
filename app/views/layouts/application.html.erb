@@ -130,7 +130,7 @@
               <%= yield :sub_navigation %>
             </div>
 
-            <%= yield %>
+            <%= content_for?(:page_content) ? yield(:page_content) : yield %>
           </div>
 
           <%= turbo_frame_tag "modal", data: ({ turbo_permanent: true } if content_for?(:permanent_modal)) %>

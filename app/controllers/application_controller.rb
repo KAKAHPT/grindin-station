@@ -3,7 +3,8 @@
 class ApplicationController < ActionController::Base
   include Authentication
 
-  layout "modal", only: %i[new edit]
+  # Modal-style pages render inside the modal frame when requested by it, else as a full page.
+  layout -> { turbo_frame_request_id == "modal" ? "modal" : "modal_page" }, only: %i[new edit]
 
   around_action :switch_locale
 

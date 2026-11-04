@@ -57,6 +57,11 @@ module ApplicationHelper
             fill: "currentColor", "aria-hidden": "true")
   end
 
+  # Links between modal-style pages stay inside the modal frame when the page is in it, else navigate normally.
+  def modal_nav_data
+    turbo_frame_request_id == "modal" ? { turbo_frame: "modal" } : {}
+  end
+
   def organizer_mode?
     url_for(controller: params[:controller], action: params[:action]).starts_with?("/organizer")
   end
