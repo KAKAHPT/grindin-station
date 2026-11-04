@@ -19,4 +19,11 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_difference("User.count", 1) { sign_up("eightch8") }
     assert_redirected_to root_path
   end
+
+  test "an admin param on sign-up is ignored" do
+    post registrations_path, params: { user: { name: "Sneaky", email_address: "sneaky@example.com", admin: "true",
+                                               password: "eightch8", password_confirmation: "eightch8" } }
+
+    assert_not User.find_by!(email_address: "sneaky@example.com").admin?
+  end
 end

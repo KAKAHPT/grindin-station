@@ -6,6 +6,7 @@ class ApplicationController < ActionController::Base
   # Modal-style pages render inside the modal frame when requested by it, else as a full page.
   layout -> { turbo_frame_request_id == "modal" ? "modal" : "modal_page" }, only: %i[new edit]
 
+  before_action :set_request_context
   around_action :switch_locale
 
   unless Rails.env.production?
@@ -20,6 +21,11 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
+  def set_request_context
+    Current.ip_address = request.remote_ip
+    Current.request_id = request.request_id
+  end
 
   # Locale: ?locale= (which is also remembered), else the locale cookie, else the browser's Accept-Language,
   # else the default.

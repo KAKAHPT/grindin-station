@@ -65,6 +65,10 @@ Rails.application.routes.draw do
   resources :events, only: %i[index]
   resources :circuits, only: %i[index show]
 
+  namespace :admin do
+    root "dashboard#show"
+  end
+
   namespace :organizer do
     root "tournaments#index"
 

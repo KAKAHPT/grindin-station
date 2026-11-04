@@ -7,7 +7,10 @@ en:
     sign_in: "Sign in"
     logout: "Logout"
     organizer_mode: "Organizer mode"
+    admin: "Admin"
     menu: "Menu"
+  admin:
+    title: "Admin"
   app:
     name: "Grindin Station"
     description: "Pairings, standings and results of cEDH events, live on your phone."

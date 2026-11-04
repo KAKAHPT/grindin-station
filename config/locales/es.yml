@@ -7,7 +7,10 @@ es:
     sign_in: "Iniciar sesión"
     logout: "Cerrar sesión"
     organizer_mode: "Modo organizador"
+    admin: "Admin"
     menu: "Menú"
+  admin:
+    title: "Admin"
   app:
     name: "Grindin Station"
     description: "Emparejamientos, clasificaciones y resultados de eventos de cEDH, en directo en el móvil."
