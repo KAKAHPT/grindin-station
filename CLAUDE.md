@@ -119,6 +119,7 @@ Infractions have a hierarchical enum structure:
 - Password reset functionality with `PasswordsMailer`
 - `EventOrganizer` namespace for tournament management functions
 - `Current` concern for request-scoped state
+- Content security policy (`config/initializers/content_security_policy.rb`) runs **report-only**: per-response nonce on the importmap/module scripts, a hash for the font-swap `onload` in `_phone_head`, inline styles allowed (Tailwind/Turbo). `test/system/content_security_policy_test.rb` fails on any console violation on the landing, play and organizer round pages. To enforce, set `config.content_security_policy_report_only = false` (after an event day with no violations reported)
 
 ### Frontend Stack
 

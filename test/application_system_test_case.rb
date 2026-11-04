@@ -24,6 +24,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     options.add_preference("profile.password_manager_enabled", false)
     options.add_preference("profile.password_manager_leak_detection", false)
     options.add_argument("--disable-features=PasswordLeakDetection,PasswordManagerOnboarding")
+    options.add_option("goog:loggingPrefs", { browser: "ALL" }) # console messages, read by the CSP test
   end
 
   private
