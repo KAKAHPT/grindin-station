@@ -39,9 +39,8 @@ module Tournaments
     end
 
     test "an unknown mode raises ArgumentError" do
-      assert_raises(ArgumentError) do
-        Tournaments::SeatSimulator.new(players: 16, rounds: 5, rng: Random.new(1), mode: :bubble)
-      end
+      error = assert_raises(ArgumentError) { Tournaments::SeatSimulator.new(players: 16, rounds: 5, rng: Random.new(1), mode: :bubble) }
+      assert_match(/unknown mode :bubble/, error.message)
     end
   end
 end

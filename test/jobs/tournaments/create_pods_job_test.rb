@@ -74,7 +74,7 @@ module Tournaments
       assert_equal pods, pod_ids(t.rounds.create!(type: SwissRound, number: 2))
     end
 
-    # Round 3 of 16 is left out: there the greedy RematchRepair sometimes stops at 2 rematches, in swiss mode too.
+    # With 16 players, round 3 is left out: the greedy RematchRepair sometimes leaves 2–4 rematches there (swiss too).
     test "random: rematch repair leaves no rematch in round 2 for 16 seeds" do
       16.times do |seed|
         t = TournamentBuilder.build(players: 16, organizer: event_organizers(:standard_organizer))
