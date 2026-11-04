@@ -115,6 +115,7 @@ class OneVOneTiebreakersTest < ActiveSupport::TestCase # rubocop:disable Metrics
     cut.define_singleton_method(:create_pods) { nil }
     cut.save!
     Penalty.create!(round: cut, event_participant: @p[0])
+    cut.update_columns(finished_at: Time.current, published: true) # rubocop:disable Rails/SkipsModelValidations -- results only count on closed rounds
     after = EventParticipant.find(@p[0].id)
     assert_equal 1, after.number_of_rounds_played
     assert_in_delta 1.0, after.match_win_rate, 0.0001

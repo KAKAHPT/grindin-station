@@ -235,8 +235,9 @@ class EventParticipant < ApplicationRecord
     number_of_wins + number_of_draws + losses + number_of_byes
   end
 
+  # Penalty is a Loss subclass, so this is every loss row (penalties included) of a swiss round.
   def number_of_swiss_losses
-    results.count { |result| result.is_a?(Loss) || (result.is_a?(Penalty) && result.round.is_a?(SwissRound)) }
+    results.count { |result| result.is_a?(Loss) && result.round.is_a?(SwissRound) }
   end
 
   # Average over swiss pairings (byes and the top cut excluded) of each opponent's points out of
