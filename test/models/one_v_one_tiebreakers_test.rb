@@ -3,6 +3,8 @@
 require "test_helper"
 
 class OneVOneTiebreakersTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLength
+  # The standings load and every tiebreaker for the whole field: a fixed count, whatever the field size.
+  QUERIES = 6
   setup do
     @t = TournamentBuilder.build(players: 10, organizer: event_organizers(:standard_organizer), format: "one_v_one")
     @t.update_columns(seed: 7, swiss_rounds_count: 8, top_cut_size: 0) # rubocop:disable Rails/SkipsModelValidations
@@ -53,7 +55,7 @@ class OneVOneTiebreakersTest < ActiveSupport::TestCase # rubocop:disable Metrics
     play(3, c, @p[3], [2, 0]) # c: 1 win + 1 loss = 0.5
     a = EventParticipant.find(a.id)
     assert_in_delta (0.33 + 0.5) / 2, a.opponents_match_win_rate, 0.0001
-    # b games 0-2 => 0 -> 0.33; c: 6 + 3 of 9 + ... c: 1-2, 2-0 => 3+6 over 3+... games 5 => 9/15
+    # b: 0 game points of 6, floored to 0.33; c: 1-2 then 2-0 = 9 game points over 5 games (9/15)
     assert_in_delta (0.33 + (9.0 / 15)) / 2, a.opponents_game_win_rate, 0.0001
   end
 
@@ -86,9 +88,37 @@ class OneVOneTiebreakersTest < ActiveSupport::TestCase # rubocop:disable Metrics
     play(1, @p[0], @p[1], [2, 0])
     play(2, @p[0], @p[2], [2, 1])
     play(2, @p[1], @p[3], [1, 1])
-    ranked = EventParticipant.standings_for(@t).sort_by(&:rank_score).reverse
+    ranked = nil
+    assert_queries_count(QUERIES) do
+      ranked = EventParticipant.standings_for(@t).sort_by(&:rank_score).reverse
+      ranked.each(&:standing_columns)
+    end
     assert_equal @p[0].id, ranked.first.id
-    assert_equal 0.33, ranked.last.opponents_game_win_rate.round(2) if ranked.last.opponent_records.empty?
+    assert_empty ranked.last.opponent_records
+    assert_in_delta 0.33, ranked.last.opponents_game_win_rate, 0.0001
+  end
+
+  test "a 1-1-1 draw is 4 game points over 3 games" do
+    play(1, @p[0], @p[1], [1, 1, 1])
+    a = EventParticipant.find(@p[0].id)
+    assert_equal 1, a.number_of_draws
+    assert_equal [1, 1, 1], a.results.first.games
+    assert_in_delta 4.0 / 9, a.game_win_rate, 0.0001
+    assert_in_delta 4.0 / 9, EventParticipant.find(@p[1].id).game_win_rate, 0.0001
+  end
+
+  test "a penalty in the cut does not change the swiss rounds played or the seed score" do
+    play(1, @p[0], @p[1], [2, 0])
+    before = EventParticipant.find(@p[0].id)
+    seed = before.one_v_one_seed_score
+    cut = SingleEliminationRound.new(event: @t, number: 9)
+    cut.define_singleton_method(:create_pods) { nil }
+    cut.save!
+    Penalty.create!(round: cut, event_participant: @p[0])
+    after = EventParticipant.find(@p[0].id)
+    assert_equal 1, after.number_of_rounds_played
+    assert_in_delta 1.0, after.match_win_rate, 0.0001
+    assert_equal seed, after.one_v_one_seed_score
   end
 
   private
@@ -104,19 +134,22 @@ class OneVOneTiebreakersTest < ActiveSupport::TestCase # rubocop:disable Metrics
     round
   end
 
+  # score: [won, lost] or [won, lost, drawn] for the first player; the second gets the mirror.
   def play(number, one, two, score)
+    won, lost, drawn = score
     round = round_for(number)
     pod = round.pods.create!(number: round.pods.count + 1, size: 2)
-    [[one, score], [two, score.reverse]].each_with_index do |(ep, (won, lost)), i|
-      pod.seatings.create!(event_participant: ep, order: i + 1)
-      TournamentBuilder.record_1v1!(round, ep.id, won, lost)
+    [[one, won, lost], [two, lost, won]].each.with_index(1) do |(ep, games_won, games_lost), order|
+      pod.seatings.create!(event_participant: ep, order: order)
+      TournamentBuilder.record_1v1!(round, ep.id, games_won, games_lost, drawn || 0)
     end
     round.update_columns(finished_at: Time.current, published: true) # rubocop:disable Rails/SkipsModelValidations
   end
 
+  # As Tournaments::OneVOnePairer writes it: an Advance with no seating, 2-0.
   def bye(number, participant)
     round = round_for(number)
-    Advance.create!(round: round, event_participant: participant)
+    Advance.create!(round: round, event_participant: participant, games_won: 2)
     round.update_columns(finished_at: Time.current, published: true) # rubocop:disable Rails/SkipsModelValidations
   end
 

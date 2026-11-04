@@ -60,9 +60,11 @@ module Organizer
       assert_select "#pod_#{pod.id}[data-controller~='pod-result']" do
         assert_select "li[data-pod-result-target=row]", 2
         assert_select "form.hidden[data-pod-result-target=winForm] input[name='result[games]']", 2
-        assert_select "[data-pod-result-target=confirm][hidden] button[data-pod-result-games-param]", 2
+        assert_select "[data-pod-result-target=confirm][hidden] button[data-pod-result-games-param]", 3
         assert_select "[data-pod-result-target=confirm] button[data-pod-result-games-param='2-0-0']", text: "2-0"
         assert_select "[data-pod-result-target=confirm] button[data-pod-result-games-param='2-1-0']", text: "2-1"
+        assert_select "[data-pod-result-target=confirm] button[data-pod-result-games-param='1-0-1']" \
+                      "[title^='1-0 on time'][aria-label^='1-0 on time']", text: /\A1-0\s+time\z/
         assert_select "[data-pod-result-target=draw] button[data-action~='pod-result#openDraw']", text: "Draw"
         assert_select "[data-pod-result-target=drawScores][hidden] form", 2
         assert_select "[data-pod-result-target=drawScores] form:has(input[name='result[games]'][value='1-1-1']) button",
@@ -79,6 +81,7 @@ module Organizer
       assert_select "#pod_#{pod.id}" do
         assert_select "[data-pod-result-target=confirm] button[data-pod-result-games-param]", 1
         assert_select "[data-pod-result-target=confirm] button[data-pod-result-games-param='1-0-0']", text: "1-0"
+        assert_select "button[data-pod-result-games-param='1-0-1']", 0
         assert_select "[data-pod-result-target=drawScores] form", 1
         assert_select "[data-pod-result-target=drawScores] input[name='result[games]'][value='0-0-1']"
       end
@@ -107,6 +110,18 @@ module Organizer
       get organizer_tournament_round_path(t, round)
       assert_select "#pod_#{pod.id} li[data-name='#{b.name}']", text: /2-1/
       assert_select "#pod_#{pod.id} li[data-name='#{a.name}']", text: /2-1/, count: 0
+    end
+
+    test "a best-of-three 1-0 on time from the card is recorded as 1-0-1" do
+      t, round, pod = one_v_one_round
+      a, b = pod.seatings.order(:order).map(&:event_participant)
+
+      post organizer_tournament_round_pod_results_path(t, round, pod),
+           params: { result: { type: "Win", event_participant_id: a.id, games: "1-0-1" } }
+
+      assert_redirected_to organizer_tournament_round_path(t, round)
+      assert_equal [1, 0, 1], Result.current.find_by!(round: round, event_participant: a).games
+      assert_equal [0, 1, 1], Result.current.find_by!(round: round, event_participant: b).games
     end
 
     test "a 1v1 cut table resolved by time called shows no score" do

@@ -45,9 +45,9 @@ module TournamentBuilder
   end
 
   # One player's side of a 1v1 match: Win/Loss by games, Draw when equal.
-  def record_1v1!(round, participant_id, won, lost)
+  def record_1v1!(round, participant_id, won, lost, drawn = 0)
     result_class_for(won <=> lost).create!(round: round, event_participant_id: participant_id,
-                                           games_won: won, games_lost: lost)
+                                           games_won: won, games_lost: lost, games_drawn: drawn)
   end
 
   private

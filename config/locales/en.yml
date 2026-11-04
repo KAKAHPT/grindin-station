@@ -311,6 +311,8 @@ en:
     player_wins: "%{name} wins"
     score: "Score"
     draw_scores: "Draw score"
+    score_on_time: "%{score} on time: match stopped at time, the unfinished game is a draw"
+    on_time_hint: "time"
     finished_in: "Finished in %{time}"
     cancel: "Cancel"
     undo: "Undo round"

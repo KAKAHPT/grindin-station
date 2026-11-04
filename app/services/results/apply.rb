@@ -13,7 +13,8 @@ module Results
     Outcome = Data.define(:results, :warning)
 
     UNSCORED = :unscored
-    WINNER_SCORES = { 3 => [[2, 0, 0], [2, 1, 0]], 1 => [[1, 0, 0]] }.freeze
+    # Bo3 stopped on time at 1-0: 1-0-1 (the unfinished game is a draw, MTR) or 1-0-0.
+    WINNER_SCORES = { 3 => [[2, 0, 0], [2, 1, 0], [1, 0, 1], [1, 0, 0]], 1 => [[1, 0, 0]] }.freeze
     DRAW_SCORES = { 3 => [[1, 1, 1], [1, 1, 0], [0, 0, 1]], 1 => [[0, 0, 1]] }.freeze
     UNSCORED_TYPES = %w[Penalty Eliminated].freeze
 

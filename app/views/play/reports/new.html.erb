@@ -18,9 +18,9 @@
       <fieldset class="mt-4 grid grid-flow-col auto-cols-fr gap-2">
         <legend class="text-sm text-muted mb-2"><%= t("play.score") %></legend>
         <% winner_score_options(@pod.event).each_with_index do |(label, value), i| %>
-          <label class="flex items-center justify-center gap-2 min-h-12 px-4 rounded-md bg-surface-raised border border-line has-[:checked]:border-accent/60 has-[:checked]:bg-accent/[0.08]">
-            <%= radio_button_tag :games, value, i.zero?, class: "text-accent bg-surface border-line focus:ring-accent" %>
-            <span class="font-display font-semibold"><%= label %></span>
+          <label title="<%= score_option_title(label, value) %>" class="flex items-center justify-center gap-2 min-h-12 px-4 rounded-md bg-surface-raised border border-line has-[:checked]:border-accent/60 has-[:checked]:bg-accent/[0.08]">
+            <%= radio_button_tag :games, value, i.zero?, "aria-label": score_option_title(label, value), class: "text-accent bg-surface border-line focus:ring-accent" %>
+            <span class="font-display font-semibold"><%= label %><% if value == TournamentsHelper::ON_TIME_SCORE %> <span class="text-[10px] font-normal text-muted"><%= t("rounds.on_time_hint") %></span><% end %></span>
           </label>
         <% end %>
       </fieldset>

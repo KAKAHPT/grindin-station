@@ -228,9 +228,15 @@ class EventParticipant < ApplicationRecord
                       (number_of_byes * event.points_bye)
   end
 
-  # Swiss rounds the player got points from: games plus byes (a bye is worth a round).
+  # Swiss rounds the player got points from: games plus byes (a bye is worth a round). 1v1 counts only
+  # swiss penalties, so a penalty in the cut cannot move the swiss seed the bracket is built from.
   def number_of_rounds_played
-    number_of_wins + number_of_draws + number_of_losses + number_of_byes
+    losses = event.one_v_one? ? number_of_swiss_losses : number_of_losses
+    number_of_wins + number_of_draws + losses + number_of_byes
+  end
+
+  def number_of_swiss_losses
+    results.count { |result| result.is_a?(Loss) || (result.is_a?(Penalty) && result.round.is_a?(SwissRound)) }
   end
 
   # Average over swiss pairings (byes and the top cut excluded) of each opponent's points out of
@@ -260,13 +266,14 @@ class EventParticipant < ApplicationRecord
       end
   end
 
-  # 1v1: game points (3/1/0) out of 3 per game played over the swiss rounds, a bye counting 2-0; floored at 0.33.
-  def game_win_rate # rubocop:disable Metrics/AbcSize
+  # 1v1: game points (3/1/0) out of 3 per game played over the swiss rounds; floored at 0.33. A bye counts
+  # 2-0 through its own row (the pairer writes the Advance with games_won: 2).
+  def game_win_rate
     @game_win_rate ||=
       begin
         swiss = results.select { |result| result.round.is_a?(SwissRound) }
-        points = swiss.sum(&:game_points) + (6 * number_of_byes)
-        played = swiss.sum { |result| result.games.sum } + (2 * number_of_byes)
+        points = swiss.sum(&:game_points)
+        played = swiss.sum { |result| result.games.sum }
         played.zero? ? RATE_FLOOR : [points.fdiv(3 * played), RATE_FLOOR].max
       end
   end

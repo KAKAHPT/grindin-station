@@ -36,8 +36,24 @@ module Tournaments
       assert_equal bye_ids.uniq, bye_ids
     end
 
+    test "15 players: the bye counts once as 2-0 in the bye player's game-win rate" do
+      t = build(15, rounds: 5)
+      round = t.rounds.create!(type: SwissRound, number: 1)
+      bye_id = round.byes.sole.event_participant_id
+      TournamentBuilder.play_1v1_round!(t, scores: round.pods.pluck(:number).index_with([2, 1]))
+      assert_in_delta 1.0, EventParticipant.find(bye_id).game_win_rate, 0.0001 # 6 of 6
+
+      round = t.rounds.create!(type: SwissRound, number: 2)
+      pod = round.pods.joins(:seatings).find_by!(seatings: { event_participant_id: bye_id })
+      bye_first = pod.seatings.find_by!(order: 1).event_participant_id == bye_id
+      scores = round.pods.pluck(:number).index_with([2, 0]).merge(pod.number => bye_first ? [0, 2] : [2, 0])
+      TournamentBuilder.play_1v1_round!(t, scores: scores)
+      assert_in_delta 6.0 / 12, EventParticipant.find(bye_id).game_win_rate, 0.0001 # bye 6 + loss 0 over 4 games
+    end
+
     test "an odd points group sends its lowest-ranked player down; the other groups pair inside" do
       t = build(12, rounds: 5)
+      t.update_columns(seed: 1) # rubocop:disable Rails/SkipsModelValidations
       2.times do |i|
         round = t.rounds.create!(type: SwissRound, number: i + 1)
         TournamentBuilder.play_1v1_round!(t, scores: round.pods.pluck(:number).index_with([2, 0]))
@@ -57,6 +73,7 @@ module Tournaments
 
     test "with repair on, the 12-player pair-down crosses groups only where it must (6 v 3, then 3 v 0)" do
       t = build(12, rounds: 5)
+      t.update_columns(seed: 1) # rubocop:disable Rails/SkipsModelValidations
       2.times do |i|
         round = t.rounds.create!(type: SwissRound, number: i + 1)
         TournamentBuilder.play_1v1_round!(t, scores: round.pods.pluck(:number).index_with([2, 0]))

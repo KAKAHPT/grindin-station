@@ -133,9 +133,19 @@ module Results
       end
     end
 
+    test "1v1 best-of-three takes a match stopped on time at 1-0, as 1-0-1 or 1-0-0" do
+      pod, a, b = one_v_one_pod
+      Apply.call(pod: pod, type: "Win", winner: a, games: { winner: [1, 0, 1] })
+      assert_equal [1, 0, 1], current(pod, a).games
+      assert_equal [0, 1, 1], current(pod, b).games
+      assert_equal "1-0-1", current(pod, a).score
+      Apply.call(pod: pod, type: "Win", winner: a, games: { winner: [1, 0, 0] })
+      assert_equal [1, 0, 0], current(pod, a).games
+    end
+
     test "1v1 refuses impossible scores" do
       pod, a, = one_v_one_pod
-      [{ winner: [2, 2, 0] }, { winner: [3, 0, 0] }, { winner: [1, 0, 0] }, { winner: [-1, 0, 0] },
+      [{ winner: [2, 2, 0] }, { winner: [3, 0, 0] }, { winner: [1, 0, 2] }, { winner: [-1, 0, 0] },
        { winner: [2, 0] }, { games: [2, 1, 0] }, { games: [0, 0, 0] }].each do |games|
         type = games.key?(:winner) ? "Win" : "Draw"
         error = assert_raises(NotAllowed) { Apply.call(pod: pod, type: type, winner: a, games: games) }

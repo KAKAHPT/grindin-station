@@ -49,7 +49,7 @@
         <span class="flex items-center gap-1.5 min-w-0 text-[13px] text-ink"><%= icon("trophy", class: "text-accent") %><span data-pod-result-target="confirmLabel" class="truncate"></span></span>
         <div role="group" aria-label="<%= t("rounds.score") %>" class="flex gap-2">
           <% winner_score_options(pod.event).each do |label, value| %>
-            <button type="button" data-action="pod-result#confirm" data-pod-result-games-param="<%= value %>" class="<%= button_classes(:primary, "flex-1", size: :sm) %>"><%= label %></button>
+            <button type="button" data-action="pod-result#confirm" data-pod-result-games-param="<%= value %>" title="<%= score_option_title(label, value) %>" aria-label="<%= score_option_title(label, value) %>" class="<%= button_classes(:primary, "flex-1", size: :sm) %>"><%= label %><% if value == TournamentsHelper::ON_TIME_SCORE %> <span class="text-[10px] font-normal opacity-80"><%= t("rounds.on_time_hint") %></span><% end %></button>
           <% end %>
           <button type="button" data-action="pod-result#cancel" class="<%= button_classes(:ghost, nil, size: :sm) %>"><%= t("rounds.cancel") %></button>
         </div>

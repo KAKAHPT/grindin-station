@@ -67,10 +67,18 @@ module TournamentsHelper # rubocop:disable Metrics/ModuleLength
   end
 
   # 1v1 score buttons as [label, "won-lost-drawn" form value] for the event's best-of-N.
-  WINNER_SCORE_OPTIONS = { 3 => [["2-0", "2-0-0"], ["2-1", "2-1-0"]], 1 => [["1-0", "1-0-0"]] }.freeze
+  # Bo3 "1-0" is a match stopped on time: the unfinished game is a draw (1-0-1).
+  WINNER_SCORE_OPTIONS = { 3 => [["2-0", "2-0-0"], ["2-1", "2-1-0"], ["1-0", "1-0-1"]],
+                           1 => [["1-0", "1-0-0"]] }.freeze
   DRAW_SCORE_OPTIONS = { 3 => [["1-1", "1-1-1"], ["0-0", "0-0-1"]], 1 => [["0-0", "0-0-1"]] }.freeze
+  ON_TIME_SCORE = "1-0-1"
 
   def winner_score_options(event) = WINNER_SCORE_OPTIONS.fetch(event.match_games)
+
+  # Title/aria text for a score button: "1-0 (time)" for the bo3 match stopped on time, else the label.
+  def score_option_title(label, value)
+    value == ON_TIME_SCORE ? t("rounds.score_on_time", score: label) : label
+  end
 
   def draw_score_options(event) = DRAW_SCORE_OPTIONS.fetch(event.match_games)
 

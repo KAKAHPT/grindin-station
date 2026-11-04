@@ -102,6 +102,7 @@ module Play
       assert_response :success
       assert_select "input[type=radio][name=games][value='2-0-0'][checked]"
       assert_select "input[type=radio][name=games][value='2-1-0']"
+      assert_select "label[title^='1-0 on time']:has(input[type=radio][name=games][value='1-0-1'])", text: /1-0\s+time/
       assert_select "form:has(input[name=type][value=Draw]):has(input[name=games][value='1-1-1']) button", text: /1-1/
       assert_select "form:has(input[name=type][value=Draw]):has(input[name=games][value='0-0-1']) button", text: /0-0/
     end
