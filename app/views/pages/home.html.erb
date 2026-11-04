@@ -91,7 +91,7 @@
     <% if @upcoming.any? %>
       <div class="lp-evl">
         <% @upcoming.each do |event| %>
-          <%= render "pages/upcoming_event", event: event, enrolled: @enrolled.fetch(event.id, 0) %>
+          <%= render "shared/event_ticket", event: event, enrolled: @enrolled.fetch(event.id, 0) %>
         <% end %>
       </div>
     <% else %>

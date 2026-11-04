@@ -31,7 +31,7 @@ export default class extends Controller {
 
     // Time is up: stop at 00:00 in red instead of counting into negatives.
     if (remaining < 0) {
-      this.element.classList.add("!text-red-400", "font-black");
+      this.element.classList.add("!text-danger", "font-black");
       this.element.textContent = "00:00";
       return;
     }
@@ -55,8 +55,7 @@ export default class extends Controller {
         "bg-black",
         "font-black",
         "text-[392px]",
-        "text-lime-400",
-        "dark:text-lime-400",
+        "text-accent",
         "text-center",
         "font-mono",
         "flex",
@@ -71,8 +70,7 @@ export default class extends Controller {
         "bg-black",
         "font-black",
         "text-[392px]",
-        "text-lime-400",
-        "dark:text-lime-400",
+        "text-accent",
         "text-center",
         "font-mono",
         "flex",

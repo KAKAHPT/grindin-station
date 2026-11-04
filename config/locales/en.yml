@@ -139,7 +139,6 @@ en:
         judge_call_table: "Judge called at table %{table}"
         enrolled: "%{name} enrolled"
         checked_in: "%{name} checked in"
-        decklist: "Decklist received · %{name}"
     settings:
       event: "Event"
       structure: "Structure"
@@ -166,7 +165,7 @@ en:
       events:
         one: "1 event"
         other: "%{count} events"
-      organized_by: "Organized by %{name}"
+      organized_by_html: "Organized by %{name}"
       leagues: "Leagues (%{count})"
       tournaments: "Tournaments (%{count})"
       no_events: "No events in this circuit yet."
@@ -350,6 +349,8 @@ en:
         single_elimination: "Top %{size}"
         finished: "Finished"
         canceled: "Canceled"
+        play: "Playing"
+        finals: "Finals"
     standings:
       final_title: "Final standings"
       movement: "Movement since the last round"
@@ -709,3 +710,56 @@ en:
       register: "Register"
   helpers:
     required: "required"
+  lists:
+    upcoming: "Upcoming"
+    past: "Past"
+    ongoing: "Your events running now"
+    events:
+      title: "Events"
+      lead: "Tournaments and leagues on Grindin Station."
+    tournaments:
+      title: "Tournaments"
+      lead: "Every public tournament, upcoming or past."
+    leagues:
+      title: "Leagues"
+      lead: "Pickup and scheduled play over weeks, with wagers."
+    empty_upcoming: "No upcoming events yet. Check back soon."
+    empty_past: "No past events yet."
+    organized_by_html: "Organized by %{name}"
+    events_count:
+      one: "1 event"
+      other: "%{count} events"
+    leagues_count:
+      one: "1 league"
+      other: "%{count} leagues"
+    circuits:
+      title: "Rankings"
+      lead: "Circuits add up the points players earn across their events."
+      empty: "No circuits yet."
+      standings: "Standings"
+      standings_empty: "No standings yet."
+      events: "Events"
+      events_empty: "No events in this circuit yet."
+    columns:
+      rank: "#"
+      player: "Player"
+      points: "Points"
+      events: "Events"
+      score: "Score"
+      wins: "W"
+      draws: "D"
+      losses: "L"
+      position: "Final"
+    league:
+      eyebrow: "League"
+      players: "Players"
+      players_line: "%{registered} registered · minimum %{min} · maximum %{max}"
+      no_limit: "no limit"
+      prizes: "Prizes"
+      description: "More information"
+      wager: "Wager"
+      wager_line: "Players wager %{percent}% of their league score per pod result."
+      rounds: "Rounds"
+      round: "Round %{number}"
+      standings: "Standings"
+      standings_empty: "No standings yet."

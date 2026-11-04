@@ -1,99 +1,15 @@
-<% if @ongoing.any? %>
-  <h1
-    class="
-      mb-4 text-4xl flex items-center font-extrabold leading-none
-      tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white
-      col-span-full
-    "
-  >
-    <div class="relative inline-flex items-center me-2">
-      <span
-        class="
-          absolute inline-flex h-3 w-3 rounded-full bg-red-500 opacity-75
-          animate-ping
-        "
-      ></span>
-      <span class="relative inline-flex h-3 w-3 rounded-full bg-red-500"></span>
-    </div>
-    Ongoing events
-  </h1>
-  <% @ongoing.each do |event| %>
-    <%= render event %>
-  <% end %>
+<% url_locale = params[:locale] %>
+<%= render "shared/list_header", title: t("lists.events.title"), lead: t("lists.events.lead"), past: @past,
+                                 path: ->(filter) { events_path(filter: filter, locale: url_locale) } %>
+
+<%= render "shared/ticket_grid", events: @ongoing, enrolled: @enrolled, heading: t("lists.ongoing") %>
+<%= render "shared/ticket_grid", events: @tournaments, enrolled: @enrolled, paginate: @tournaments,
+                                 heading: (t("lists.tournaments.title") if @leagues.any?) %>
+<%= render "shared/ticket_grid", events: @leagues, enrolled: @enrolled, paginate: @leagues,
+                                 heading: t("lists.leagues.title") %>
+
+<% if @tournaments.none? && @leagues.none? %>
+  <p class="col-span-full card px-4 py-8 text-center text-[13px] text-muted" data-list-empty>
+    <%= t(@past ? "lists.empty_past" : "lists.empty_upcoming") %>
+  </p>
 <% end %>
-
-<div class="col-span-full">
-  <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-    <h1
-      class="
-        text-4xl font-extrabold leading-none tracking-tight text-gray-900
-        md:text-5xl lg:text-6xl dark:text-white
-      "
-    >
-      <%= @title %>
-    </h1>
-    <div class="flex gap-2">
-      <% upcoming_class = "inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg border#{params[:filter].nil? ? ' bg-blue-600 text-white border-blue-600' : ' bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700'}" %>
-      <%= link_to events_url, class: upcoming_class do %>
-        <%= icon('calendar') %>
-        Upcoming
-      <% end %>
-      <% past_class = "inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg border#{params[:filter] == 'past' ? ' bg-blue-600 text-white border-blue-600' : ' bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700'}" %>
-      <%= link_to events_url(filter: 'past'), class: past_class do %>
-        <%= icon('clock') %>
-        Past
-      <% end %>
-    </div>
-  </div>
-
-  <% if @leagues.any? || @tournaments.any? %>
-    <div class="mb-4 flex gap-4 text-sm">
-      <% if @leagues.any? %>
-        <span class="text-blue-600 dark:text-blue-400 font-medium">
-          <%= icon('trophy', class: 'inline me-1') %>
-          <%= @leagues.size %> league(s)
-        </span>
-      <% end %>
-      <% if @tournaments.any? %>
-        <span class="text-green-600 dark:text-green-400 font-medium">
-          <%= icon('medal', class: 'inline me-1') %>
-          <%= @tournaments.size %> tournament(s)
-        </span>
-      <% end %>
-    </div>
-  <% end %>
-
-  <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
-    <% if @leagues.any? %>
-      <div>
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-          <%= icon('trophy', class: 'inline me-2 w-6 h-6') %>
-          Leagues
-        </h2>
-        <div class="grid grid-cols-1 gap-6 mb-8">
-          <%= render @leagues %>
-        </div>
-        <%= paginate @leagues %>
-      </div>
-    <% end %>
-
-    <% if @tournaments.any? %>
-      <div>
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-          <%= icon('medal', class: 'inline me-2 w-6 h-6') %>
-          Tournaments
-        </h2>
-        <div class="grid grid-cols-1 gap-6 mb-8">
-          <%= render @tournaments %>
-        </div>
-        <%= paginate @tournaments %>
-      </div>
-    <% end %>
-  </div>
-
-  <% if @leagues.none? && @tournaments.none? %>
-    <p class="text-gray-500 dark:text-gray-400 text-center py-12">
-      No events found. Check back later for new tournaments and leagues!
-    </p>
-  <% end %>
-</div>

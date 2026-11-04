@@ -1,7 +1,9 @@
-<%# One ticket of the landing's upcoming events (option 4C): the cover on top with the state chip and the date,
-    name, format line and organizer, then the perforated stub with the enrolled count, View event and, while
-    registration is open, Register. Locals: event (Tournament, cover and organizer preloaded), enrolled (count). %>
+<%# One event ticket (option 4C), on the landing and the event lists: the cover on top with the state chip and the
+    date, name, format line and organizer, then the perforated stub with the enrolled count, View event and, while
+    a tournament's registration is open, Register. Past events too. A tournament opens at /t/:slug, a league at
+    /leagues/:id. Locals: event (Tournament or League, cover and organizer preloaded), enrolled (count). %>
 <% url_locale = params[:locale] %>
+<% href = event.is_a?(League) ? league_path(event, locale: url_locale) : play_event_path(event.slug, locale: url_locale) %>
 <% banner = if event.cover.attached? && event.cover.representable?
              rails_representation_path(event.cover.representation(resize_to_limit: [480, 480]), only_path: true)
            else
@@ -26,7 +28,7 @@
     </div>
   </div>
   <div class="lp-evr-bd">
-    <h3 class="lp-evr-t"><%= link_to event.name, play_event_path(event.slug, locale: url_locale) %></h3>
+    <h3 class="lp-evr-t"><%= link_to event.name, href %></h3>
     <p class="lp-evr-m"><%= safe_join(line, " · ") %></p>
     <% if organizer %>
       <p class="lp-evr-org"><i aria-hidden="true"><%= organizer.split.first(2).map { |word| word[0] }.join.upcase %></i><%= organizer %></p>
@@ -35,9 +37,9 @@
   <div class="lp-evr-stub">
     <p class="lp-evr-n"><b><%= enrolled %></b><%= max.infinite? ? t("landing.upcoming.enrolled") : t("landing.upcoming.of_max", max: max) %></p>
     <div class="lp-evr-act">
-      <%= link_to t("landing.upcoming.view"), play_event_path(event.slug, locale: url_locale), class: button_classes(:secondary, size: :sm) %>
-      <% if event.registration_open? %>
-        <%= link_to t("landing.upcoming.register"), play_event_path(event.slug, locale: url_locale), class: button_classes(:primary, size: :sm), data: { register: true } %>
+      <%= link_to t("landing.upcoming.view"), href, class: button_classes(:secondary, size: :sm) %>
+      <% if event.is_a?(Tournament) && event.registration_open? %>
+        <%= link_to t("landing.upcoming.register"), href, class: button_classes(:primary, size: :sm), data: { register: true } %>
       <% end %>
     </div>
   </div>

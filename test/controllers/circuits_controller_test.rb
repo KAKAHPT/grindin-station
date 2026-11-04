@@ -19,13 +19,13 @@ class CircuitsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Open One"
     assert_not_includes response.body, "Draft One"
-    assert_match(/1\.00\s+event\(s\)/, response.body)
+    assert_select "[data-circuit-events]", text: /\b1 event\b/
   end
 
   test "index counts only the open tournament" do
     get circuits_path
 
     assert_response :success
-    assert_match(/#{Regexp.escape(@circuit.name)}.*?1\.00\s+event\(s\)/m, response.body)
+    assert_select "[data-circuit=?] [data-circuit-events]", @circuit.id, text: /\b1 event\b/
   end
 end

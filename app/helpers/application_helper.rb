@@ -39,15 +39,6 @@ module ApplicationHelper
     end
   end
 
-  def badge(color:, &block)
-    tag.span(class: %w[
-      text-xs font-medium me-2 px-2.5 py-0.5 rounded
-    ] + [
-      "bg-#{color}-100", "text-#{color}-800",
-      "dark:bg-#{color}-900", "dark:text-#{color}-300"
-    ], &block)
-  end
-
   # Phosphor light icon from the local sprite (app/assets/images/icons.svg), sized to the font like
   # the old icon font; a w-*/h-* class in options[:class] overrides the size.
   def icon(name, options = nil)

@@ -4,7 +4,7 @@
 module EventsHelper
   EVENT_STATE_TONES = {
     draft: :warn, registration_open: :ok, registration_closed: :warn, swiss: :info,
-    single_elimination: :info, finished: :info, canceled: :bad
+    single_elimination: :info, finished: :info, canceled: :bad, play: :info, finals: :info
   }.with_indifferent_access.freeze
 
   # "Registration open", "Swiss round 3", "Top 16", ...; round_number is the latest published round.

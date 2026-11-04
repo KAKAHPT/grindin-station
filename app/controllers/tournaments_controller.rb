@@ -2,23 +2,16 @@
 
 class TournamentsController < ApplicationController
   include PublicEvent
+  include EventTickets
 
   skip_before_action :require_authentication
+
+  # Public tournaments as tickets (upcoming by default, ?filter=past) and the viewer's own running now.
   def index
-    scope = Tournament.with_attached_cover.where.not(state: %i[draft canceled]).preload(:rounds)
-
-    case params[:filter]
-    when "past"
-      scope = scope.past
-      @title = "Past tournaments"
-    else
-      scope = scope.upcoming
-      @title = "Upcoming tournaments"
-    end
-
-    @tournaments = scope.page params[:page]
-
-    @ongoing = Tournament.for_player(current_user&.player).ongoing
+    @past = params[:filter] == "past"
+    @tournaments = ticket_scope(Tournament, past: @past).page(params[:page]).load
+    @ongoing = ticket_preload(Tournament.for_player(current_user&.player).ongoing).to_a
+    @enrolled = enrolled_counts(@tournaments.to_a + @ongoing)
   end
 
   # The event page lives at /t/:slug (every event has one). A hidden event is not found, as there.

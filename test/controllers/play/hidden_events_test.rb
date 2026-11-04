@@ -51,7 +51,7 @@ module Play
       get paths[0]
       assert_redirected_to play_event_path(@tournament.slug)
       get paths[1]
-      assert_response :success
+      assert_redirected_to play_pairings_path(@tournament.slug, round: round.number)
     end
 
     test "the legacy round page does not show an unpublished round" do
@@ -61,7 +61,7 @@ module Play
       assert_response :not_found
 
       get tournament_round_path(@tournament, @tournament.rounds.find_by!(number: 1))
-      assert_response :success
+      assert_redirected_to play_pairings_path(@tournament.slug, round: 1)
     end
 
     test "legacy round routes are read-only and the public pod and round list routes are gone" do

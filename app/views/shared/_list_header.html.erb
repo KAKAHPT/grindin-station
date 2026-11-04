@@ -1,0 +1,12 @@
+<%# Head of a public event list (/events, /tournaments, /leagues): title, lead and the Upcoming · Past switch.
+    Locals: title, lead, path (a lambda taking the filter, nil or "past"), past (bool). %>
+<div class="col-span-full flex flex-wrap items-end justify-between gap-3 pt-2" data-list-header>
+  <div class="min-w-0">
+    <h1 class="font-display text-2xl font-semibold text-ink"><%= title %></h1>
+    <p class="mt-1 text-[13px] text-muted"><%= lead %></p>
+  </div>
+  <span class="seg" data-list-filter>
+    <%= link_to t("lists.upcoming"), path.(nil), class: ("seg-on" unless past), "aria-current": ("page" unless past) %>
+    <%= link_to t("lists.past"), path.("past"), class: ("seg-on" if past), "aria-current": ("page" if past) %>
+  </span>
+</div>

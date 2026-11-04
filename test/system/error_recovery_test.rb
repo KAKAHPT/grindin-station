@@ -123,10 +123,10 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
     visit events_path
 
     assert_current_path events_path
-    assert_text "Upcoming events"
+    assert_text "Events"
     assert_text "Medium Tournament"
     assert_text "Free entry"
-    assert_text "View details"
+    assert_link "View event"
   end
 
   test "logged out user sees cover images on the events page" do
@@ -144,7 +144,8 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
 
     visit events_path
 
-    assert_selector "img[alt='Cover image for Medium Tournament']"
-    assert_selector "img[alt='Cover image for Standard League']"
+    [events(:medium_tournament), leagues(:standard_league)].each do |event|
+      assert_selector "[data-upcoming-event='#{event.slug}'] .lp-evr-ban[style*='/rails/active_storage/']"
+    end
   end
 end

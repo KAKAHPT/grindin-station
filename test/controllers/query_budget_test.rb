@@ -27,8 +27,10 @@ class QueryBudgetTest < ActionDispatch::IntegrationTest
     assert_queries_under(60, "round page") { get organizer_tournament_round_path(@t, @round) }
   end
 
-  test "public round page runs under 60 queries" do
-    assert_queries_under(60, "public round page") { get tournament_round_path(@t, @round) }
+  test "the old public round page redirects to the round's pairings" do
+    @round.update!(published: true)
+    get tournament_round_path(@t, @round)
+    assert_redirected_to play_pairings_path(@t.slug, round: 1)
   end
 
   test "public standings run under 60 queries" do

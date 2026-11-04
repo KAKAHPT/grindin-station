@@ -139,7 +139,6 @@ pt:
         judge_call_table: "Juiz chamado à mesa %{table}"
         enrolled: "%{name} inscreveu-se"
         checked_in: "%{name} fez check-in"
-        decklist: "Decklist recebida · %{name}"
     settings:
       event: "Evento"
       structure: "Estrutura"
@@ -166,7 +165,7 @@ pt:
       events:
         one: "1 evento"
         other: "%{count} eventos"
-      organized_by: "Organizado por %{name}"
+      organized_by_html: "Organizado por %{name}"
       leagues: "Ligas (%{count})"
       tournaments: "Torneios (%{count})"
       no_events: "Ainda não há eventos neste circuito."
@@ -350,6 +349,8 @@ pt:
         single_elimination: "Top %{size}"
         finished: "Terminado"
         canceled: "Cancelado"
+        play: "A decorrer"
+        finals: "Finais"
     standings:
       final_title: "Classificação final"
       movement: "Movimento desde a última ronda"
@@ -709,3 +710,56 @@ pt:
       register: "Inscrever"
   helpers:
     required: "obrigatório"
+  lists:
+    upcoming: "Próximos"
+    past: "Passados"
+    ongoing: "Os teus eventos a decorrer"
+    events:
+      title: "Eventos"
+      lead: "Torneios e ligas no Grindin Station."
+    tournaments:
+      title: "Torneios"
+      lead: "Todos os torneios públicos, próximos ou passados."
+    leagues:
+      title: "Ligas"
+      lead: "Jogo livre ou agendado ao longo de semanas, com apostas."
+    empty_upcoming: "Ainda não há eventos marcados. Volta em breve."
+    empty_past: "Ainda não há eventos passados."
+    organized_by_html: "Organizado por %{name}"
+    events_count:
+      one: "1 evento"
+      other: "%{count} eventos"
+    leagues_count:
+      one: "1 liga"
+      other: "%{count} ligas"
+    circuits:
+      title: "Rankings"
+      lead: "Os circuitos somam os pontos que os jogadores ganham nos seus eventos."
+      empty: "Ainda não há circuitos."
+      standings: "Classificação"
+      standings_empty: "Ainda sem classificação."
+      events: "Eventos"
+      events_empty: "Ainda não há eventos neste circuito."
+    columns:
+      rank: "#"
+      player: "Jogador"
+      points: "Pontos"
+      events: "Eventos"
+      score: "Pontuação"
+      wins: "V"
+      draws: "E"
+      losses: "D"
+      position: "Final"
+    league:
+      eyebrow: "Liga"
+      players: "Jogadores"
+      players_line: "%{registered} inscritos · mínimo %{min} · máximo %{max}"
+      no_limit: "sem limite"
+      prizes: "Prémios"
+      description: "Mais informação"
+      wager: "Aposta"
+      wager_line: "Cada jogador aposta %{percent}% da sua pontuação na liga por resultado de mesa."
+      rounds: "Rondas"
+      round: "Ronda %{number}"
+      standings: "Classificação"
+      standings_empty: "Ainda sem classificação."

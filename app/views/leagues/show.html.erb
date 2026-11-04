@@ -1,162 +1,119 @@
-<%= content_for :sub_navigation do %>
-  <nav class="flex mb-5" aria-label="Breadcrumb">
-    <ol class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2">
-      <li class="inline-flex items-center">
-        <%= link_to root_url, class:"inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white" do %>
-          <svg
-            class="w-5 h-5 mr-2.5"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 0 1 0 1-1h2a1 1 0 011-1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
-            ></path>
-          </svg>
-          Home
-        <% end %>
-      </li>
-      <li>
-        <div class="flex items-center">
-          <svg
-            class="w-6 h-6 text-gray-400"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-              clip-rule="evenodd"
-            ></path>
-          </svg>
-          <%= link_to leagues_url, class: 'ml-1 text-gray-700 hover:text-primary-600 md:ml-2 dark:text-gray-300 dark:hover:text-white' do %>
-            Leagues
+<%# Public league page: the event header card, About (when, where, price, players, description, schedule, prizes,
+    rules), the wager, the rounds and the standings by league score. %>
+<% league = @league %>
+<% playing = league.event_participants.reject(&:dropped) %>
+<% content_for :event_header do %>
+  <%= render "shared/event_header", event: league,
+                                    eyebrow: [t("lists.league.eyebrow"), event_state_label(league, nil)].join(" · "),
+                                    line: play_info_line(league, playing.size) %>
+<% end %>
+
+<div class="col-span-full grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr] items-start pt-4">
+  <section data-about class="card">
+    <h2 class="card-title"><%= t("play.events.about") %></h2>
+    <div class="p-4">
+      <dl class="grid grid-cols-[4.5rem_1fr] gap-x-3 gap-y-1.5 text-[13px]">
+        <dt class="text-muted"><%= t("play.events.when") %></dt>
+        <dd>
+          <%= time_tag league.start_time, l(league.start_time, format: t("play.events.time_format")) %>
+          <% if league.end_time %>
+            – <%= time_tag league.end_time, l(league.end_time, format: t("play.events.time_format")) %>
           <% end %>
+        </dd>
+        <% if league.address.present? %>
+          <dt class="text-muted"><%= t("play.events.where") %></dt>
+          <dd>
+            <%= league.address %> ·
+            <%= link_to t("play.events.open_map"), "https://www.google.com/maps/search/?api=1&query=#{ERB::Util.url_encode(league.address)}",
+                        target: "_blank", rel: "noopener", class: "text-accent hover:underline" %>
+          </dd>
+        <% end %>
+        <dt class="text-muted"><%= t("play.events.price") %></dt>
+        <dd><%= tournament_price(league) %></dd>
+        <dt class="text-muted"><%= t("lists.league.players") %></dt>
+        <dd>
+          <%= t("lists.league.players_line", registered: league.event_participants_count, min: league.minimum_participants,
+                                             max: league.maximum_participants.infinite? ? t("lists.league.no_limit") : league.maximum_participants) %>
+        </dd>
+      </dl>
+
+      <% [[t("lists.league.description"), league.description], [t("play.events.schedule"), league.schedule],
+          [t("lists.league.prizes"), league.prizes], [t("play.events.rules"), league.rules]].each do |label, text| %>
+        <% next if text.blank? %>
+        <section class="mt-4">
+          <h3 class="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted"><%= label %></h3>
+          <div class="markdown mt-1 text-[13px] leading-relaxed text-muted"><%= marksmithed(text) %></div>
+        </section>
+      <% end %>
+    </div>
+  </section>
+
+  <div class="grid gap-4">
+    <% if league.wager_percentage.present? %>
+      <section class="card" data-league-wager>
+        <h2 class="card-title"><%= t("lists.league.wager") %></h2>
+        <div class="p-4">
+          <p class="font-display text-2xl font-semibold text-ink"><%= league.wager_percentage %>%</p>
+          <p class="mt-1 text-[12.5px] text-muted"><%= t("lists.league.wager_line", percent: league.wager_percentage) %></p>
         </div>
-      </li>
-      <li>
-        <div class="flex items-center">
-          <svg
-            class="w-6 h-6 text-gray-400"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-              clip-rule="evenodd"
-            ></path>
-          </svg>
-          <span
-            class="ml-1 text-gray-400 md:ml-2 dark:text-gray-500"
-            aria-current="page"
-          >
-            <%= @league.name %>
-          </span>
-        </div>
-      </li>
-    </ol>
-  </nav>
-<% end %>
+      </section>
+    <% end %>
 
-<%= render "league_header", league: @league %>
-
-<%= render "league_detailed_info", league: @league %>
-
-<% if @league.wager_percentage.present? %>
-  <div class="col-span-full mt-4 p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-    <h2 class="mb-2 text-xl font-medium text-gray-900 dark:text-white">Wager</h2>
-    <p class="text-2xl text-purple-600 dark:text-purple-400 font-bold"><%= @league.wager_percentage %>%</p>
-    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-      Players wager <%= @league.wager_percentage %>% of their league score per pod result
-    </p>
+    <% if league.rounds.any? %>
+      <section class="card overflow-clip" data-league-rounds>
+        <h2 class="card-title"><%= t("lists.league.rounds") %></h2>
+        <ul class="divide-y divide-line text-[13px]">
+          <% league.rounds.sort_by(&:number).each do |round| %>
+            <li class="flex items-center justify-between gap-3 px-4 py-2.5">
+              <span><%= round.respond_to?(:display_name) ? round.display_name : t("lists.league.round", number: round.number) %></span>
+              <% if round.finished_at %>
+                <%= desk_chip(:info) { t("play.events.state.finished") } %>
+              <% elsif round.started? %>
+                <%= desk_chip(:ok) { t("play.header.live") } %>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </section>
+    <% end %>
   </div>
-<% end %>
+</div>
 
-<% if @league.playing? || @league.rounds.any? %>
-  <div class="col-span-full mt-8">
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-      Rounds
-    </h2>
-    <%= render @league.rounds %>
-  </div>
-<% end %>
-
-<% if @league.finished? || @league.playing? %>
-  <div class="col-span-full mt-8">
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-      Standings
-    </h2>
-    <% standings = @league.event_participants.playing.order(league_score: :desc).to_a %>
+<% if league.finished? || league.playing? %>
+  <section class="col-span-full card overflow-clip" data-league-standings>
+    <h2 class="card-title"><%= t("lists.league.standings") %></h2>
+    <% standings = playing.sort_by { |ep| -(ep.league_score || 0) } %>
     <% if standings.any? %>
       <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-          <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <table class="ctable">
+          <thead>
             <tr>
-              <th class="px-6 py-3 w-16">#</th>
-              <th class="px-6 py-3">Player</th>
-              <th class="px-6 py-3 text-right">Score</th>
-              <th class="px-6 py-3 text-right">Wins</th>
-              <th class="px-6 py-3 text-right">Draws</th>
-              <th class="px-6 py-3 text-right">Losses</th>
-              <% if @league.finished? %>
-                <th class="px-6 py-3 text-right">Position</th>
-              <% end %>
+              <th class="r w-12"><%= t("lists.columns.rank") %></th>
+              <th><%= t("lists.columns.player") %></th>
+              <th class="r"><%= t("lists.columns.score") %></th>
+              <th class="r"><%= t("lists.columns.wins") %></th>
+              <th class="r"><%= t("lists.columns.draws") %></th>
+              <th class="r"><%= t("lists.columns.losses") %></th>
+              <% if league.finished? %><th class="r"><%= t("lists.columns.position") %></th><% end %>
             </tr>
           </thead>
           <tbody>
-            <% standings.each_with_index do |ep, idx| %>
-              <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
-                  <% case idx %>
-                  <% when 1 %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
-                      <%= icon('crown', class: 'me-1 w-3 h-3') %>
-                    </span>
-                  <% when 2 %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                      <%= icon('medal', class: 'me-1 w-3 h-3') %>
-                    </span>
-                  <% when 3 %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">
-                      <%= icon('medal', class: 'me-1 w-3 h-3') %>
-                    </span>
-                  <% else %>
-                    <span class="text-gray-500 dark:text-gray-400"><%= idx %></span>
-                  <% end %>
-                </td>
-                <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
-                  <%= link_to ep.player_name, ep.player.user, class: 'hover:underline' %>
-                </td>
-                <td class="px-6 py-4 text-right font-mono">
-                  <%= number_to_currency(ep.league_score, precision: 2, delimiter: '.', separator: ',') %>
-                </td>
-                <td class="px-6 py-4 text-right text-green-600 dark:text-green-400"><%= ep.number_of_wins %></td>
-                <td class="px-6 py-4 text-right text-yellow-600 dark:text-yellow-400"><%= ep.number_of_draws %></td>
-                <td class="px-6 py-4 text-right text-red-600 dark:text-red-400"><%= ep.number_of_losses %></td>
-                <% if @league.finished? %>
-                  <td class="px-6 py-4 text-right">
-                    <% case ep.final_position %>
-                    <% when 1 %>
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">1st</span>
-                    <% when 2 %>
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">2nd</span>
-                    <% when 3 %>
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">3rd</span>
-                    <% else %>
-                      <span class="text-gray-500 dark:text-gray-400"><%= ep.final_position %>%{<%= ['st', 'nd', 'rd'].cycle(ep.final_position % 3, start: -1) rescue 'th' %>}</span>
-                    <% end %>
-                  </td>
-                <% end %>
+            <% standings.each.with_index(1) do |ep, rank| %>
+              <tr>
+                <td class="r font-display font-semibold text-muted"><%= rank %></td>
+                <td class="text-ink"><%= ep.name %></td>
+                <td class="r font-mono"><%= number_with_precision(ep.league_score, precision: 2) %></td>
+                <td class="r"><%= ep.number_of_wins %></td>
+                <td class="r"><%= ep.number_of_draws %></td>
+                <td class="r"><%= ep.number_of_losses %></td>
+                <% if league.finished? %><td class="r"><%= ep.final_position&.ordinalize %></td><% end %>
               </tr>
             <% end %>
           </tbody>
         </table>
       </div>
     <% else %>
-      <p class="text-gray-500 dark:text-gray-400">No standings yet.</p>
+      <p class="px-4 py-6 text-center text-[12.5px] text-muted"><%= t("lists.league.standings_empty") %></p>
     <% end %>
-  </div>
+  </section>
 <% end %>
