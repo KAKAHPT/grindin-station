@@ -1,0 +1,1 @@
+0 4 * * * cd /opt/grindin-station && BACKUP_DIR=/var/backups/grindin-station KEEP=14 bin/backup >> /var/log/grindin-station-backup.log 2>&1

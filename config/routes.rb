@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  # kamal-proxy health check: 200 when the app boots, 500 otherwise.
+  get "up" => "rails/health#show", as: :rails_health_check
+
   resource :session
   get "/auth/:provider/callback", to: "omniauth_callbacks#create", as: :omniauth_callback
   get "/auth/failure", to: "omniauth_callbacks#failure", as: :omniauth_failure

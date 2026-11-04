@@ -35,5 +35,5 @@ production:
     migrations_paths: db/queue_migrate
   cable:
     <<: *default
-    durl: <%= ENV["CABLE_DATABASE_URL"] %>
+    url: <%= ENV["CABLE_DATABASE_URL"] %>
     migrations_paths: db/cable_migrate
