@@ -57,4 +57,15 @@ class BackupScriptTest < ActiveSupport::TestCase
       assert_empty Dir.glob(File.join(dir, "*.dump"))
     end
   end
+
+  test "a new backup directory is readable by its owner only" do
+    Dir.mktmpdir do |parent|
+      dir = File.join(parent, "backups")
+
+      output, status = run_backup(dir)
+
+      assert status.success?, output
+      assert_equal "700", format("%o", File.stat(dir).mode & 0o777)
+    end
+  end
 end

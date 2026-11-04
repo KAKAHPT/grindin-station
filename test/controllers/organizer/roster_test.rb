@@ -132,7 +132,7 @@ module Organizer
     end
 
     test "public registration goes to the waitlist when full, or is refused without one" do
-      @tournament.update!(state: "registration_open") if @tournament.registration_closed?
+      @tournament.update_column(:state, Tournament.states[:registration_open]) # rubocop:disable Rails/SkipsModelValidations
       @tournament.update!(maximum_participants: 4)
       sign_in_user(users(:player_one))
 

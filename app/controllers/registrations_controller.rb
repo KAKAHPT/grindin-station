@@ -2,7 +2,7 @@
 
 class RegistrationsController < ApplicationController
   allow_unauthenticated_access
-  rate_limit to: 10, within: 3.minutes, only: :create, with: lambda {
+  rate_limit to: 30, within: 3.minutes, only: :create, with: lambda {
     redirect_to new_registration_url, alert: t("flash.alert.try_again_later")
   }
 

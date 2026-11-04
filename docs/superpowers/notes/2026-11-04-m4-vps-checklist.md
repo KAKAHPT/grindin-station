@@ -48,7 +48,8 @@ O workflow usa `environment: production`; os segredos podem estar no environment
 | `GS_VPS_HOST` | sim | IP do VPS |
 | `GS_DOMAIN` | sim | `grindin.cedhpt.com` (sem `https://`) |
 | `RAILS_MASTER_KEY` | sim | o conteúdo de `config/master.key` nesta máquina (gerado em 2026-11-04 com `config/credentials.yml.enc` novo; guarda-o no gestor de palavras-passe; sem ele a app não arranca). O ficheiro não está no git |
-| `POSTGRES_PASSWORD` | sim | `openssl rand -hex 32` (só hex: entra nos URLs da base de dados sem escape) |
+| `POSTGRES_PASSWORD` | sim | `openssl rand -hex 32` (só hex). Superutilizador `grindin` do accessory: só o Postgres e o `bin/backup`/`bin/restore` o usam |
+| `POSTGRES_APP_PASSWORD` | sim | `openssl rand -hex 32` (só hex: entra nos URLs da base de dados sem escape; diferente do anterior). Papel `grindin_app` (sem superutilizador, dono das 4 bases), criado pelo `init.sql`; é com ele que a app liga |
 | `SSH_PRIVATE_KEY` | sim | conteúdo de `~/.ssh/grindin_deploy` (privada) |
 | `SSH_KNOWN_HOSTS` | não (recomendado) | saída de `ssh-keyscan -H $GS_VPS_HOST` (corrida uma vez a partir do Mac, depois de confirmar a impressão digital no painel da Hostinger). Sem ele o workflow faz `ssh-keyscan` em cada deploy |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | não | OAuth Google; redirect `https://GS_DOMAIN/auth/google_oauth2/callback` |
@@ -94,7 +95,7 @@ O workflow usa `environment: production`; os segredos podem estar no environment
 A partir do Mac (na raiz do repositório, com `GS_VPS_HOST` exportado):
 
 ```sh
-ssh root@$GS_VPS_HOST 'mkdir -p /opt/grindin-station/bin /var/backups/grindin-station'
+ssh root@$GS_VPS_HOST 'mkdir -p /opt/grindin-station/bin /var/backups/grindin-station && chmod 700 /var/backups/grindin-station'
 scp bin/backup bin/restore root@$GS_VPS_HOST:/opt/grindin-station/bin/
 ssh root@$GS_VPS_HOST 'chmod +x /opt/grindin-station/bin/backup /opt/grindin-station/bin/restore'
 ssh root@$GS_VPS_HOST '/opt/grindin-station/bin/backup'           # primeiro dump à mão
@@ -103,6 +104,8 @@ ssh root@$GS_VPS_HOST 'ls -lh /var/backups/grindin-station'
 
 - [ ] Instalar o cron: `crontab -e` no VPS e colar a linha de `config/backup.cron` (todos os dias às 04:00 UTC, mantém 14 dumps).
 - [ ] (Opcional, recomendado) cópia fora do VPS: instalar `rclone`, `rclone config` com um bucket S3-compatível (Backblaze B2, Cloudflare R2, …) e acrescentar `RCLONE_REMOTE=remote:bucket` à linha do cron.
+- [ ] O `bin/backup` corre com `umask 077`: os dumps (e-mails e hashes de palavras-passe) só são legíveis pelo root.
+- [ ] Se o accessory já tinha sido iniciado antes do papel `grindin_app` (o `init.sql` só corre com o diretório de dados vazio): criar o papel à mão (`CREATE ROLE grindin_app LOGIN PASSWORD '…'`), `ALTER DATABASE … OWNER TO grindin_app` nas 4 bases e, na primária, passar as tabelas para ele (o bloco `DO` do `bin/restore`); depois definir `POSTGRES_APP_PASSWORD` e fazer deploy.
 - [ ] Os dumps contêm só a base primária (`grindin_station_production`); cache/queue/cable são recriáveis. Os ficheiros do Active Storage estão no volume Docker `grindin_storage` — incluir `/var/lib/docker/volumes/grindin_storage` num backup do VPS (snapshot da Hostinger) se os avatares importarem.
 
 ## 7. Testar o restore (antes de haver dados reais)

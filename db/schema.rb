@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_04_140100) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_04_150100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -193,6 +193,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_04_140100) do
     t.datetime "updated_at", null: false
     t.index ["event_id", "status"], name: "index_judge_calls_on_event_id_and_status"
     t.index ["pod_id"], name: "index_judge_calls_on_pod_id"
+    t.index ["pod_id"], name: "index_judge_calls_one_open_per_pod", unique: true, where: "(((status)::text = 'open'::text) AND (pod_id IS NOT NULL))"
   end
 
   create_table "notifications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -212,7 +213,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_04_140100) do
     t.string "key", null: false
     t.datetime "updated_at", null: false
     t.uuid "user_id"
-    t.index ["key"], name: "index_players_on_key"
+    t.index ["key"], name: "index_players_on_key", unique: true
     t.index ["user_id"], name: "index_players_on_user_id"
   end
 

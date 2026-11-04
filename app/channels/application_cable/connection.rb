@@ -12,10 +12,10 @@ module ApplicationCable
 
     private
 
+    # An expired session (Session::LIFETIME) identifies nobody: the socket connects as a visitor.
     def set_current_user
-      if (session = Session.find_by(id: cookies.signed[:session_id]))
-        self.current_user = session.user
-      end
+      session = Session.find_by(id: cookies.signed[:session_id])
+      self.current_user = session.user if session && !session.expired?
     end
   end
 end

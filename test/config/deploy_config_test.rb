@@ -56,7 +56,7 @@ class DeployConfigTest < ActiveSupport::TestCase
 
     db = config.dig("accessories", "db")
     assert_equal "postgis/postgis:17-3.5", db["image"]
-    assert_equal ["POSTGRES_PASSWORD"], db.dig("env", "secret")
+    assert_equal %w[POSTGRES_PASSWORD POSTGRES_APP_PASSWORD], db.dig("env", "secret")
     assert_includes db["directories"], "data:/var/lib/postgresql/data"
     assert_includes db["files"], "config/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql"
     assert_match(/\A127\.0\.0\.1:/, db["port"].to_s, "Postgres must not be exposed publicly")
@@ -73,6 +73,13 @@ class DeployConfigTest < ActiveSupport::TestCase
     assert_no_match(/master\.key/, secrets)
   end
 
+  test "the app connects as grindin_app, never as the superuser" do
+    urls = Rails.root.join(".kamal/secrets").read.scan(/^[A-Z]+_DATABASE_URL=(.*)$/).flatten
+
+    assert_equal 4, urls.size
+    urls.each { |url| assert url.start_with?("postgis://grindin_app:$POSTGRES_APP_PASSWORD@"), url }
+  end
+
   test "init.sql creates the four production databases with the needed extensions" do
     sql = Rails.root.join("config/postgres/init.sql").read
 
@@ -81,6 +88,9 @@ class DeployConfigTest < ActiveSupport::TestCase
       assert_match(/CREATE DATABASE #{name}\b/, sql)
     end
     assert_match(/CREATE EXTENSION IF NOT EXISTS postgis/, sql)
+    assert_match(/CREATE ROLE grindin_app LOGIN NOSUPERUSER .*PASSWORD :'app_password'/, sql)
+    assert_match(/\\getenv app_password POSTGRES_APP_PASSWORD/, sql)
+    assert_equal 4, sql.scan(/CREATE DATABASE \w+ OWNER grindin_app;/).size
     assert_equal 4, sql.scan("CREATE EXTENSION IF NOT EXISTS pgcrypto").size
   end
 

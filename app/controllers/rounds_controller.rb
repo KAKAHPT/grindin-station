@@ -23,7 +23,7 @@ class RoundsController < ApplicationController
   end
 
   def load_round(event)
-    event.rounds.find params[:id]
+    event.rounds.published.find params[:id]
   end
 
   def load_pods(round)

@@ -28,6 +28,8 @@ class EventParticipantsController < ApplicationController
 
   def edit
     @event = load_event
+    return decklist_locked if decklist_locked?
+
     @event_participant = load_participant(@event)
   end
 
@@ -42,6 +44,8 @@ class EventParticipantsController < ApplicationController
 
   def update
     @event = load_event
+    return decklist_locked if decklist_locked?
+
     @event_participant = load_participant(@event)
     @event_participant.update(event_participant_params)
 
@@ -68,6 +72,15 @@ class EventParticipantsController < ApplicationController
       participant.destroy
       @event.fill_from_waitlist!(freed_place: freed_place)
     end
+  end
+
+  # Players edit their decklist until round 1 is published; staff can still change it from the roster.
+  def decklist_locked?
+    @event.rounds.published.exists?
+  end
+
+  def decklist_locked
+    redirect_to @event, alert: t("flash.alert.decklist_locked")
   end
 
   def terms_accepted?

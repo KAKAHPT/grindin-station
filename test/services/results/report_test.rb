@@ -3,10 +3,10 @@
 require "test_helper"
 
 module Results
-  class ReportTest < ActiveSupport::TestCase
+  class ReportTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLength
     setup do
       @t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
-      @pod = @t.rounds.create!(type: SwissRound, number: 1).pods.first
+      @pod = @t.rounds.create!(type: SwissRound, number: 1, started_at: 1.hour.ago).pods.first
       @seats = @pod.event_participants.to_a
     end
 
@@ -74,6 +74,29 @@ module Results
       assert_equal "Conflicting result reports: seat #{seat.call(@seats[0])} says Win by #{@seats[2].name}; " \
                    "seat #{seat.call(@seats[3])} says Draw", call.reason
       assert_equal @seats[3], call.participant
+    end
+
+    test "a dispute on a table with an open call adds to that call" do
+      @t.update!(result_confirmation: "one")
+      call = JudgeCalls::Open.call(event: @t, pod: @pod, participant: @seats[1], reason: "Rules question")
+      Report.call(pod: @pod, participant: @seats[0], type: "Win", winner: @seats[2])
+
+      assert_no_difference -> { JudgeCall.count } do
+        Report.call(pod: @pod, participant: @seats[3], type: "Draw")
+      end
+
+      assert_predicate @pod.reload, :disputed?
+      assert_match(/\ARules question\nConflicting result reports: /, call.reload.reason)
+    end
+
+    test "a report before the round has started is refused" do
+      @t.update!(result_confirmation: "none")
+      @pod.round.update!(started_at: nil)
+
+      error = assert_raises(NotAllowed) { Report.call(pod: @pod, participant: @seats[0], type: "Draw") }
+      assert_equal "round_not_started", error.message
+      assert_empty @pod.reload.results
+      assert_nil @pod.pending_result
     end
 
     test "self-reporting disabled is refused" do

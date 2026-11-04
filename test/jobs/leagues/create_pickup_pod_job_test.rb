@@ -42,7 +42,7 @@ module Leagues
     end
 
     test "skips if league is not in play state" do
-      @league.registration_closed!
+      @league.update_column(:state, League.states[:registration_closed])
 
       pods_before = @league.rounds.flat_map(&:pods).size
       Leagues::CreatePickupPodJob.perform_now(@league)

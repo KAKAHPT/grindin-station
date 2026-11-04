@@ -23,4 +23,14 @@ fi
 # rows mean the dump and the accessory run different PostGIS versions — restore into the same image tag.
 docker exec -i "$DB_CONTAINER" pg_restore -U grindin -d "$DB_NAME" \
   --clean --if-exists --no-owner --single-transaction --exit-on-error < "$1"
+# --no-owner left the restored tables owned by grindin; hand them back to the app's role.
+docker exec -i "$DB_CONTAINER" psql -U grindin -d "$DB_NAME" -v ON_ERROR_STOP=1 <<'SQL'
+DO $$
+DECLARE t record;
+BEGIN
+  FOR t IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename <> 'spatial_ref_sys' LOOP
+    EXECUTE format('ALTER TABLE public.%I OWNER TO grindin_app', t.tablename);
+  END LOOP;
+END $$;
+SQL
 echo "restored $1 into $DB_NAME"

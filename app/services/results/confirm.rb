@@ -40,7 +40,7 @@ module Results
     end
 
     def required
-      { "none" => 1, "one" => 2 }.fetch(@pod.event.result_confirmation, @pod.size)
+      { "none" => 1, "one" => 2 }.fetch(@pod.result_confirmation, @pod.size)
     end
 
     def apply!

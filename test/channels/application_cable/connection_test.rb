@@ -19,5 +19,14 @@ module ApplicationCable
 
       assert_equal user, connection.current_user
     end
+
+    test "an expired session connects as a visitor" do
+      session = users(:organizer_user).sessions.create!(user_agent: "test", created_at: 31.days.ago)
+      cookies.signed[:session_id] = session.id
+
+      connect
+
+      assert_nil connection.current_user
+    end
   end
 end

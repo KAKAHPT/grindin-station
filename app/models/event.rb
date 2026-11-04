@@ -25,6 +25,8 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   TOP_CUT_TIMEOUT_RULES = %w[highest_seed_advances replay].freeze
   # A draft or canceled event exists only for its staff: hidden from public pages.
   HIDDEN_STATES = %w[draft canceled].freeze
+  COVER_TYPES = %w[image/jpeg image/png image/webp].freeze
+  COVER_MAX_SIZE = 4.megabytes
 
   scope :for_organizer, ->(organizer) { where(event_organizer: organizer) }
   # Events the user owns (through their EventOrganizer) or works as staff.
@@ -49,6 +51,7 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   validates :points_win, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
   validates :points_draw, :points_loss, :points_bye, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validate :points_locked_after_start, on: :update
+  validate :valid_transition, on: :update, if: :will_save_change_to_state?
   validates :format, inclusion: { in: FORMATS }
   validates :match_games, inclusion: { in: MATCH_GAMES }
   validate :format_locked_after_creation, on: :update
@@ -57,6 +60,8 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   validates :confirmation_timeout_minutes, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
 
   validates :slug, uniqueness: true
+  validate :circuit_of_the_same_organizer, if: :will_save_change_to_circuit_id?
+  validate :cover_type_and_size
   # Points not given for a new 1v1 event start at the MTR values instead of the multiplayer defaults.
   after_initialize :apply_one_v_one_points, if: :new_record?
   before_validation :populate_slug, if: -> { slug.blank? }
@@ -70,8 +75,14 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   def multiplayer? = self[:format] == "multiplayer"
 
+  # Locked in the state being saved or the one it leaves, so a state change cannot unlock them.
   def points_locked?
-    UNLOCKED_POINTS_STATES.exclude?(state)
+    UNLOCKED_POINTS_STATES.exclude?(state) || (persisted? && UNLOCKED_POINTS_STATES.exclude?(state_was))
+  end
+
+  # The state machine: Tournament adapts it for a 1v1 with no swiss.
+  def transitions
+    self.class::TRANSITIONS
   end
 
   # Registered players who have not dropped and are off the waitlist (from the loaded association when there is one).
@@ -195,6 +206,24 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   def slugs_starting_with(base)
     Event.where(slug: base).or(Event.where("slug LIKE ?", "#{Event.sanitize_sql_like(base)}-%")).pluck(:slug).to_set
+  end
+
+  # An organizer can only put their events in their own circuits.
+  def circuit_of_the_same_organizer
+    errors.add(:circuit, :other_organizer) if circuit && circuit.event_organizer_id != event_organizer_id
+  end
+
+  def cover_type_and_size
+    return unless cover.attached?
+
+    errors.add(:cover, :content_type) unless COVER_TYPES.include?(cover.blob.content_type)
+    errors.add(:cover, :too_big) if cover.blob.byte_size > COVER_MAX_SIZE
+  end
+
+  def valid_transition
+    return if transitions[state_was]&.include?(state.to_sym)
+
+    errors.add(:state, :invalid_transition, from: state_was, to: state)
   end
 
   def points_locked_after_start

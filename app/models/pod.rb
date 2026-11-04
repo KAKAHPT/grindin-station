@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Pod < ApplicationRecord
+class Pod < ApplicationRecord # rubocop:disable Metrics/ClassLength
   belongs_to :round
   has_one :event, through: :round
 
@@ -54,6 +54,13 @@ class Pod < ApplicationRecord
 
   def finished?
     current_results.size == seatings.size
+  end
+
+  # The event's result_confirmation, except that a cut table never closes on one player's word:
+  # "none" needs the opponent's confirmation there, like "one".
+  def result_confirmation
+    mode = round.event.result_confirmation
+    mode == "none" && round.is_a?(SingleEliminationRound) ? "one" : mode
   end
 
   def seated?(participant)

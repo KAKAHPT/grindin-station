@@ -33,8 +33,14 @@ module Authentication
     resume_session&.user
   end
 
+  # A session older than Session::LIFETIME is ended, whatever the cookie says.
   def find_session_by_cookie
-    Session.find_by(id: cookies.signed[:session_id]) if cookies.signed[:session_id]
+    record = Session.find_by(id: cookies.signed[:session_id]) if cookies.signed[:session_id]
+    return record unless record&.expired?
+
+    record.destroy
+    cookies.delete(:session_id)
+    nil
   end
 
   def request_authentication
@@ -49,7 +55,8 @@ module Authentication
   def start_new_session_for(user)
     user.sessions.create!(user_agent: request.user_agent, ip_address: request.remote_ip).tap do |session|
       Current.session = session
-      cookies.signed.permanent[:session_id] = { value: session.id, httponly: true, same_site: :lax }
+      cookies.signed[:session_id] = { value: session.id, httponly: true, same_site: :lax,
+                                      expires: Session::LIFETIME }
     end
   end
 

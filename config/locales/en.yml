@@ -13,6 +13,11 @@ en:
               too_big: "must be 2 MB or smaller"
         event:
           attributes:
+            circuit:
+              other_organizer: "belongs to another organizer"
+            cover:
+              content_type: "must be a JPEG, PNG or WebP image"
+              too_big: "must be 4 MB or smaller"
             format:
               locked: "cannot change once the tournament is created"
             match_games:
@@ -33,6 +38,7 @@ en:
               locked: "cannot change once the tournament has started"
             state:
               no_swiss_rounds: "can't be swiss: the tournament has no swiss rounds"
+              invalid_transition: "cannot change from %{from} to %{to}"
             top_cut_size:
               locked: "cannot change once the tournament has started"
               too_big: "is bigger than the number of players"
@@ -266,6 +272,7 @@ en:
     confirm_correction: "I understand, apply the correction"
     not_allowed:
       self_report_disabled: "Players cannot report results at this event."
+      round_not_started: "The round has not started yet: report once it is under way."
       not_seated: "You are not seated at this table."
       already_finished: "This table already has a result."
       disputed: "This table's result is disputed; a judge will sort it out."
@@ -388,6 +395,9 @@ en:
       signed_in: "You have been signed in."
       signed_out: "You have been signed out."
     alert:
+      seating_not_found: "That seat is not in this round: reload the page and try again."
+      result_failed: "The result could not be saved. Try again, or ask the organiser to check the table."
+      decklist_locked: "Decklists are locked once round 1 is published: ask the staff to change it."
       registration_closed: "Registration closed: the tournament has started."
       registration_full: "Registration full."
       staff_user_not_found: "No user with that e-mail. They must sign up first."
@@ -408,6 +418,7 @@ en:
       title: "Your account"
       profile: "Profile"
       avatar_hint: "JPEG, PNG or WebP, up to 2 MB."
+      email_hint: "To change your e-mail, also type your current password below."
       handle_hint: "3 to 30 lowercase letters, digits or hyphens. Used in your public profile address."
       visibility:
         public: "Public"

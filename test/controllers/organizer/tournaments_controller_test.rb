@@ -109,6 +109,19 @@ module Organizer
       assert_equal 3, tournament.reload.match_games
     end
 
+    test "a mid-swiss update cannot step back to registration_closed nor reopen the points" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+      assert tournament.swiss?
+
+      patch organizer_tournament_path(tournament),
+            params: { tournament: { state: "registration_closed", points_win: "10" } }
+
+      assert_response :unprocessable_entity
+      tournament.reload
+      assert tournament.swiss?
+      assert_equal 7, tournament.points_win
+    end
+
     private
 
     def sign_in(user)

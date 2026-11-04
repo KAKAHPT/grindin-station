@@ -13,6 +13,11 @@ pt:
               too_big: "tem de ter 2 MB ou menos"
         event:
           attributes:
+            circuit:
+              other_organizer: "pertence a outro organizador"
+            cover:
+              content_type: "tem de ser uma imagem JPEG, PNG ou WebP"
+              too_big: "tem de ter 4 MB ou menos"
             format:
               locked: "não pode mudar depois de o torneio ser criado"
             match_games:
@@ -33,6 +38,7 @@ pt:
               locked: "não pode mudar depois de o torneio começar"
             state:
               no_swiss_rounds: "não pode ser Swiss: o torneio não tem rondas Swiss"
+              invalid_transition: "não pode passar de %{from} para %{to}"
             top_cut_size:
               locked: "não pode mudar depois de o torneio começar"
               too_big: "é maior do que o número de jogadores"
@@ -266,6 +272,7 @@ pt:
     confirm_correction: "Compreendo, aplicar a correção"
     not_allowed:
       self_report_disabled: "Neste evento os jogadores não podem reportar resultados."
+      round_not_started: "A ronda ainda não começou: reporta quando estiver a decorrer."
       not_seated: "Não estás sentado nesta mesa."
       already_finished: "Esta mesa já tem resultado."
       disputed: "O resultado desta mesa está em disputa; um juiz vai resolver."
@@ -388,6 +395,9 @@ pt:
       signed_in: "Iniciaste sessão."
       signed_out: "Terminaste a sessão."
     alert:
+      seating_not_found: "Esse lugar não é desta ronda: recarrega a página e tenta de novo."
+      result_failed: "Não foi possível gravar o resultado. Tenta de novo, ou pede ao organizador para ver a mesa."
+      decklist_locked: "As decklists ficam fechadas depois de publicada a ronda 1: pede ao staff para a mudar."
       registration_closed: "Inscrições fechadas: o torneio já começou."
       registration_full: "Inscrições esgotadas."
       staff_user_not_found: "Não há nenhum utilizador com esse e-mail. Tem de se registar primeiro."
@@ -408,6 +418,7 @@ pt:
       title: "A tua conta"
       profile: "Perfil"
       avatar_hint: "JPEG, PNG ou WebP, até 2 MB."
+      email_hint: "Para mudar o e-mail, escreve também a tua palavra-passe atual em baixo."
       handle_hint: "3 a 30 letras minúsculas, algarismos ou hífenes. Usado no endereço do teu perfil público."
       visibility:
         public: "Público"

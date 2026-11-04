@@ -12,6 +12,7 @@ class AccountsController < ApplicationController
       @user.errors.add(:base, :current_password_invalid)
       render :show, status: :unprocessable_content
     elsif @user.update(attrs)
+      end_other_sessions if @user.saved_change_to_password_digest? || @user.saved_change_to_email_address?
       back_to_account notice: t("accounts.flash.updated")
     else
       render :show, status: :unprocessable_content
@@ -45,13 +46,24 @@ class AccountsController < ApplicationController
   end
 
   # Permitted attributes; blank password fields keep the password. Nil when a user who chose a password
-  # sends a new one without the right current one (OAuth-created users have none to give).
+  # changes it or the e-mail without the right current one (OAuth-created users have none to give).
   def account_attributes
     attrs = account_params
-    return attrs.except(:password, :password_confirmation) if attrs[:password].blank?
-    return if @user.password_set && !@user.authenticate(params.dig(:user, :current_password).to_s)
+    attrs = attrs.except(:password, :password_confirmation) if attrs[:password].blank?
+    return if current_password_needed?(attrs) && !@user.authenticate(params.dig(:user, :current_password).to_s)
 
-    attrs.merge(password_set: true)
+    attrs[:password].present? ? attrs.merge(password_set: true) : attrs
+  end
+
+  def current_password_needed?(attrs)
+    email_changes = attrs.key?(:email_address) &&
+                    User.normalize_value_for(:email_address, attrs[:email_address].to_s) != @user.email_address
+    @user.password_set && (attrs[:password].present? || email_changes)
+  end
+
+  # A new password or e-mail signs out every other device.
+  def end_other_sessions
+    @user.sessions.where.not(id: Current.session.id).destroy_all
   end
 
   def account_params

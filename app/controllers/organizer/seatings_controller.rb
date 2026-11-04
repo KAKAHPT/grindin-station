@@ -9,6 +9,9 @@ module Organizer
       round = load_round(tournament)
       from_seating = load_seating(round, params[:player], params[:pod])
       to_seating = load_seating(round, params[:with_player], params[:with_pod])
+      if from_seating.nil? || to_seating.nil?
+        return redirect_to [:organizer, tournament, round.becomes(Round)], alert: t("flash.alert.seating_not_found")
+      end
 
       to_seating.event_participant_id, from_seating.event_participant_id =
         from_seating.event_participant_id, to_seating.event_participant_id

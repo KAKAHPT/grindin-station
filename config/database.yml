@@ -21,6 +21,7 @@ test:
   <<: *default
   database: grindin_station_test
 
+# The URLs come from .kamal/secrets: role grindin_app (owner of the four databases, not a superuser).
 production:
   primary:
     <<: *default

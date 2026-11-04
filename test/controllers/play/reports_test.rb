@@ -6,7 +6,7 @@ module Play
   class ReportsTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
     setup do
       @tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
-      @round = @tournament.rounds.create!(type: SwissRound, number: 1)
+      @round = @tournament.rounds.create!(type: SwissRound, number: 1, started_at: 1.hour.ago)
       @round.update!(published: true)
       @pod = @round.pods.order(:number).first
       @seats = @pod.event_participants.to_a
@@ -26,7 +26,7 @@ module Play
     test "a top-cut report page offers no draw" do
       @tournament.update_columns(swiss_rounds_count: 1, top_cut_size: 4) # rubocop:disable Rails/SkipsModelValidations
       TournamentBuilder.play_round!(@tournament, winners: { 1 => 0, 2 => 0 })
-      cut = @tournament.rounds.create!(type: SingleEliminationRound, number: 2)
+      cut = @tournament.rounds.create!(type: SingleEliminationRound, number: 2, started_at: 1.hour.ago)
       cut.update!(published: true)
       pod = cut.pods.sole
       sign_in(pod.event_participants.first)
@@ -91,6 +91,17 @@ module Play
 
       assert_redirected_to play_me_path(@tournament.slug)
       assert_equal I18n.t("results.not_allowed.self_report_disabled"), flash[:alert]
+    end
+
+    test "a report before the round starts is refused with the reason" do
+      @round.update!(started_at: nil)
+      sign_in(@seats[0])
+
+      post play_pod_report_path(@tournament.slug, @pod), params: { type: "Draw" }
+
+      assert_redirected_to play_me_path(@tournament.slug)
+      assert_equal I18n.t("results.not_allowed.round_not_started"), flash[:alert]
+      assert_equal :playing, @pod.reload.report_status
     end
 
     test "a 1v1 report page offers the best-of-three scores and the draws" do
@@ -171,7 +182,7 @@ module Play
     def one_v_one_pod(match_games: 3)
       t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer), format: "one_v_one",
                                   match_games: match_games)
-      round = t.rounds.create!(type: SwissRound, number: 1)
+      round = t.rounds.create!(type: SwissRound, number: 1, started_at: 1.hour.ago)
       round.update!(published: true)
       pod = round.pods.order(:number).first
       [pod, pod.seatings.order(:order).map(&:event_participant)]

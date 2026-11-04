@@ -41,7 +41,7 @@
         <%= transition_for(state:) %>
       <% end %>
     <% end %>
-  <% else %>
+  <% elsif tournament.available_states.key?("canceled") %>
     <%= button_to [:organizer, tournament], params: {tournament: {state: 'canceled'}}, data: { turbo_confirm: "Are you sure?" }, class: "focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800" do %>
       <%= transition_for(state: 'canceled') %>
     <% end %>

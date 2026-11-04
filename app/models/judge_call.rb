@@ -3,6 +3,7 @@
 # A call for a judge, from a table (pod) or a player, worked from the Judge Center.
 class JudgeCall < ApplicationRecord
   STATUSES = %w[open acknowledged closed].freeze
+  REASON_MAX_LENGTH = 500
 
   belongs_to :event
   belongs_to :pod, optional: true
@@ -14,7 +15,7 @@ class JudgeCall < ApplicationRecord
   scope :open_or_acknowledged, -> { where(status: %w[open acknowledged]) }
   scope :closed, -> { where(status: "closed") }
 
-  validates :reason, presence: true
+  validates :reason, presence: true, length: { maximum: REASON_MAX_LENGTH }
   validates :status, inclusion: { in: STATUSES }
   validate :stays_closed, if: -> { status_in_database == "closed" && has_changes_to_save? }
   validate :acknowledged_from_open, if: -> { acknowledged? && will_save_change_to_acknowledged_at? }

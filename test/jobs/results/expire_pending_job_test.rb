@@ -7,7 +7,7 @@ module Results
     setup do
       @t = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
       @t.update!(result_confirmation: "one", confirmation_timeout_minutes: 5)
-      @old, @fresh = @t.rounds.create!(type: SwissRound, number: 1).pods.order(:number).to_a
+      @old, @fresh = @t.rounds.create!(type: SwissRound, number: 1, started_at: 1.hour.ago).pods.order(:number).to_a
       @old_reporter = @old.event_participants.first
       @fresh_reporter = @fresh.event_participants.first
     end
@@ -38,7 +38,7 @@ module Results
     test "each event's own timeout applies" do
       patient = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
       patient.update!(result_confirmation: "one", confirmation_timeout_minutes: 30)
-      slow = patient.rounds.create!(type: SwissRound, number: 1).pods.first
+      slow = patient.rounds.create!(type: SwissRound, number: 1, started_at: 1.hour.ago).pods.first
       travel_to(10.minutes.ago) do
         Report.call(pod: @old, participant: @old_reporter, type: "Draw")
         Report.call(pod: slow, participant: slow.event_participants.first, type: "Draw")

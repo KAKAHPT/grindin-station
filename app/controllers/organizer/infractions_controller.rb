@@ -38,7 +38,7 @@ module Organizer
       event_participant = event.event_participants.includes(:player).find(
         params[:event_participant_id]
       )
-      @infraction = Infraction.find_by(event: event, player: event_participant.player, id: params[:id])
+      @infraction = Infraction.find_by!(event: event, player: event_participant.player, id: params[:id])
       message =
         if @infraction.destroy
           { notice: "Infraction removed!" }
