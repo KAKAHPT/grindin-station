@@ -197,6 +197,13 @@ pt:
         single_elimination: "Top %{size}"
         finished: "Terminado"
         canceled: "Cancelado"
+    standings:
+      final_title: "Classificação final"
+    pairings:
+      byes: "Byes"
+      bye: "Bye: %{name}"
+      rounds: "Rondas"
+      winner: "Vencedor"
     tables:
       round: "Ronda %{number}"
       table: "Mesa"

@@ -33,14 +33,15 @@
       </p>
     <% end %>
 
-    <main class="max-w-md mx-auto px-4 pt-4 pb-24">
+    <%# A page with a card grid (pairings) asks for a wider column with content_for(:wide_main). %>
+    <main class="<%= content_for?(:wide_main) ? "max-w-6xl" : "max-w-md" %> mx-auto px-4 pt-4 pb-24">
       <%= yield %>
     </main>
 
     <nav data-play-nav class="fixed bottom-0 inset-x-0 z-20 border-t border-line bg-surface/95 backdrop-blur">
       <% nav = [[t("play.nav.event"), play_event_path(current_event.slug, locale: params[:locale])]]
-         nav << [t("play.nav.pairings"), play_pairings_path(current_event.slug, locale: params[:locale])] if respond_to?(:play_pairings_path)
-         nav << [t("play.nav.standings"), tournament_event_participants_path(current_event, locale: params[:locale])]
+         nav << [t("play.nav.pairings"), play_pairings_path(current_event.slug, locale: params[:locale])]
+         nav << [t("play.nav.standings"), play_standings_path(current_event.slug, locale: params[:locale])]
          nav << [t("play.nav.my_table"), play_me_path(current_event.slug, locale: params[:locale])] if current_participant&.enrolled? %>
       <ul class="max-w-md mx-auto grid <%= { 2 => "grid-cols-2", 3 => "grid-cols-3", 4 => "grid-cols-4" }.fetch(nav.size) %> text-center text-sm font-medium text-muted">
         <% nav.each do |label, path| %>

@@ -41,6 +41,8 @@ Rails.application.routes.draw do
   scope "/t/:slug", module: :play, as: :play do
     get "me", to: "tables#show"
     get "timer", to: "timers#show"
+    get "pairings", to: "pairings#show"
+    get "standings", to: "standings#show"
     resources :pods, only: [] do
       get "report/new", to: "reports#new"
       post "report", to: "reports#create"

@@ -4,6 +4,8 @@ module Play
   # Player-facing pages of one event (/t/:slug): only an enrolled, not eliminated participant gets in,
   # except for the actions declared with `public_actions`, open to anyone (current_participant may be nil).
   class BaseController < ApplicationController
+    include PublicEvent
+
     layout "play"
 
     before_action :load_event
@@ -27,7 +29,7 @@ module Play
     attr_reader :current_participant, :current_event
 
     def load_event
-      @current_event = Tournament.find_by!(slug: params.expect(:slug))
+      @current_event = find_public_event!
     end
 
     def load_participant

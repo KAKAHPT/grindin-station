@@ -19,7 +19,7 @@ class BrandingTest < ActionDispatch::IntegrationTest
 
   test "the standings page uses the palette A ground" do
     tournament = build_round_tournament
-    get tournament_event_participants_path(tournament)
+    get play_standings_path(tournament.slug)
 
     assert_response :success
     assert_select "[class~=bg-ground]"
@@ -28,7 +28,7 @@ class BrandingTest < ActionDispatch::IntegrationTest
 
   test "the standings page opened as a page gets the full play layout" do
     tournament = build_round_tournament
-    get tournament_event_participants_path(tournament)
+    get play_standings_path(tournament.slug)
 
     assert_response :success
     assert_includes response.body, "<html"

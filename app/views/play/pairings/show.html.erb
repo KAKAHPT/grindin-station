@@ -1,0 +1,44 @@
+<% content_for :wide_main, "1" %>
+<% url_locale = params[:locale] %>
+<h2 class="mb-3 font-display text-xl font-semibold"><%= t("play.nav.pairings") %></h2>
+
+<% if @round %>
+  <% if @rounds.size > 1 %>
+    <nav data-round-selector aria-label="<%= t("play.pairings.rounds") %>" class="mb-4 -mx-4 px-4 overflow-x-auto">
+      <ul class="flex gap-2 w-max">
+        <% @rounds.each do |round| %>
+          <% active = round == @round %>
+          <li>
+            <%= link_to round.number, play_pairings_path(current_event.slug, round: round.number, locale: url_locale),
+                        "aria-current": ("page" if active), "aria-label": t("play.tables.round", number: round.number),
+                        class: ["inline-flex size-9 items-center justify-center rounded-md border text-sm font-semibold tabular",
+                                active ? "border-accent/60 bg-accent/10 text-accent" : "border-line text-muted hover:text-ink"] %>
+          </li>
+        <% end %>
+      </ul>
+    </nav>
+  <% end %>
+
+  <p data-round-number="<%= @round.number %>" class="mb-3 text-[11px] font-semibold uppercase tracking-wide text-muted">
+    <%= @round.is_a?(SingleEliminationRound) ? @round.display_name : t("play.tables.round", number: @round.number) %>
+  </p>
+
+  <div data-pairings class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 content-start">
+    <%= render partial: "play/pairings/table", collection: @pods, as: :pod, locals: { event: current_event } %>
+  </div>
+
+  <% if @byes.any? %>
+    <section data-byes class="mt-4 rounded-xl bg-surface border border-line shadow-card overflow-clip">
+      <h3 class="px-4 pt-3 pb-2 font-display text-lg font-semibold text-ink"><%= t("play.pairings.byes") %></h3>
+      <ul class="flex flex-col divide-y divide-line/60 border-t border-line">
+        <% @byes.each do |bye| %>
+          <li data-participant-id="<%= bye.event_participant_id %>" class="px-4 py-2 text-[13px] min-w-0 truncate">
+            <%= t("play.pairings.bye", name: bye.event_participant.name) %>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+<% else %>
+  <%= render "play/tables/waiting" %>
+<% end %>

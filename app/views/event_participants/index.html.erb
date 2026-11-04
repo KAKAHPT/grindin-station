@@ -28,7 +28,7 @@
 <% end %>
 
 <% unless @standings_in_modal %>
-  <h2 class="mb-3 font-display text-xl font-semibold"><%= t("play.nav.standings") %></h2>
+  <h2 class="mb-3 font-display text-xl font-semibold"><%= @tournament.finished? ? t("play.standings.final_title") : t("play.nav.standings") %></h2>
 <% end %>
 <% if @standings.any? %>
   <div class="<%= @standings_in_modal ? "-m-4 md:-m-5 overflow-x-auto" : "-mx-4 sm:mx-0 rounded-none sm:rounded-xl bg-surface border-y sm:border border-line shadow-card overflow-clip" %>">
@@ -152,8 +152,12 @@
       <% when 'registration_open', 'registration_closed' %>
         <%= render partial: "event_participants/event_participant", collection: @standings.sort_by(&:name), locals: { wide_only: wide_only, pad: pad } %>
       <% else %>
-        <% standings = @standings.reject(&:waitlisted?).sort_by { |p| [p.playing? ? 0 : 1, -p.rank_score, p.name] } %>
-        <%= render partial: "event_participants/event_participant", collection: standings, locals: { seat_five: seat_five?(standings), wide_only: wide_only, pad: pad } %>
+        <%# A finished event lists its top cut by final position first, then everyone else by rank. %>
+        <% final = @tournament.finished? %>
+        <% standings = @standings.reject(&:waitlisted?).sort_by do |p|
+             [final && p.final_position ? 0 : 1, (p.final_position if final).to_i, p.playing? ? 0 : 1, -p.rank_score, p.name]
+           end %>
+        <%= render partial: "event_participants/event_participant", collection: standings, locals: { seat_five: seat_five?(standings), wide_only: wide_only, pad: pad, final: final } %>
       <% end %>
     </tbody>
   </table>

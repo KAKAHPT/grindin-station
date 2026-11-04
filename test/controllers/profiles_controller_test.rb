@@ -115,7 +115,7 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
   test "standings link the name only for public profiles" do
     @mate.update!(visibility: "private")
 
-    get tournament_event_participants_path(@event)
+    get play_standings_path(@event.slug)
 
     assert_response :success
     assert_select "a[href=?]", profile_path("rita"), text: "Rita Grind"

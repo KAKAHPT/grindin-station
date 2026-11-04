@@ -32,7 +32,17 @@ class QueryBudgetTest < ActionDispatch::IntegrationTest
   end
 
   test "public standings run under 60 queries" do
-    assert_queries_under(60, "public standings") { get tournament_event_participants_path(@t) }
+    assert_queries_under(60, "public standings") { get play_standings_path(@t.slug) }
+  end
+
+  test "public pairings with 16 tables run under 60 queries" do
+    @t.rounds.create!(type: SwissRound, number: 2).update!(published: true)
+    assert_queries_under(60, "public pairings (organizer)") { get play_pairings_path(@t.slug) }
+    assert_select "[data-pod-number]", count: 16
+
+    delete session_path
+    assert_queries_under(60, "public pairings (visitor)") { get play_pairings_path(@t.slug) }
+    assert_queries_under(60, "public pairings, closed round") { get play_pairings_path(@t.slug, round: 1) }
   end
 
   test "public event page with a waitlist runs under 60 queries" do

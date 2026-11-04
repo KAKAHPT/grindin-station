@@ -7,7 +7,11 @@
     scope="row"
     class="<%= pad %> py-0.5 text-center whitespace-nowrap"
   >
-    <span class="tabular text-muted"><%= event_participant_iteration.index + 1 %></span>
+    <% if local_assigns[:final] && event_participant.final_position %>
+      <span data-final-position class="tabular font-semibold text-accent"><%= event_participant.final_position %></span>
+    <% else %>
+      <span class="tabular text-muted"><%= event_participant_iteration.index + 1 %></span>
+    <% end %>
   </th>
   <th
     scope="row"

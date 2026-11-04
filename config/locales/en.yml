@@ -197,6 +197,13 @@ en:
         single_elimination: "Top %{size}"
         finished: "Finished"
         canceled: "Canceled"
+    standings:
+      final_title: "Final standings"
+    pairings:
+      byes: "Byes"
+      bye: "Bye: %{name}"
+      rounds: "Rounds"
+      winner: "Winner"
     tables:
       round: "Round %{number}"
       table: "Table"
