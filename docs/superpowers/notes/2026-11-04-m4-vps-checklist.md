@@ -30,7 +30,7 @@ O workflow usa `environment: production`; os segredos podem estar no environment
 |---|---|---|
 | `GS_VPS_HOST` | sim | IP do VPS |
 | `GS_DOMAIN` | sim | domínio público (sem `https://`) |
-| `RAILS_MASTER_KEY` | sim | conteúdo de `config/master.key` |
+| `RAILS_MASTER_KEY` | sim | o conteúdo de `config/master.key` nesta máquina (gerado em 2026-11-04 com `config/credentials.yml.enc` novo; guarda-o no gestor de palavras-passe; sem ele a app não arranca). O ficheiro não está no git |
 | `POSTGRES_PASSWORD` | sim | `openssl rand -hex 32` (só hex: entra nos URLs da base de dados sem escape) |
 | `SSH_PRIVATE_KEY` | sim | conteúdo de `~/.ssh/grindin_deploy` (privada) |
 | `SSH_KNOWN_HOSTS` | não (recomendado) | saída de `ssh-keyscan -H $GS_VPS_HOST` (corrida uma vez a partir do Mac, depois de confirmar a impressão digital no painel da Hostinger). Sem ele o workflow faz `ssh-keyscan` em cada deploy |

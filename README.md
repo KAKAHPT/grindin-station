@@ -95,6 +95,8 @@ Teste manual em telemóvel real (iOS e Android), por fazer:
   `POSTGRES_PASSWORD` (só hex: `openssl rand -hex 32`) e `SSH_PRIVATE_KEY`. Opcionais: `SSH_KNOWN_HOSTS`, OAuth
   (`GOOGLE_*`, `DISCORD_*`) e SMTP (`SMTP_ADDRESS`, `SMTP_PORT`, `SMTP_DOMAIN`, `SMTP_USER_NAME`, `SMTP_PASSWORD`;
   sem `SMTP_ADDRESS` não saem e-mails).
+  `RAILS_MASTER_KEY` = o conteúdo de `config/master.key` nesta máquina (gerado em 2026-11-04, junto com o
+  `config/credentials.yml.enc` novo; guarda-o no gestor de palavras-passe; sem ele a app não arranca; não está no git).
 - **Primeiro deploy.** Com o DNS a apontar para o VPS: GitHub, Actions, Deploy, Run workflow, `command: setup`.
   Instala o Docker, arranca a base, constrói e envia a imagem e faz o primeiro deploy.
 - **Organizador.** Nunca correr `db:seed` em produção (cria organizadores com palavra-passe conhecida; o
