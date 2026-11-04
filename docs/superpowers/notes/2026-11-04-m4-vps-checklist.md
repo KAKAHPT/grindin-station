@@ -22,7 +22,7 @@ Ficheiros de referência: `config/deploy.yml`, `.kamal/secrets`, `config/postgre
 
 ## 2. DNS
 
-- [ ] Registo **A** `GS_DOMAIN` (ex.: `grindin.cedhpt.com`) → IP do VPS. Esperar que propague (`dig +short GS_DOMAIN`) **antes** do primeiro deploy: o kamal-proxy pede o certificado Let's Encrypt no arranque.
+- [ ] Registo **A** `GS_DOMAIN` = `grindin.cedhpt.com` (decidido 2026-11-04; mudar para domínio próprio mais tarde é só trocar este segredo, o DNS e os callbacks OAuth, e voltar a fazer deploy) → IP do VPS. Esperar que propague (`dig +short GS_DOMAIN`) **antes** do primeiro deploy: o kamal-proxy pede o certificado Let's Encrypt no arranque.
 - [ ] Se usar Cloudflare: proxy desligado (nuvem cinzenta) no primeiro deploy, ou SSL/TLS em modo "Full".
 
 ## 3. Chave SSH para o deploy
@@ -46,7 +46,7 @@ O workflow usa `environment: production`; os segredos podem estar no environment
 | Segredo | Obrigatório | Valor |
 |---|---|---|
 | `GS_VPS_HOST` | sim | IP do VPS |
-| `GS_DOMAIN` | sim | domínio público (sem `https://`) |
+| `GS_DOMAIN` | sim | `grindin.cedhpt.com` (sem `https://`) |
 | `RAILS_MASTER_KEY` | sim | o conteúdo de `config/master.key` nesta máquina (gerado em 2026-11-04 com `config/credentials.yml.enc` novo; guarda-o no gestor de palavras-passe; sem ele a app não arranca). O ficheiro não está no git |
 | `POSTGRES_PASSWORD` | sim | `openssl rand -hex 32` (só hex: entra nos URLs da base de dados sem escape) |
 | `SSH_PRIVATE_KEY` | sim | conteúdo de `~/.ssh/grindin_deploy` (privada) |
