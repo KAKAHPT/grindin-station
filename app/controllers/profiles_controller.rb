@@ -10,5 +10,6 @@ class ProfilesController < ApplicationController
     raise ActiveRecord::RecordNotFound unless @user&.profile_visible_to?(current_user)
 
     @history = Profiles::History.call(user: @user)
+    @summary = Profiles::Summary.call(@history)
   end
 end

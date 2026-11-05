@@ -1,0 +1,25 @@
+<%# Search, year and season filters over the events table (wired in the browser by the profile events controller). %>
+<% seasons = profile_seasons(rows) %>
+<div data-profile-tools class="mt-6 mb-2.5 flex flex-wrap items-center gap-2">
+  <label class="field flex-1 min-w-[200px]">
+    <span class="sr-only"><%= t("profiles.search_placeholder") %></span>
+    <input type="search" class="field-input h-[34px]" autocomplete="off"
+           placeholder="<%= t("profiles.search_placeholder") %>" data-profile-events-target="search">
+  </label>
+  <span class="seg">
+    <button type="button" data-year="all" aria-pressed="true" class="seg-on"><%= t("profiles.all_years") %></button>
+    <% profile_years(rows).each do |year| %>
+      <button type="button" data-year="<%= year %>" aria-pressed="false"><%= year %></button>
+    <% end %>
+  </span>
+  <% if seasons.any? %>
+    <select data-season aria-label="<%= t("profiles.all_seasons") %>" class="field-input h-[34px] w-auto">
+      <option value="all"><%= t("profiles.all_seasons") %></option>
+      <% seasons.each do |season| %>
+        <option value="<%= season %>"><%= season %></option>
+      <% end %>
+    </select>
+  <% end %>
+  <span data-count data-template="<%= t("profiles.count", shown: "%{shown}", total: "%{total}") %>"
+        class="ml-auto text-xs text-muted tabular"><%= t("profiles.count", shown: rows.size, total: rows.size) %></span>
+</div>

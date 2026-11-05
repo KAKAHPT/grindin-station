@@ -56,3 +56,10 @@ Open research before specifying: what EventLink actually accepts today (as of 20
   pods of four; one or two left over get a bye worth `points_bye`, three left over still play a pod of 3).
 - Byes go from the bottom of the ranking to whoever has the fewest short results; `ShortPodRepair` keeps pods of 3
   from repeating; `grindin:simulate` gates the short-pod spread. Locked with the structure; 1v1 ignores it.
+
+## M12 — player profile: stats band and events table — DONE 2026-11-05 (spec `../specs/2026-11-05-m12-player-profile.md`; Follow and comments still "coming soon")
+- `/p/:handle` shows a band (events, top cuts, win rate, conversion; wins, top 4, top cuts; four most played
+  commanders) from `Profiles::Summary`, then a table of finished events with search, year and season filters,
+  sorting by date/event/result and a "+" detail row (record, win rate, seats taken, seat 1 share, seat per round).
+- `profile_events_controller` filters, sorts, pages (6, "Show all") and recomputes the band in the browser; without
+  JavaScript the full table and server totals render. `users.team` (30 chars, edited in `/account`) tags the name.
