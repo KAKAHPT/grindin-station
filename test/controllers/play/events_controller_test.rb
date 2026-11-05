@@ -44,7 +44,10 @@ module Play
       assert_select "[data-event-format]", text: /Swiss pods/, count: 0
     end
 
-    test "the About card names the uneven field for multiplayer, and none for 1v1" do
+    test "the About card names the uneven field only when it is byes" do
+      get play_event_path(@tournament.slug)
+      assert_select "[data-event-format]", text: /Pods of 3/, count: 0
+
       @tournament.update!(uneven_field: "byes")
       get play_event_path(@tournament.slug)
       assert_select "[data-event-format]", text: /Swiss pods · Byes · /

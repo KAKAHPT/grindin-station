@@ -46,7 +46,7 @@ module EventsHelper
   def play_format_line(event)
     swiss, cut = tournament_structure(event).values_at(:swiss, :cut).map(&:to_i)
     [event_format_label(event), (t("organizer.shell.swiss_rounds", count: swiss) if swiss.positive?),
-     pairing_mode_name(event), uneven_field_name(event),
+     pairing_mode_name(event), (uneven_field_name(event) if event.byes?),
      cut.positive? ? t("organizer.top_cut_option", size: cut) : t("organizer.no_cut"),
      t("play.header.round_minutes", minutes: event.round_minutes)].compact.join(" · ")
   end
