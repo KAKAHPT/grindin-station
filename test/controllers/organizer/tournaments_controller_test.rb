@@ -69,13 +69,65 @@ module Organizer
       assert_difference -> { Tournament.count } do
         post organizer_tournaments_path, params: {
           tournament: { name: "Duelos", start_time: 1.day.from_now, end_time: 2.days.from_now,
-                        format: "one_v_one", match_games: "1",
+                        format: "one_v_one", match_games: "1", game_format: "pauper",
                         points_win: 3, points_draw: 1, points_loss: 0, points_bye: 3 }
         }
       end
 
       tournament = Tournament.find_by!(name: "Duelos")
-      assert_equal ["one_v_one", 1, 3], [tournament.format, tournament.match_games, tournament.points_win]
+      assert_equal ["one_v_one", 1, 3, "pauper"],
+                   [tournament.format, tournament.match_games, tournament.points_win, tournament.game_format]
+    end
+
+    test "the game format select is hidden for multiplayer and offers the seven 1v1 formats" do
+      get new_organizer_tournament_path
+
+      assert_select "[data-format-fields-target=gameFormat][hidden] select[name='tournament[game_format]']" do
+        assert_select "option", 7
+        assert_select "option[value=commander]", 0
+        assert_select "option[value=legacy]", text: "Legacy"
+        assert_select "option[value=other]", text: "Other 1v1"
+      end
+    end
+
+    test "Settings shows the game format for 1v1, saves it, and locks it once the swiss starts" do
+      duel = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                     state: :registration_open, format: "one_v_one")
+
+      get edit_organizer_tournament_path(duel)
+      assert_select "[data-format-fields-target=gameFormat]:not([hidden])" do
+        assert_select "label[for=tournament_game_format]", text: "Game format"
+        assert_select "select[name='tournament[game_format]']:not([disabled]) option[value=other][selected]"
+      end
+
+      patch organizer_tournament_path(duel), params: { tournament: { game_format: "legacy" } }
+      assert_redirected_to organizer_tournament_path(duel)
+      assert_equal "legacy", duel.reload.game_format
+
+      running = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                        format: "one_v_one")
+      get edit_organizer_tournament_path(running)
+      assert_select "select[name='tournament[game_format]'][disabled]"
+
+      patch organizer_tournament_path(running), params: { tournament: { game_format: "modern" } }
+      assert_response :unprocessable_entity
+      assert_includes response.body, "Game format cannot change once the tournament has started"
+      assert_equal "other", running.reload.game_format
+    end
+
+    test "the Overview and the header name the game format, 1v1 only" do
+      duel = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                     state: :registration_open, format: "one_v_one")
+      duel.update!(game_format: "legacy")
+
+      get organizer_tournament_path(duel)
+      assert_select "[data-overview-format] tr", text: /Game format\s*Legacy/
+      assert_select ".evhead-eyebrow", text: /· Legacy · Bo3\z/
+
+      pods = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                     state: :registration_open)
+      get organizer_tournament_path(pods)
+      assert_select "[data-overview-format] tr", text: /Game format/, count: 0
     end
 
     test "Settings shows the country after the address and saves it" do

@@ -51,7 +51,7 @@ module Rankings
       user = participant.player.user
       { player_id: participant.player_id, event_id: @event.id, season: @event.start_time.year,
         country: user&.country, team: user&.team, event_organizer_id: @event.event_organizer_id,
-        format: @event[:format], field: field }
+        format: @event.play, field: field }
     end
 
     def flags(participant, made_cut)

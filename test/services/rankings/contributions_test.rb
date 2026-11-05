@@ -78,7 +78,16 @@ module Rankings
 
       assert_equal [[0, 1, BigDecimal("0")], [1, 0, BigDecimal("3")]],
                    rows.map { |r| r.values_at(:wins, :losses, :points) }.sort
-      assert_equal ["one_v_one"], rows.pluck(:format).uniq
+      assert_equal ["other"], rows.pluck(:format).uniq
+    end
+
+    test "the format column stores the play: multiplayer for pods, the game format for 1v1" do
+      pods = TournamentBuilder.build(players: 4, organizer: @organizer, state: :finished)
+      legacy = TournamentBuilder.build(players: 2, organizer: @organizer, state: :finished, format: "one_v_one")
+      legacy.update_column(:game_format, "legacy") # rubocop:disable Rails/SkipsModelValidations
+
+      assert_equal ["multiplayer"], Contributions.build(pods).pluck(:format).uniq
+      assert_equal ["legacy"], Contributions.build(legacy.reload).pluck(:format).uniq
     end
 
     test "a 1v1 cut match won (Win) gives no per-game points, only the bonuses" do

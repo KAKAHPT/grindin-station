@@ -109,7 +109,7 @@ module Profiles
       row = History.call(user: @user).first
 
       assert_nil row.round_seats
-      assert_equal I18n.t("play.events.format_badge", games: 3), row.format_line
+      assert_equal "Other 1v1 · Bo3", row.format_line
     end
 
     test "the number of queries does not grow with the number of events" do

@@ -16,6 +16,10 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   SMALLER_POD_SIZE = 3
 
   FORMATS = %w[multiplayer one_v_one].freeze
+  # M15: the Magic game format; multiplayer is always commander, 1v1 picks one of the others.
+  GAME_FORMATS = %w[commander standard pioneer modern legacy vintage pauper other].freeze
+  # The play pool used wherever events are filtered or rated: the pods, or one 1v1 game format.
+  PLAYS = (["multiplayer"] + (GAME_FORMATS - ["commander"])).freeze
   PAIRING_MODES = %w[swiss power random].freeze
   UNEVEN_FIELDS = %w[pods_of_three byes].freeze
   MATCH_GAMES = [1, 3].freeze
@@ -44,6 +48,9 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   scope :past, -> { where(end_time: ...Time.current) }
   scope :upcoming, -> { where(start_time: Time.current..) }
   scope :for_player, ->(player) { joins(:event_participants).where(event_participants: { player: player }) }
+  scope :with_play, lambda { |play|
+    play == "multiplayer" ? where(format: "multiplayer") : where(format: "one_v_one", game_format: play)
+  }
 
   enum :currency, EventOrganizer::CURRENCIES
 
@@ -60,6 +67,8 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   validate :points_locked_after_start, on: :update
   validate :valid_transition, on: :update, if: :will_save_change_to_state?
   validates :format, inclusion: { in: FORMATS }
+  validates :game_format, inclusion: { in: GAME_FORMATS }
+  validate :one_v_one_game_format, if: :one_v_one?
   validates :match_games, inclusion: { in: MATCH_GAMES }
   validates :pairing_mode, inclusion: { in: PAIRING_MODES }
   validates :uneven_field, inclusion: { in: UNEVEN_FIELDS }
@@ -78,6 +87,7 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   before_validation :populate_slug, if: -> { slug.blank? }
   before_validation { self.pairing_mode = "swiss" if one_v_one? } # 1v1 never pairs by mode (spec M8 §1)
   before_validation { self.uneven_field = "pods_of_three" if one_v_one? } # 1v1 pairs 2-player pods only
+  before_validation { self.game_format = "commander" if multiplayer? } # pods are always cEDH (spec M15 D1)
   # The country filter on /events (M13 D12): a new event starts in its organizer's country.
   before_validation(on: :create) { self.country = event_organizer&.user&.country if country.blank? }
 
@@ -89,6 +99,9 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   def one_v_one? = self[:format] == "one_v_one"
 
   def multiplayer? = self[:format] == "multiplayer"
+
+  # "multiplayer" or the 1v1 game format ("legacy", "modern", ...): one of PLAYS.
+  def play = one_v_one? ? game_format : "multiplayer"
 
   # M14: the public standings (page, modal, standings feed) wait for the end when the organizer asks.
   def standings_hidden? = hide_standings_until_finished && !finished?
@@ -296,5 +309,10 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   # The format is chosen at creation only (spec §1).
   def format_locked_after_creation
     errors.add(:format, :locked) if format_changed?
+  end
+
+  # Commander is the pods' format: a 1v1 event names a 1v1 one.
+  def one_v_one_game_format
+    errors.add(:game_format, :one_v_one) if game_format == "commander"
   end
 end

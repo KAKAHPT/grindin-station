@@ -19,7 +19,7 @@ module EventFiltersHelper
        filters[:country], t("events.filters.country")],
       [:organizer, :select, all_option(:all_organizers) + options[:organizers].map { |_, name, handle| [name, handle] },
        filters[:organizer]&.last, t("events.filters.organizer")],
-      [:play, :select, all_option(:all_formats) + Event::FORMATS.map { |f| [t("events.filters.formats.#{f}"), f] },
+      [:play, :select, all_option(:all_formats) + Event::PLAYS.map { |play| [play_label(play), play] },
        filters[:play], t("events.filters.format")]
     ]
   end
@@ -43,7 +43,7 @@ module EventFiltersHelper
     {
       season: filters[:season].to_s, country: (country_name(filters[:country]) if filters[:country]),
       organizer: filters[:organizer]&.second, q: filters[:q],
-      play: (t("events.filters.formats.#{filters[:play]}") if filters[:play])
+      play: (play_label(filters[:play]) if filters[:play])
     }
   end
 end

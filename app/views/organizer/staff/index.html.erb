@@ -44,6 +44,6 @@
       <%= t("organizer.staff.role") %>
       <%= f.select :role, EventStaff::ROLES.map { |role| [t("organizer.staff.roles.#{role}"), role] }, {}, class: "field-input" %>
     </label>
-    <%= f.submit t("organizer.staff.add"), class: button_classes(:primary, size: :sm) %>
+    <%= f.submit t("organizer.staff.add"), class: button_classes(:primary, size: :xs) %>
   <% end %>
 </section>

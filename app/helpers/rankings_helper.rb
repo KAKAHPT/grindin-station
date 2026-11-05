@@ -28,14 +28,18 @@ module RankingsHelper
         [team, team]
       end, board.filters[:team],
        t("rankings.filters.team")],
-      [:play, :select, [[t("rankings.filters.all_formats"), ""]] + Rankings::Board::FORMATS.map do |f|
-        [t("rankings.formats.#{f}"), f]
-      end,
-       board.filters[:play], t("rankings.filters.format")]
+      [:play, :select, rankings_play_options(board), board.filters[:play], t("rankings.filters.format")]
     ]
   end
 
-  # [[label, value, url without it]] for the active filters (the season only when it is not the default one).
+  # The eight plays, after "All formats" except on the leaderboard (one pool at a time, M15 D6).
+  def rankings_play_options(board)
+    plays = Event::PLAYS.map { |play| [play_label(play), play] }
+    board.leaderboard? ? plays : [[t("rankings.filters.all_formats"), ""]] + plays
+  end
+
+  # [[label, value, url without it]] for the active filters (the season only when it is not the default one; the
+  # leaderboard's play always, its ✕ going back to multiplayer).
   def rankings_chips(board) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity -- one chip per filter
     filters = board.filters
     chips = []
@@ -48,7 +52,7 @@ module RankingsHelper
       name = board.organizers.find { |_, handle| handle == filters[:organizer] }.first
       chips << [t("rankings.filters.organizer"), name, :organizer]
     end
-    chips << [t("rankings.filters.format"), t("rankings.formats.#{filters[:play]}"), :play] if filters[:play]
+    chips << [t("rankings.filters.format"), play_label(filters[:play]), :play] if filters[:play]
     chips << [t("rankings.filters.team"), filters[:team], :team] if filters[:team]
     chips << [t("rankings.filters.search_chip"), filters[:q], :q] if filters[:q]
     chips.map { |label, value, key| [label, value, rankings_url(key => nil, all: nil)] }

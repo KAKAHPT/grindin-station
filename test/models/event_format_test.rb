@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class EventFormatTest < ActiveSupport::TestCase
+class EventFormatTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLength
   def points(event) = [event.points_win, event.points_draw, event.points_loss, event.points_bye]
 
   test "default format is multiplayer with 7/1/0/7" do
@@ -71,6 +71,60 @@ class EventFormatTest < ActiveSupport::TestCase
     assert_not t.valid?
     assert t.errors.of_kind?(:match_games, :locked)
     I18n.with_locale(:pt) { assert_includes t.errors.full_messages.to_sentence, "não pode mudar" }
+  end
+
+  test "a 1v1 tournament needs a 1v1 game format" do
+    t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                state: :registration_open, format: "one_v_one")
+    t.game_format = "commander"
+    assert_not t.valid?
+    assert t.errors.of_kind?(:game_format, :one_v_one)
+    assert_includes t.errors.full_messages.to_sentence, "Game format must be a 1v1 format"
+
+    t.game_format = "chess"
+    assert_not t.valid?
+    assert t.errors.of_kind?(:game_format, :inclusion)
+
+    t.game_format = "legacy"
+    assert t.valid?, t.errors.full_messages.to_sentence
+  end
+
+  test "a multiplayer tournament is always commander" do
+    t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer), state: :registration_open)
+    assert_equal "commander", t.game_format
+    t.update!(game_format: "legacy")
+    assert_equal "commander", t.reload.game_format
+  end
+
+  test "play is multiplayer for pods and the game format for 1v1" do
+    pods = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+    duel = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer), format: "one_v_one")
+    duel.update_column(:game_format, "legacy") # rubocop:disable Rails/SkipsModelValidations
+
+    assert_equal "multiplayer", pods.play
+    assert_equal "legacy", duel.play
+    assert_equal %w[multiplayer standard pioneer modern legacy vintage pauper other], Event::PLAYS
+  end
+
+  test "with_play picks the pods or one 1v1 game format" do
+    organizer = event_organizers(:standard_organizer)
+    pods = TournamentBuilder.build(players: 4, organizer: organizer)
+    legacy = TournamentBuilder.build(players: 4, organizer: organizer, format: "one_v_one")
+    modern = TournamentBuilder.build(players: 4, organizer: organizer, format: "one_v_one")
+    legacy.update_column(:game_format, "legacy") # rubocop:disable Rails/SkipsModelValidations
+    modern.update_column(:game_format, "modern") # rubocop:disable Rails/SkipsModelValidations
+    ids = [pods, legacy, modern].map(&:id)
+
+    assert_equal [legacy.id], Tournament.where(id: ids).with_play("legacy").ids
+    assert_equal [pods.id], Tournament.where(id: ids).with_play("multiplayer").ids
+  end
+
+  test "game_format is locked once the swiss starts" do
+    t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                state: :swiss, format: "one_v_one")
+    t.game_format = "pauper"
+    assert_not t.valid?
+    assert t.errors.of_kind?(:game_format, :locked)
   end
 
   test "Result#game_points is 3 per game won and 1 per game drawn" do

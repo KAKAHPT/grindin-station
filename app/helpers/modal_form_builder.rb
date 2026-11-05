@@ -77,7 +77,7 @@ class ModalFormBuilder < ActionView::Helpers::FormBuilder
       value,
       {
         form: @options.dig(:html, :id),
-        class: @template.button_classes(:primary, size: :sm)
+        class: @template.button_classes(:primary, size: :xs)
       }.merge(options)
     )
   end

@@ -20,9 +20,16 @@ module EventsHelper
     end
   end
 
-  # "cEDH · pods of four" or "1v1 · Bo3".
+  # "cEDH · pods of four" or "Legacy · Bo3".
   def event_format_label(event)
-    event.one_v_one? ? t("play.events.format_badge", games: event.match_games) : t("play.header.multiplayer")
+    return play_label(event.play) unless event.one_v_one?
+
+    t("play.events.format_badge", game_format: play_label(event.play), games: event.match_games)
+  end
+
+  # "cEDH · pods of four", "Legacy", "Other 1v1": one of Event::PLAYS.
+  def play_label(play)
+    t("play.formats.#{play}")
   end
 
   # Header eyebrow: "Swiss round 3 · cEDH · pods of four · live" (live only while a round is running); "Sold out"

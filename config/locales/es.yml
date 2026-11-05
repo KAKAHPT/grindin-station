@@ -211,6 +211,9 @@ es:
               locked: "no se puede cambiar una vez creado el torneo"
             match_games:
               locked: "no se puede cambiar una vez empezado el torneo"
+            game_format:
+              locked: "no se puede cambiar una vez empezado el torneo"
+              one_v_one: "debe ser un formato 1v1"
             pairing_mode:
               locked: "no se puede cambiar una vez empezado el torneo"
             uneven_field:
@@ -253,6 +256,7 @@ es:
       event:
         format: "Formato"
         match_games: "Duración del match"
+        game_format: "Formato de juego"
         pairing_mode: "Emparejamiento"
         uneven_field: "Campo desigual"
         points_win: "Puntos por victoria"
@@ -343,6 +347,7 @@ es:
         other: "inscritos · %{count} en lista de espera"
       without_decklist: "sin decklist"
       format: "Formato"
+      game_format: "Formato de juego"
       swiss_rounds: "Rondas suizas"
       swiss_line: "%{count} × %{minutes} min"
       top_cut: "Top cut"
@@ -541,6 +546,15 @@ es:
       standings: "Clasificación"
       event: "Evento"
       pairings: "Emparejamientos"
+    formats:
+      multiplayer: "cEDH · mesas de cuatro"
+      standard: "Standard"
+      pioneer: "Pioneer"
+      modern: "Modern"
+      legacy: "Legacy"
+      vintage: "Vintage"
+      pauper: "Pauper"
+      other: "Otro 1v1"
     header:
       multiplayer: "cEDH · mesas de cuatro"
       live: "en directo"
@@ -550,7 +564,7 @@ es:
       round_minutes: "rondas de %{minutes} min"
     events:
       organizer: "Organizador"
-      format_badge: "1v1 · Bo%{games}"
+      format_badge: "%{game_format} · Bo%{games}"
       about: "Acerca de"
       format: "Formato"
       registration: "Inscripción"
@@ -720,6 +734,7 @@ es:
     on_time_hint: "tiempo"
     finished_in: "Terminó en %{time}"
     cancel: "Cancelar"
+    confirm_pick: "Confirmar"
     undo: "Anular ronda"
     undo_confirm: "¿Anular esta ronda? Las mesas y los resultados desaparecen."
     cannot_undo_first: "La primera ronda no se puede anular."
@@ -1046,9 +1061,6 @@ es:
       all_organizers: "Todos los organizadores"
       format: "Formato"
       all_formats: "Todos los formatos"
-      formats:
-        multiplayer: "cEDH · mesas de cuatro"
-        one_v_one: "1v1"
       empty: "Ningún evento coincide con estos filtros."
   lists:
     upcoming: "Próximos"
@@ -1131,9 +1143,6 @@ es:
       all_teams: "Todos los equipos"
       format: "Formato"
       all_formats: "Todos los formatos"
-    formats:
-      multiplayer: "cEDH · mesas de cuatro"
-      one_v_one: "1v1"
     count_players:
       one: "1 jugador"
       other: "%{count} jugadores"
@@ -1233,7 +1242,7 @@ es:
         versus: "Ana vs %{name} (%{rating})"
         after: "Ana después de la mesa"
         example_note: "Bruno, Carla y Diogo pierden cada uno su lado del duelo con Ana e intercambian pequeñas cantidades entre ellos por los empates."
-        rules: "Los jugadores nuevos empiezan con 1500 y se marcan como provisionales hasta 10 partidas con rating; solo cuentan los eventos terminados y las rondas del top cut no cuentan para el rating. El rating de una temporada cuenta los eventos de esa temporada y \"Histórico\" cuenta todos; los filtros solo eligen quién aparece, nunca cambian un rating. Los ratings se recalculan desde cero siempre que se corrige un resultado, así que una corrección en un evento pasado siempre queda reflejada."
+        rules: "Los ratings van por formato de juego (mesas de cEDH, Legacy, Modern, …): un resultado de Legacy nunca mueve un rating de mesas, y la Clasificación muestra siempre un solo formato, las mesas de cEDH salvo que elijas otro. Los jugadores nuevos empiezan con 1500 y se marcan como provisionales hasta 10 partidas con rating; solo cuentan los eventos terminados y las rondas del top cut no cuentan para el rating. El rating de una temporada cuenta los eventos de esa temporada y \"Histórico\" cuenta todos; los demás filtros solo eligen quién aparece, nunca cambian un rating. Los ratings se recalculan desde cero siempre que se corrige un resultado, así que una corrección en un evento pasado siempre queda reflejada."
       teams:
         note_html: "<b class=\"font-semibold text-ink\">Equipos.</b> Un equipo es el grupo de amigos que un jugador indica en su cuenta, no una inscripción en un torneo. Los puntos del equipo salen de lo que hacen sus jugadores: puntos de ranking, top cuts y victorias, contando a los cinco mejores jugadores del equipo."
         open: "¿Cómo se calculan los puntos de los equipos?"

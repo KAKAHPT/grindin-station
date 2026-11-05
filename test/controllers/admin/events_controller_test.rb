@@ -46,18 +46,36 @@ module Admin
       assert_redirected_to admin_events_path
       assert_equal !featured, event.reload.featured
     end
-    test "filters narrow the rows by search, state, tier and format" do
+    test "filters narrow the rows by search, state, tier and play" do
       porto = porto_gold_events.first
       other = events(:standard_tournament)
       other.update_columns(name: "Porto Cup") # rubocop:disable Rails/SkipsModelValidations
 
-      get admin_events_path(q: "porto", state: "finished", tier: "gold", format: "multiplayer")
+      get admin_events_path(q: "porto", state: "finished", tier: "gold", play: "multiplayer")
 
       assert_response :success
       assert_select "tr[data-event='#{porto.id}']"
       assert_select "tr[data-event='#{other.id}']", count: 0
       assert_select "tr[data-event='#{events(:small_tournament).id}']", count: 0
       assert_select "select[name=tier] option[selected][value=gold]"
+    end
+
+    test "the play filter offers the eight plays and lists only that play" do
+      legacy = events(:standard_tournament)
+      legacy.update_columns(format: "one_v_one", game_format: "legacy") # rubocop:disable Rails/SkipsModelValidations
+      pods = events(:finished_tournament)
+
+      get admin_events_path(play: "legacy")
+
+      assert_select "select[name=play] option", 9 # All + the eight plays
+      assert_select "select[name=play] option[selected][value=legacy]", text: "Legacy"
+      assert_select "tr[data-event='#{legacy.id}']"
+      assert_select "tr[data-event='#{pods.id}']", count: 0
+
+      get admin_events_path(play: "multiplayer")
+
+      assert_select "tr[data-event='#{pods.id}']"
+      assert_select "tr[data-event='#{legacy.id}']", count: 0
     end
 
     test "search matches the slug and the organizer's name or e-mail; organizer filters by handle" do

@@ -6,7 +6,7 @@
       <%= link_to t("organizer.tournaments.past"), organizer_tournaments_path(past: 1), class: ("seg-on" if @past), "aria-current": ("page" if @past) %>
     </span>
     <% if current_user.organizer? %>
-      <%= link_to t("organizer.tournaments.new"), new_organizer_tournament_path, class: button_classes(:primary, size: :sm) %>
+      <%= link_to t("organizer.tournaments.new"), new_organizer_tournament_path, class: button_classes(:primary, size: :xs) %>
     <% end %>
   </div>
 </div>

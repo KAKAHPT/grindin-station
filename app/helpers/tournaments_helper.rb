@@ -98,6 +98,11 @@ module TournamentsHelper # rubocop:disable Metrics/ModuleLength
     Event::MATCH_GAMES.sort.reverse.map { |games| [t("organizer.match_games_options.bo#{games}"), games] }
   end
 
+  # The 1v1 game formats (commander is the pods' own).
+  def game_format_options
+    (Event::GAME_FORMATS - ["commander"]).map { |format| [play_label(format), format] }
+  end
+
   def pairing_mode_options
     Event::PAIRING_MODES.map { |mode| [t("organizer.pairing_modes.#{mode}"), mode] }
   end

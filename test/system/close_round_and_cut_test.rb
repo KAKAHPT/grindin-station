@@ -24,7 +24,10 @@ class CloseRoundAndCutTest < ApplicationSystemTestCase
     assert_text I18n.t("rounds.cannot_close", tables: pods.last.number)
     assert_nil @round.reload.finished_at
 
-    within(pod_card(pods.last)) { click_button "Draw" }
+    within(pod_card(pods.last)) do
+      click_button "Draw"
+      click_button "Confirm"
+    end
     assert_pod_completed(pods.last)
 
     click_button "Close round"
@@ -85,12 +88,12 @@ class CloseRoundAndCutTest < ApplicationSystemTestCase
     find("#pod_#{pod.id}")
   end
 
-  # Taps the seat's row on the pod card, then confirms "<name> wins".
+  # Taps the seat's row on the pod card, then presses Confirm.
   def mark_winner(pod, seat:)
     name = pod.seatings.find_by!(order: seat).event_participant.name
     within(pod_card(pod)) do
       find("li[role=button]") { |row| row["data-name"] == name }.click
-      click_button "#{name} wins"
+      click_button "Confirm"
     end
     assert_text I18n.t("flash.notice.result_submitted")
     assert_pod_completed(pod)

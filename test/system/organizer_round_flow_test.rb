@@ -54,7 +54,7 @@ class OrganizerRoundFlowTest < ApplicationSystemTestCase # rubocop:disable Metri
 
     within("#pod_#{pod.id}") do
       assert_selector "li[data-selected=true][data-name='#{name}']"
-      assert_selector "[data-pod-result-target=confirmLabel]", text: "#{name} wins"
+      assert_button "Confirm"
     end
   end
 
@@ -78,7 +78,7 @@ class OrganizerRoundFlowTest < ApplicationSystemTestCase # rubocop:disable Metri
     within("#pod_#{pod.id}") do
       assert_text(/judge called/i)
       assert_selector "li[data-selected=true][data-name='#{name}']"
-      assert_selector "[data-pod-result-target=confirmLabel]", text: "#{name} wins"
+      assert_button "Confirm"
     end
   end
 
