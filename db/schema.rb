@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_05_170000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_05_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -173,6 +173,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_170000) do
     t.integer "event_participants_count", default: 0, null: false
     t.boolean "featured", default: false, null: false
     t.string "format", default: "multiplayer", null: false
+    t.boolean "hide_standings_until_finished", default: false, null: false
     t.geography "location", limit: {srid: 4326, type: "st_point", geographic: true}
     t.integer "match_games", default: 3, null: false
     t.string "name", null: false
@@ -192,8 +193,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_170000) do
     t.text "schedule"
     t.integer "seed"
     t.boolean "self_report_enabled", default: true, null: false
+    t.boolean "show_beaten_in_standings", default: false, null: false
     t.boolean "show_commanders_in_standings", default: false, null: false
     t.boolean "show_decklists", default: false, null: false
+    t.boolean "show_unique_in_standings", default: false, null: false
     t.string "slug", null: false
     t.datetime "start_time"
     t.integer "state", default: 0, null: false

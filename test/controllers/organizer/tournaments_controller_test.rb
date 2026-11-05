@@ -130,6 +130,31 @@ module Organizer
       assert_not tournament.reload.featured?
     end
 
+    test "Settings has a Standings group whose three display options save" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_open)
+
+      get edit_organizer_tournament_path(tournament)
+      assert_select "h2.form-section", text: "Standings"
+      { show_beaten_in_standings: "Show the Beaten column", show_unique_in_standings: "Show the Unique column",
+        hide_standings_until_finished: "Hide standings until the tournament ends" }.each do |attribute, label|
+        assert_select "input[type=checkbox][name='tournament[#{attribute}]']:not([checked])"
+        assert_select "label[for=tournament_#{attribute}]", text: label
+      end
+      assert_select ".form-help", text: "What the public standings show. Organizer mode always shows everything."
+      assert_operator response.body.index("tournament[show_decklists]"), :<,
+                      response.body.index("tournament[show_beaten_in_standings]")
+
+      patch organizer_tournament_path(tournament), params: { tournament: {
+        show_beaten_in_standings: "1", show_unique_in_standings: "1", hide_standings_until_finished: "1"
+      } }
+      assert_redirected_to organizer_tournament_path(tournament)
+      tournament.reload
+      assert tournament.show_beaten_in_standings
+      assert tournament.show_unique_in_standings
+      assert tournament.hide_standings_until_finished
+    end
+
     test "a judge cannot feature the tournament" do
       tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
                                            state: :registration_open)
@@ -382,7 +407,7 @@ module Organizer
       assert_select "[data-tabs] a[href=?]", organizer_tournament_round_path(tournament, round), text: "Rounds"
     end
 
-    test "Settings is a full page with the Event, Structure, Results and Danger zone sections" do
+    test "Settings is a full page with the Event, Structure, Results, Standings and Danger zone sections" do
       tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
                                            state: :registration_open)
 
@@ -390,7 +415,7 @@ module Organizer
 
       assert_select "turbo-frame#modal form", 0
       assert_select "[data-settings] .form-section" do |sections|
-        assert_equal(%w[Event Structure Results], sections.map { |section| section.text.strip })
+        assert_equal(%w[Event Structure Results Standings], sections.map { |section| section.text.strip })
       end
       assert_select "[data-danger-zone] button", text: "Cancel event"
       assert_select "[data-settings] .field input.field-input[name='tournament[name]']"

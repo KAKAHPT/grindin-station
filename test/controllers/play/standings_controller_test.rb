@@ -3,7 +3,7 @@
 require "test_helper"
 
 module Play
-  class StandingsControllerTest < ActionDispatch::IntegrationTest
+  class StandingsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
     setup do
       @tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
       @tournament.update_columns(seed: 99, swiss_rounds_count: 2, top_cut_size: 0) # rubocop:disable Rails/SkipsModelValidations
@@ -116,6 +116,72 @@ module Play
            params: { session: { email_address: users(:organizer_user).email_address, password: "password123" } }
       get organizer_tournament_event_participants_path(@tournament)
       assert_select "tr#event_participant_#{up.id} [data-movement]", text: /▲1/
+    end
+
+    test "the Beaten and Unique columns and their help show only when the organizer turns them on" do
+      get play_standings_path(@tournament.slug)
+
+      assert_response :success
+      assert_select "thead th", text: /\A\s*(Beaten|Unique)\s*\z/, count: 0
+      assert_select "#tooltip-beaten, #tooltip-unique", count: 0
+      assert_select "p", text: I18n.t("standings.help.beaten"), count: 0
+      assert_select "p", text: I18n.t("standings.help.unique"), count: 0
+      assert_select "thead th", text: /\A\s*OWR\s*\z/
+      assert_select "tbody tr:first-child td", 5
+
+      @tournament.update_columns(show_beaten_in_standings: true, show_unique_in_standings: true) # rubocop:disable Rails/SkipsModelValidations
+      get play_standings_path(@tournament.slug)
+
+      assert_select "thead th", text: /\A\s*Beaten\s*\z/, count: 1
+      assert_select "thead th", text: /\A\s*Unique\s*\z/, count: 1
+      assert_select "p", text: I18n.t("standings.help.beaten")
+      assert_select "p", text: I18n.t("standings.help.unique")
+      assert_select "tbody tr:first-child td", 7
+
+      @tournament.update_columns(show_unique_in_standings: false) # rubocop:disable Rails/SkipsModelValidations
+      get tournament_event_participants_path(@tournament), headers: { "Turbo-Frame" => "modal" }
+
+      assert_select "thead th", text: /\A\s*Beaten\s*\z/, count: 1
+      assert_select "thead th", text: /\A\s*Unique\s*\z/, count: 0
+      assert_select "tbody tr:first-child td", 6
+    end
+
+    test "hidden until the end: a running tournament shows the notice and no table, a finished one the table" do
+      @tournament.update_columns(hide_standings_until_finished: true) # rubocop:disable Rails/SkipsModelValidations
+
+      get play_standings_path(@tournament.slug)
+
+      assert_response :success
+      assert_select "[data-standings-hidden].card", text: /Standings are published when the tournament ends/
+      assert_select "table", count: 0
+      assert_select "nav[data-play-nav] a[href=?]", play_standings_path(@tournament.slug)
+
+      get play_standings_path(@tournament.slug, locale: "pt")
+      assert_select "[data-standings-hidden]", text: /As classificações são publicadas quando o torneio terminar/
+
+      get tournament_event_participants_path(@tournament), headers: { "Turbo-Frame" => "modal" }
+      assert_select "[data-standings-hidden]"
+      assert_select "table", count: 0
+
+      @tournament.update_column(:state, :finished) # rubocop:disable Rails/SkipsModelValidations
+      get play_standings_path(@tournament.slug)
+
+      assert_select "[data-standings-hidden]", count: 0
+      assert_select "tbody tr", 8
+    end
+
+    test "the organizer roster shows Beaten and Unique and the full table whatever the display options" do
+      @tournament.update_columns(hide_standings_until_finished: true) # rubocop:disable Rails/SkipsModelValidations
+      post session_path,
+           params: { session: { email_address: users(:organizer_user).email_address, password: "password123" } }
+
+      get organizer_tournament_event_participants_path(@tournament)
+
+      assert_response :success
+      assert_select "th", text: /\A\s*Beaten\s*\z/
+      assert_select "th", text: /\A\s*Unique\s*\z/
+      assert_select "[data-standings-hidden]", count: 0
+      assert_select "table"
     end
 
     test "no arrows before two rounds have closed" do

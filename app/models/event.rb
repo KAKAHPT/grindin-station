@@ -90,6 +90,9 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   def multiplayer? = self[:format] == "multiplayer"
 
+  # M14: the public standings (page, modal, standings feed) wait for the end when the organizer asks.
+  def standings_hidden? = hide_standings_until_finished && !finished?
+
   def swiss_pairing? = pairing_mode == "swiss"
 
   def power_pairing? = pairing_mode == "power"

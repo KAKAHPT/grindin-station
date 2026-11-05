@@ -62,6 +62,14 @@ module Feeds
       assert_equal "Tymna / Thrasios", row[:commander]
     end
 
+    test "standings hidden until the end: an empty list while running, the full list once finished" do
+      @t.update_columns(hide_standings_until_finished: true) # rubocop:disable Rails/SkipsModelValidations
+      assert_equal [], Feeds::Standings.call(@t.reload)[:standings]
+
+      @t.update_column(:state, :finished) # rubocop:disable Rails/SkipsModelValidations
+      assert_equal @t.event_participants.where(waitlisted: false).count, Feeds::Standings.call(@t.reload)[:standings].size
+    end
+
     test "a decklist link is never a commander" do
       @t.update_columns(show_commanders_in_standings: true) # rubocop:disable Rails/SkipsModelValidations
       participant = seated(@round1, 1).first

@@ -22,9 +22,10 @@ module Feeds
       @event = event
     end
 
+    # An event that hides its standings until the end (M14) lists nobody until it is finished.
     def to_h(updated)
-      { tid: @event.slug, name: @event.name, updated: Feeds.epoch(updated),
-        standings: self.class.ranked(@event).each.with_index(1).map { |participant, rank| row(participant, rank) } }
+      rows = @event.standings_hidden? ? [] : self.class.ranked(@event).each.with_index(1).map { |p, rank| row(p, rank) }
+      { tid: @event.slug, name: @event.name, updated: Feeds.epoch(updated), standings: rows }
     end
 
     private

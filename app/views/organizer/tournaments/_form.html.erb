@@ -82,6 +82,12 @@
   <%= f.check_box_with_label :show_commanders_in_standings %>
   <%= f.check_box_with_label :show_decklists %>
 
+  <h2 class="form-section"><%= t("organizer.settings.standings") %></h2>
+  <%= f.check_box_with_label :show_beaten_in_standings %>
+  <%= f.check_box_with_label :show_unique_in_standings %>
+  <%= f.check_box_with_label :hide_standings_until_finished %>
+  <p class="form-help mb-4"><%= t("organizer.settings.standings_help") %></p>
+
   <div class="mt-2 flex flex-wrap justify-end gap-2 border-t border-line pt-4">
     <%= link_to t("organizer.settings.back"), (tournament.persisted? ? organizer_tournament_path(tournament) : organizer_tournaments_path), class: button_classes(:ghost, size: :sm) %>
     <%= f.submit %>

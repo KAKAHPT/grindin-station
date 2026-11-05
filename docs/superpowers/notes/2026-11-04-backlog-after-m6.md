@@ -71,7 +71,7 @@ Open research before specifying: what EventLink actually accepts today (as of 20
   tiers + invitational leaderboard; `/admin/organizers` approves the waiting list; one entry per player and event.
 
 ## Added 2026-11-05 (afternoon, with the organiser)
-- **M14 — Standings display options (next after M13):** Settings group "Standings": show the Beaten column (default off), show the Unique column (default off), hide the public standings while the tournament runs (public page shows pairings only until finished; organizer mode unaffected). Columns live in `app/views/event_participants/index.html.erb` + `_event_participant.html.erb` and the organizer twins; help text in `tournaments/_standings_help.html.erb`.
+- **M14 — Standings display options — DONE 2026-11-05** (columns gated in the public page/modal/help, the hide rule also empties `Feeds::Standings`): Settings group "Standings": show the Beaten column (default off), show the Unique column (default off), hide the public standings while the tournament runs (public page shows pairings only until finished; organizer mode unaffected). Columns live in `app/views/event_participants/index.html.erb` + `_event_participant.html.erb` and the organizer twins; help text in `tournaments/_standings_help.html.erb`.
 - ~~Unique index on `event_participants(event_id, player_id)`~~ (done in M13: unique partial index, distinct guest names).
 - Roster: consider a bulk "promote next N from the waitlist" action (promotion exists per row).
 - **Landing, more monochrome (with M14):** the hero "Upcoming events" button, the waiting-list card ("Organising is by invitation for now": the Join button and the "Waiting list" chip) and Anne's seat board in light greys instead of the accent; keep accent only for the headline word.

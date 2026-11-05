@@ -36,8 +36,12 @@
     <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right">
       <%= number_to_percentage(columns[:owr] * 100, precision: 1) %>
     </td>
-    <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right"><%= columns[:beaten] %></td>
-    <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right"><%= columns[:unique] %></td>
+    <% if local_assigns[:show_beaten] %>
+      <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right"><%= columns[:beaten] %></td>
+    <% end %>
+    <% if local_assigns[:show_unique] %>
+      <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right"><%= columns[:unique] %></td>
+    <% end %>
   <% end %>
   <td class="<%= pad %> py-0.5 tabular text-right text-nowrap">
     <% wld = [event_participant.number_of_wins, event_participant.number_of_losses, event_participant.number_of_draws] %>

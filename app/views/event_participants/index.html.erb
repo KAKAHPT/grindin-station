@@ -11,6 +11,9 @@
 <% end %>
 <% latest_published = @tournament.rounds.published.max_by(&:number) %>
 <% one_v_one = @tournament.one_v_one? %>
+<%# M14: Beaten and Unique show only when the organizer turns them on (organizer mode always shows them). %>
+<% show_beaten = !one_v_one && @tournament.show_beaten_in_standings %>
+<% show_unique = !one_v_one && @tournament.show_unique_in_standings %>
 <%# No Seats column for anyone (seat history is on the player's own table and in the organizer roster's
     expanded row). Public standings mark the viewer's row "You"; both the page and the modal show the
     movement arrows (shared/_movement). %>
@@ -38,7 +41,11 @@
   <% end %>
 <% end %>
 
-<% if @standings.any? %>
+<% if @tournament.standings_hidden? %>
+  <section data-standings-hidden class="card p-4 text-[13px] text-muted">
+    <%= t("standings.hidden_until_finished") %>
+  </section>
+<% elsif @standings.any? %>
   <div class="<%= @standings_in_modal ? "-m-4 md:-m-5 overflow-x-auto" : "-mx-4 sm:mx-0 rounded-none sm:rounded-xl bg-surface border-y sm:border border-line shadow-card overflow-clip" %>">
   <%# In the narrow play column (a container) OWR, Beaten and Unique (1v1: GW% and OGW%) show only from 32rem up; the modal shows all. %>
   <% wide_only = @standings_in_modal ? "" : "hidden @lg:table-cell" %>
@@ -71,12 +78,16 @@
           <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-owr">
             <%= t("standings.columns.owr") %>
           </th>
-          <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-beaten">
-            <%= t("standings.columns.beaten") %>
-          </th>
-          <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-unique">
-            <%= t("standings.columns.unique") %>
-          </th>
+          <% if show_beaten %>
+            <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-beaten">
+              <%= t("standings.columns.beaten") %>
+            </th>
+          <% end %>
+          <% if show_unique %>
+            <th scope="col" class="<%= wide_only %> <%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-unique">
+              <%= t("standings.columns.unique") %>
+            </th>
+          <% end %>
         <% end %>
         <th scope="col" class="<%= pad %> py-2 whitespace-nowrap text-right" data-tooltip-target="tooltip-wld">
           <%= t("standings.columns.wld") %>
@@ -136,30 +147,34 @@
             <%= t("standings.help.owr") %>
             <div class="tooltip-arrow" data-popper-arrow="true"></div>
           </div>
-          <div
-            id="tooltip-beaten"
-            role="tooltip"
-            class="
-              absolute z-10 invisible inline-block px-3 py-2 text-sm
-              font-medium text-ink transition-opacity duration-300
-              bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
-            "
-          >
-            <%= t("standings.help.beaten") %>
-            <div class="tooltip-arrow" data-popper-arrow="true"></div>
-          </div>
-          <div
-            id="tooltip-unique"
-            role="tooltip"
-            class="
-              absolute z-10 invisible inline-block px-3 py-2 text-sm
-              font-medium text-ink transition-opacity duration-300
-              bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
-            "
-          >
-            <%= t("standings.help.unique") %>
-            <div class="tooltip-arrow" data-popper-arrow="true"></div>
-          </div>
+          <% if show_beaten %>
+            <div
+              id="tooltip-beaten"
+              role="tooltip"
+              class="
+                absolute z-10 invisible inline-block px-3 py-2 text-sm
+                font-medium text-ink transition-opacity duration-300
+                bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
+              "
+            >
+              <%= t("standings.help.beaten") %>
+              <div class="tooltip-arrow" data-popper-arrow="true"></div>
+            </div>
+          <% end %>
+          <% if show_unique %>
+            <div
+              id="tooltip-unique"
+              role="tooltip"
+              class="
+                absolute z-10 invisible inline-block px-3 py-2 text-sm
+                font-medium text-ink transition-opacity duration-300
+                bg-ground border border-line rounded-lg shadow-sm opacity-0 tooltip
+              "
+            >
+              <%= t("standings.help.unique") %>
+              <div class="tooltip-arrow" data-popper-arrow="true"></div>
+            </div>
+          <% end %>
         <% end %>
         <div
           id="tooltip-wld"
@@ -179,16 +194,16 @@
       <!-- TODO updated by turbo stream -->
       <% case @tournament.state %>
       <% when 'registration_open', 'registration_closed' %>
-        <%= render partial: "event_participants/event_participant", collection: @standings.reject(&:waitlisted?).sort_by(&:name), locals: { wide_only: wide_only, pad: pad, me_id: me_id } %>
+        <%= render partial: "event_participants/event_participant", collection: @standings.reject(&:waitlisted?).sort_by(&:name), locals: { wide_only: wide_only, pad: pad, me_id: me_id, show_beaten: show_beaten, show_unique: show_unique } %>
       <% else %>
         <%# The feed's order (Feeds::Standings.ranked): final positions once finished, then playing, rank score, name. %>
-        <%= render partial: "event_participants/event_participant", collection: Feeds::Standings.ranked(@tournament, @standings), locals: { wide_only: wide_only, pad: pad, final: @tournament.finished?, me_id: me_id } %>
+        <%= render partial: "event_participants/event_participant", collection: Feeds::Standings.ranked(@tournament, @standings), locals: { wide_only: wide_only, pad: pad, final: @tournament.finished?, me_id: me_id, show_beaten: show_beaten, show_unique: show_unique } %>
       <% end %>
     </tbody>
   </table>
   </div>
   </div>
-  <%= render "tournaments/standings_help", event: @tournament %>
+  <%= render "tournaments/standings_help", event: @tournament, show_beaten: show_beaten, show_unique: show_unique %>
 <% end %>
 
 <% content_for :footer do %>
