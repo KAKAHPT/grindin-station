@@ -485,6 +485,9 @@ es:
         acknowledged: "Aceptada"
         closed: "Cerrada"
     roster:
+      actions: "Acciones"
+      legend: "Acciones de la fila"
+      infraction: "Registrar infracción"
       add_player: "Añadir jugador"
       decklist: "Decklist"
       no_decklist: "Sin decklist"

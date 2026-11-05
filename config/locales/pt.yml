@@ -485,6 +485,9 @@ pt:
         acknowledged: "Aceite"
         closed: "Fechada"
     roster:
+      actions: "Ações"
+      legend: "Ações da linha"
+      infraction: "Registar infração"
       add_player: "Adicionar jogador"
       decklist: "Decklist"
       no_decklist: "Sem decklist"

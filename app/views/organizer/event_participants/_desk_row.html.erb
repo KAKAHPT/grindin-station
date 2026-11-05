@@ -30,8 +30,8 @@
     <td class="px-2.5">
       <div class="flex justify-end gap-1 whitespace-nowrap">
         <% unless scorekeeper %>
-          <%= link_to [:new, :organizer, @event, :infraction, { player_id: participant.player_id }], data: { turbo_frame: "modal" }, title: "Record Infraction", class: icon_button_classes(danger: true, size: :xs) do %>
-            <%= icon("gavel") %><span class="sr-only">Record Infraction</span>
+          <%= link_to [:new, :organizer, @event, :infraction, { player_id: participant.player_id }], data: { turbo_frame: "modal" }, title: t("organizer.roster.infraction"), class: icon_button_classes(danger: true, size: :xs) do %>
+            <%= icon("gavel") %><span class="sr-only"><%= t("organizer.roster.infraction") %></span>
           <% end %>
 
           <% if participant.playing? %>

@@ -105,7 +105,7 @@
               <th scope="col" class="px-2.5 py-2 whitespace-nowrap text-right">W-L-D</th>
               <th scope="col" class="px-2.5 py-2 whitespace-nowrap"><%= t("organizer.roster.column_desk") %></th>
               <th scope="col" class="px-1 py-2"><span class="sr-only"><%= t("organizer.roster.stats.show") %></span></th>
-              <th scope="col" class="px-2.5 py-2"><span class="sr-only">Actions</span></th>
+              <th scope="col" class="px-2.5 py-2 text-right"><%= t("organizer.roster.actions") %></th>
             </tr>
           </thead>
           <tbody id="<%= dom_id(@event, :event_participants) %>" class="divide-y divide-line/60">
@@ -113,6 +113,15 @@
           </tbody>
         </table>
       </div>
+      <%# Legend for the row action icons (they also carry a title tooltip). %>
+      <p class="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2.5 border-t border-line text-[11px] text-muted" data-roster-legend>
+        <span class="font-semibold uppercase tracking-[0.06em]"><%= t("organizer.roster.legend") %></span>
+        <% [["gavel", t("organizer.roster.infraction")], ["arrow-up", t("organizer.roster.promote")], ["user-minus", t("organizer.roster.drop")],
+            ["prohibit", t("organizer.roster.no_show")], ["user-plus", t("organizer.roster.undo_drop")], ["user-check", t("organizer.roster.check_in")],
+            ["arrow-counter-clockwise", t("organizer.roster.undo_check_in")], ["coins", t("organizer.roster.mark_paid")], ["x-circle", t("organizer.roster.mark_unpaid")]].each do |name, label| %>
+          <span class="inline-flex items-center gap-1"><%= icon(name) %><%= label %></span>
+        <% end %>
+      </p>
     <% else %>
       <p class="px-4 py-6 text-center text-[12px] text-muted">No players found</p>
     <% end %>
