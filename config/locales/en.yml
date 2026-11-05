@@ -841,10 +841,14 @@ en:
     detail:
       record: "Record"
       win_rate: "Win rate"
-      games: "%{count} games"
+      games:
+        one: "%{count} game"
+        other: "%{count} games"
       seats: "Seats taken"
       seat_one: "Seat 1"
-      of_rounds: "of %{count} rounds"
+      of_rounds:
+        one: "of %{count} round"
+        other: "of %{count} rounds"
       no_seats: "1v1 · no seats"
       round_seat: "R%{round} · seat %{seat}"
       seat: "Seat %{seat}"

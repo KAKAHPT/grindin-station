@@ -32,6 +32,10 @@ class PlayerProfileTest < ApplicationSystemTestCase
     fill_in placeholder: "Search events, organizers, commanders…", with: "kinnan"
     assert_selector "tr[data-event]", count: 3
     assert_selector "[data-stat=events]", text: "3"
+    # Kinnan rows: Lisbon (1st), Braga (3rd), Coimbra (2nd) -> 1 win, 3 top-4 finishes, one commander at 3 of 3
+    assert_selector "[data-ach=wins]", text: "1"
+    assert_selector "[data-ach=top4]", text: "3"
+    assert_selector "[data-commanders] li", count: 1, text: /Kinnan, Bonder Prodigy\s+3 · 100%/
     assert_no_button "Show less"
     fill_in placeholder: "Search events, organizers, commanders…", with: ""
 
@@ -64,6 +68,7 @@ class PlayerProfileTest < ApplicationSystemTestCase
     assert_equal "Setubal Showdown", first("tr[data-event] a").text
 
     find("th[data-sort=position]").send_keys(:space)
+    assert_selector "th[data-sort=position][aria-sort=ascending]"
     assert_equal %w[1st 1st 2nd 2nd 3rd 3rd], all("tr[data-event] [data-result] b").map(&:text)
     assert_selector "tr[data-event][data-odd]", count: 3
     assert_selector "tr[data-event][data-last]", count: 1

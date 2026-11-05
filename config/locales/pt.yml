@@ -841,10 +841,14 @@ pt:
     detail:
       record: "Registo"
       win_rate: "Taxa de vitória"
-      games: "%{count} jogos"
+      games:
+        one: "%{count} jogo"
+        other: "%{count} jogos"
       seats: "Lugares ocupados"
       seat_one: "Lugar 1"
-      of_rounds: "de %{count} rondas"
+      of_rounds:
+        one: "de %{count} ronda"
+        other: "de %{count} rondas"
       no_seats: "1v1 · sem lugares"
       round_seat: "R%{round} · lugar %{seat}"
       seat: "Lugar %{seat}"

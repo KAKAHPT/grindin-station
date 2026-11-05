@@ -140,7 +140,7 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
       assert_select "*", text: /Record/
       assert_select "*", text: /Win rate/
       assert_select "*", text: /Seats taken/
-      assert_select "*", text: /of 1 rounds/
+      assert_select "*", text: /of 1 round\b/
       assert_select "[data-round-seat]", 1
       assert_select "[data-round-seat]", text: /\AR1 · seat \d\z/
     end

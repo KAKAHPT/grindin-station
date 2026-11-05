@@ -19,11 +19,14 @@ export default class extends Controller {
     this.details = new Map(this.rows.map((row) => [row, row.nextElementSibling]));
     this.summary = this.element.querySelector("[data-profile-summary]");
     this.count = this.element.querySelector("[data-count]");
-    this.yearFilter = "all";
-    this.seasonFilter = "all";
+    // Turbo can restore a cached page whose controls keep their state, so read it back instead of assuming defaults (the search box is read live by matches()).
+    this.yearFilter = this.element.querySelector("button[data-year][aria-pressed=\"true\"]")?.dataset.year || "all";
+    const season = this.element.querySelector("select[data-season]");
+    this.seasonFilter = season?.value || "all";
     this.expanded = false;
-    this.sortKey = "date";
-    this.sortDir = -1;
+    const sorted = this.headerTargets.find((th) => th.hasAttribute("aria-sort"));
+    this.sortKey = sorted?.dataset.sort || "date";
+    this.sortDir = sorted ? (sorted.getAttribute("aria-sort") === "ascending" ? 1 : -1) : -1;
     this.render();
   }
 
@@ -106,7 +109,7 @@ export default class extends Controller {
   matches(row) {
     const q = this.hasSearchTarget ? this.searchTarget.value.trim().toLowerCase() : "";
     const d = row.dataset;
-    const text = [d.name, d.organizer, d.commander].join(" ").toLowerCase();
+    const text = [d.name, d.organizer, d.commander, d.format].join(" ").toLowerCase();
     return (q === "" || text.includes(q)) && (this.yearFilter === "all" || d.year === this.yearFilter) &&
       (this.seasonFilter === "all" || d.season === this.seasonFilter);
   }

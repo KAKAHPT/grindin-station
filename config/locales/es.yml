@@ -841,10 +841,14 @@ es:
     detail:
       record: "Récord"
       win_rate: "Tasa de victoria"
-      games: "%{count} partidas"
+      games:
+        one: "%{count} partida"
+        other: "%{count} partidas"
       seats: "Asientos ocupados"
       seat_one: "Asiento 1"
-      of_rounds: "de %{count} rondas"
+      of_rounds:
+        one: "de %{count} ronda"
+        other: "de %{count} rondas"
       no_seats: "1v1 · sin asientos"
       round_seat: "R%{round} · asiento %{seat}"
       seat: "Asiento %{seat}"
