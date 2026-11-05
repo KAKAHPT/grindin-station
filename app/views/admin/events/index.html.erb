@@ -46,7 +46,7 @@
             <td class="font-semibold"><%= link_to event.name, [:organizer, event], class: "hover:text-accent" %></td>
             <td class="text-muted"><%= event.event_organizer.user&.email_address || "—" %></td>
             <td><%= desk_chip(EventsHelper::EVENT_STATE_TONES.fetch(event.state)) { t("admin.states.#{event.state}") } %></td>
-            <td class="text-muted"><%= t("organizer.format_options.#{event.format}") %></td>
+            <td class="text-muted"><%= event_format_label(event) %></td>
             <td class="r tabular"><%= event.event_participants_count %></td>
             <td class="r whitespace-nowrap text-muted tabular"><%= l(event.start_time.to_date) %></td>
             <td>
