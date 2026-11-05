@@ -7,6 +7,7 @@ module Leagues
       if league.circuit.present?
         Circuits::UpdateStandingsJob.perform_now(league.circuit, league)
       end
+      Rankings::RebuildJob.schedule!
     end
   end
 end

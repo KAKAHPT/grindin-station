@@ -7,6 +7,7 @@ module Tournaments
       if tournament.circuit.present?
         Circuits::UpdateStandingsJob.perform_now(tournament.circuit, tournament)
       end
+      Rankings::RebuildJob.schedule!
     end
 
     private

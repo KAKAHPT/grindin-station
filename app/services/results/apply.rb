@@ -93,12 +93,18 @@ module Results
           closed = Round.finished.exists?(@round.id) # fresh: the round may have closed since it was loaded
           assignments.map { |participant, type| closed ? supersede(participant, type) : update(participant, type) }
         end
-      audit_correction if closed
+      corrected if closed
       ::Standings::Snapshot.refresh(@round)
       Outcome.new(results: results, warning: self.class.warning_for(@pod))
     end
 
     private
+
+    # A closed round's result rewritten: audited, and the rankings rebuilt soon.
+    def corrected
+      audit_correction
+      Rankings::RebuildJob.schedule!
+    end
 
     # A closed round's result rewritten: who, which pod and what it became ("Win: <winner>").
     def audit_correction
