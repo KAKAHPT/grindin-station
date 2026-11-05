@@ -20,6 +20,12 @@
                       target: "_blank", rel: "noopener", class: "text-accent hover:underline" %>
         </dd>
       <% end %>
+      <% if (organizer = event.event_organizer&.user)&.name %>
+        <dt class="text-muted"><%= t("play.events.organizer") %></dt>
+        <dd data-event-organizer>
+          <%= organizer.handle ? link_to(organizer.name, organizer_profile_path(organizer.handle, locale: params[:locale]), class: "hover:underline") : organizer.name %>
+        </dd>
+      <% end %>
       <dt class="text-muted"><%= t("play.events.price") %></dt>
       <dd data-event-price>
         <%= (event.price || 0).zero? ? t("play.events.free") : number_to_currency(event.price, number_to_currency_options(event.currency)) %>

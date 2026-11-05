@@ -15,6 +15,7 @@ Rails.application.routes.draw do
   resource :account, only: %i[show update destroy]
   delete "/account/identities/:id" => "accounts#unlink_identity", as: :unlink_identity
   get "/p/:handle", to: "profiles#show", as: :profile, constraints: { handle: /[a-z0-9-]+/ }
+  get "/o/:handle", to: "organizers#show", as: :organizer_profile, constraints: { handle: /[a-z0-9-]+/ }
   resources :notifications, only: :index do
     post :mark_all_read, on: :collection
   end

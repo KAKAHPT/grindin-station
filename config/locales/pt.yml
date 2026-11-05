@@ -471,6 +471,7 @@ pt:
         other: "%{count} jogadores"
       round_minutes: "rondas de %{minutes} min"
     events:
+      organizer: "Organizador"
       format_badge: "1v1 · Bo%{games}"
       about: "Sobre"
       format: "Formato"
@@ -806,6 +807,15 @@ pt:
     kinds:
       judge_call: "Foi chamado um juiz em %{event}."
       result_contested: "Um resultado da tua mesa foi contestado em %{event}. Vem aí um juiz."
+  organizers:
+    title: "Organizador"
+    lead: "Eventos organizados na Grindin Station"
+    upcoming: "Próximos eventos"
+    past: "Eventos passados"
+    no_events: "Ainda sem eventos públicos."
+    events_count:
+      one: "%{count} evento"
+      other: "%{count} eventos"
   profiles:
     description: "%{name} no Grindin Station: eventos e resultados."
     sign_in: "Entrar"

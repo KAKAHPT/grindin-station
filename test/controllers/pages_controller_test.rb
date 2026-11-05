@@ -53,7 +53,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     get root_path
 
     assert_select "[data-upcoming-event]:first-child[data-upcoming-event='#{live.slug}']" do
-      assert_select ".lp-evr-st", text: /Swiss round/
+      assert_select ".lp-evr-state", text: /Swiss round/
       assert_select "a[data-register]", count: 0
     end
     assert_select "[data-upcoming-event='#{finished.slug}']", count: 0
@@ -66,7 +66,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
 
     get root_path
 
-    assert_select "[data-upcoming-event='#{live.slug}'] .lp-evr-st", text: "Swiss round 1"
+    assert_select "[data-upcoming-event='#{live.slug}'] .lp-evr-state", text: "Swiss round 1"
   end
 
   test "the open-for-registration count covers every listed event, not only the six shown" do
@@ -136,7 +136,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     assert_select "[data-upcoming] [data-upcoming-event='#{featured.last.slug}']"
   end
 
-  test "a sold-out tournament shows the Sold out chip and Join waiting list, on both tickets" do
+  test "a sold-out tournament shows the Sold out line and Join waiting list, on both tickets" do
     event = upcoming(:registration_open, "Full Cup", 1.minute)
     event.update!(maximum_participants: 2, waitlist_enabled: true)
     2.times { |index| enrol(event, index) }
@@ -149,15 +149,15 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     [["[data-upcoming-event='#{event.slug}']", event], ["[data-featured-event='#{featured.slug}']", featured]]
       .each do |selector, tournament|
         assert_select "#{selector}[data-sold-out]" do
-          assert_select "span", text: "Sold out"
-          assert_select "span", text: "Registration open", count: 0
+          assert_select ".lp-evr-state[data-state-line=sold_out]", text: "Sold out"
+          assert_select ".lp-evr-state", text: "Registration open", count: 0
           assert_select "a[data-register][href=?]", play_event_path(tournament.slug), text: "Join waiting list"
         end
       end
     assert_select "[data-featured-event='#{featured.slug}'].lp-ft-warn"
 
     get root_path(locale: "es")
-    assert_select "[data-upcoming-event='#{event.slug}'] .lp-evr-st", text: "Agotado"
+    assert_select "[data-upcoming-event='#{event.slug}'] .lp-evr-state", text: "Agotado"
   end
 
   test "a sold-out tournament without a waiting list shows Sold out and no Register" do
@@ -168,7 +168,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     get root_path
 
     assert_select "[data-upcoming-event='#{event.slug}']" do
-      assert_select "span", text: "Sold out"
+      assert_select ".lp-evr-state", text: "Sold out"
       assert_select "a[data-register]", count: 0
     end
   end
