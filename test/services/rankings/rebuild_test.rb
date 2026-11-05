@@ -3,7 +3,7 @@
 require "test_helper"
 
 module Rankings
-  class RebuildTest < ActiveSupport::TestCase
+  class RebuildTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLength
     setup do
       @organizer = event_organizers(:standard_organizer)
     end
@@ -74,6 +74,32 @@ module Rankings
       assert later.persisted?
     end
 
+    test "a player rated at Legacy and in pods has two independent ratings per season and all time" do
+      pods = finished_event(4, winners: { 1 => 0 }, year: 2026)
+      player = Win.find_by!(round: pods.rounds.sole).event_participant.player
+      legacy = legacy_event(year: 2026)
+      Win.find_by!(round: legacy.rounds.sole).event_participant.update_columns(player_id: player.id) # rubocop:disable Rails/SkipsModelValidations
+
+      Rebuild.call
+
+      ratings = EloRating.where(player: player).order(:play, :season).pluck(:play, :season, :rating, :games, :wins)
+      assert_equal [["legacy", 2026, BigDecimal("1516"), 1, 1], ["legacy", nil, BigDecimal("1516"), 1, 1],
+                    ["multiplayer", 2026, BigDecimal("1548"), 1, 1], ["multiplayer", nil, BigDecimal("1548"), 1, 1]],
+                   ratings
+      assert_equal %w[legacy multiplayer], RankingContribution.where(player: player).order(:format).pluck(:format)
+    end
+
+    test "a rating row of a pool no longer played is pruned" do
+      legacy = legacy_event(year: 2026)
+      Rebuild.call
+      assert EloRating.exists?(play: "legacy")
+
+      legacy.update_column(:game_format, "modern") # rubocop:disable Rails/SkipsModelValidations
+      Rebuild.call
+
+      assert_equal ["modern"], EloRating.distinct.pluck(:play)
+    end
+
     test "an event no longer finished loses its contributions and ratings" do
       event = finished_event(4, winners: { 1 => 0 })
       Rebuild.call
@@ -107,6 +133,18 @@ module Rankings
       reuse_players(event, players) if players
       event.rounds.create!(type: SwissRound, number: 1)
       TournamentBuilder.play_round!(event, winners: winners)
+      event.update_column(:state, Tournament.states[:finished]) # rubocop:disable Rails/SkipsModelValidations
+      event.reload
+    end
+
+    # A finished 2-player Legacy tournament: one swiss round won 2-0.
+    def legacy_event(year:)
+      event = TournamentBuilder.build(players: 2, organizer: @organizer, state: :swiss, format: "one_v_one")
+      start = Time.zone.local(year, 6, 1)
+      event.update_columns(swiss_rounds_count: 1, top_cut_size: 0, start_time: start, end_time: start + 1.day, # rubocop:disable Rails/SkipsModelValidations
+                           game_format: "legacy")
+      event.rounds.create!(type: SwissRound, number: 1)
+      TournamentBuilder.play_1v1_round!(event, scores: { 1 => [2, 0] })
       event.update_column(:state, Tournament.states[:finished]) # rubocop:disable Rails/SkipsModelValidations
       event.reload
     end

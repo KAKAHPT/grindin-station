@@ -1061,9 +1061,6 @@ en:
       all_organizers: "All organizers"
       format: "Format"
       all_formats: "All formats"
-      formats:
-        multiplayer: "cEDH · pods of four"
-        one_v_one: "1v1"
       empty: "No events match these filters."
   lists:
     upcoming: "Upcoming"
@@ -1146,9 +1143,6 @@ en:
       all_teams: "All teams"
       format: "Format"
       all_formats: "All formats"
-    formats:
-      multiplayer: "cEDH · pods of four"
-      one_v_one: "1v1"
     count_players:
       one: "1 player"
       other: "%{count} players"
@@ -1248,7 +1242,7 @@ en:
         versus: "Ana vs %{name} (%{rating})"
         after: "Ana after the pod"
         example_note: "Bruno, Carla and Diogo each lose their side of the duel with Ana and trade small amounts among themselves for the draws."
-        rules: "New players start at 1500 and are marked provisional until 10 rated games; only finished events count, and top cut rounds are not rated. A season rating counts that season's events and \"All time\" every event; the filters only choose who is listed, they never change a rating. Ratings are recomputed from scratch whenever a result is corrected, so a fix in a past event is always reflected."
+        rules: "Ratings are kept per game format (cEDH pods, Legacy, Modern, …): a Legacy result never moves a pod rating, and the Leaderboard always shows one format, cEDH pods unless you pick another. New players start at 1500 and are marked provisional until 10 rated games; only finished events count, and top cut rounds are not rated. A season rating counts that season's events and \"All time\" every event; the other filters only choose who is listed, they never change a rating. Ratings are recomputed from scratch whenever a result is corrected, so a fix in a past event is always reflected."
       teams:
         note_html: "<b class=\"font-semibold text-ink\">Teams.</b> A team is the group of friends a player names on their account, not a tournament entry. Team points come from what its players do: ranking points, top cuts and wins, counting the team's five best players."
         open: "How are team points calculated?"

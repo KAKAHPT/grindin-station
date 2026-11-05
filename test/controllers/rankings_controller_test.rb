@@ -41,7 +41,9 @@ class RankingsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
       assert_select "select[name=country][data-action='change->submit-on-change#submit'] option[value=ES]",
                     text: "Spain"
       assert_select "select[name=organizer] option[value=lisboa-cedh]", text: "Lisboa cEDH"
-      assert_select "select[name=play] option[value=one_v_one]"
+      assert_select "select[name=play] option", 9 # All formats + the eight plays
+      assert_select "select[name=play] option[value='']", text: "All formats"
+      assert_select "select[name=play] option[value=legacy]", text: "Legacy"
       assert_select "select[name=team] option", text: "Porto Grinders"
       assert_select "input[type=hidden][name=tab][value=points]"
       assert_select "[data-filter-count]", text: "4 players"
@@ -102,6 +104,38 @@ class RankingsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     assert_select "tr[data-player] [data-provisional]", 4
     assert_select "tr[data-player]:first-child [data-change].text-accent", text: /\A\+\d+\z/
     assert_select "[data-how=elo]"
+  end
+
+  test "the leaderboard defaults to the multiplayer pool, shown as a chip, with no All formats option" do
+    get rankings_path(tab: "elo")
+
+    assert_select "select[name=play] option", 8
+    assert_select "select[name=play] option[value='']", 0
+    assert_select "select[name=play] option[selected][value=multiplayer]"
+    assert_select "[data-chip]", count: 1, text: /Format\s+cEDH · pods of four/
+    assert_select "[data-chip] a[href=?]", rankings_path(tab: "elo")
+    assert_select "[data-summary-players]", text: "4"
+  end
+
+  test "?tab=elo&play=legacy lists the Legacy ratings; the chip's ✕ goes back to multiplayer" do
+    get rankings_path(tab: "elo", play: "legacy")
+
+    assert_select "tr[data-player]", 2
+    assert_select "tr[data-player]:first-child", text: /Carla Costa/ do
+      assert_select "[data-rating]", text: "1516"
+    end
+    assert_select "[data-chip]", text: /Format\s+Legacy/
+    assert_select "[data-chip] a[href=?]", rankings_path(tab: "elo")
+    assert_select "[data-summary-players]", text: "2"
+    assert_select "[data-filter-count]", text: "2 players"
+  end
+
+  test "/rankings?play=modern narrows the points to Modern" do
+    get rankings_path(play: "modern", season: "all")
+
+    assert_select "tr[data-player]", 2
+    assert_select "tr[data-player]:first-child", text: /Diogo Pereira/
+    assert_select "[data-chip]", text: /Format\s+Modern/
   end
 
   test "the teams tab lists the teams" do

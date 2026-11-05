@@ -57,14 +57,30 @@ class EventsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable M
     assert_select "[data-filter-bar] .seg a", text: "All"
   end
 
-  test "play=one_v_one lists only 1v1 events" do
-    duel = upcoming("Duel Night", format: "one_v_one", game_format: "other")
+  test "play=legacy lists only Legacy events, play=multiplayer only pods" do
+    legacy = upcoming("Legacy Night", format: "one_v_one", game_format: "legacy")
+    modern = upcoming("Modern Night", format: "one_v_one", game_format: "modern")
+    pods = upcoming("Pod Night")
+
+    get events_path(play: "legacy")
+
+    assert_listed legacy
+    assert_not_listed modern, pods
+    assert_select "[data-chip]", text: /Format\s+Legacy/
+
+    get events_path(play: "multiplayer")
+
+    assert_listed pods
+    assert_not_listed legacy, modern
+  end
+
+  test "an unknown play is ignored" do
     pods = upcoming("Pod Night")
 
     get events_path(play: "one_v_one")
 
-    assert_listed duel
-    assert_not_listed pods
+    assert_listed pods
+    assert_select "[data-filter-chips]", 0
   end
 
   test "a Legacy ticket names the game format and the match length" do
@@ -91,15 +107,15 @@ class EventsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable M
                                     start: Time.zone.local(2026, 12, 1))
     upcoming("Porto Pods", country: "PT", organizer: @other, start: Time.zone.local(2026, 12, 2))
 
-    get events_path(country: "PT", organizer: "porto-org", season: "2026", play: "one_v_one", q: "porto")
+    get events_path(country: "PT", organizer: "porto-org", season: "2026", play: "other", q: "porto")
 
     assert_listed match
     assert_select "[data-upcoming-event]", 1
     assert_select "[data-filter-chips] [data-chip]", 5
     assert_select "[data-filter-chips] a[data-clear-all][href=?]", events_path
-    assert_select "a[href*='/events.']", 0 # play, not format: no /events.one_v_one links
+    assert_select "a[href*='/events.']", 0 # play, not format: no /events.other links
     assert_select "[data-chip] a[href=?]",
-                  events_path(organizer: "porto-org", season: "2026", play: "one_v_one", q: "porto")
+                  events_path(organizer: "porto-org", season: "2026", play: "other", q: "porto")
   end
 
   test "the Upcoming / Past switch and the pagination keep the filters" do
@@ -122,7 +138,9 @@ class EventsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable M
     assert_select "select[name=country] option", 2 # All countries + PT
     assert_select "select[name=country] option[value=ES]", 0
     assert_select "select[name=organizer] option[value=porto-org]", text: "Porto Org"
-    assert_select "select[name=play] option[value=one_v_one]"
+    assert_select "select[name=play] option", 9 # All formats + the eight plays
+    assert_select "select[name=play] option[value=legacy]", text: "Legacy"
+    assert_select "select[name=play] option[value=multiplayer]", text: "cEDH · pods of four"
   end
 
   test "the featured strip lists the featured events above the filter bar, compact tickets below" do

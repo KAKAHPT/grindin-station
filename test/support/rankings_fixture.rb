@@ -2,20 +2,25 @@
 
 # The M13 rankings world for the Board and /rankings tests: Ana and Bruno (PT, Porto Grinders), Carla (ES, Madrid Mana)
 # and Diogo (ES, no team); organizers cEDH PT (the standard one, handle organizer-user) and Lisboa cEDH.
-# This year (@this_year): Ana wins two cEDH pods of the four (cEDH PT), Carla beats Diogo 1v1 (Lisboa cEDH);
-# last year (@last_year): Bruno wins a pod.
+# This year (@this_year): Ana wins two cEDH pods of the four (cEDH PT), Carla beats Diogo at Legacy (1v1, Lisboa
+# cEDH); last year (@last_year): Bruno wins a pod, Diogo beats Carla at Modern (1v1, Lisboa cEDH). Three play pools.
 module RankingsFixture
   def build_rankings_world
     @last_year = (@this_year = Date.current.year) - 1
     @standard = event_organizers(:standard_organizer)
     @lisboa = new_user("Lisboa cEDH", handle: "lisboa-cedh").then(&:initialize_organizer)
     @ana, @bruno, @carla, @diogo = rankings_players
+    rankings_events
+    Rankings::Rebuild.call
+  end
+
+  def rankings_events
     four = [@ana, @bruno, @carla, @diogo]
     rankings_event(four, winner: @ana, organizer: @standard, year: @this_year)
     rankings_event(four, winner: @ana, organizer: @standard, year: @this_year)
-    rankings_event([@carla, @diogo], winner: @carla, organizer: @lisboa, year: @this_year, format: "one_v_one")
+    rankings_event([@carla, @diogo], winner: @carla, organizer: @lisboa, year: @this_year, game_format: "legacy")
     rankings_event(four, winner: @bruno, organizer: @standard, year: @last_year)
-    Rankings::Rebuild.call
+    rankings_event([@diogo, @carla], winner: @diogo, organizer: @lisboa, year: @last_year, game_format: "modern")
   end
 
   def rankings_players
@@ -30,13 +35,16 @@ module RankingsFixture
                  email_address: "#{name.parameterize}-#{SecureRandom.hex(3)}@example.com")
   end
 
-  # A finished one-round event of the users (one pod, or one 1v1 table) won by winner, who finishes first.
-  def rankings_event(users, winner:, organizer:, year:, format: "multiplayer")
+  # A finished one-round event of the users won by winner, who finishes first: one pod, or one 1v1 table of the
+  # game_format when given.
+  def rankings_event(users, winner:, organizer:, year:, game_format: nil)
+    format = game_format ? "one_v_one" : "multiplayer"
     event = TournamentBuilder.build(players: users.size, organizer: organizer, state: :swiss, format: format)
     start = Time.zone.local(year, 6, 1)
-    event.update_columns(swiss_rounds_count: 1, top_cut_size: 0, start_time: start, end_time: start + 1.day) # rubocop:disable Rails/SkipsModelValidations
+    event.update_columns(swiss_rounds_count: 1, top_cut_size: 0, start_time: start, end_time: start + 1.day, # rubocop:disable Rails/SkipsModelValidations
+                         game_format: game_format || event.game_format)
     seat_users(event, users, winner)
-    play_rankings_round(event.rounds.create!(type: SwissRound, number: 1), winner, one_v_one: format == "one_v_one")
+    play_rankings_round(event.rounds.create!(type: SwissRound, number: 1), winner, one_v_one: game_format.present?)
     event.update_column(:state, Tournament.states[:finished]) # rubocop:disable Rails/SkipsModelValidations
     event
   end

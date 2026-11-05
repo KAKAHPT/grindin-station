@@ -13,7 +13,7 @@
     </label>
     <label class="field">
       <%= t("admin.events.format") %>
-      <%= f.select :format, Event::FORMATS.map { |format| [t("organizer.format_options.#{format}"), format] }, { include_blank: t("admin.events.all"), selected: @filters[:format] }, class: "field-input" %>
+      <%= f.select :play, Event::PLAYS.map { |play| [play_label(play), play] }, { include_blank: t("admin.events.all"), selected: @filters[:play] }, class: "field-input" %>
     </label>
     <label class="field">
       <%= t("admin.events.tier") %>

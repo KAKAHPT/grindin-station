@@ -5,8 +5,10 @@ module Rankings
   # filters. Filters are normalised (unknown values ignored); country and team always match the player's current
   # account (ruling R1), the Teams tab groups by the team stored on the contributions. Ratings never change with the
   # filters (D6): a filtered leaderboard lists the season rating of the players with a matching contribution.
+  # Ratings are kept per play pool (M15 D6): the leaderboard always shows one (multiplayer unless another is asked
+  # for); the points and teams tabs default to every format.
   class Board # rubocop:disable Metrics/ClassLength -- filters, options and three tables of one page
-    FORMATS = %w[multiplayer one_v_one].freeze
+    LEADERBOARD_PLAY = "multiplayer"
     SORTS = %i[points events wins top_cuts conversion].freeze
     TEAM_SIZE = 5
     CUT_BONUS = 15
@@ -42,16 +44,21 @@ module Rankings
       "organizers.id", "organizer_users.name", "organizer_users.handle"
     ].map { |column| Arel.sql(column) }.freeze
 
-    def initialize(params)
+    # tab: the /rankings tab ("elo" needs a play pool).
+    def initialize(params, tab: "points")
       @params = params.to_h.symbolize_keys
+      @leaderboard = tab == "elo"
     end
 
     def filters
       @filters ||= {
         season: season, country: pick(:country, countries), organizer: organizer&.last,
-        event_organizer_id: organizer&.first, play: pick(:play, FORMATS), team: pick(:team, teams), q: query
+        event_organizer_id: organizer&.first, play: play, team: pick(:team, teams), q: query
       }
     end
+
+    # The leaderboard has no "All formats" (D6).
+    def leaderboard? = @leaderboard
 
     # The current year (D3, always offered, even before it has data), then the other years with contributions,
     # newest first.
@@ -74,7 +81,7 @@ module Rankings
 
     def elo
       matching = filtered.select(:player_id)
-      ratings = EloRating.where(player_id: matching, season: rating_season).index_by(&:player_id)
+      ratings = EloRating.where(player_id: matching, season: rating_season, play: rating_play).index_by(&:player_id)
       sort_elo(players(Player.where(id: matching)).map { |player| elo_row(player, ratings[player.id]) })
     end
 
@@ -110,6 +117,11 @@ module Rankings
     end
 
     def rating_season = filters[:season] == :all ? nil : filters[:season]
+
+    def play = pick(:play, Event::PLAYS) || (LEADERBOARD_PLAY if leaderboard?)
+
+    # The pool of the ratings shown: the play filter, multiplayer under "All formats" (team averages).
+    def rating_play = filters[:play] || LEADERBOARD_PLAY
 
     def pick(key, allowed) = allowed.find { |value| value == @params[key].to_s }
 
@@ -215,7 +227,7 @@ module Rankings
 
     def team_ratings(members)
       ids = members.values.flat_map { |by_player| counted(by_player).map(&:first) }
-      EloRating.where(player_id: ids, season: rating_season).pluck(:player_id, :rating).to_h
+      EloRating.where(player_id: ids, season: rating_season, play: rating_play).pluck(:player_id, :rating).to_h
     end
 
     # Mean rating of the counted players (1500 for a player without a rating row).

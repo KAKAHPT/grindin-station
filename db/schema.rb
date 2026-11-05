@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_05_190000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_05_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -95,13 +95,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_190000) do
     t.datetime "created_at", null: false
     t.integer "games", default: 0, null: false
     t.decimal "peak", precision: 8, scale: 2, default: "1500.0", null: false
+    t.string "play", default: "multiplayer", null: false
     t.uuid "player_id", null: false
     t.decimal "previous_rating", precision: 8, scale: 2, default: "1500.0", null: false
     t.decimal "rating", precision: 8, scale: 2, default: "1500.0", null: false
     t.integer "season"
     t.datetime "updated_at", null: false
     t.integer "wins", default: 0, null: false
-    t.index ["player_id", "season"], name: "index_elo_ratings_on_player_id_and_season", unique: true, nulls_not_distinct: true
+    t.index ["player_id", "season", "play"], name: "index_elo_ratings_on_player_id_and_season_and_play", unique: true, nulls_not_distinct: true
   end
 
   create_table "error_events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

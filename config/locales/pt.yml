@@ -1061,9 +1061,6 @@ pt:
       all_organizers: "Todos os organizadores"
       format: "Formato"
       all_formats: "Todos os formatos"
-      formats:
-        multiplayer: "cEDH · mesas de quatro"
-        one_v_one: "1v1"
       empty: "Nenhum evento corresponde a estes filtros."
   lists:
     upcoming: "Próximos"
@@ -1146,9 +1143,6 @@ pt:
       all_teams: "Todas as equipas"
       format: "Formato"
       all_formats: "Todos os formatos"
-    formats:
-      multiplayer: "cEDH · mesas de quatro"
-      one_v_one: "1v1"
     count_players:
       one: "1 jogador"
       other: "%{count} jogadores"
@@ -1248,7 +1242,7 @@ pt:
         versus: "Ana vs %{name} (%{rating})"
         after: "Ana depois da mesa"
         example_note: "O Bruno, a Carla e o Diogo perdem cada um o seu lado do duelo com a Ana e trocam pequenas quantias entre si pelos empates."
-        rules: "Os novos jogadores começam com 1500 e ficam marcados como provisórios até 10 jogos com rating; só contam eventos terminados e as rondas do top cut não contam para o rating. O rating de uma época conta os eventos dessa época e \"Sempre\" conta todos; os filtros só escolhem quem aparece, nunca mudam um rating. Os ratings são recalculados de raiz sempre que um resultado é corrigido, por isso uma correção num evento passado fica sempre refletida."
+        rules: "Os ratings são separados por formato de jogo (mesas de cEDH, Legacy, Modern, …): um resultado de Legacy nunca mexe num rating de mesas, e a Classificação mostra sempre um só formato, as mesas de cEDH a menos que escolhas outro. Os novos jogadores começam com 1500 e ficam marcados como provisórios até 10 jogos com rating; só contam eventos terminados e as rondas do top cut não contam para o rating. O rating de uma época conta os eventos dessa época e \"Sempre\" conta todos; os outros filtros só escolhem quem aparece, nunca mudam um rating. Os ratings são recalculados de raiz sempre que um resultado é corrigido, por isso uma correção num evento passado fica sempre refletida."
       teams:
         note_html: "<b class=\"font-semibold text-ink\">Equipas.</b> Uma equipa é o grupo de amigos que um jogador indica na sua conta, não uma inscrição num torneio. Os pontos da equipa vêm do que os seus jogadores fazem: pontos de ranking, top cuts e vitórias, contando os cinco melhores jogadores da equipa."
         open: "Como se calculam os pontos das equipas?"

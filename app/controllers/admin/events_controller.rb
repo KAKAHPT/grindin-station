@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 module Admin
-  # /admin/events: every tournament and league, newest first, filtered by GET params (search, state, format, tier,
-  # organizer handle); Featured and the tier (M13 D16) are editable here.
+  # /admin/events: every tournament and league, newest first, filtered by GET params (search, state, play = one of
+  # Event::PLAYS, tier, organizer handle); Featured and the tier (M13 D16) are editable here.
   class EventsController < BaseController
     PER_PAGE = 50
 
-    FILTERS = %i[q state format tier organizer].freeze
+    FILTERS = %i[q state play tier organizer].freeze
     # Tournament and league states; the shared ones have the same integer in both.
     STATES = (Tournament.states.keys | League.states.keys).freeze
 
@@ -52,13 +52,16 @@ module Admin
       admin_events_path(**filters.to_h.symbolize_keys.compact_blank, page: params[:page].presence)
     end
 
-    def filtered(scope)
+    def filtered(scope) # rubocop:disable Metrics/AbcSize -- one line per filter
       filters = @filters.to_h.symbolize_keys.compact_blank
-      scope = scope.where(filters.slice(:format, :tier))
+      scope = play_scope(scope.where(filters.slice(:tier)), filters[:play])
       scope = state_scope(scope, filters[:state]) if filters[:state]
       scope = organizer_scope(scope, filters[:organizer]) if filters[:organizer]
       filters[:q] ? search(scope, filters[:q].strip) : scope
     end
+
+    # An unknown play is ignored.
+    def play_scope(scope, play) = play.in?(Event::PLAYS) ? scope.with_play(play) : scope
 
     def organizer_scope(scope, handle) = scope.where(event_organizer: organizers.where(users: { handle: handle }))
 

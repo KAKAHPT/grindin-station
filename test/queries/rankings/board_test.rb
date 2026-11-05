@@ -4,8 +4,9 @@ require "test_helper"
 require_relative "../../support/rankings_fixture"
 
 module Rankings
-  # Players in PT/ES, two organizers, both formats, two teams, two seasons; contributions from Rankings::Rebuild.
-  # This year: Ana wins two pods (cEDH PT), Carla beats Diogo 1v1 (Lisboa cEDH); last year: Bruno wins one pod.
+  # Players in PT/ES, two organizers, three play pools, two teams, two seasons; contributions from Rankings::Rebuild.
+  # This year: Ana wins two pods (cEDH PT), Carla beats Diogo at Legacy (Lisboa cEDH); last year: Bruno wins one pod,
+  # Diogo beats Carla at Modern.
   class BoardTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLength
     include RankingsFixture
 
@@ -33,7 +34,7 @@ module Rankings
         assert_equal @this_year + 1, board.filters[:season]
         assert_equal [@this_year + 1, @this_year, @last_year], board.seasons
         assert_empty board.points
-        assert_equal @this_year, Board.new(season: @this_year.to_s).filters[:season]
+        assert_equal @this_year, Board.new({ season: @this_year.to_s }).filters[:season]
       end
     end
 
@@ -68,7 +69,8 @@ module Rankings
         { season: "all" } => %w[Ana Bruno Carla],
         { country: "ES" } => %w[Carla Diogo],
         { organizer: "lisboa-cedh" } => %w[Carla Diogo],
-        { play: "one_v_one" } => %w[Carla Diogo],
+        { play: "legacy" } => %w[Carla Diogo],
+        { play: "multiplayer" } => %w[Ana Bruno Carla Diogo],
         { team: "Porto Grinders" } => %w[Ana Bruno],
         { q: "carl" } => %w[Carla]
       }.each do |params, names|
@@ -79,7 +81,8 @@ module Rankings
     end
 
     test "unknown values are ignored" do
-      board = Board.new(season: "1999", country: "XX", organizer: "nobody", play: "chess", team: "Nope", q: " ")
+      board = Board.new({ season: "1999", country: "XX", organizer: "nobody", play: "one_v_one", team: "Nope",
+                          q: " " })
 
       expected = { season: @this_year, country: nil, organizer: nil, event_organizer_id: nil, play: nil, team: nil,
                    q: nil }
@@ -88,14 +91,14 @@ module Rankings
     end
 
     test "the organizer handle becomes the organizer id" do
-      board = Board.new(organizer: "lisboa-cedh")
+      board = Board.new({ organizer: "lisboa-cedh" })
 
       assert_equal @lisboa.id, board.filters[:event_organizer_id]
     end
 
     test "elo rows keep the season rating whatever the country" do
-      all = Board.new({}).elo.index_by(&:player)
-      spain = Board.new(country: "ES").elo
+      all = Board.new({}, tab: "elo").elo.index_by(&:player)
+      spain = Board.new({ country: "ES" }, tab: "elo").elo
 
       assert_equal 4, all.size
       assert_equal [@carla.player, @diogo.player].to_set, spain.to_set(&:player)
@@ -113,13 +116,48 @@ module Rankings
       event.event_participants.first.update_columns(player_id: lonely.player.id) # rubocop:disable Rails/SkipsModelValidations
       Rebuild.call
 
-      row = Board.new({}).elo.find { |r| r.player == lonely.player }
+      row = Board.new({}, tab: "elo").elo.find { |r| r.player == lonely.player }
 
       assert_equal [1500, 0, 0, nil, true], [row.rating, row.change, row.games, row.win_pct, row.provisional]
     end
 
+    test "points: a play narrows the contributions to that pool" do
+      assert_empty Board.new({ play: "modern" }).points
+      rows = Board.new({ play: "modern", season: "all" }).points
+
+      assert_equal(%w[Diogo Carla], rows.map { |row| row.player.name.split.first })
+      assert_equal [1, 0], rows.map(&:wins)
+    end
+
+    test "the leaderboard always shows one pool: multiplayer by default, unknown plays ignored" do
+      assert_nil Board.new({}).filters[:play]
+      assert_equal "multiplayer", Board.new({}, tab: "elo").filters[:play]
+      assert_equal "multiplayer", Board.new({ play: "chess" }, tab: "elo").filters[:play]
+
+      carla = Board.new({}, tab: "elo").elo.find { |row| row.user == @carla }
+
+      assert_operator carla.rating, :<, 1500 # two pods lost to Ana
+      assert_equal 2, carla.games
+    end
+
+    test "each play pool has its own ratings" do
+      legacy = Board.new({ play: "legacy" }, tab: "elo").elo
+      modern = Board.new({ play: "modern", season: "all" }, tab: "elo").elo
+
+      assert_equal([[@carla, 1516, 1], [@diogo, 1484, 1]], legacy.map { |row| [row.user, row.rating, row.games] })
+      assert_equal([[@diogo, 1516, 1], [@carla, 1484, 1]], modern.map { |row| [row.user, row.rating, row.games] })
+      assert_empty Board.new({ play: "modern" }, tab: "elo").elo
+    end
+
+    test "the leaderboard summary counts the listed rows" do
+      board = Board.new({ play: "legacy" }, tab: "elo")
+
+      assert_equal board.elo.size, board.summary[:players]
+      assert_equal({ players: 2, events: 1, organizers: 1 }, board.summary.except(:updated_at))
+    end
+
     test "teams: the five best contributions count" do
-      board = Board.new(season: "all")
+      board = Board.new({ season: "all" })
       porto = board.teams_board.find { |row| row.team == "Porto Grinders" }
 
       # Ana 26 + 2 wins × 30 = 86; Bruno 13 + 30 = 43.
@@ -149,7 +187,7 @@ module Rankings
       assert_equal({ players: 4, events: 3, organizers: 2 }, summary.except(:updated_at))
       assert_in_delta Rankings.last_rebuilt_at, summary[:updated_at], 0.001
       assert_equal({ players: 2, events: 1, organizers: 1 },
-                   Board.new(organizer: "lisboa-cedh").summary.except(:updated_at))
+                   Board.new({ organizer: "lisboa-cedh" }).summary.except(:updated_at))
     end
   end
 end
