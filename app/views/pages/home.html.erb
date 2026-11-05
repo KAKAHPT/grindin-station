@@ -29,7 +29,7 @@
       <h1><%= t("landing.headline_html") %></h1>
       <p class="lp-lead"><%= t("landing.lead") %></p>
       <div class="lp-ctas">
-        <%= link_to t("landing.cta_events"), "#upcoming", class: button_classes(:primary, size: :sm) %>
+        <%= link_to t("landing.cta_events"), "#upcoming", class: button_classes(:light, size: :sm) %>
         <%= link_to t("landing.cta_organise"),
                     current_user&.event_organizer ? organizer_root_path(locale: url_locale) : "#waitlist",
                     class: button_classes(:secondary, size: :sm) %>
