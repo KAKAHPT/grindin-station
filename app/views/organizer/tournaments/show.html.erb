@@ -15,6 +15,12 @@
     <h2 class="card-title"><%= t("organizer.overview.format") %></h2>
     <table class="ctable">
       <tbody>
+        <% if @tournament.one_v_one? %>
+          <tr>
+            <td><%= t("organizer.overview.game_format") %></td>
+            <td class="r"><%= play_label(@tournament.play) %></td>
+          </tr>
+        <% end %>
         <tr>
           <td><%= t("organizer.overview.swiss_rounds") %></td>
           <td class="r tabular"><%= t("organizer.overview.swiss_line", count: structure[:swiss], minutes: @tournament.round_minutes) %></td>

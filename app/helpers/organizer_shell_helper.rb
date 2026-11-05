@@ -21,10 +21,10 @@ module OrganizerShellHelper
     end
   end
 
-  # "Tournament · Registration open · 1v1 · Bo3"
+  # "Tournament · Registration open · Legacy · Bo3" (the game format for 1v1)
   def tournament_eyebrow(tournament)
-    parts = [t("organizer.shell.tournament"), organizer_state_label(tournament),
-             t("organizer.format_options.#{tournament.format}")]
+    format = tournament.one_v_one? ? play_label(tournament.play) : t("organizer.format_options.#{tournament.format}")
+    parts = [t("organizer.shell.tournament"), organizer_state_label(tournament), format]
     parts << t("organizer.shell.best_of", games: tournament.match_games) if tournament.one_v_one?
     parts.join(" · ")
   end

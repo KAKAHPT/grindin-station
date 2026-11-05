@@ -58,13 +58,21 @@ class EventsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable M
   end
 
   test "play=one_v_one lists only 1v1 events" do
-    duel = upcoming("Duel Night", format: "one_v_one")
+    duel = upcoming("Duel Night", format: "one_v_one", game_format: "other")
     pods = upcoming("Pod Night")
 
     get events_path(play: "one_v_one")
 
     assert_listed duel
     assert_not_listed pods
+  end
+
+  test "a Legacy ticket names the game format and the match length" do
+    duel = upcoming("Legacy Night", format: "one_v_one", game_format: "legacy")
+
+    get events_path
+
+    assert_select "[data-upcoming-event=?] .lp-evr-m", duel.slug, text: /Legacy · Bo3/
   end
 
   test "q matches the event name or the address" do
@@ -79,7 +87,7 @@ class EventsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable M
   end
 
   test "the filters combine, the chips show each with a Clear all back to /events" do
-    match = upcoming("Porto Duels", country: "PT", organizer: @other, format: "one_v_one",
+    match = upcoming("Porto Duels", country: "PT", organizer: @other, format: "one_v_one", game_format: "other",
                                     start: Time.zone.local(2026, 12, 1))
     upcoming("Porto Pods", country: "PT", organizer: @other, start: Time.zone.local(2026, 12, 2))
 

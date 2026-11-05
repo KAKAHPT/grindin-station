@@ -84,7 +84,8 @@ module Profiles
     def format_line(event)
       return I18n.t("play.header.multiplayer") unless event.one_v_one?
 
-      I18n.t("play.events.format_badge", games: event.match_games)
+      I18n.t("play.events.format_badge", game_format: I18n.t("play.formats.#{event.play}"),
+                                         games: event.match_games)
     end
 
     def row(participation, context)

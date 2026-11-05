@@ -1,5 +1,5 @@
 <%# The tournament form (New tournament page and the Settings tab): one card, sections Event / Structure / Results.
-    format-fields: the match length shows for 1v1, the pairing mode for multiplayer; untouched points and the top cut options follow the format. %>
+    format-fields: the game format and the match length show for 1v1, the pairing mode for multiplayer; untouched points and the top cut options follow the format. %>
 <% locked = tournament.points_locked? %>
 <%= modal_form_for [:organizer, tournament], html: { class: "p-[18px]", data: { turbo: false, controller: "format-fields",
                                                           format_fields_points_value: format_points_defaults.to_json,
@@ -14,6 +14,9 @@
   <%# The format is chosen at creation only (the model refuses a later change). %>
   <div class="grid grid-cols-1 gap-x-3 sm:grid-cols-2">
     <%= f.select_with_label :format, format_options, { selected: tournament.format }, disabled: tournament.persisted?, data: { format_fields_target: "format", action: "format-fields#change" } %>
+    <%= tag.div hidden: !tournament.one_v_one?, data: { format_fields_target: "gameFormat" } do %>
+      <%= f.select_with_label :game_format, game_format_options, { selected: tournament.game_format }, disabled: locked %>
+    <% end %>
     <%= tag.div hidden: !tournament.one_v_one?, data: { format_fields_target: "matchGames" } do %>
       <%= f.select_with_label :match_games, match_games_options, { selected: tournament.match_games }, disabled: locked %>
     <% end %>

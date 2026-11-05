@@ -211,6 +211,9 @@ es:
               locked: "no se puede cambiar una vez creado el torneo"
             match_games:
               locked: "no se puede cambiar una vez empezado el torneo"
+            game_format:
+              locked: "no se puede cambiar una vez empezado el torneo"
+              one_v_one: "debe ser un formato 1v1"
             pairing_mode:
               locked: "no se puede cambiar una vez empezado el torneo"
             uneven_field:
@@ -253,6 +256,7 @@ es:
       event:
         format: "Formato"
         match_games: "Duración del match"
+        game_format: "Formato de juego"
         pairing_mode: "Emparejamiento"
         uneven_field: "Campo desigual"
         points_win: "Puntos por victoria"
@@ -343,6 +347,7 @@ es:
         other: "inscritos · %{count} en lista de espera"
       without_decklist: "sin decklist"
       format: "Formato"
+      game_format: "Formato de juego"
       swiss_rounds: "Rondas suizas"
       swiss_line: "%{count} × %{minutes} min"
       top_cut: "Top cut"
@@ -541,6 +546,15 @@ es:
       standings: "Clasificación"
       event: "Evento"
       pairings: "Emparejamientos"
+    formats:
+      multiplayer: "cEDH · mesas de cuatro"
+      standard: "Standard"
+      pioneer: "Pioneer"
+      modern: "Modern"
+      legacy: "Legacy"
+      vintage: "Vintage"
+      pauper: "Pauper"
+      other: "Otro 1v1"
     header:
       multiplayer: "cEDH · mesas de cuatro"
       live: "en directo"
@@ -550,7 +564,7 @@ es:
       round_minutes: "rondas de %{minutes} min"
     events:
       organizer: "Organizador"
-      format_badge: "1v1 · Bo%{games}"
+      format_badge: "%{game_format} · Bo%{games}"
       about: "Acerca de"
       format: "Formato"
       registration: "Inscripción"

@@ -43,6 +43,13 @@ module Feeds
                    Feeds::Info.call(build_1v1_feed_tournament(match_games: 1)).values_at(:format, :matchGames)
     end
 
+    test "gives the game format for 1v1 and none for multiplayer" do
+      assert_nil Feeds::Info.call(@t)[:gameFormat]
+      duel = build_1v1_feed_tournament
+      duel.update_column(:game_format, "legacy") # rubocop:disable Rails/SkipsModelValidations
+      assert_equal "legacy", Feeds::Info.call(duel)[:gameFormat]
+    end
+
     test "gives the pairing mode for multiplayer and none for 1v1" do
       assert_equal "swiss", Feeds::Info.call(@t)[:pairingMode]
       @t.update_column(:pairing_mode, "power") # rubocop:disable Rails/SkipsModelValidations

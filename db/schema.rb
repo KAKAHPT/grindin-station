@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_05_180000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_05_190000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -173,6 +173,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_180000) do
     t.integer "event_participants_count", default: 0, null: false
     t.boolean "featured", default: false, null: false
     t.string "format", default: "multiplayer", null: false
+    t.string "game_format", default: "commander", null: false
     t.boolean "hide_standings_until_finished", default: false, null: false
     t.geography "location", limit: {srid: 4326, type: "st_point", geographic: true}
     t.integer "match_games", default: 3, null: false

@@ -109,6 +109,7 @@ module Organizer
                       cover
                       format
                       match_games
+                      game_format
                       points_win
                       points_draw
                       points_loss
