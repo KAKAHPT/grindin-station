@@ -201,23 +201,23 @@ pt:
   organizer:
     export:
       title: "Exportar"
-      download: "Baixar"
+      download: "Descarregar"
       open: "Abrir"
       sheet_name: "Folha de resultados"
       purposes:
         players: "Lista de convites do EventLink"
         melee: "Importação de jogadores do Melee"
-        pairings: "Importação de pareamentos do TopDeck"
+        pairings: "Importação de emparelhamentos do TopDeck"
         standings: "Classificação final"
-        rounds: "Todas as rodadas, uma linha por assento"
-        sheet: "Folha de resultados para lançamento manual"
-      note_html: "O EventLink não importa resultados.<br>Eventos de Commander são registrados como Player List Only: envie <code>players.csv</code> como lista de convites e encerre o evento."
+        rounds: "Todas as rondas, uma linha por assento"
+        sheet: "Folha de resultados para introdução manual"
+      note_html: "O EventLink não importa resultados.<br>Eventos de Commander são registados como Player List Only: envie <code>players.csv</code> como lista de convites e encerre o evento."
       sheet:
         players: "Jogadores"
         standings: "Classificação final"
         name: "Nome"
         email: "E-mail"
-        dropped: "Saiu"
+        dropped: "Desistiu"
         "yes": "Sim"
         points: "Pontos"
         record: "V-D-E"
@@ -228,7 +228,7 @@ pt:
           loss: "D"
           advance: "Avança"
           eliminated: "Eliminado"
-          penalty: "Penalidade"
+          penalty: "Penalização"
     shell:
       tournament: "Torneio"
       best_of: "Bo%{games}"

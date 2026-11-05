@@ -45,7 +45,7 @@ Recorded from the design session so nothing is lost. Each item becomes a task in
 - Cut-round names for multiplayer into i18n (1v1 already is).
 - No-JS fallback for 1v1 points defaults on the create form.
 
-## M10 — Export tournament data for official reporting (added 2026-11-04)
+## M10 — Export tournament data for official reporting (added 2026-11-04) — DONE 2026-11-05 (spec `../specs/2026-11-05-m10-export.md`)
 
 Stores must report results to Wizards (EventLink) or risk penalties, so without an export they have little reason to use Grindin. Requirement from the user: an "Export" option on the organizer tournament page that produces the data needed to report the event on the official platforms (Wizards EventLink; also whatever the local store-reporting flow needs).
 
