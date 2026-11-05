@@ -43,7 +43,7 @@ Chosen before the pods are built, from the pairing order (`PlayerSorter#paired_p
 
 After matching and after `RematchRepair`, a new pass `Tournaments::ShortPodRepair` swaps players between pods of 3 and pods of 4 while the number of players sitting in a pod of 3 for a repeated time strictly decreases:
 - Walk the pods of 3 bottom up; for each candidate with `short_count > 0`, look at the pods of 4 nearest by table (same order as `RematchRepair#pods_by_distance`) for a player with a **lower** short count, within `max_point_gap` match points, whose swap does **not** increase the round's rematch pairs (`RematchRepair`'s count).
-- The caller widens the gap with the same ladder as rematches (`CreatePodsJob#rematch_gaps`: 0, draw, one win, two wins, …, any), stopping once nobody in a pod of 3 is repeating or no gap helps. Random mode uses `[Float::INFINITY]` as it does for rematches.
+- The caller widens the gap step by step: same points, then a draw, then one win (`[0, points_draw, points_win]`), stopping once nobody in a pod of 3 is repeating. Unlike rematches the ladder never goes beyond one win: a repeated pod of 3 is the lesser evil next to a leader sent to a bottom table. Random mode uses `[Float::INFINITY]` as it does for rematches.
 - Swaps are capped like `RematchRepair` (`MAX_SWAPS_PER_POD`).
 - Result: the players in the pods of 3 are those with the fewest short counts that the points structure allows; a repeat only happens when no legal swap exists (D5).
 
@@ -87,5 +87,5 @@ Note for the plan: the simulator builds pods without the database, so `ShortPodR
 3. `byes`: 13 → 3×4 + 1 bye; 14 → 3×4 + 2 byes; 15 → 3×4 + 1×3; 5 → 1×4 + 1 bye.
 4. A bye is an `Advance` in the Swiss round, worth `points_bye`, shown as a bye on the player's "my table", in standings and in the exports.
 5. Over a 13-player, 4-round simulated Swiss, the share of players with two or more pods of 3 is lower with `ShortPodRepair` than without, and no swap of that pass adds a rematch.
-6. Round 2 of a real 13-player tournament seats, in the pods of 3, only players who were not in a pod of 3 in round 1 (unit test on `CreatePodsJob`); with 13 players and 5 rounds, the 5th round must repeat someone and the test shows it picks the players with the fewest short counts.
+6. Round 2 of a real 17-player tournament (`[4,4,3,3,3]`, nine of seventeen in a pod of 3 each round, so at least one repeat per pod of 3 is unavoidable) seats exactly one round-1 pod-of-3 player in each pod of 3 and adds no rematch (unit test on `CreatePodsJob`); the test fails without `ShortPodRepair`.
 7. 1v1 tournaments behave exactly as before (existing suite).
