@@ -27,6 +27,14 @@ module Accounts
       assert_empty @user.sessions
     end
 
+    test "clears the admin flag" do
+      @user.update_column(:admin, true) # rubocop:disable Rails/SkipsModelValidations
+
+      Anonymize.call(user: @user)
+
+      assert_not @user.reload.admin?
+    end
+
     test "keeps the player, its key and its event history" do
       player = @user.player
       key = player.key

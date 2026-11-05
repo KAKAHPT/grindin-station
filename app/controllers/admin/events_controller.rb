@@ -11,7 +11,8 @@ module Admin
 
     def featured
       event = Event.find(params.expect(:id))
-      event.update!(featured: !event.featured)
+      # Skips validations on purpose: an event that is otherwise invalid can still be featured.
+      event.update_columns(featured: !event.featured, updated_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
       Audit.record("featured_changed", subject: event, event: event, featured: event.featured)
       redirect_to admin_events_path(page: params[:page]), notice: t("admin.events.featured_saved")
     end

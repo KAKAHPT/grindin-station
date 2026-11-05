@@ -40,6 +40,13 @@ class ErrorRecorderTest < ActiveSupport::TestCase
     assert_includes event.backtrace.lines.first, "seat_simulator.rb"
   end
 
+  test "Postgres DETAIL lines are not stored" do
+    Rails.error.report(boom("PG::UniqueViolation: duplicate key\nDETAIL: Key (email_address)=(x@y.z) already exists."),
+                       handled: true)
+
+    assert_equal "PG::UniqueViolation: duplicate key", ErrorEvent.last.message
+  end
+
   test "source, user, path and request id come from the context" do
     user = users(:player_one)
     Current.request_id = "req-1"

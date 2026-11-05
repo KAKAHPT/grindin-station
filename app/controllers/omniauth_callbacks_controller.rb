@@ -9,6 +9,8 @@ class OmniauthCallbacksController < ApplicationController
                Accounts::ConnectIdentity::EmailTaken => "auth.email_taken" }.freeze
 
   allow_unauthenticated_access
+  rate_limit to: 20, within: 3.minutes, only: :failure,
+             with: -> { redirect_to new_session_url, alert: t("flash.alert.try_again_later") }
   rescue_from(*REFUSALS.keys) do |error|
     audit_failure(error)
     back_to_sign_in t(REFUSALS.fetch(error.class), provider: provider_name)
@@ -35,7 +37,9 @@ class OmniauthCallbacksController < ApplicationController
 
   # OmniAuth sends the strategy and its error key (e.g. "invalid_credentials").
   def failure
-    Audit.record(:oauth_failed, provider: params[:strategy].to_s, reason: params[:message].to_s)
+    strategy = params[:strategy].to_s
+    Audit.record(:oauth_failed, provider: PROVIDER_NAMES.key?(strategy) ? strategy : "unknown",
+                                reason: params[:message].to_s.first(64))
     back_to_sign_in t("auth.oauth_failed")
   end
 

@@ -18,7 +18,7 @@ class ErrorRecorder
   private
 
   def details(error)
-    { message: error.message.to_s.first(MAX_MESSAGE_LENGTH),
+    { message: error.message.to_s.sub(/\n\s*DETAIL:.*/m, "").first(MAX_MESSAGE_LENGTH),
       backtrace: Array(error.backtrace).first(ErrorEvent::BACKTRACE_LINES).join("\n") }
   end
 

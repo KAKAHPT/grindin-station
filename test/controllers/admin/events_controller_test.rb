@@ -35,5 +35,16 @@ module Admin
 
       assert_equal featured, event.reload.featured
     end
+
+    test "an event that fails validation can still be toggled" do
+      event = events(:standard_tournament)
+      event.update_column(:top_cut_size, 999) # rubocop:disable Rails/SkipsModelValidations
+      featured = event.featured
+
+      patch featured_admin_event_path(event)
+
+      assert_redirected_to admin_events_path
+      assert_equal !featured, event.reload.featured
+    end
   end
 end
