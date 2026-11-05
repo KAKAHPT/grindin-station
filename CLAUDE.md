@@ -221,6 +221,7 @@ Uses Solid Queue for job processing:
 - Double-quoted strings (Style/StringLiterals)
 - Explicit block forwarding (Naming/BlockForwarding: explicit)
 - Hash syntax shorthand disabled (Style/HashSyntax: never)
+- **Merging:** the repository has no branch protection (private, free plan). Merge a PR only after `gh pr checks <n>` shows all five checks passing (lint, scan_ruby, scan_js, test, docker); `bin/brakeman --no-pager` locally before opening a PR.
 
 ## Rubocop Config Highlights
 
