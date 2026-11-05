@@ -61,6 +61,12 @@ class ErrorRecorderTest < ActiveSupport::TestCase
     assert_equal "/x", ErrorEvent.find_by(message: "b").path
   end
 
+  test "long messages are truncated" do
+    Rails.error.report(boom("m" * 5000), handled: false)
+
+    assert_equal "m" * 4000, ErrorEvent.last.message
+  end
+
   test "its own failures are swallowed" do
     ErrorEvent.define_singleton_method(:create!) { |*| raise ActiveRecord::StatementInvalid, "down" }
     assert_nothing_raised { Rails.error.report(boom("x"), handled: false) }

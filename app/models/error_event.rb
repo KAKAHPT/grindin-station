@@ -13,7 +13,8 @@ class ErrorEvent < ApplicationRecord
   }
 
   def self.fingerprint_for(error)
-    frame = Array(error.backtrace).find { |line| line.include?("/app/") }
+    app = Rails.root.join("app").to_s
+    frame = Array(error.backtrace).find { |line| line.start_with?(app) }
     Digest::SHA256.hexdigest("#{error.class.name}|#{frame || error.message}")
   end
 end

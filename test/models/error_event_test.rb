@@ -10,8 +10,9 @@ class ErrorEventTest < ActiveSupport::TestCase
   end
 
   test "the fingerprint is the class and the first app frame" do
-    frames = ["/gems/x.rb:1", "/srv/app/models/a.rb:3:in 'x'", "/srv/app/models/b.rb:9"]
-    expected = Digest::SHA256.hexdigest("RuntimeError|/srv/app/models/a.rb:3:in 'x'")
+    app = Rails.root.join("app").to_s
+    frames = ["/gems/app/x.rb:1", "#{app}/models/a.rb:3:in 'x'", "#{app}/models/b.rb:9"]
+    expected = Digest::SHA256.hexdigest("RuntimeError|#{app}/models/a.rb:3:in 'x'")
 
     assert_equal expected, ErrorEvent.fingerprint_for(raised(backtrace: frames))
     assert_equal expected, ErrorEvent.fingerprint_for(raised(RuntimeError, "other message", backtrace: frames))
@@ -20,7 +21,7 @@ class ErrorEventTest < ActiveSupport::TestCase
 
   test "without an app frame the message stands in" do
     assert_equal Digest::SHA256.hexdigest("RuntimeError|boom"),
-                 ErrorEvent.fingerprint_for(raised(backtrace: ["/gems/x.rb:1"]))
+                 ErrorEvent.fingerprint_for(raised(backtrace: ["/gems/app/x.rb:1"]))
     assert_equal Digest::SHA256.hexdigest("RuntimeError|boom"), ErrorEvent.fingerprint_for(RuntimeError.new("boom"))
   end
 

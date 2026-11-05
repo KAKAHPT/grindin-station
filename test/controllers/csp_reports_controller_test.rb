@@ -32,4 +32,32 @@ class CspReportsControllerTest < ActionDispatch::IntegrationTest
       assert_response :no_content
     end
   end
+
+  test "an oversized body is not stored" do
+    body = { "csp-report" => { "violated-directive" => "script-src", "blocked-uri" => "x" * 65.kilobytes } }.to_json
+
+    assert_no_difference -> { CspReport.count } do
+      post csp_reports_path, params: body, headers: HEADERS
+    end
+    assert_response :no_content
+  end
+
+  test "long fields are truncated" do
+    body = { "csp-report" => { "violated-directive" => "script-src", "blocked-uri" => "b" * 5000 } }.to_json
+
+    post csp_reports_path, params: body, headers: HEADERS.merge("User-Agent" => "u" * 3000)
+
+    assert_response :no_content
+    assert_equal "b" * 2048, CspReport.last.blocked_uri
+    assert_equal 2048, CspReport.last.user_agent.size
+  end
+
+  test "a failed insert still answers 204" do
+    CspReport.define_singleton_method(:create!) { |*| raise ActiveRecord::StatementInvalid, "down" }
+    post csp_reports_path, params: '{"csp-report":{"violated-directive":"script-src"}}', headers: HEADERS
+
+    assert_response :no_content
+  ensure
+    CspReport.singleton_class.remove_method(:create!)
+  end
 end
