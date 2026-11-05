@@ -115,6 +115,22 @@ module Admin
       assert_equal I18n.t("admin.organizers.revoke_refused"), flash[:alert]
     end
 
+    test "revoke is refused for an organizer with a circuit and no events" do
+      organizer = EventOrganizer.create!(user: users(:player_two))
+      Circuit.create!(name: "Lonely Circuit", event_organizer: organizer)
+
+      get admin_organizers_path
+
+      assert_select "tr[data-organizer='#{organizer.id}'] button", count: 0
+      assert_no_difference -> { AuditEvent.count } do
+        patch admin_revoke_organizer_path(organizer)
+      end
+
+      assert_redirected_to admin_organizers_path
+      assert_equal I18n.t("admin.organizers.revoke_refused"), flash[:alert]
+      assert EventOrganizer.exists?(organizer.id)
+    end
+
     test "revoke destroys an organizer without events and audits it" do
       user = users(:player_two)
       organizer = EventOrganizer.create!(user: user)

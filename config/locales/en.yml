@@ -179,7 +179,7 @@ en:
       revoked_notice: "Organizer access revoked."
       no_account_alert: "There is no account with this e-mail yet; it can be approved once they sign up."
       not_pending: "This signup was already reviewed."
-      revoke_refused: "This organizer has events, so access cannot be revoked."
+      revoke_refused: "This organizer has events or circuits, so access cannot be revoked."
       signups_empty: "No signups here."
       organizers_empty: "No organizers."
   app:

@@ -179,7 +179,7 @@ es:
       revoked_notice: "Acceso de organizador revocado."
       no_account_alert: "Aún no hay una cuenta con este e-mail; se puede aprobar cuando se registre."
       not_pending: "Esta inscripción ya fue revisada."
-      revoke_refused: "Este organizador tiene eventos, así que no se puede revocar el acceso."
+      revoke_refused: "Este organizador tiene eventos o circuitos, así que no se puede revocar el acceso."
       signups_empty: "No hay inscripciones aquí."
       organizers_empty: "No hay organizadores."
   app:

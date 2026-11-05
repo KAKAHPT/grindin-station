@@ -86,7 +86,7 @@
             <td class="r tabular"><%= events_count %></td>
             <td class="r whitespace-nowrap text-muted tabular"><%= l(organizer.created_at.to_date) %></td>
             <td class="r">
-              <% if events_count.zero? %>
+              <% if events_count.zero? && @circuits_counts.fetch(organizer.id, 0).zero? %>
                 <%= button_to t("admin.organizers.revoke"), admin_revoke_organizer_path(organizer, **back), method: :patch, class: button_classes(:secondary, size: :sm), form: { data: { turbo_confirm: t("admin.organizers.revoke_confirm", email: organizer.user.email_address) } } %>
               <% else %>
                 <span class="text-[12px] text-muted" title="<%= t("admin.organizers.revoke_refused") %>">—</span>

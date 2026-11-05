@@ -35,10 +35,11 @@ module Admin
       back_with(notice: t("admin.organizers.declined_notice", email: @signup.email))
     end
 
-    # Only an organizer with no events: destroying one with events would destroy the events.
+    # Only an organizer with no events and no circuits: destroying one would destroy them too.
     def revoke
       organizer = EventOrganizer.find(params.expect(:id))
-      return back_with(alert: t("admin.organizers.revoke_refused")) if organizer.events.exists?
+      in_use = organizer.events.exists? || organizer.circuits.exists?
+      return back_with(alert: t("admin.organizers.revoke_refused")) if in_use
 
       organizer.destroy!
       Audit.record("organizer_revoked", subject: organizer.user, email: organizer.user&.email_address)
@@ -50,7 +51,9 @@ module Admin
     def load_organizers
       organizers = search(EventOrganizer.joins(:user).includes(:user), "users.name", "users.email_address")
       @organizers = organizers.order(created_at: :desc).to_a
-      @events_counts = Event.where(event_organizer_id: @organizers.map(&:id)).group(:event_organizer_id).count
+      ids = @organizers.map(&:id)
+      @events_counts = Event.where(event_organizer_id: ids).group(:event_organizer_id).count
+      @circuits_counts = Circuit.where(event_organizer_id: ids).group(:event_organizer_id).count
     end
 
     # Someone who already organises keeps their EventOrganizer.
