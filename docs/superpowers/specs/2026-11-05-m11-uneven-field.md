@@ -69,7 +69,7 @@ Rematch repair keeps priority: it runs first, and the short-pod pass never undoe
 
 ## 7. Simulation gate
 
-`grindin:simulate` (`Tournaments::SeatSimulator`) gains the repetition measure: for a field of 13 (three pods of 3 per round) over 4 rounds, report the share of players who sat in a pod of 3 two or more times, with and without `ShortPodRepair`. Gate: with the repair the share must be ≤ the value measured when the rule lands (recorded in the notes file like the seat numbers), and never above the baseline without it. The simulator keeps skipping `RematchRepair`; the short-pod pass runs after its pairing step with the same gap ladder.
+`grindin:simulate` (`Tournaments::SeatSimulator`) gains the repetition measure on the hardest field: 13 players (one pod of 4, three pods of 3: 9 of 13 sit short every round, so repeats are unavoidable and the only fair outcome is an even spread) over 4 rounds. Per tournament: **short spread** = max − min of the players' short counts after the last round, and **short max** = the highest short count. The task reports the means of both with and without `ShortPodRepair` (`short_repair: false` is the baseline). Gate: the repaired mean spread must be ≤ the baseline mean spread and ≤ the value measured when the rule lands + 0.1 (recorded in the notes file like the seat numbers). The simulator keeps skipping `RematchRepair`; the short-pod pass runs after its pairing step with the short-pod ladder `[0, draw, win]`.
 
 Note for the plan: the simulator builds pods without the database, so `ShortPodRepair` must accept plain candidate arrays plus a `short_counts` hash and a `rematch` predicate, the way `SeatAssigner` takes `seat_counts:`.
 
@@ -86,6 +86,6 @@ Note for the plan: the simulator builds pods without the database, so `ShortPodR
 2. `pods_of_three`: 13 players → 1×4 + 3×3; 6 → 2×3; 5 → 1×4 + 1 bye; never a pod of 5.
 3. `byes`: 13 → 3×4 + 1 bye; 14 → 3×4 + 2 byes; 15 → 3×4 + 1×3; 5 → 1×4 + 1 bye.
 4. A bye is an `Advance` in the Swiss round, worth `points_bye`, shown as a bye on the player's "my table", in standings and in the exports.
-5. Over a 13-player, 4-round simulated Swiss, the share of players with two or more pods of 3 is lower with `ShortPodRepair` than without, and no swap of that pass adds a rematch.
+5. Over a 13-player, 4-round simulated Swiss, the mean short spread (max − min pods of 3 per player) is lower with `ShortPodRepair` than without, and no swap of that pass adds a rematch.
 6. Round 2 of a real 17-player tournament (`[4,4,3,3,3]`, nine of seventeen in a pod of 3 each round, so at least one repeat per pod of 3 is unavoidable) seats exactly one round-1 pod-of-3 player in each pod of 3 and adds no rematch (unit test on `CreatePodsJob`); the test fails without `ShortPodRepair`.
 7. 1v1 tournaments behave exactly as before (existing suite).
