@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_05_160000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_05_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -418,9 +418,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_160000) do
   end
 
   create_table "waitlist_signups", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "approved_at"
+    t.uuid "approved_by_id"
     t.datetime "created_at", null: false
+    t.datetime "declined_at"
     t.string "email", null: false
     t.string "name", null: false
+    t.index ["approved_by_id"], name: "index_waitlist_signups_on_approved_by_id"
     t.index ["email"], name: "index_waitlist_signups_on_email", unique: true
   end
 
@@ -464,4 +468,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_160000) do
   add_foreign_key "sessions", "users"
   add_foreign_key "standings_snapshots", "event_participants", on_delete: :cascade
   add_foreign_key "standings_snapshots", "events", on_delete: :cascade
+  add_foreign_key "waitlist_signups", "users", column: "approved_by_id", on_delete: :nullify
 end

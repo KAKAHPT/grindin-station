@@ -79,6 +79,14 @@ Rails.application.routes.draw do
     end
     get "invitational", to: "invitational#show", as: :invitational
     get "invitational/export.csv", to: "invitational#export", as: :invitational_export, format: false
+    # The approve/decline id is the waiting-list signup's, the revoke id the EventOrganizer's.
+    resources :organizers, only: :index do
+      member do
+        patch :approve
+        patch :decline
+      end
+    end
+    patch "organizers/:id/revoke", to: "organizers#revoke", as: :revoke_organizer
   end
 
   namespace :organizer do
