@@ -488,6 +488,7 @@ pt:
       free: "Entrada gratuita"
       open_map: "Abrir no Google Maps"
       time_format: "%d %b %Y, %H:%M %Z"
+      prizes: "Prémios"
       schedule: "Horário"
       rules: "Regras"
       manage: "Gerir"
