@@ -10,7 +10,8 @@ module Admin
     before_action :set_signup, only: %i[approve decline]
 
     def index
-      signups = search(WaitlistSignup.public_send(@filter), "waitlist_signups.name", "waitlist_signups.email")
+      signups = search(WaitlistSignup.public_send(@filter), WaitlistSignup.arel_table[:name],
+                       WaitlistSignup.arel_table[:email])
       @signups = signups.order(created_at: :desc).to_a
       # One query for every row's account (the e-mails are lower-case on both sides).
       @accounts = User.where(email_address: @signups.map(&:email)).index_by(&:email_address)
@@ -49,7 +50,8 @@ module Admin
     private
 
     def load_organizers
-      organizers = search(EventOrganizer.joins(:user).includes(:user), "users.name", "users.email_address")
+      organizers = search(EventOrganizer.joins(:user).includes(:user), User.arel_table[:name],
+                          User.arel_table[:email_address])
       @organizers = organizers.order(created_at: :desc).to_a
       ids = @organizers.map(&:id)
       @events_counts = Event.where(event_organizer_id: ids).group(:event_organizer_id).count
@@ -76,12 +78,12 @@ module Admin
       @signup = WaitlistSignup.find(params.expect(:id))
     end
 
-    def search(scope, name_column, email_column)
+    # name and email are Arel attributes (the signups' own columns, or the joined users' for organizers).
+    def search(scope, name, email)
       return scope if @q.empty?
 
       pattern = "%#{WaitlistSignup.sanitize_sql_like(@q)}%"
-      table = scope.klass.arel_table
-      scope.where(table[name_column].matches(pattern).or(table[email_column].matches(pattern)))
+      scope.where(name.matches(pattern).or(email.matches(pattern)))
     end
 
     # The list with the filter and search the action was taken from.

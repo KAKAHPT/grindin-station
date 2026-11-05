@@ -28,10 +28,12 @@
     </div>
     <div class="overflow-x-auto">
       <%# Literal partial names (the tab is whitelisted in the controller; Brakeman wants no params in a render path). %>
-      <% case @tab %>
-      <% when "elo" %><%= render "elo", rows: shown %>
-      <% when "teams" %><%= render "teams", rows: shown %>
-      <% else %><%= render "points", rows: shown %>
+      <% if @tab == "elo" %>
+        <%= render "elo", rows: shown %>
+      <% elsif @tab == "teams" %>
+        <%= render "teams", rows: shown %>
+      <% else %>
+        <%= render "points", rows: shown %>
       <% end %>
     </div>
     <% if @tab != "teams" && !@all && @rows.size > RankingsController::LIMIT %>
@@ -42,10 +44,12 @@
     <% end %>
   </section>
 
-  <% case @tab %>
-  <% when "elo" %><%= render "how_elo" %>
-  <% when "teams" %><%= render "how_teams" %>
-  <% else %><%= render "how_points" %>
+  <% if @tab == "elo" %>
+    <%= render "how_elo" %>
+  <% elsif @tab == "teams" %>
+    <%= render "how_teams" %>
+  <% else %>
+    <%= render "how_points" %>
   <% end %>
 
   <p class="mt-6 text-xs text-muted" data-circuits-note>
