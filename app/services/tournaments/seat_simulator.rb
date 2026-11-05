@@ -10,6 +10,8 @@ module Tournaments
   # no byes here; met always false) on the CreatePodsJob ladder: same points, a draw, one win; false is the baseline.
   # mode: :swiss as above; :random shuffles the whole field each round and deals it as one group; :power is identical
   # to :swiss here, because the simulator never modelled the spread (power-matching) round.
+  # The short-pod ladder SHORT_POD_GAPS = [0, 1, 7] applies in every simulated mode, :random included, whereas
+  # production (CreatePodsJob#short_pod_gaps) uses an unbounded gap for random pairing; the gate only measures swiss.
   class SeatSimulator
     DRAW_RATE = 0.3
     WIN_POINTS = 7

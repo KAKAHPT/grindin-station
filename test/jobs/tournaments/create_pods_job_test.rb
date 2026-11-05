@@ -178,8 +178,10 @@ module Tournaments
     # the ids, so the test checks what it guarantees: no swap of a repeating player with a non-short pod-of-4 player
     # is left that keeps the rematch count, and no rematch at all.
     test "pods of three, 17 players: round 2 leaves no swap that would stop a pod-of-3 repeat" do
-      (1..4).each do |seed|
+      seed = 0
+      4.times do
         t = TournamentBuilder.build(players: 17, organizer: event_organizers(:standard_organizer))
+        seed = distinct_salt_seed(t, seed + 1) # a later seed each time, so the four tournaments differ
         t.update_columns(uneven_field: "pods_of_three", seed: seed, swiss_rounds_count: 4) # rubocop:disable Rails/SkipsModelValidations
         r1 = t.rounds.create!(type: SwissRound, number: 1)
         assert_equal [4, 4, 3, 3, 3], r1.pods.order(:number).map(&:size)
@@ -241,11 +243,16 @@ module Tournaments
 
     private
 
-    # The seed is the first whose tiebreak salts are all distinct, so the ranking (and the bye) is deterministic.
+    # The first seed (from `from`) whose tiebreak salts are all distinct (see EventParticipant#tiebreak_salt), so the
+    # ranking, the shuffle order and the bye are deterministic.
+    def distinct_salt_seed(tournament, from = 1)
+      ids = tournament.event_participants.map(&:id)
+      (from..).find { |s| ids.map { |id| Digest::MD5.hexdigest("#{s}-#{id}").to_i(16) % 10_000 }.uniq.size == ids.size }
+    end
+
     def uneven_tournament(players, mode)
       t = TournamentBuilder.build(players: players, organizer: event_organizers(:standard_organizer))
-      seed = (1..).find { |s| t.event_participants.map { |p| Digest::MD5.hexdigest("#{s}-#{p.id}").to_i(16) % 10_000 }.uniq.size == players }
-      t.update_columns(uneven_field: mode, seed: seed) # rubocop:disable Rails/SkipsModelValidations -- locked after the swiss starts
+      t.update_columns(uneven_field: mode, seed: distinct_salt_seed(t)) # rubocop:disable Rails/SkipsModelValidations -- locked after the swiss starts
       t
     end
 
