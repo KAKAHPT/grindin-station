@@ -13,11 +13,10 @@
   </div>
   <div class="lp-ft-bd">
     <div class="lp-ft-top">
-      <h3 class="lp-ft-t"><%= link_to event.name, href %></h3>
+      <h3 class="lp-ft-t"><%= ticket_state_line(event, sold_out) %><%= link_to event.name, href %></h3>
     </div>
     <p class="lp-ft-m"><%= ticket_line(event) %></p>
     <%= ticket_organizer(event) %>
-    <%= ticket_state_line(event, sold_out) %>
     <div class="lp-ft-row">
       <p class="lp-evr-n"><%= ticket_enrolled(event, enrolled) %></p>
       <div class="lp-evr-act">

@@ -270,6 +270,9 @@ en:
         featured: "Feature on the landing"
         show_commanders_in_standings: "Show commanders in standings"
         show_decklists: "Show decklists on player profiles"
+        show_beaten_in_standings: "Show the Beaten column"
+        show_unique_in_standings: "Show the Unique column"
+        hide_standings_until_finished: "Hide standings until the tournament ends"
         top_cut_timeout_rule: "If a top cut game times out"
         country: "Country"
       event_participant:
@@ -363,6 +366,8 @@ en:
         enrolled: "%{name} enrolled"
         checked_in: "%{name} checked in"
     settings:
+      standings: "Standings"
+      standings_help: "What the public standings show. Organizer mode always shows everything."
       event: "Event"
       structure: "Structure"
       results: "Results"
@@ -723,6 +728,7 @@ en:
   common:
     close: "Close"
   standings:
+    hidden_until_finished: "Standings are published when the tournament ends"
     columns:
       rank: "Rank"
       player: "Player"
@@ -1017,6 +1023,8 @@ en:
       empty: "No upcoming events yet. Check back soon."
       enrolled: "enrolled"
       of_max: "of %{max} enrolled"
+      more: "More info"
+      less: "Less"
       view: "View event"
       register: "Register"
   helpers:

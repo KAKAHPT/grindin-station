@@ -1826,12 +1826,59 @@
     color: rgb(238 240 242 / 0.82);
   }
 
+  /* State tag before the event name (sold out in the warn tone). */
   .lp-evr-state {
-    margin-top: 4px;
-    font: 600 10.5px var(--font-body);
+    display: inline-block;
+    vertical-align: 2px;
+    margin-right: 8px;
+    padding: 1px 6px;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 4px;
+    font: 600 10px var(--font-body);
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--color-muted);
+  }
+
+  /* Stub as a disclosure: the summary shows the enrolled count and More info; open, the actions appear. */
+  details.lp-evr-stub > summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  details.lp-evr-stub > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .lp-evr-more {
+    font: 600 11px var(--font-display);
+    color: var(--color-muted);
+  }
+
+  .lp-evr-more i {
+    font-style: normal;
+  }
+
+  details.lp-evr-stub:not([open]) [data-less],
+  details.lp-evr-stub[open] [data-more] {
+    display: none;
+  }
+
+  details.lp-evr-stub {
+    display: block;
+  }
+
+  details.lp-evr-stub[open] > .lp-evr-act {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin: 10px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-line);
   }
 
   .lp-evr-state[data-tone="warn"] {

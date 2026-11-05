@@ -270,6 +270,9 @@ pt:
         featured: "Destacar na página inicial"
         show_commanders_in_standings: "Mostrar comandantes na classificação"
         show_decklists: "Mostrar decklists nos perfis dos jogadores"
+        show_beaten_in_standings: "Mostrar a coluna Batidos"
+        show_unique_in_standings: "Mostrar a coluna Únicos"
+        hide_standings_until_finished: "Ocultar as classificações até o torneio terminar"
         top_cut_timeout_rule: "Se um jogo do corte esgotar o tempo"
         country: "País"
       event_participant:
@@ -363,6 +366,8 @@ pt:
         enrolled: "%{name} inscreveu-se"
         checked_in: "%{name} fez check-in"
     settings:
+      standings: "Classificação"
+      standings_help: "O que as classificações públicas mostram. O modo organizador mostra sempre tudo."
       event: "Evento"
       structure: "Estrutura"
       results: "Resultados"
@@ -723,6 +728,7 @@ pt:
   common:
     close: "Fechar"
   standings:
+    hidden_until_finished: "As classificações são publicadas quando o torneio terminar"
     columns:
       rank: "Posição"
       player: "Jogador"
@@ -1017,6 +1023,8 @@ pt:
       empty: "Ainda não há eventos marcados. Volta em breve."
       enrolled: "inscritos"
       of_max: "de %{max} inscritos"
+      more: "Mais info"
+      less: "Menos"
       view: "Ver evento"
       register: "Inscrever"
   helpers:

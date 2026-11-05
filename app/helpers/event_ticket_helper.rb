@@ -84,12 +84,13 @@ module EventTicketHelper
     ticket_sold_out?(event, sold_out) ? :warn : EventsHelper::EVENT_STATE_TONES.fetch(event.state)
   end
 
-  # The state as a small line under the organizer ("Sold out", "Registration open", "Swiss round 2"); sold out in
-  # the warn tone, everything else muted.
+  # The state as a small outlined tag before the event name ("Sold out", "Registration open", "Swiss round 2");
+  # sold out in the warn tone, everything else muted.
   def ticket_state_line(event, sold_out)
     sold = ticket_sold_out?(event, sold_out)
     text = sold ? t("play.events.state.sold_out") : event_state_label(event, event.latest_published_round_number)
-    tag.p(text, class: "lp-evr-state", data: { state_line: (sold ? "sold_out" : event.state), tone: ("warn" if sold) })
+    tag.span(text, class: "lp-evr-state",
+                   data: { state_line: (sold ? "sold_out" : event.state), tone: ("warn" if sold) })
   end
 
   # Register while a tournament's registration is open; Join waiting list once it is full (when the event keeps
