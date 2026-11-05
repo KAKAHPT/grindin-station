@@ -2,8 +2,9 @@
 
 module Feeds
   # {tid, name, updated (epoch seconds), state, starts_at, ends_at, players, round, timerEnd, format, matchGames,
-  # pairingMode}: round is the latest published one; format is "multiplayer" or "one_v_one", matchGames 1 or 3
-  # (best of), pairingMode "swiss", "power" or "random" (nil for 1v1).
+  # pairingMode, unevenField}: round is the latest published one; format is "multiplayer" or "one_v_one", matchGames
+  # 1 or 3 (best of), pairingMode "swiss", "power" or "random", unevenField "pods_of_three" or "byes" (both nil for
+  # 1v1).
   class Info
     def self.call(event, updated: Feeds.last_change(event)) = new(event).to_h(updated)
 
@@ -22,7 +23,8 @@ module Feeds
 
     def format_keys
       { format: @event.format, matchGames: @event.match_games,
-        pairingMode: (@event.pairing_mode unless @event.one_v_one?) }
+        pairingMode: (@event.pairing_mode unless @event.one_v_one?),
+        unevenField: (@event.uneven_field unless @event.one_v_one?) }
     end
 
     def round_keys(round)

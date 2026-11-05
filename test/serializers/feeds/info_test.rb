@@ -49,5 +49,12 @@ module Feeds
       assert_equal "power", Feeds::Info.call(@t)[:pairingMode]
       assert_nil Feeds::Info.call(build_1v1_feed_tournament)[:pairingMode]
     end
+
+    test "gives the uneven field for multiplayer and none for 1v1" do
+      assert_equal "pods_of_three", Feeds::Info.call(@t)[:unevenField]
+      @t.update_column(:uneven_field, "byes") # rubocop:disable Rails/SkipsModelValidations
+      assert_equal "byes", Feeds::Info.call(@t)[:unevenField]
+      assert_nil Feeds::Info.call(build_1v1_feed_tournament)[:unevenField]
+    end
   end
 end

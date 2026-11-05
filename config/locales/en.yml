@@ -272,6 +272,7 @@ en:
       top_cut: "Top cut"
       cut_line: "Top %{size} · %{minutes} min"
       pairing: "Pairing"
+      uneven_field: "Uneven field"
       points: "Points"
       points_line: "%{win} / %{draw} / %{loss} · bye %{bye}"
       self_report: "Self-report"
@@ -324,6 +325,7 @@ en:
       events_column: "Events"
       no_standings: "No standings yet."
     points_help: "Points per result. Locked once the swiss starts."
+    points_bye_help: "Used for 1v1 byes and when the uneven field is set to byes."
     format_options:
       multiplayer: "Multiplayer pods"
       one_v_one: "1v1"
@@ -338,6 +340,12 @@ en:
       swiss: "Pods by record; round 2 spreads the leaders across tables."
       power: "Strict top-down by standings every round, like a final round."
       random: "Records are ignored; every round is a random draw."
+    uneven_fields:
+      pods_of_three: "Pods of 3"
+      byes: "Byes"
+    uneven_help:
+      pods_of_three: "When the field is not a multiple of four, the last tables seat three players."
+      byes: "Only pods of four; one or two players left over get a bye worth the bye points (three left over still play a pod of three)."
     structure_suggestion: "Suggested for %{players} players: %{rounds} swiss rounds, top %{cut}"
     structure_suggestion_no_cut: "Suggested for %{players} players: %{rounds} swiss rounds, no cut"
     structure_suggestion_elimination_only: "Suggested for %{players} players: single elimination, top %{cut}"

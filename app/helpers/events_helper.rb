@@ -42,13 +42,11 @@ module EventsHelper
       .compact.join(" · ")
   end
 
-  # About card format line: "cEDH · pods of four · 4 Swiss rounds · Swiss pods · Top 4 · 80 min rounds".
+  # About card format line: "cEDH · pods of four · 4 Swiss rounds · Swiss pods · Byes · Top 4 · 80 min rounds".
   def play_format_line(event)
-    structure = tournament_structure(event)
-    swiss = structure[:swiss].to_i
-    cut = structure[:cut].to_i
+    swiss, cut = tournament_structure(event).values_at(:swiss, :cut).map(&:to_i)
     [event_format_label(event), (t("organizer.shell.swiss_rounds", count: swiss) if swiss.positive?),
-     pairing_mode_name(event),
+     pairing_mode_name(event), uneven_field_name(event),
      cut.positive? ? t("organizer.top_cut_option", size: cut) : t("organizer.no_cut"),
      t("play.header.round_minutes", minutes: event.round_minutes)].compact.join(" · ")
   end

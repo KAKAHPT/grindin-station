@@ -30,6 +30,10 @@
             <td><%= t("organizer.overview.pairing") %></td>
             <td class="r"><%= t("organizer.pairing_modes.#{@tournament.pairing_mode}") %></td>
           </tr>
+          <tr>
+            <td><%= t("organizer.overview.uneven_field") %></td>
+            <td class="r"><%= uneven_field_name(@tournament) %></td>
+          </tr>
         <% end %>
         <tr>
           <td><%= t("organizer.overview.points") %></td>

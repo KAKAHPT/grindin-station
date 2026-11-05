@@ -50,3 +50,9 @@ Recorded from the design session so nothing is lost. Each item becomes a task in
 Stores must report results to Wizards (EventLink) or risk penalties, so without an export they have little reason to use Grindin. Requirement from the user: an "Export" option on the organizer tournament page that produces the data needed to report the event on the official platforms (Wizards EventLink; also whatever the local store-reporting flow needs).
 
 Open research before specifying: what EventLink actually accepts today (as of 2020 it has no import of third-party results, only manual entry; Companion runs sanctioned events itself). If no import exists, the export must at least make manual entry fast: a one-page results sheet per round (table, players, Wizards account e-mail/ DCI-less identifier, result) plus final standings, as CSV + printable PDF, and a Melee/TopDeck-compatible CSV for premier/third-party platforms. Decide after checking the current EventLink docs.
+
+## M11 — uneven field: byes or pods of 3 — DONE 2026-11-05 (spec `../specs/2026-11-05-m11-uneven-field.md`; pods of 5 removed)
+- Event setting `uneven_field` for multiplayer events, chosen in Settings: **Pods of 3** (default) or **Byes** (only
+  pods of four; one or two left over get a bye worth `points_bye`, three left over still play a pod of 3).
+- Byes go from the bottom of the ranking to whoever has the fewest short results; `ShortPodRepair` keeps pods of 3
+  from repeating; `grindin:simulate` gates the short-pod spread. Locked with the structure; 1v1 ignores it.
