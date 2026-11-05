@@ -195,9 +195,10 @@
 
 /* ---- M7 design foundation (mock F) ---- */
 
-/* Table header rows are a dark band by default (utilities still override). */
+/* Table header rows are a dark band by default (utilities still override). Row headers in the body
+   (standings use th scope="row" for the rank and the player) keep the row's background. */
 @layer base {
-  th {
+  thead th {
     background: rgb(0 0 0 / 0.28);
   }
 }
