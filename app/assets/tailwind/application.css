@@ -170,6 +170,35 @@
     border-color: rgb(248 113 113 / 0.45);
   }
 
+  /* Instant hover label for icon-only buttons: `data-tip="…"`, shown above the button, right-aligned. */
+  [data-tip] {
+    position: relative;
+  }
+
+  [data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 6px);
+    z-index: 20;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--color-line-strong);
+    background: var(--color-ground);
+    color: var(--color-ink);
+    font: 600 11px/1.3 var(--font-body);
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 120ms ease;
+  }
+
+  [data-tip]:hover::after,
+  [data-tip]:focus-visible::after {
+    opacity: 1;
+  }
+
   /* Active item of a segmented control: secondary material, no lift. */
   .segment-active {
     background: linear-gradient(180deg, #262b31 0%, #1f2327 100%);
