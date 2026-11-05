@@ -485,6 +485,9 @@ en:
         acknowledged: "Acknowledged"
         closed: "Closed"
     roster:
+      actions: "Actions"
+      legend: "Row actions"
+      infraction: "Record infraction"
       add_player: "Add player"
       decklist: "Decklist"
       no_decklist: "No decklist"
