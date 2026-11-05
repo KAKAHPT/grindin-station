@@ -124,6 +124,9 @@ module Organizer
                       result_confirmation
                       confirmation_timeout_minutes
                       waitlist_enabled
+                      decklist_required
+                      self_check_in_enabled
+                      check_in_opens_hours_before
                       show_commanders_in_standings
                       show_decklists
                       show_beaten_in_standings

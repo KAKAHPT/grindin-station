@@ -26,6 +26,7 @@ Rails.application.routes.draw do
     resources :event_participants do
       collection do
         get "me"
+        patch "check_in"
       end
     end
   end

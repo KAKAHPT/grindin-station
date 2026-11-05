@@ -459,7 +459,7 @@ module Organizer
       assert_select "[data-tabs] a[href=?]", organizer_tournament_round_path(tournament, round), text: "Rounds"
     end
 
-    test "Settings is a full page with the Event, Structure, Results, Standings and Danger zone sections" do
+    test "Settings is a full page with Event, Structure, Results, Registration, Standings and Danger zone" do
       tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
                                            state: :registration_open)
 
@@ -467,7 +467,8 @@ module Organizer
 
       assert_select "turbo-frame#modal form", 0
       assert_select "[data-settings] .form-section" do |sections|
-        assert_equal(%w[Event Structure Results Standings], sections.map { |section| section.text.strip })
+        assert_equal(["Event", "Structure", "Results", "Registration & check-in", "Standings"],
+                     sections.map { |section| section.text.strip })
       end
       assert_select "[data-danger-zone] button", text: "Cancel event"
       assert_select "[data-settings] .field input.field-input[name='tournament[name]']"

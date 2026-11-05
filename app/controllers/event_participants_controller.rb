@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class EventParticipantsController < ApplicationController
+class EventParticipantsController < ApplicationController # rubocop:disable Metrics/ClassLength -- the player's own entry
   include PublicEvent
 
   skip_before_action :require_authentication, only: %i[index]
@@ -38,7 +38,7 @@ class EventParticipantsController < ApplicationController
     event = load_event
     @event_participant = EventParticipant.new(event: event, player: current_user.player)
     @event_participant.attributes = event_participant_params
-    return render(:new, status: :unprocessable_entity, layout: "modal") unless terms_accepted?
+    return render(:new, status: :unprocessable_entity, layout: "modal") unless terms_accepted? && decklist_given?
 
     enroll(event)
   end
@@ -48,9 +48,25 @@ class EventParticipantsController < ApplicationController
     return decklist_locked if decklist_locked?
 
     @event_participant = load_participant(@event)
+    if @event.decklist_required && event_participant_params[:decklist].blank?
+      return redirect_to @event, alert: t("flash.alert.decklist_required")
+    end
+
     @event_participant.update(event_participant_params)
 
     redirect_to @event_participant.event, notice: t("flash.notice.update_successful")
+  end
+
+  # M16: the player's own check-in, from the event page, while the window is open (Event#check_in_open?).
+  def check_in
+    @event = load_event
+    participant = load_participant(@event)
+    unless participant&.enrolled? && @event.check_in_open?
+      return redirect_to @event, alert: t("flash.alert.check_in_closed")
+    end
+
+    participant.update!(checked_in: true) unless participant.checked_in?
+    redirect_to @event, notice: t("flash.notice.checked_in")
   end
 
   def destroy
@@ -75,9 +91,17 @@ class EventParticipantsController < ApplicationController
     end
   end
 
-  # Players edit their decklist until round 1 is published; staff can still change it from the roster.
+  # Players edit their decklist until the swiss starts; staff can still change it from the roster.
   def decklist_locked?
-    @event.rounds.published.exists?
+    @event.points_locked?
+  end
+
+  # M16: a decklist is optional unless the organizer requires one at registration.
+  def decklist_given?
+    return true unless @event_participant.event.decklist_required && @event_participant.decklist.blank?
+
+    @event_participant.errors.add(:decklist, t("flash.alert.decklist_required"))
+    false
   end
 
   def decklist_locked

@@ -78,6 +78,7 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   validates :result_confirmation, inclusion: { in: RESULT_CONFIRMATIONS }
   validates :top_cut_timeout_rule, inclusion: { in: TOP_CUT_TIMEOUT_RULES }
   validates :confirmation_timeout_minutes, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
+  validates :check_in_opens_hours_before, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
   validates :slug, uniqueness: true
   validate :circuit_of_the_same_organizer, if: :will_save_change_to_circuit_id?
@@ -119,6 +120,15 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   # Locked in the state being saved or the one it leaves, so a state change cannot unlock them.
   def points_locked?
     UNLOCKED_POINTS_STATES.exclude?(state) || (persisted? && UNLOCKED_POINTS_STATES.exclude?(state_was))
+  end
+
+  # M16: players check themselves in from `check_in_opens_at` until the swiss starts, when the organizer allows it.
+  def check_in_opens_at
+    start_time - check_in_opens_hours_before.hours if start_time
+  end
+
+  def check_in_open?
+    self_check_in_enabled && check_in_opens_at.present? && !points_locked? && Time.current >= check_in_opens_at
   end
 
   # The state machine: Tournament adapts it for a 1v1 with no swiss.

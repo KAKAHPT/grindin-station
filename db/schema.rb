@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_05_200000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_05_230000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -163,11 +163,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_200000) do
 
   create_table "events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.text "address"
+    t.integer "check_in_opens_hours_before", default: 3, null: false
     t.uuid "circuit_id"
     t.integer "confirmation_timeout_minutes", default: 5, null: false
     t.string "country", limit: 2
     t.datetime "created_at", null: false
     t.integer "currency"
+    t.boolean "decklist_required", default: false, null: false
     t.text "description"
     t.datetime "end_time"
     t.uuid "event_organizer_id"
@@ -194,6 +196,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_200000) do
     t.text "rules"
     t.text "schedule"
     t.integer "seed"
+    t.boolean "self_check_in_enabled", default: true, null: false
     t.boolean "self_report_enabled", default: true, null: false
     t.boolean "show_beaten_in_standings", default: false, null: false
     t.boolean "show_commanders_in_standings", default: false, null: false
