@@ -30,45 +30,45 @@
     <td class="px-2.5">
       <div class="flex justify-end gap-1 whitespace-nowrap">
         <% unless scorekeeper %>
-          <%= link_to [:new, :organizer, @event, :infraction, { player_id: participant.player_id }], data: { turbo_frame: "modal" }, title: t("organizer.roster.infraction"), class: icon_button_classes(danger: true, size: :xs) do %>
+          <%= link_to [:new, :organizer, @event, :infraction, { player_id: participant.player_id }], data: { turbo_frame: "modal", tip: t("organizer.roster.infraction") }, title: t("organizer.roster.infraction"), class: icon_button_classes(danger: true, size: :xs) do %>
             <%= icon("gavel") %><span class="sr-only"><%= t("organizer.roster.infraction") %></span>
           <% end %>
 
           <% if participant.playing? %>
             <% if participant.waitlisted? && !@event.points_locked? %>
-              <%= button_to [:promote, :organizer, @event, participant], method: :patch, title: t("organizer.roster.promote"), class: icon_button_classes(size: :xs) do %>
+              <%= button_to [:promote, :organizer, @event, participant], method: :patch, data: { tip: t("organizer.roster.promote") }, title: t("organizer.roster.promote"), class: icon_button_classes(size: :xs) do %>
                 <%= icon("arrow-up") %><span class="sr-only"><%= t("organizer.roster.promote") %></span>
               <% end %>
             <% end %>
-            <%= button_to [:drop, :organizer, @event, participant], method: :patch, params: { reason: "drop" }, data: { turbo_confirm: t("organizer.roster.confirm_drop", name: participant.name) }, title: t("organizer.roster.drop"), class: icon_button_classes(danger: true, size: :xs) do %>
+            <%= button_to [:drop, :organizer, @event, participant], method: :patch, params: { reason: "drop" }, data: { turbo_confirm: t("organizer.roster.confirm_drop", name: participant.name), tip: t("organizer.roster.drop") }, title: t("organizer.roster.drop"), class: icon_button_classes(danger: true, size: :xs) do %>
               <%= icon("user-minus") %><span class="sr-only"><%= t("organizer.roster.drop") %></span>
             <% end %>
-            <%= button_to [:drop, :organizer, @event, participant], method: :patch, params: { reason: "no_show" }, data: { turbo_confirm: t("organizer.roster.confirm_no_show", name: participant.name) }, title: t("organizer.roster.no_show"), class: icon_button_classes(danger: true, size: :xs) do %>
+            <%= button_to [:drop, :organizer, @event, participant], method: :patch, params: { reason: "no_show" }, data: { turbo_confirm: t("organizer.roster.confirm_no_show", name: participant.name), tip: t("organizer.roster.no_show") }, title: t("organizer.roster.no_show"), class: icon_button_classes(danger: true, size: :xs) do %>
               <%= icon("prohibit") %><span class="sr-only"><%= t("organizer.roster.no_show") %></span>
             <% end %>
           <% else %>
-            <%= button_to [:organizer, @event, participant], method: :patch, params: { event_participant: { dropped: false } }, data: { turbo_confirm: t("organizer.roster.confirm_undo_drop", name: participant.name) }, title: t("organizer.roster.undo_drop"), class: icon_button_classes(size: :xs) do %>
+            <%= button_to [:organizer, @event, participant], method: :patch, params: { event_participant: { dropped: false } }, data: { turbo_confirm: t("organizer.roster.confirm_undo_drop", name: participant.name), tip: t("organizer.roster.undo_drop") }, title: t("organizer.roster.undo_drop"), class: icon_button_classes(size: :xs) do %>
               <%= icon("user-plus") %><span class="sr-only"><%= t("organizer.roster.undo_drop") %></span>
             <% end %>
           <% end %>
         <% end %>
 
         <% if participant.checked_in? %>
-          <%= button_to [:undo_check_in, :organizer, @event, participant], method: :patch, title: t("organizer.roster.undo_check_in"), class: icon_button_classes(size: :xs) do %>
+          <%= button_to [:undo_check_in, :organizer, @event, participant], method: :patch, data: { tip: t("organizer.roster.undo_check_in") }, title: t("organizer.roster.undo_check_in"), class: icon_button_classes(size: :xs) do %>
             <%= icon("arrow-counter-clockwise") %><span class="sr-only"><%= t("organizer.roster.undo_check_in") %></span>
           <% end %>
         <% else %>
-          <%= button_to [:check_in, :organizer, @event, participant], method: :patch, title: t("organizer.roster.check_in"), class: icon_button_classes(size: :xs) do %>
+          <%= button_to [:check_in, :organizer, @event, participant], method: :patch, data: { tip: t("organizer.roster.check_in") }, title: t("organizer.roster.check_in"), class: icon_button_classes(size: :xs) do %>
             <%= icon("user-check") %><span class="sr-only"><%= t("organizer.roster.check_in") %></span>
           <% end %>
         <% end %>
 
         <% if participant.paid? %>
-          <%= button_to [:mark_unpaid, :organizer, @event, participant], method: :patch, title: t("organizer.roster.mark_unpaid"), class: icon_button_classes(size: :xs) do %>
+          <%= button_to [:mark_unpaid, :organizer, @event, participant], method: :patch, data: { tip: t("organizer.roster.mark_unpaid") }, title: t("organizer.roster.mark_unpaid"), class: icon_button_classes(size: :xs) do %>
             <%= icon("x-circle") %><span class="sr-only"><%= t("organizer.roster.mark_unpaid") %></span>
           <% end %>
         <% else %>
-          <%= button_to [:mark_paid, :organizer, @event, participant], method: :patch, title: t("organizer.roster.mark_paid"), class: icon_button_classes(size: :xs) do %>
+          <%= button_to [:mark_paid, :organizer, @event, participant], method: :patch, data: { tip: t("organizer.roster.mark_paid") }, title: t("organizer.roster.mark_paid"), class: icon_button_classes(size: :xs) do %>
             <%= icon("coins") %><span class="sr-only"><%= t("organizer.roster.mark_paid") %></span>
           <% end %>
         <% end %>

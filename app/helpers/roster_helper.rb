@@ -11,11 +11,8 @@ module RosterHelper
   }.freeze
 
   def desk_chip(tone, &block)
-    tag.span(class: "inline-flex items-center gap-1.5 h-5 px-1.5 rounded text-[10.5px] font-semibold " \
-                    "tracking-[0.02em] whitespace-nowrap #{DESK_CHIP_TONES.fetch(tone)}") do
-      concat tag.span(class: "size-1.5 rounded-full bg-current", "aria-hidden": true)
-      concat capture(&block)
-    end
+    tag.span(class: "inline-flex items-center h-5 px-1.5 rounded text-[10.5px] font-semibold " \
+                    "tracking-[0.02em] whitespace-nowrap #{DESK_CHIP_TONES.fetch(tone)}", &block)
   end
 
   # The chips shown in the Desk column for one participant: attendance, then payment.
