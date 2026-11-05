@@ -1649,8 +1649,8 @@
     top: 0;
     bottom: 0;
     right: -1px;
-    width: 2px;
-    background: repeating-linear-gradient(180deg, var(--color-line-strong) 0 6px, transparent 6px 12px);
+    width: 1px;
+    background: var(--color-line-strong);
   }
 
   .lp-ft-stub b {
@@ -1870,28 +1870,8 @@
     gap: 8px;
     margin-top: auto;
     padding: 10px 14px;
-    border-top: 1px dashed var(--color-line-strong);
+    border-top: 1px solid var(--color-line);
     background: var(--color-surface-raised);
-  }
-
-  .lp-evr-stub::before,
-  .lp-evr-stub::after {
-    content: "";
-    position: absolute;
-    top: -8px;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--color-ground);
-    border: 1px solid var(--color-line);
-  }
-
-  .lp-evr-stub::before {
-    left: -8px;
-  }
-
-  .lp-evr-stub::after {
-    right: -8px;
   }
 
   .lp-evr-n {
