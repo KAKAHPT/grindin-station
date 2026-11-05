@@ -13,7 +13,7 @@ module Tournaments
     private
 
     def calculate_number_of_pods # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
-      if @round.event_participants.size == @round.event.class::LARGER_POD_SIZE
+      if @round.event_participants.size == 5 # removed in Task 2
         return { large: 1, preferred: 0, small: 0 }
       end
 
@@ -32,7 +32,7 @@ module Tournaments
     def build_pods(large:, preferred:, small:)
       i = 0
       large.times do
-        @round.pods.build(number: i += 1, size: @round.event.class::LARGER_POD_SIZE)
+        @round.pods.build(number: i += 1, size: 5) # removed in Task 2
       end
       preferred.times do
         @round.pods.build(number: i += 1, size: @round.event.class::PREFERRED_POD_SIZE)

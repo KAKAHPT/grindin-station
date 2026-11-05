@@ -215,6 +215,36 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
                     I18n.t("activerecord.errors.models.event.attributes.pairing_mode.locked")
   end
 
+  test "uneven field defaults to pods of three and rejects unknown values" do
+    tournament = TournamentBuilder.build(players: 0, organizer: event_organizers(:standard_organizer), state: :draft)
+    assert_equal "pods_of_three", tournament.uneven_field
+    assert_equal %w[pods_of_three byes], Event::UNEVEN_FIELDS
+    tournament.uneven_field = "fives"
+
+    assert_not tournament.valid?
+    assert_includes tournament.errors[:uneven_field], I18n.t("errors.messages.inclusion")
+  end
+
+  test "uneven field is locked once the swiss starts" do
+    tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
+    tournament.uneven_field = "byes"
+
+    assert_not tournament.valid?
+    assert_includes tournament.errors[:uneven_field],
+                    I18n.t("activerecord.errors.models.event.attributes.uneven_field.locked")
+  end
+
+  test "a 1v1 tournament is normalised to pods of three" do
+    t = TournamentBuilder.build(players: 0, organizer: event_organizers(:standard_organizer), state: :draft,
+                                format: "one_v_one")
+    t.update!(uneven_field: "byes")
+    assert_equal "pods_of_three", t.reload.uneven_field
+  end
+
+  test "pods of five no longer exist" do
+    assert_not Event.const_defined?(:LARGER_POD_SIZE)
+  end
+
   test "a 1v1 tournament is normalised to swiss pairing" do
     t = TournamentBuilder.build(players: 0, organizer: event_organizers(:standard_organizer), state: :draft,
                                 format: "one_v_one")
@@ -438,7 +468,6 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
   test "tournament constants have expected values" do
     assert_equal 4, Tournament::PREFERRED_POD_SIZE
     assert_equal 3, Tournament::SMALLER_POD_SIZE
-    assert_equal 5, Tournament::LARGER_POD_SIZE
     assert_equal 7, Tournament::POINTS_PER_WIN
     assert_equal 0, Tournament::POINTS_PER_LOSS
     assert_equal 1, Tournament::POINTS_PER_DRAW

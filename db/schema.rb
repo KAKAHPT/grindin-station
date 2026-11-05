@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_05_120200) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_05_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -187,6 +187,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_120200) do
     t.integer "top_cut_size"
     t.string "top_cut_timeout_rule", default: "highest_seed_advances", null: false
     t.string "type", default: "Tournament", null: false
+    t.string "uneven_field", default: "pods_of_three", null: false
     t.datetime "updated_at", null: false
     t.decimal "wager_percentage", precision: 5, scale: 2
     t.boolean "waitlist_enabled", default: false, null: false

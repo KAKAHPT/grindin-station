@@ -142,6 +142,8 @@ es:
               locked: "no se puede cambiar una vez empezado el torneo"
             pairing_mode:
               locked: "no se puede cambiar una vez empezado el torneo"
+            uneven_field:
+              locked: "no se puede cambiar una vez empezado el torneo"
             points_win:
               locked: "no se puede cambiar una vez empezado el torneo"
             points_draw:
@@ -180,6 +182,7 @@ es:
         format: "Formato"
         match_games: "Duración del match"
         pairing_mode: "Emparejamiento"
+        uneven_field: "Campo desigual"
         points_win: "Puntos por victoria"
         points_draw: "Puntos por empate"
         points_loss: "Puntos por derrota"

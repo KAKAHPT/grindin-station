@@ -142,6 +142,8 @@ en:
               locked: "cannot change once the tournament has started"
             pairing_mode:
               locked: "cannot change once the tournament has started"
+            uneven_field:
+              locked: "cannot change once the tournament has started"
             points_win:
               locked: "cannot change once the tournament has started"
             points_draw:
@@ -180,6 +182,7 @@ en:
         format: "Format"
         match_games: "Match length"
         pairing_mode: "Pairing"
+        uneven_field: "Uneven field"
         points_win: "Points for a win"
         points_draw: "Points for a draw"
         points_loss: "Points for a loss"
