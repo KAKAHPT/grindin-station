@@ -9,11 +9,14 @@ module Rankings
 
     limits_concurrency to: 1, key: "rankings_rebuild"
 
-    # Enqueues a rebuild in five minutes unless one is already pending (the key outlives the wait).
+    # Enqueues a rebuild in five minutes unless one is already pending (the key outlives the wait). Adapters that
+    # cannot delay (the inline one in development) run it right away instead of failing the caller.
     def self.schedule!
       return unless Rails.cache.write(PENDING_KEY, true, unless_exist: true, expires_in: DELAY + 5.minutes)
 
       set(wait: DELAY).perform_later
+    rescue NotImplementedError
+      perform_later
     end
 
     def perform
