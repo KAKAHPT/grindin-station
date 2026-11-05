@@ -88,7 +88,7 @@ module Organizer
         return render :show, status: :unprocessable_content
       end
 
-      @round.update(finished_at: Time.zone.now)
+      @round.update!(finished_at: Time.zone.now)
       Audit.record(:round_closed, subject: @round, event: event, round_number: @round.number)
       latest = event.rounds.reload.max_by(&:number)
       notice = latest == @round ? t("rounds.closed") : t("rounds.next_round_created")

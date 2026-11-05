@@ -41,6 +41,21 @@ class AuditTest < ActiveSupport::TestCase
     Rails.logger.singleton_class.remove_method(:error)
   end
 
+  test "a failed insert inside a transaction leaves the transaction usable" do
+    # Real invalid SQL (raising ActiveRecord::StatementInvalid), so Postgres aborts what it runs in.
+    AuditEvent.define_singleton_method(:create!) { |*| connection.execute("SELECT * FROM no_such_table") }
+    user = users(:player_one)
+
+    User.transaction do
+      assert_nil Audit.record(:sign_in)
+      user.update!(name: "Still Writable")
+    end
+
+    assert_equal "Still Writable", user.reload.name
+  ensure
+    AuditEvent.singleton_class.remove_method(:create!)
+  end
+
   test "an unknown action raises outside production" do
     assert_raises(ArgumentError) { Audit.record(:made_up) }
   end

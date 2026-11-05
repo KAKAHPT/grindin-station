@@ -22,6 +22,19 @@ class RateLimitAuditTest < ActionDispatch::IntegrationTest
     assert_predicate row.ip, :present?
   end
 
+  test "a flood from one address writes one row per action per minute" do
+    cache = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
+
+    with_memory_rate_limit_store do
+      assert_difference -> { AuditEvent.where(action: "rate_limited").count }, 1 do
+        8.times { post passwords_path, params: { email_address: "player1@example.com" } }
+      end
+    end
+  ensure
+    Rails.cache = cache
+  end
+
   test "the actor is the signed-in user when there is one" do
     user = users(:player_one)
     post session_path, params: { session: { email_address: user.email_address, password: "password123" } }
