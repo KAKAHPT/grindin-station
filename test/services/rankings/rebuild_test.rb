@@ -87,6 +87,17 @@ module Rankings
       assert_not EloRating.exists?(player_id: players)
     end
 
+    test "the same player twice in one event gives one row, the one with the most points" do
+      event = finished_event(4, winners: { 1 => 0 })
+      winner = event.rounds.sole.pods.sole.seatings.order(:order).first.event_participant
+      EventParticipant.create!(event: event, player: winner.player, accepted_terms: true)
+
+      assert_nothing_raised { Rebuild.call }
+
+      rows = RankingContribution.where(event: event, player: winner.player)
+      assert_equal [BigDecimal("3")], rows.pluck(:points)
+    end
+
     test "leagues count too" do
       league = finished_event(4, winners: { 1 => 0 })
       league.update_column(:type, "League") # rubocop:disable Rails/SkipsModelValidations

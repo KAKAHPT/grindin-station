@@ -7,9 +7,11 @@ module Rankings
     PENDING_KEY = "rankings:rebuild:scheduled"
     DELAY = 5.minutes
 
-    # Enqueues a rebuild in five minutes unless one is already pending.
+    limits_concurrency to: 1, key: "rankings_rebuild"
+
+    # Enqueues a rebuild in five minutes unless one is already pending (the key outlives the wait).
     def self.schedule!
-      return unless Rails.cache.write(PENDING_KEY, true, unless_exist: true, expires_in: DELAY)
+      return unless Rails.cache.write(PENDING_KEY, true, unless_exist: true, expires_in: DELAY + 5.minutes)
 
       set(wait: DELAY).perform_later
     end

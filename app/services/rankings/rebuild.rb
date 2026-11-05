@@ -7,6 +7,7 @@ module Rankings
   # duels in start order (ties by id) and upserted; rating rows no longer produced are deleted.
   # previous_rating is the rating stored before the rebuild when it changed, otherwise the stored
   # previous_rating (a rebuild with no new games keeps the last change; 1500 for new rows).
+  # A transaction-level advisory lock keeps two rebuilds (job, rake task) from overlapping.
   class Rebuild
     BATCH = 500
     START = 1500
@@ -21,19 +22,31 @@ module Rankings
     end
 
     def call
-      counts = ApplicationRecord.transaction { [rebuild_contributions, rebuild_ratings] }
-      { contributions: counts.first, ratings: counts.last, at: @now }
+      contributions, ratings = ApplicationRecord.transaction { locked { [rebuild_contributions, rebuild_ratings] } }
+      { contributions: contributions, ratings: ratings, at: @now }
     end
 
     private
 
+    def locked
+      ApplicationRecord.connection.execute("SELECT pg_advisory_xact_lock(hashtext('rankings_rebuild'))")
+      yield
+    end
+
     def rebuild_contributions
       RankingContribution.delete_all
-      rows = @events.flat_map { |event| Contributions.build(event) }
+      rows = unique(@events.flat_map { |event| Contributions.build(event) })
       rows.each_slice(BATCH) do |batch|
         RankingContribution.insert_all!(batch.map { |row| row.merge(created_at: @now, updated_at: @now) }) # rubocop:disable Rails/SkipsModelValidations
       end
       rows.size
+    end
+
+    # One row per player and event: event_participants does not forbid the same player twice in an event, so
+    # duplicates keep the entry with the most points (the first on a tie).
+    def unique(rows)
+      rows.group_by { |row| row.values_at(:player_id, :event_id) }.values
+        .map { |group| group.max_by { |row| row[:points] } }
     end
 
     def rebuild_ratings
