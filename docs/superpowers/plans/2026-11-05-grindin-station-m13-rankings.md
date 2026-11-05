@@ -139,6 +139,17 @@
 - [ ] Step 2: Run; expect failures. Step 3: implement (M7 pieces: `ctable`, `desk_chip` for the status, `button_classes(:secondary, size: :sm)`; the Approve button `:light`). Step 4: tests + rubocop + i18n parity.
 - [ ] Step 5: Commit `feat(m13): admin organizers tab with waiting-list approvals`.
 
+### Task 9: One entry per player and event
+
+**Files:**
+- Create: `db/migrate/<ts>_add_unique_player_per_event.rb` (removes exact duplicates keeping the oldest row, then `add_index :event_participants, [:event_id, :player_id], unique: true, where: "player_id IS NOT NULL"`)
+- Modify: `app/models/event_participant.rb` (`validates :player_id, uniqueness: { scope: :event_id }, allow_nil: true`, error key `taken_in_event`), `config/locales/{en,pt,es}.yml` (activerecord error message "is already in this event" / "já está neste evento" / "ya está en este evento"), `app/services/registrations/enroll.rb` (raise `Registrations::Enroll::AlreadyEnrolled` before creating when `event.event_participants.exists?(player:)`; callers that rescue `Full`/`Closed` also rescue it with a flash — grep them)
+- Test: `test/models/event_participant_test.rb` (or the closest existing model test), `test/controllers/organizer/event_participants_controller_test.rb`, `test/services/registrations/enroll_test.rb`
+
+- [ ] Step 1: Failing tests: a second `EventParticipant` for the same player and event is invalid with the message; the organizer add-participant form with an e-mail already in the event re-renders 422 with the error; `Enroll.call` twice raises `AlreadyEnrolled`; the migration index exists (schema).
+- [ ] Step 2: Run; expect failures. Step 3: implement. Step 4: `bin/rails test test/models test/controllers/organizer/event_participants_controller_test.rb test/services/registrations test/i18n_parity_test.rb`; rubocop.
+- [ ] Step 5: Commit `feat(m13): one entry per player and event`.
+
 ### Task 8: System test, docs
 
 **Files:**
