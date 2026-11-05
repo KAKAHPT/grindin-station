@@ -67,6 +67,13 @@ Rails.application.routes.draw do
 
   namespace :admin do
     root "dashboard#show"
+    get "audit", to: "audit_events#index", as: :audit
+    resources :errors, only: %i[index show], param: :fingerprint do
+      post :resolve, on: :member
+    end
+    resources :events, only: %i[index] do
+      patch :featured, on: :member
+    end
   end
 
   namespace :organizer do

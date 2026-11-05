@@ -1,0 +1,90 @@
+<%= render "admin/nav", active: :errors %>
+
+<section class="col-span-full card overflow-clip" data-errors>
+  <h2 class="card-title"><%= t("admin.errors.title") %></h2>
+  <div class="overflow-x-auto">
+    <table class="ctable">
+      <thead>
+        <tr>
+          <th class="r"><%= t("admin.errors.count") %></th>
+          <th><%= t("admin.errors.last_seen") %></th>
+          <th><%= t("admin.errors.error_class") %></th>
+          <th><%= t("admin.errors.message") %></th>
+          <th><%= t("admin.errors.source") %></th>
+          <th class="r"><span class="sr-only"><%= t("admin.errors.resolve") %></span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @groups.each do |group| %>
+          <tr data-error="<%= group.fingerprint %>">
+            <td class="r tabular" data-col="count"><%= group.count %></td>
+            <td class="whitespace-nowrap text-muted tabular"><%= l(group.last_seen_at, format: :short) %></td>
+            <td class="font-semibold"><%= link_to group.latest&.error_class, admin_error_path(group.fingerprint), class: "hover:text-accent" %></td>
+            <td class="text-muted break-all"><%= truncate(group.latest&.message, length: 140) %></td>
+            <td><%= status_chip(:muted) { group.latest&.source.to_s } %></td>
+            <td class="r">
+              <%= button_to t("admin.errors.resolve"), resolve_admin_error_path(group.fingerprint), class: button_classes(:ghost, size: :sm) %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <% if @groups.empty? %>
+    <p class="border-t border-line px-4 py-3 text-[12px] text-muted"><%= t("admin.errors.empty") %></p>
+  <% end %>
+</section>
+
+<div class="col-span-full grid grid-cols-1 gap-3.5 lg:grid-cols-2">
+  <section class="card overflow-clip" data-csp>
+    <h2 class="card-title"><%= t("admin.errors.csp.title") %></h2>
+    <div class="overflow-x-auto">
+      <table class="ctable">
+        <thead>
+          <tr>
+            <th><%= t("admin.errors.csp.directive") %></th>
+            <th><%= t("admin.errors.csp.blocked_uri") %></th>
+            <th class="r"><%= t("admin.errors.count") %></th>
+            <th class="r"><%= t("admin.errors.last_seen") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @csp_reports.each do |directive, blocked_uri, count, last_seen_at| %>
+            <tr>
+              <td><%= directive %></td>
+              <td class="text-muted break-all"><%= blocked_uri %></td>
+              <td class="r tabular"><%= count %></td>
+              <td class="r whitespace-nowrap text-muted tabular"><%= l(last_seen_at, format: :short) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <% if @csp_reports.empty? %>
+      <p class="border-t border-line px-4 py-3 text-[12px] text-muted"><%= t("admin.errors.csp.empty") %></p>
+    <% end %>
+  </section>
+
+  <section class="card overflow-clip" data-rate-limits>
+    <h2 class="card-title"><%= t("admin.errors.rate_limits.title") %></h2>
+    <table class="ctable">
+      <thead>
+        <tr>
+          <th><%= t("admin.errors.rate_limits.endpoint") %></th>
+          <th class="r"><%= t("admin.errors.count") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @rate_limits.each do |endpoint, count| %>
+          <tr>
+            <td><%= endpoint %></td>
+            <td class="r tabular"><%= count %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <% if @rate_limits.empty? %>
+      <p class="border-t border-line px-4 py-3 text-[12px] text-muted"><%= t("admin.errors.rate_limits.empty") %></p>
+    <% end %>
+  </section>
+</div>

@@ -1,0 +1,31 @@
+<%= render "admin/nav", active: :audit %>
+
+<section class="col-span-full card overflow-clip" data-audit>
+  <h2 class="card-title"><%= t("admin.audit.title") %></h2>
+  <%= form_with url: admin_audit_path, method: :get, class: "flex flex-wrap items-end gap-2 border-b border-line px-3.5 py-3" do |f| %>
+    <label class="field">
+      <%= t("admin.audit.action") %>
+      <%= f.select :action_name, AuditEvent::ACTIONS, { include_blank: t("admin.audit.all"), selected: params[:action_name] }, class: "field-input" %>
+    </label>
+    <label class="field w-full sm:w-56">
+      <%= t("admin.audit.user") %>
+      <%= f.search_field :user, value: params[:user], class: "field-input" %>
+    </label>
+    <label class="field w-full sm:w-56">
+      <%= t("admin.audit.event") %>
+      <%= f.search_field :event, value: params[:event], class: "field-input" %>
+    </label>
+    <label class="field">
+      <%= t("admin.audit.from") %>
+      <%= f.date_field :from, value: params[:from], class: "field-input" %>
+    </label>
+    <label class="field">
+      <%= t("admin.audit.to") %>
+      <%= f.date_field :to, value: params[:to], class: "field-input" %>
+    </label>
+    <%= f.submit t("admin.audit.filter"), name: nil, class: button_classes(:primary, size: :sm) %>
+    <%= link_to t("admin.audit.clear"), admin_audit_path, class: button_classes(:ghost, size: :sm) %>
+  <% end %>
+  <%= render "admin/audit_events/table", audit_events: @audit_events %>
+</section>
+<div class="col-span-full"><%= paginate @audit_events %></div>

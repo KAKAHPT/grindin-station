@@ -2,6 +2,8 @@
 
 module Admin
   class DashboardController < BaseController
-    def show; end
+    def show
+      @overview = Overview.call
+    end
   end
 end

@@ -1,3 +1,116 @@
-<section class="card">
-  <h2 class="card-title"><%= t("admin.title") %></h2>
+<%= render "admin/nav", active: :overview %>
+<% people = @overview.people %>
+<% events = @overview.events %>
+<% errors = @overview.errors %>
+
+<div class="col-span-full grid grid-cols-1 gap-3.5 lg:grid-cols-3">
+  <section class="card overflow-clip" data-people>
+    <h2 class="card-title"><%= t("admin.overview.people.title") %></h2>
+    <table class="ctable">
+      <tbody>
+        <tr><td><%= t("admin.overview.people.players") %></td><td class="r tabular" data-stat="players"><%= people.players %></td></tr>
+        <tr><td><%= t("admin.overview.people.new_users") %></td><td class="r tabular" data-stat="new_users"><%= people.new_users %></td></tr>
+        <tr><td><%= t("admin.overview.people.organizers") %></td><td class="r tabular" data-stat="organizers"><%= people.organizers %></td></tr>
+        <tr><td><%= t("admin.overview.people.admins") %></td><td class="r tabular" data-stat="admins"><%= people.admins %></td></tr>
+        <tr>
+          <td><%= t("admin.overview.people.signups", count: Admin::Overview::WEEKS) %></td>
+          <td class="r"><%= sparkline(people.signups_per_week) %></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card overflow-clip" data-events>
+    <h2 class="card-title"><%= t("admin.overview.events.title") %></h2>
+    <table class="ctable">
+      <tbody>
+        <tr>
+          <td><%= t("admin.overview.events.by_state") %></td>
+          <td class="r">
+            <div class="flex flex-wrap justify-end gap-1.5">
+              <% Tournament.states.each_key do |state| %>
+                <% next unless events.by_state[state] %>
+                <%= desk_chip(EventsHelper::EVENT_STATE_TONES.fetch(state)) { "#{t("admin.states.#{state}")} #{events.by_state[state]}" } %>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><%= t("admin.overview.events.by_format") %></td>
+          <td class="r tabular">
+            <%= safe_join(Event::FORMATS.map { |format| "#{t("organizer.format_options.#{format}")} #{events.by_format.fetch(format, 0)}" }, " · ") %>
+          </td>
+        </tr>
+        <tr>
+          <td><%= t("admin.overview.events.per_month", count: Admin::Overview::MONTHS) %></td>
+          <td class="r"><%= sparkline(events.per_month) %></td>
+        </tr>
+        <tr>
+          <td><%= t("admin.overview.events.average_players") %></td>
+          <td class="r tabular" data-stat="average_players"><%= events.average_players || "—" %></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card overflow-clip" data-errors>
+    <h2 class="card-title"><%= t("admin.overview.errors.title") %></h2>
+    <table class="ctable">
+      <tbody>
+        <tr><td><%= t("admin.overview.errors.unresolved") %></td><td class="r tabular" data-stat="unresolved"><%= errors.unresolved %></td></tr>
+        <tr><td><%= t("admin.overview.errors.last_day") %></td><td class="r tabular" data-stat="last_day"><%= errors.last_day %></td></tr>
+        <tr><td><%= t("admin.overview.errors.csp_week") %></td><td class="r tabular" data-stat="csp_week"><%= errors.csp_week %></td></tr>
+        <tr><td><%= t("admin.overview.errors.rate_limited_week") %></td><td class="r tabular" data-stat="rate_limited_week"><%= errors.rate_limited_week %></td></tr>
+      </tbody>
+    </table>
+    <div class="border-t border-line px-3.5 py-3">
+      <%= link_to t("admin.overview.errors.open"), admin_errors_path, class: button_classes(:ghost, size: :sm) %>
+    </div>
+  </section>
+</div>
+
+<section class="col-span-full card overflow-clip" data-health>
+  <h2 class="card-title"><%= t("admin.overview.health.title") %></h2>
+  <% if @overview.health.any? %>
+    <div class="overflow-x-auto">
+      <table class="ctable">
+        <thead>
+          <tr>
+            <th><%= t("admin.overview.health.event") %></th>
+            <th class="r"><%= t("admin.overview.health.round") %></th>
+            <th class="r"><%= t("admin.overview.health.judge_calls") %></th>
+            <th class="r"><%= t("admin.overview.health.disputed") %></th>
+            <th class="r"><%= t("admin.overview.health.pending") %></th>
+            <th class="r"><%= t("admin.overview.health.review") %></th>
+            <th class="r"><%= t("admin.overview.health.late") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @overview.health.each do |row| %>
+            <tr data-health="<%= row.event.id %>">
+              <td class="font-semibold"><%= link_to row.event.name, [:organizer, row.event], class: "hover:text-accent" %></td>
+              <td class="r tabular" data-col="round"><%= row.round_number || "—" %></td>
+              <td class="r tabular" data-col="judge_calls"><%= row.judge_calls %></td>
+              <td class="r tabular" data-col="disputed"><%= row.disputed %></td>
+              <td class="r tabular" data-col="pending"><%= row.pending %></td>
+              <td class="r tabular" data-col="review"><%= row.review %></td>
+              <td class="r" data-col="late">
+                <%= row.late ? status_chip(:danger) { t("admin.overview.health.late_chip") } : status_chip(:muted) { t("admin.overview.health.on_time") } %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p class="px-4 py-3 text-[12px] text-muted" data-health-empty><%= t("admin.overview.health.empty") %></p>
+  <% end %>
+</section>
+
+<section class="col-span-full card overflow-clip" data-recent-audit>
+  <h2 class="card-title"><%= t("admin.overview.recent_audit") %></h2>
+  <%= render "admin/audit_events/table", audit_events: @overview.recent_audit %>
+  <div class="border-t border-line px-3.5 py-3">
+    <%= link_to t("admin.overview.open_audit"), admin_audit_path, class: button_classes(:ghost, size: :sm) %>
+  </div>
 </section>

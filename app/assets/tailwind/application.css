@@ -709,6 +709,14 @@
     }
   }
 
+  /* Admin overview sparkline (AdminHelper#sparkline): fixed box, stroke from the text colour. */
+  .sparkline {
+    display: inline-block;
+    width: 120px;
+    height: 28px;
+    vertical-align: middle;
+  }
+
   /* Form fields (Settings look): muted 12 px label above a dark input. */
   .field {
     display: flex;
