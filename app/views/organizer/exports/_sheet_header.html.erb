@@ -1,0 +1,6 @@
+<header class="print-heading" data-sheet-header>
+  <h1><%= event.name %></h1>
+  <p><%= l(event.start_time.to_date, format: :long) %> · <%= event.event_organizer.name %></p>
+  <p><%= title %></p>
+  <p class="generated"><%= t("rounds.print.generated_at") %> <%= l(Time.current, format: :short) %></p>
+</header>

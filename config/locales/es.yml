@@ -199,6 +199,36 @@ es:
       event_participant:
         accepted_terms: "He leído y acepto las reglas de este evento."
   organizer:
+    export:
+      title: "Exportar"
+      download: "Descargar"
+      open: "Abrir"
+      sheet_name: "Hoja de resultados"
+      purposes:
+        players: "Lista de invitados de EventLink"
+        melee: "Importación de jugadores de Melee"
+        pairings: "Importación de emparejamientos de TopDeck"
+        standings: "Clasificación final"
+        rounds: "Todas las rondas, una fila por asiento"
+        sheet: "Hoja de resultados para carga manual"
+      note_html: "EventLink no importa resultados.<br>Los eventos de Commander se registran como Player List Only: sube <code>players.csv</code> como lista de invitados y cierra el evento."
+      sheet:
+        players: "Jugadores"
+        standings: "Clasificación final"
+        name: "Nombre"
+        email: "E-mail"
+        dropped: "Abandonó"
+        "yes": "Sí"
+        points: "Puntos"
+        record: "V-D-E"
+        byes: "Byes"
+        results:
+          win: "V"
+          draw: "E"
+          loss: "D"
+          advance: "Avanza"
+          eliminated: "Eliminado"
+          penalty: "Penalización"
     shell:
       tournament: "Torneo"
       best_of: "Bo%{games}"

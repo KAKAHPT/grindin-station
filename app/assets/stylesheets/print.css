@@ -15,12 +15,20 @@ body.print-page { background: #fff; color: #000; font-family: system-ui, sans-se
 .slip-round { font-size: 8pt; margin: 0 0 2mm; color: #333; }
 .qr { width: 28mm; margin: 3mm auto 1mm; }
 .qr svg { width: 100%; height: auto; }
+.sheet-page { margin-bottom: 8mm; }
+.sheet-table { width: 100%; border-collapse: collapse; font-size: 10pt; margin-top: 4mm; }
+.table .sheet-table { margin-top: 0; }
+.sheet-table th { text-align: left; border-bottom: 1px solid #000; padding: 1mm 2mm 1mm 0; }
+.sheet-table td { border-bottom: 1px solid #ccc; padding: 1mm 2mm 1mm 0; }
 .slip-url { font-size: 7pt; text-align: center; margin: 0; word-break: break-all; }
 
 @media print {
   body.print-page { padding: 0; }
   .table-group { break-after: page; page-break-after: always; }
   .table-group:last-child { break-after: auto; page-break-after: auto; }
+  .sheet-page { break-after: page; page-break-after: always; margin-bottom: 0; }
+  .sheet-page:last-child { break-after: auto; page-break-after: auto; }
+  .sheet-page .table-group { break-after: auto; page-break-after: auto; }
   .slip-page { height: 270mm; break-after: page; page-break-after: always; }
   .slip-page:last-child { break-after: auto; page-break-after: auto; }
 }

@@ -1,0 +1,89 @@
+<% result_label = lambda do |result|
+     next "" unless result
+
+     label = t("organizer.export.sheet.results.#{result.type.downcase}")
+     [label, (result.score if @event.one_v_one?)].compact.join(" ")
+   end %>
+
+<section class="sheet-page" data-sheet-players>
+  <%= render "sheet_header", event: @event, title: t("organizer.export.sheet.players") %>
+  <table class="sheet-table">
+    <thead>
+      <tr>
+        <th><%= t("organizer.export.sheet.name") %></th>
+        <th><%= t("organizer.export.sheet.email") %></th>
+        <th><%= t("organizer.export.sheet.dropped") %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @participants.each do |participant| %>
+        <tr>
+          <td><%= participant.name %></td>
+          <td><%= participant.player.reporting_email %></td>
+          <td><%= t("organizer.export.sheet.yes") if participant.dropped? %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</section>
+
+<% @rounds.each do |round| %>
+  <% results = round.results.index_by(&:event_participant_id) %>
+  <% pods = round.pods.select { |pod| pod.seatings.any? }.sort_by(&:number) %>
+  <% seated = pods.flat_map { |pod| pod.seatings.map(&:event_participant_id) } %>
+  <% unseated = results.except(*seated).values.sort_by { |result| @names.fetch(result.event_participant_id).name } %>
+  <section class="sheet-page" data-sheet-round="<%= round.number %>">
+    <%= render "sheet_header", event: @event, title: round.display_name %>
+    <div class="table-group">
+      <% pods.each do |pod| %>
+        <div class="table" data-table="<%= pod.number %>">
+          <h2><%= t("rounds.print.table") %> <%= pod.number %></h2>
+          <table class="sheet-table">
+            <tbody>
+              <% pod.seatings.sort_by(&:order).each do |seating| %>
+                <tr>
+                  <td class="seat-no"><%= seating.order %></td>
+                  <td><%= @names.fetch(seating.event_participant_id).name %></td>
+                  <td><%= result_label.(results[seating.event_participant_id]) %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    </div>
+    <% if unseated.any? %>
+      <p data-sheet-byes>
+        <b><%= t("organizer.export.sheet.byes") %>:</b>
+        <%= safe_join(unseated.map do |result|
+          name = @names.fetch(result.event_participant_id).name
+          result.is_a?(Advance) ? name : "#{name} (#{result_label.(result)})"
+        end, ", ") %>
+      </p>
+    <% end %>
+  </section>
+<% end %>
+
+<section class="sheet-page" data-sheet-standings>
+  <%= render "sheet_header", event: @event, title: t("organizer.export.sheet.standings") %>
+  <table class="sheet-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th><%= t("organizer.export.sheet.name") %></th>
+        <th><%= t("organizer.export.sheet.points") %></th>
+        <th><%= t("organizer.export.sheet.record") %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @standings.each.with_index(1) do |participant, standing| %>
+        <tr>
+          <td><%= standing %></td>
+          <td><%= participant.name %><%= " (#{t('organizer.export.sheet.dropped').downcase})" if participant.dropped? %></td>
+          <td><%= participant.match_points %></td>
+          <td><%= [participant.number_of_wins, participant.number_of_losses, participant.number_of_draws].join("-") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</section>
