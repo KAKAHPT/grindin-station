@@ -42,5 +42,12 @@ module Feeds
       assert_equal ["one_v_one", 1],
                    Feeds::Info.call(build_1v1_feed_tournament(match_games: 1)).values_at(:format, :matchGames)
     end
+
+    test "gives the pairing mode for multiplayer and none for 1v1" do
+      assert_equal "swiss", Feeds::Info.call(@t)[:pairingMode]
+      @t.update_column(:pairing_mode, "power") # rubocop:disable Rails/SkipsModelValidations
+      assert_equal "power", Feeds::Info.call(@t)[:pairingMode]
+      assert_nil Feeds::Info.call(build_1v1_feed_tournament)[:pairingMode]
+    end
   end
 end

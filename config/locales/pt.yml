@@ -31,6 +31,8 @@ pt:
               locked: "não pode mudar depois de o torneio ser criado"
             match_games:
               locked: "não pode mudar depois de o torneio começar"
+            pairing_mode:
+              locked: "não pode mudar depois de o torneio começar"
             points_win:
               locked: "não pode mudar depois de o torneio começar"
             points_draw:
@@ -66,6 +68,7 @@ pt:
       event:
         format: "Formato"
         match_games: "Duração do match"
+        pairing_mode: "Emparelhamento"
         points_win: "Pontos por vitória"
         points_draw: "Pontos por empate"
         points_loss: "Pontos por derrota"
@@ -124,6 +127,7 @@ pt:
       swiss_line: "%{count} × %{minutes} min"
       top_cut: "Top cut"
       cut_line: "Top %{size} · %{minutes} min"
+      pairing: "Emparelhamento"
       points: "Pontos"
       points_line: "%{win} / %{draw} / %{loss} · bye %{bye}"
       self_report: "Resultados pelos jogadores"
@@ -182,6 +186,14 @@ pt:
     match_games_options:
       bo3: "Melhor de 3"
       bo1: "Melhor de 1"
+    pairing_modes:
+      swiss: "Mesas Swiss"
+      power: "Mesas Power"
+      random: "Mesas aleatórias"
+    pairing_help:
+      swiss: "Mesas pelos resultados; a ronda 2 espalha os líderes pelas mesas."
+      power: "Estritamente de cima para baixo pela classificação em todas as rondas, como numa ronda final."
+      random: "Os resultados são ignorados; cada ronda é um sorteio."
     structure_suggestion: "Sugestão para %{players} jogadores: %{rounds} rondas Swiss, top %{cut}"
     structure_suggestion_no_cut: "Sugestão para %{players} jogadores: %{rounds} rondas Swiss, sem corte"
     structure_suggestion_elimination_only: "Sugestão para %{players} jogadores: eliminação direta, top %{cut}"

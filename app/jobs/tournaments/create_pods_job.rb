@@ -8,7 +8,7 @@ module Tournaments
 
       @round = round
       Tournaments::UnevenPodGenerator.new(@round).generate_pods!
-      @players_by_rank = Tournaments::PlayerSorter.new(@round).paired_players
+      @players_by_rank = pairing_order
 
       match_according_to_strategy!
       repair_rematches!
@@ -19,6 +19,16 @@ module Tournaments
     end
 
     private
+
+    # Swiss and power feed the ranking (points groups dealt by seat need); random feeds the seeded shuffled field.
+    def pairing_order
+      sorter = Tournaments::PlayerSorter.new(@round)
+      @round.event.random_pairing? ? sorter.random_players(pairing_rng) : sorter.paired_players
+    end
+
+    def pairing_rng
+      Random.new(Digest::SHA256.hexdigest("#{@round.event.seed || 0}:#{@round.number}:pairing")[0, 8].hex)
+    end
 
     def match_according_to_strategy!
       case load_strategy
@@ -40,8 +50,11 @@ module Tournaments
       end
     end
 
+    # Random pairing ignores points, so its repair may swap anyone.
     def rematch_gaps
       event = @round.event
+      return [Float::INFINITY] if event.random_pairing?
+
       wins = (1...@round.number).map { |count| count * event.points_win }
       ([0, event.points_draw] + wins).uniq.sort + [Float::INFINITY]
     end

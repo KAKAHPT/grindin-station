@@ -3,7 +3,7 @@
 require "test_helper"
 
 module Tournaments
-  class CreatePodsJobTest < ActiveJob::TestCase
+  class CreatePodsJobTest < ActiveJob::TestCase # rubocop:disable Metrics/ClassLength
     test "17 players: two pods of 4 and three pods of 3, every player seated once" do
       t = TournamentBuilder.build(players: 17, organizer: event_organizers(:standard_organizer))
       round = t.rounds.create!(type: SwissRound, number: 1) # after_create builds the pods
@@ -46,6 +46,58 @@ module Tournaments
           pod.event_participants.to_a.combination(2).count { |a, b| a.played_against?(b) }
         end
       assert_equal 0, rematches
+    end
+
+    test "power: round 2 of a spread-shaped event pairs top-down, the four highest ranked share pod 1" do
+      t = TournamentBuilder.build(players: 20, organizer: event_organizers(:standard_organizer))
+      t.update_columns(pairing_mode: "power") # rubocop:disable Rails/SkipsModelValidations -- locked after swiss
+      t.rounds.create!(type: SwissRound, number: 1)
+      TournamentBuilder.play_round!(t, winners: { 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => :draw })
+      r2 = t.rounds.create!(type: SwissRound, number: 2)
+      assert_equal :standard, t.rounds_info[:rounds][1][:swiss_round]
+      top4 = t.event_participants.sort_by { |p| -p.rank_score }.first(4).map(&:id).sort
+      assert_equal top4, r2.pods.find_by(number: 1).event_participants.map(&:id).sort
+    end
+
+    test "random: points are ignored and the pods repeat for the same seed" do
+      t = TournamentBuilder.build(players: 16, organizer: event_organizers(:standard_organizer))
+      t.update_columns(swiss_rounds_count: 2, pairing_mode: "random", seed: 42) # rubocop:disable Rails/SkipsModelValidations
+      t.rounds.create!(type: SwissRound, number: 1)
+      TournamentBuilder.play_round!(t, winners: { 1 => 0, 2 => 1, 3 => 2, 4 => 3 })
+      winners = t.event_participants.select { |p| p.match_points.positive? }.map(&:id).sort
+      r2 = t.rounds.create!(type: SwissRound, number: 2)
+      pods = pod_ids(r2)
+
+      assert_equal 4, winners.size
+      assert_not_equal winners, pods.first
+      r2.destroy!
+      assert_equal pods, pod_ids(t.rounds.create!(type: SwissRound, number: 2))
+    end
+
+    # With 16 players, round 3 is left out: the greedy RematchRepair sometimes leaves 2–4 rematches there (swiss too).
+    test "random: rematch repair leaves no rematch in round 2 for 16 seeds" do
+      16.times do |seed|
+        t = TournamentBuilder.build(players: 16, organizer: event_organizers(:standard_organizer))
+        t.update_columns(swiss_rounds_count: 3, pairing_mode: "random", seed: seed) # rubocop:disable Rails/SkipsModelValidations
+        (1..2).each do |number|
+          round = t.rounds.create!(type: SwissRound, number: number)
+          assert_equal 0, rematches(round), "seed #{seed}, round #{number}"
+          TournamentBuilder.play_round!(t, winners: (1..4).index_with(:draw))
+        end
+      end
+    end
+
+    test "every pairing mode seats every player once, fairly" do
+      Event::PAIRING_MODES.each do |mode|
+        t = TournamentBuilder.build(players: 17, organizer: event_organizers(:standard_organizer))
+        t.update_columns(pairing_mode: mode, seed: 7) # rubocop:disable Rails/SkipsModelValidations -- locked after swiss
+        t.rounds.create!(type: SwissRound, number: 1)
+        TournamentBuilder.play_round!(t, winners: { 1 => 0, 2 => :draw, 3 => 1, 4 => :draw, 5 => 2 })
+        seatings = t.rounds.create!(type: SwissRound, number: 2).seatings
+        assert_equal 17, seatings.map(&:event_participant_id).uniq.size, mode
+        assert_equal 17, seatings.size, mode
+        assert_equal ["fair"], seatings.map(&:assigned_by).uniq, mode
+      end
     end
 
     # Forced-round scenario: the H players' pod order in rounds 1-3.
@@ -116,6 +168,12 @@ module Tournaments
       return Draw if winner == :draw
 
       player == winner ? Win : Loss
+    end
+
+    def pod_ids(round) = round.pods.order(:number).map { |pod| pod.event_participants.map(&:id).sort }
+
+    def rematches(round)
+      round.pods.sum { |pod| pod.event_participants.to_a.combination(2).count { |a, b| a.played_against?(b) } }
     end
 
     def points_of(pods)

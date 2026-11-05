@@ -193,6 +193,45 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     end
   end
 
+  test "pairing mode defaults to swiss and rejects unknown modes" do
+    tournament = Tournament.new
+    assert_equal "swiss", tournament.pairing_mode
+    assert tournament.swiss_pairing?
+    assert_not tournament.power_pairing?
+    assert_not tournament.random_pairing?
+
+    tournament.pairing_mode = "bubble"
+    tournament.valid?
+    assert_includes tournament.errors[:pairing_mode], I18n.t("errors.messages.inclusion")
+    assert_equal %w[swiss power random], Event::PAIRING_MODES
+  end
+
+  test "pairing mode is locked once the swiss starts" do
+    tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
+    tournament.pairing_mode = "random"
+
+    assert_not tournament.valid?
+    assert_includes tournament.errors[:pairing_mode],
+                    I18n.t("activerecord.errors.models.event.attributes.pairing_mode.locked")
+  end
+
+  test "a 1v1 tournament is normalised to swiss pairing" do
+    t = TournamentBuilder.build(players: 0, organizer: event_organizers(:standard_organizer), state: :draft,
+                                format: "one_v_one")
+    t.update!(pairing_mode: "power")
+    assert_equal "swiss", t.reload.pairing_mode
+  end
+
+  test "a 1v1 tournament ignores the pairing mode and still pairs 2-player pods" do
+    tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer),
+                                         format: "one_v_one")
+    tournament.update_column(:pairing_mode, "random") # rubocop:disable Rails/SkipsModelValidations
+    round = tournament.rounds.create!(type: "SwissRound", number: 1)
+
+    assert_equal 4, round.pods.count
+    assert(round.pods.all? { |pod| pod.seatings.count == 2 })
+  end
+
   test "a locked tournament still accepts non-structure changes" do
     tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
     tournament.name = "Renamed"

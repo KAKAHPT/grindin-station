@@ -31,6 +31,8 @@ en:
               locked: "cannot change once the tournament is created"
             match_games:
               locked: "cannot change once the tournament has started"
+            pairing_mode:
+              locked: "cannot change once the tournament has started"
             points_win:
               locked: "cannot change once the tournament has started"
             points_draw:
@@ -66,6 +68,7 @@ en:
       event:
         format: "Format"
         match_games: "Match length"
+        pairing_mode: "Pairing"
         points_win: "Points for a win"
         points_draw: "Points for a draw"
         points_loss: "Points for a loss"
@@ -124,6 +127,7 @@ en:
       swiss_line: "%{count} × %{minutes} min"
       top_cut: "Top cut"
       cut_line: "Top %{size} · %{minutes} min"
+      pairing: "Pairing"
       points: "Points"
       points_line: "%{win} / %{draw} / %{loss} · bye %{bye}"
       self_report: "Self-report"
@@ -182,6 +186,14 @@ en:
     match_games_options:
       bo3: "Best of 3"
       bo1: "Best of 1"
+    pairing_modes:
+      swiss: "Swiss pods"
+      power: "Power pods"
+      random: "Random pods"
+    pairing_help:
+      swiss: "Pods by record; round 2 spreads the leaders across tables."
+      power: "Strict top-down by standings every round, like a final round."
+      random: "Records are ignored; every round is a random draw."
     structure_suggestion: "Suggested for %{players} players: %{rounds} swiss rounds, top %{cut}"
     structure_suggestion_no_cut: "Suggested for %{players} players: %{rounds} swiss rounds, no cut"
     structure_suggestion_elimination_only: "Suggested for %{players} players: single elimination, top %{cut}"

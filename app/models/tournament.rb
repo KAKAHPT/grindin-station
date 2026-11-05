@@ -40,7 +40,7 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
   validates :swiss_rounds_count, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true,
                                  if: :one_v_one?
   validates :round_minutes, :top_cut_round_minutes, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
-  STRUCTURE_ATTRIBUTES = %i[swiss_rounds_count top_cut_size round_minutes top_cut_round_minutes].freeze
+  STRUCTURE_ATTRIBUTES = %i[swiss_rounds_count top_cut_size round_minutes top_cut_round_minutes pairing_mode].freeze
 
   validate :top_cut_fits_the_field
   validate :swiss_has_rounds, if: -> { will_save_change_to_state? && swiss? }
@@ -133,7 +133,10 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
 
   def straight_to_single_elimination? = no_swiss? && single_elimination? && state_was == "registration_closed"
 
+  # Power and random pairing go top-down over their order every round; only swiss spreads and forces.
   def swiss_round_strategy(number, total)
+    return :standard unless swiss_pairing?
+
     if number == 2 && total >= 3 then :spread
     elsif number == total && total >= 4 then :forced
     else :standard

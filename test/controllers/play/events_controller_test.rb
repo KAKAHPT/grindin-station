@@ -33,6 +33,17 @@ module Play
       assert_select "[data-you]", count: 0
     end
 
+    test "the About card names the pairing mode for multiplayer, and none for 1v1" do
+      @tournament.update!(pairing_mode: "power")
+      get play_event_path(@tournament.slug)
+      assert_select "[data-event-format]", text: /Swiss rounds · Power pods · /
+
+      duel = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                     state: :registration_open, format: "one_v_one")
+      get play_event_path(duel.slug)
+      assert_select "[data-event-format]", text: /Swiss pods/, count: 0
+    end
+
     test "never shows anyone's decklist or commander, even with commanders on" do
       @tournament.update!(show_commanders_in_standings: true)
 

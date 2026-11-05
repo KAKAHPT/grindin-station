@@ -153,6 +153,63 @@ module Organizer
       assert_equal 7, tournament.points_win
     end
 
+    test "the organizer picks the pairing mode before the swiss; once the swiss starts it is locked" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_open)
+
+      patch organizer_tournament_path(tournament), params: { tournament: { pairing_mode: "power" } }
+      assert_redirected_to organizer_tournament_path(tournament)
+      assert tournament.reload.power_pairing?
+
+      running = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+      patch organizer_tournament_path(running), params: { tournament: { pairing_mode: "random" } }
+      assert_response :unprocessable_entity
+      assert_includes response.body, "Pairing cannot change once the tournament has started"
+      assert running.reload.swiss_pairing?
+    end
+
+    test "Settings offers the pairing mode with its help for multiplayer, disabled once locked, hidden for 1v1" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_open)
+
+      get edit_organizer_tournament_path(tournament)
+      assert_select "[data-format-fields-target=pairing]:not([hidden])" do
+        assert_select "label[for=tournament_pairing_mode]", text: "Pairing"
+        assert_select "select[name='tournament[pairing_mode]']:not([disabled])" do
+          assert_select "option[value=swiss][selected]", text: "Swiss pods"
+          assert_select "option[value=power]", text: "Power pods"
+          assert_select "option[value=random]", text: "Random pods"
+        end
+        assert_select ".form-help", text: /Strict top-down by standings every round, like a final round\./
+        assert_select ".form-help", text: /Records are ignored; every round is a random draw\./
+      end
+
+      running = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+      get edit_organizer_tournament_path(running)
+      assert_select "select[name='tournament[pairing_mode]'][disabled]"
+
+      duel = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                     state: :registration_open, format: "one_v_one")
+      get edit_organizer_tournament_path(duel)
+      assert_select "[data-format-fields-target=pairing][hidden] select[name='tournament[pairing_mode]']"
+    end
+
+    test "the Overview and the header line name the pairing mode, multiplayer only" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_open)
+      tournament.update!(pairing_mode: "power")
+
+      get organizer_tournament_path(tournament)
+      assert_select "[data-overview-format] tr", text: /Pairing\s*Power pods/
+      assert_select ".evhead-line", text: /Swiss rounds · Power pods ·/
+
+      duel = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                     state: :registration_open, format: "one_v_one")
+      get organizer_tournament_path(duel)
+      assert_select "[data-overview-format] tr", text: /Pairing/, count: 0
+      assert_select ".evhead-line", text: /pods/, count: 0
+    end
+
     test "the index shows the active tournaments as cards with state chips and the Active/Past switch" do
       active = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
                                        state: :registration_open)
