@@ -75,7 +75,10 @@ Rails.application.routes.draw do
     end
     resources :events, only: %i[index] do
       patch :featured, on: :member
+      patch :tier, on: :member
     end
+    get "invitational", to: "invitational#show", as: :invitational
+    get "invitational/export.csv", to: "invitational#export", as: :invitational_export, format: false
   end
 
   namespace :organizer do

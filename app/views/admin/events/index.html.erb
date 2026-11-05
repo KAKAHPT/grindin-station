@@ -2,6 +2,30 @@
 
 <section class="col-span-full card overflow-clip" data-admin-events>
   <h2 class="card-title"><%= t("admin.events.title") %></h2>
+  <%= form_with url: admin_events_path, method: :get, class: "flex flex-wrap items-end gap-2 border-b border-line px-3.5 py-3" do |f| %>
+    <label class="field w-full sm:w-56">
+      <%= t("admin.events.search") %>
+      <%= f.search_field :q, value: @filters[:q], class: "field-input" %>
+    </label>
+    <label class="field">
+      <%= t("admin.events.state") %>
+      <%= f.select :state, Admin::EventsController::STATES.map { |state| [t("admin.states.#{state}"), state] }, { include_blank: t("admin.events.all"), selected: @filters[:state] }, class: "field-input" %>
+    </label>
+    <label class="field">
+      <%= t("admin.events.format") %>
+      <%= f.select :format, Event::FORMATS.map { |format| [t("organizer.format_options.#{format}"), format] }, { include_blank: t("admin.events.all"), selected: @filters[:format] }, class: "field-input" %>
+    </label>
+    <label class="field">
+      <%= t("admin.events.tier") %>
+      <%= f.select :tier, Event::TIERS.map { |tier| [t("admin.tiers.#{tier}"), tier] }, { include_blank: t("admin.events.all"), selected: @filters[:tier] }, class: "field-input" %>
+    </label>
+    <label class="field w-full sm:w-44">
+      <%= t("admin.events.organizer_handle") %>
+      <%= f.search_field :organizer, value: @filters[:organizer], class: "field-input" %>
+    </label>
+    <%= f.submit t("admin.events.filter"), name: nil, class: button_classes(:primary, size: :sm) %>
+    <%= link_to t("admin.events.clear"), admin_events_path, class: button_classes(:ghost, size: :sm) %>
+  <% end %>
   <div class="overflow-x-auto">
     <table class="ctable">
       <thead>
@@ -12,6 +36,7 @@
           <th><%= t("admin.events.format") %></th>
           <th class="r"><%= t("admin.events.players") %></th>
           <th class="r"><%= t("admin.events.start") %></th>
+          <th><%= t("admin.events.tier") %></th>
           <th class="r"><%= t("admin.events.featured") %></th>
         </tr>
       </thead>
@@ -24,8 +49,14 @@
             <td class="text-muted"><%= t("organizer.format_options.#{event.format}") %></td>
             <td class="r tabular"><%= event.event_participants_count %></td>
             <td class="r whitespace-nowrap text-muted tabular"><%= l(event.start_time.to_date) %></td>
+            <td>
+              <%= form_with url: tier_admin_event_path(event, filters: @filters.to_h.compact_blank.presence, page: params[:page]), method: :patch, class: "flex items-center gap-1.5" do %>
+                <%= select_tag :tier, options_for_select(Event::TIERS.map { |tier| [t("admin.tiers.#{tier}"), tier] }, event.tier), class: "field-input py-1 text-[12px]", "aria-label": t("admin.events.tier_for", name: event.name), data: { controller: "submit-on-change", action: "change->submit-on-change#submit" } %>
+                <noscript><%= button_tag t("admin.events.set_tier"), class: button_classes(:ghost, size: :sm) %></noscript>
+              <% end %>
+            </td>
             <td class="r">
-              <%= button_to featured_admin_event_path(event, page: params[:page]), method: :patch, class: button_classes(event.featured ? :primary : :ghost, size: :sm), "aria-pressed": event.featured do %>
+              <%= button_to featured_admin_event_path(event, filters: @filters.to_h.compact_blank.presence, page: params[:page]), method: :patch, class: button_classes(event.featured ? :primary : :ghost, size: :sm), "aria-pressed": event.featured do %>
                 <%= event.featured ? t("admin.events.featured_on") : t("admin.events.featured_off") %>
               <% end %>
             </td>

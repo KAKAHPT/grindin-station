@@ -1,0 +1,49 @@
+<%= render "admin/nav", active: :invitational %>
+
+<section class="col-span-full card overflow-clip" data-invitational>
+  <h2 class="card-title"><%= t("admin.invitational.title") %></h2>
+  <div class="flex flex-wrap items-center justify-between gap-2 border-b border-line px-3.5 py-3">
+    <span class="seg" role="group" aria-label="<%= t("admin.invitational.season") %>">
+      <% @seasons.each do |year| %>
+        <%= link_to year, admin_invitational_path(season: year), class: ("seg-on" if @season == year), "aria-current": ("page" if @season == year) %>
+      <% end %>
+      <%= link_to t("admin.invitational.all"), admin_invitational_path(season: "all"), class: ("seg-on" if @season.nil?), "aria-current": ("page" if @season.nil?) %>
+    </span>
+    <%= link_to t("admin.invitational.export"), admin_invitational_export_path(season: @season || "all"), class: button_classes(:ghost, size: :sm) %>
+  </div>
+  <p class="border-b border-line px-3.5 py-2.5 text-[12px] text-muted"><%= t("admin.invitational.lead") %></p>
+  <div class="overflow-x-auto">
+    <table class="ctable">
+      <thead>
+        <tr>
+          <th class="r w-10"><%= t("admin.invitational.rank") %></th>
+          <th><%= t("admin.invitational.player") %></th>
+          <th class="r"><%= t("admin.invitational.invitational_points") %></th>
+          <th class="r"><%= t("admin.invitational.tier_events") %></th>
+          <th class="r"><%= t("admin.invitational.points") %></th>
+          <th class="r"><%= t("admin.invitational.events") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @rows.each.with_index(1) do |row, rank| %>
+          <tr data-player="<%= row.player.id %>">
+            <td class="r tabular"><%= rank %></td>
+            <td>
+              <div class="font-semibold"><%= row.player.name %></div>
+              <% if row.player.user&.handle %>
+                <div class="text-[11px] text-muted">@<%= row.player.user.handle %></div>
+              <% end %>
+            </td>
+            <td class="r tabular font-semibold" data-invitational><%= ranking_points(row.invitational_points) %></td>
+            <td class="r tabular"><%= row.tier_events %></td>
+            <td class="r tabular"><%= ranking_points(row.points) %></td>
+            <td class="r tabular"><%= row.events %></td>
+          </tr>
+        <% end %>
+        <% if @rows.empty? %>
+          <tr><td colspan="6" class="py-7 text-center text-[13px] text-muted"><%= t("admin.invitational.empty") %></td></tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

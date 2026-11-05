@@ -13,7 +13,7 @@ class AuditEventTest < ActiveSupport::TestCase
                   password_reset password_changed email_changed account_deleted identity_linked identity_unlinked
                   staff_added staff_removed result_corrected round_undone round_closed participant_dropped
                   event_state_changed infraction_added infraction_removed featured_changed rate_limited
-                  admin_granted admin_revoked error_resolved data_exported]
+                  admin_granted admin_revoked error_resolved data_exported tier_changed]
     assert_equal expected.sort, AuditEvent::ACTIONS.sort
   end
 
