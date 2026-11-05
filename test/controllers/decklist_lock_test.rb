@@ -4,19 +4,20 @@ require "test_helper"
 
 class DecklistLockTest < ActionDispatch::IntegrationTest
   setup do
-    @tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+    @tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                          state: :registration_closed)
     @participant = @tournament.event_participants.first
     user = @participant.player.user
     user.update!(password: "password123")
     sign_in(user)
   end
 
-  test "a player edits the decklist until round 1 is published" do
+  test "a player edits the decklist until the swiss starts" do
     patch tournament_event_participant_path(@tournament, @participant),
           params: { event_participant: { decklist: "Kinnan" } }
     assert_equal "Kinnan", @participant.reload.decklist
 
-    @tournament.rounds.create!(type: SwissRound, number: 1).update!(published: true)
+    @tournament.update_column(:state, Tournament.states[:swiss]) # rubocop:disable Rails/SkipsModelValidations
     get edit_tournament_event_participant_path(@tournament, @participant)
     assert_equal I18n.t("flash.alert.decklist_locked"), flash[:alert]
 
@@ -27,8 +28,8 @@ class DecklistLockTest < ActionDispatch::IntegrationTest
     assert_equal "Kinnan", @participant.reload.decklist
   end
 
-  test "staff still change the decklist after round 1 is published" do
-    @tournament.rounds.create!(type: SwissRound, number: 1).update!(published: true)
+  test "staff still change the decklist after the swiss starts" do
+    @tournament.update_column(:state, Tournament.states[:swiss]) # rubocop:disable Rails/SkipsModelValidations
     sign_in(users(:organizer_user))
 
     patch organizer_tournament_event_participant_path(@tournament, @participant),

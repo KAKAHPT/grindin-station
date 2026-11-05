@@ -1,5 +1,5 @@
-<%# "You" card of a participant (enrolled or waitlisted): own chips, own decklist link (editable until round 1
-    is published, then read-only) and Cancel registration (before the swiss). Nobody else's data. %>
+<%# "You" card of a participant (enrolled or waitlisted): own chips, self check-in (M16), own decklist link
+    (editable until the swiss starts, then read-only) and Cancel registration (before the swiss). Nobody else's data. %>
 <section data-you class="card">
   <h2 class="card-title"><%= t("play.events.you") %></h2>
   <div class="p-4 flex flex-col gap-3">
@@ -13,6 +13,16 @@
         <span data-checked-in><%= desk_chip(:ok) { t("play.events.checked_in") } %></span>
       <% end %>
     </div>
+
+    <%# M16: self check-in once the window before the start opens; until then, when it opens. %>
+    <% if participant.enrolled? && !participant.checked_in? && event.self_check_in_enabled && !event.points_locked? %>
+      <% if event.check_in_open? %>
+        <%= button_to t("play.events.check_in"), check_in_tournament_event_participants_path(event, locale: params[:locale]),
+                      method: :patch, form: { class: "self-start", data: { check_in: true } }, class: button_classes(:primary, size: :sm) %>
+      <% elsif event.check_in_opens_at %>
+        <p data-check-in-opens class="text-[12px] text-muted"><%= t("play.events.check_in_opens_at", time: l(event.check_in_opens_at, format: :short)) %></p>
+      <% end %>
+    <% end %>
 
     <div>
       <div class="flex items-center justify-between gap-2 mb-1.5">

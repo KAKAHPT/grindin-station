@@ -81,9 +81,16 @@
   </div>
   <p class="form-help mb-4"><%= t("organizer.confirmation_help") %></p>
   <%= f.select_with_label :top_cut_timeout_rule, top_cut_timeout_rule_options, selected: tournament.top_cut_timeout_rule %>
-  <%= f.check_box_with_label :waitlist_enabled %>
   <%= f.check_box_with_label :show_commanders_in_standings %>
   <%= f.check_box_with_label :show_decklists %>
+
+  <h2 class="form-section"><%= t("organizer.settings.registration") %></h2>
+  <%= f.check_box_with_label :waitlist_enabled %>
+  <%= f.check_box_with_label :decklist_required %>
+  <p class="form-help -mt-3 mb-4 ms-6"><%= t("organizer.settings.decklist_help") %></p>
+  <%= f.check_box_with_label :self_check_in_enabled %>
+  <%= f.number_field_with_label :check_in_opens_hours_before, min: 0, step: 1 %>
+  <p class="form-help -mt-3 mb-4"><%= t("organizer.settings.check_in_help") %></p>
 
   <h2 class="form-section"><%= t("organizer.settings.standings") %></h2>
   <%= f.check_box_with_label :show_beaten_in_standings %>

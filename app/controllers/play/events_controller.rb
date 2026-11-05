@@ -10,7 +10,7 @@ module Play
       counts = current_event.event_participants.playing.group(:waitlisted).count
       @enrolled_count = counts.fetch(false, 0)
       @waitlist_count = counts.fetch(true, 0)
-      @decklist_locked = current_event.rounds.published.exists?
+      @decklist_locked = current_event.points_locked?
       @staff_role = current_user&.staff_role_for(current_event)
     end
   end
