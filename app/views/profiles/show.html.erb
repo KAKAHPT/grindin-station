@@ -1,6 +1,7 @@
 <% content_for :title, @user.display_name %>
 <% content_for :description, t("profiles.description", name: @user.display_name) %>
 <% content_for :wide_main, "1" %>
+<div data-controller="profile-events" data-action="input->profile-events#search change->profile-events#season click->profile-events#year click->profile-events#toggle">
 <section class="card">
   <div class="p-5">
     <div class="flex items-center gap-4">
@@ -33,24 +34,24 @@
 <% if @history.any? %>
   <%= render "profiles/toolbar", rows: @history %>
   <section class="card overflow-hidden">
-    <table data-profile-events class="ctable">
+    <table data-profile-events class="ctable" data-profile-events-target="table">
       <thead>
         <tr>
-          <th data-sort="date" aria-sort="descending" class="cursor-pointer text-ink"><%= t("profiles.columns.date") %></th>
-          <th data-sort="name" class="cursor-pointer"><%= t("profiles.columns.event") %></th>
-          <th data-sort="position" class="r cursor-pointer"><%= t("profiles.columns.result") %></th>
+          <th data-sort="date" aria-sort="descending" class="cursor-pointer text-ink" tabindex="0" data-profile-events-target="header" data-action="click->profile-events#sort keydown->profile-events#sort"><%= t("profiles.columns.date") %></th>
+          <th data-sort="name" class="cursor-pointer" tabindex="0" data-profile-events-target="header" data-action="click->profile-events#sort keydown->profile-events#sort"><%= t("profiles.columns.event") %></th>
+          <th data-sort="position" class="r cursor-pointer" tabindex="0" data-profile-events-target="header" data-action="click->profile-events#sort keydown->profile-events#sort"><%= t("profiles.columns.result") %></th>
           <th><%= t("profiles.columns.commander") %></th>
           <th class="w-9"><span class="sr-only"><%= t("profiles.details") %></span></th>
         </tr>
       </thead>
       <tbody>
         <%= render partial: "profiles/event_row", collection: @history, as: :row %>
-        <tr data-no-match hidden><td colspan="5" class="py-7 text-center text-[13px] text-muted"><%= t("profiles.no_match") %></td></tr>
+        <tr data-no-match hidden data-profile-events-target="noMatch"><td colspan="5" class="py-7 text-center text-[13px] text-muted"><%= t("profiles.no_match") %></td></tr>
       </tbody>
     </table>
     <% if @history.size > 6 %>
       <div class="flex justify-center p-2.5 border-t border-line">
-        <button type="button" data-more data-show-all="<%= t("profiles.show_all", count: "%{count}") %>"
+        <button type="button" data-more data-profile-events-target="more" data-action="profile-events#more" data-show-all="<%= t("profiles.show_all", count: "%{count}") %>"
                 data-show-less="<%= t("profiles.show_less") %>"
                 class="<%= button_classes(:secondary, size: :sm) %>"><%= t("profiles.show_all", count: @history.size) %></button>
       </div>
@@ -59,6 +60,7 @@
 <% else %>
   <p class="mt-6 p-4 card text-sm text-muted"><%= t("profiles.no_events") %></p>
 <% end %>
+</div>
 
 <section data-profile-comments class="mt-6 p-4 rounded-2xl border border-dashed border-line text-sm text-muted">
   <h2 class="mb-1 text-[11px] font-semibold uppercase tracking-wide"><%= t("profiles.comments") %></h2>

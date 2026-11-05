@@ -878,6 +878,20 @@
     border-right: 0;
   }
 
+  /* Events table: the hidden detail rows would break the nth-child stripes and the last-row rule, so the profile
+     events controller marks every other visible event row (data-odd) and the last one (data-last). */
+  .ctable[data-profile-events] tbody tr:nth-child(n) td {
+    background: none;
+  }
+
+  .ctable[data-profile-events] tr[data-event][data-odd] td {
+    background: rgb(255 255 255 / 0.015);
+  }
+
+  .ctable[data-profile-events] tr[data-event][data-last] td {
+    border-bottom: 0;
+  }
+
   /* The detail row of an event: record, win rate, seats, seat 1, then the rounds on their own line. */
   .pf-detail {
     display: grid;
