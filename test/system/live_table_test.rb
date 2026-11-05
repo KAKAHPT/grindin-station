@@ -109,7 +109,7 @@ class LiveTableTest < ApplicationSystemTestCase
   def mark_winner(pod, name)
     within("#pod_#{pod.id}") do
       find("li[role=button]") { |row| row["data-name"] == name }.click
-      click_button "#{name} wins"
+      click_button "Confirm"
     end
     assert_text I18n.t("flash.notice.result_submitted")
   end
