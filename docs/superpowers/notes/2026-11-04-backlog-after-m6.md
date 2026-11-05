@@ -69,3 +69,4 @@ Open research before specifying: what EventLink actually accepts today (as of 20
 - Unique index on `event_participants(event_id, player_id)` (a duplicate player per event is possible today; the rankings rebuild de-duplicates defensively).
 - Roster: consider a bulk "promote next N from the waitlist" action (promotion exists per row).
 - **Landing, more monochrome (with M14):** the hero "Upcoming events" button, the waiting-list card ("Organising is by invitation for now": the Join button and the "Waiting list" chip) and Anne's seat board in light greys instead of the accent; keep accent only for the headline word.
+- **Logo idea (organiser, 2026-11-05):** keep the mark (triangle, point down, gear in the middle) and add a half gear peeking over the top edge, static, in dark grey or black — a second tone, not the accent. Mock first (`shared/_mark` SVG), then the favicon/OG variants.
