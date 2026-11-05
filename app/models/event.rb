@@ -19,6 +19,9 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   PAIRING_MODES = %w[swiss power random].freeze
   UNEVEN_FIELDS = %w[pods_of_three byes].freeze
   MATCH_GAMES = [1, 3].freeze
+  # Admin-only tier (M13 D16): invitational points = ranking points x multiplier; never shown publicly.
+  TIERS = %w[none bronze silver gold platinum].freeze
+  TIER_MULTIPLIERS = { "none" => 0, "bronze" => 1, "silver" => 1.5, "gold" => 2, "platinum" => 3 }.freeze
   # MTR match points for 1v1 events (win/draw/loss/bye); multiplayer keeps the column defaults.
   ONE_V_ONE_POINTS = { points_win: 3, points_draw: 1, points_loss: 0, points_bye: 3 }.freeze
   POINT_ATTRIBUTES = %i[points_win points_draw points_loss points_bye].freeze
@@ -46,6 +49,8 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   has_one_attached :cover
 
+  normalizes :country, with: ->(country) { country.strip.upcase.presence }
+
   with_options presence: true do
     validates :state, :name, :slug, :start_time, :end_time
   end
@@ -58,6 +63,8 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   validates :match_games, inclusion: { in: MATCH_GAMES }
   validates :pairing_mode, inclusion: { in: PAIRING_MODES }
   validates :uneven_field, inclusion: { in: UNEVEN_FIELDS }
+  validates :tier, inclusion: { in: TIERS }
+  validates :country, format: { with: /\A[A-Z]{2}\z/ }, allow_nil: true
   validate :format_locked_after_creation, on: :update
   validates :result_confirmation, inclusion: { in: RESULT_CONFIRMATIONS }
   validates :top_cut_timeout_rule, inclusion: { in: TOP_CUT_TIMEOUT_RULES }

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_05_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_05_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -91,6 +91,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_140000) do
     t.index ["created_at"], name: "index_csp_reports_on_created_at"
   end
 
+  create_table "elo_ratings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "games", default: 0, null: false
+    t.decimal "peak", precision: 8, scale: 2, default: "1500.0", null: false
+    t.uuid "player_id", null: false
+    t.decimal "previous_rating", precision: 8, scale: 2, default: "1500.0", null: false
+    t.decimal "rating", precision: 8, scale: 2, default: "1500.0", null: false
+    t.integer "season"
+    t.datetime "updated_at", null: false
+    t.integer "wins", default: 0, null: false
+    t.index ["player_id", "season"], name: "index_elo_ratings_on_player_id_and_season", unique: true, nulls_not_distinct: true
+  end
+
   create_table "error_events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.text "backtrace"
     t.datetime "created_at", null: false
@@ -150,6 +163,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_140000) do
     t.text "address"
     t.uuid "circuit_id"
     t.integer "confirmation_timeout_minutes", default: 5, null: false
+    t.string "country", limit: 2
     t.datetime "created_at", null: false
     t.integer "currency"
     t.text "description"
@@ -183,6 +197,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_140000) do
     t.datetime "start_time"
     t.integer "state", default: 0, null: false
     t.integer "swiss_rounds_count"
+    t.string "tier", default: "none", null: false
     t.integer "top_cut_round_minutes", default: 150, null: false
     t.integer "top_cut_size"
     t.string "top_cut_timeout_rule", default: "highest_seed_advances", null: false
@@ -278,6 +293,34 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_140000) do
     t.datetime "updated_at", null: false
     t.index ["number", "round_id"], name: "index_pods_on_number_and_round_id", unique: true
     t.index ["round_id"], name: "index_pods_on_round_id"
+  end
+
+  create_table "ranking_contributions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.integer "byes", default: 0, null: false
+    t.string "country", limit: 2
+    t.datetime "created_at", null: false
+    t.integer "draws", default: 0, null: false
+    t.uuid "event_id", null: false
+    t.uuid "event_organizer_id"
+    t.integer "field", null: false
+    t.string "format", null: false
+    t.decimal "invitational_points", precision: 8, scale: 2, default: "0.0", null: false
+    t.integer "losses", default: 0, null: false
+    t.boolean "made_cut", default: false, null: false
+    t.uuid "player_id", null: false
+    t.decimal "points", precision: 8, scale: 2, default: "0.0", null: false
+    t.integer "season", null: false
+    t.string "team"
+    t.boolean "top4", default: false, null: false
+    t.datetime "updated_at", null: false
+    t.integer "wins", default: 0, null: false
+    t.boolean "won", default: false, null: false
+    t.index ["country"], name: "index_ranking_contributions_on_country"
+    t.index ["event_id"], name: "index_ranking_contributions_on_event_id"
+    t.index ["event_organizer_id"], name: "index_ranking_contributions_on_event_organizer_id"
+    t.index ["player_id", "event_id"], name: "index_ranking_contributions_on_player_id_and_event_id", unique: true
+    t.index ["season"], name: "index_ranking_contributions_on_season"
+    t.index ["team"], name: "index_ranking_contributions_on_team"
   end
 
   create_table "results", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
