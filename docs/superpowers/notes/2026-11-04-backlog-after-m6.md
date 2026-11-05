@@ -63,3 +63,8 @@ Open research before specifying: what EventLink actually accepts today (as of 20
   sorting by date/event/result and a "+" detail row (record, win rate, seats taken, seat 1 share, seat per round).
 - `profile_events_controller` filters, sorts, pages (6, "Show all") and recomputes the band in the browser; without
   JavaScript the full table and server totals render. `users.team` (30 chars, edited in `/account`) tags the name.
+
+## Added 2026-11-05 (afternoon, with the organiser)
+- **M14 — Standings display options (next after M13):** Settings group "Standings": show the Beaten column (default off), show the Unique column (default off), hide the public standings while the tournament runs (public page shows pairings only until finished; organizer mode unaffected). Columns live in `app/views/event_participants/index.html.erb` + `_event_participant.html.erb` and the organizer twins; help text in `tournaments/_standings_help.html.erb`.
+- Unique index on `event_participants(event_id, player_id)` (a duplicate player per event is possible today; the rankings rebuild de-duplicates defensively).
+- Roster: consider a bulk "promote next N from the waitlist" action (promotion exists per row).
