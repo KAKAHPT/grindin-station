@@ -8,7 +8,7 @@ module Play
       @tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
                                             state: :registration_open)
       @tournament.update!(waitlist_enabled: true, maximum_participants: 4, description: "**Bring sleeves**",
-                          address: "Rua do Grind 1, Lisboa", price: 10, currency: :euro)
+                          prizes: "1st: Mana Crypt", address: "Rua do Grind 1, Lisboa", price: 10, currency: :euro)
       @enrolled = @tournament.event_participants.order(:created_at).to_a
       @enrolled.first.update!(decklist: "Kinnan, Bonder Prodigy")
       @waiting = Array.new(2) { |i| waitlist!(i + 1) }
@@ -24,6 +24,8 @@ module Play
       assert_select ".evhead-line", text: /Lisboa · 4 players/
       assert_select "[data-event-header] nav.seg a.seg-on[aria-current=page]", text: "Event"
       assert_select "[data-about] .markdown strong", text: "Bring sleeves"
+      assert_select "[data-about] h3", text: "Prizes"
+      assert_select "[data-about] .markdown", text: /1st: Mana Crypt/
       assert_includes response.body, "Rua do Grind 1, Lisboa"
       assert_select "a[href^='https://www.google.com/maps']"
       assert_select "[data-event-price]", text: /10,00 €/

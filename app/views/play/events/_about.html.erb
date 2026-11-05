@@ -1,4 +1,4 @@
-<%# About card: when, where (+ map link), price, format line, then the description, schedule and rules. %>
+<%# About card: when, where (+ map link), price, format line, then the description, prizes, schedule and rules. %>
 <section data-about class="card">
   <h2 class="card-title"><%= t("play.events.about") %></h2>
   <div class="p-4">
@@ -28,7 +28,7 @@
       <dd data-event-format><%= play_format_line(event) %></dd>
     </dl>
 
-    <% [[:description, event.description], [:schedule, event.schedule], [:rules, event.rules]].each do |key, text| %>
+    <% [[:description, event.description], [:prizes, event.prizes], [:schedule, event.schedule], [:rules, event.rules]].each do |key, text| %>
       <% next if text.blank? %>
       <section class="mt-4">
         <% unless key == :description %>

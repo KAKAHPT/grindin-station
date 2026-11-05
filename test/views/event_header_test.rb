@@ -7,12 +7,12 @@ class EventHeaderTest < ActionView::TestCase
     @event = TournamentBuilder.build(players: 2, organizer: event_organizers(:standard_organizer))
   end
 
-  test "without a cover: corner mark, title, eyebrow, line and actions on a neutral surface" do
+  test "without a cover: corner mark, title, eyebrow, line and actions over the ticket's fallback art" do
     render "shared/event_header", event: @event, eyebrow: "Tournament · Draft", title: "Demo Cup",
                                   line: "4 Nov 2026 · Lisboa", actions: tag.a("View public page", href: "#")
 
     assert_select ".evhead .evhead-corner .gslogo[data-rotating]", count: 1
-    assert_select ".evhead-ban", count: 0
+    assert_select ".evhead-ban[style*=?]", "/assets/landing/c" # the same art the event's ticket shows
     assert_select ".evhead-shade"
     assert_select ".evhead-eyebrow", text: "Tournament · Draft"
     assert_select "h1.evhead-title", text: "Demo Cup"

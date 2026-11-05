@@ -499,6 +499,7 @@ en:
       free: "Free entry"
       open_map: "Open in Google Maps"
       time_format: "%d %b %Y, %H:%M %Z"
+      prizes: "Prizes"
       schedule: "Schedule"
       rules: "Rules"
       manage: "Manage"
