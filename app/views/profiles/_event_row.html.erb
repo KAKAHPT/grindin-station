@@ -1,16 +1,73 @@
-<li data-profile-event class="p-4">
-  <div class="flex items-baseline justify-between gap-3">
-    <%= link_to row.event.name, polymorphic_path(row.event, locale: params[:locale]), class: "font-semibold truncate hover:text-accent" %>
-    <span class="shrink-0 text-xs text-muted"><%= l(row.event.start_time.to_date) %></span>
-  </div>
-  <div class="mt-2 flex items-center justify-between gap-3 text-sm">
-    <span data-position class="font-display font-semibold text-accent"><%= profile_position(row) %></span>
-    <span data-wld class="tabular text-muted"><%= [row.wins, row.losses, row.draws].join("-") %></span>
-    <% if row.seats %>
-      <%= seat_grid(row.seats, seat_five: row.seats[5].positive?) %>
-    <% end %>
-  </div>
-  <% if row.decklist_visible %>
-    <p class="mt-2 text-sm truncate"><%= t("profiles.decklist") %>: <%= decklist_link(row.decklist) %></p>
-  <% end %>
-</li>
+<%# One finished event: the table row, then its hidden detail row opened by the "+". %>
+<% event = row.event %>
+<% date = event.start_time.to_date %>
+<% detail_id = dom_id(event, :profile_detail) %>
+<tr data-event data-date="<%= date.iso8601 %>" data-name="<%= event.name %>" data-organizer="<%= row.organizer_name %>"
+    data-commander="<%= row.commander %>" data-format="<%= row.format_line %>" data-year="<%= date.year %>"
+    data-season="<%= row.season %>" data-position="<%= row.position %>" data-participants="<%= row.participants %>"
+    data-wins="<%= row.wins %>" data-losses="<%= row.losses %>" data-draws="<%= row.draws %>"
+    data-cut="<%= row.made_cut ? 1 : 0 %>">
+  <td class="tabular text-muted whitespace-nowrap"><%= l(date) %></td>
+  <td>
+    <div class="flex items-center gap-2.5 font-semibold">
+      <%= link_to event.name, polymorphic_path(event, locale: params[:locale]), class: "min-w-0 truncate hover:underline" %>
+      <%= profile_cut_tag(row) %>
+    </div>
+    <div class="text-[11.5px] text-muted"><%= [row.organizer_name.presence, row.format_line].compact.join(" · ") %></div>
+  </td>
+  <td class="r whitespace-nowrap"><span data-result><%= profile_position(row) %></span></td>
+  <td class="text-muted"><%= row.commander || "–" %></td>
+  <td class="r w-9">
+    <button type="button" aria-controls="<%= detail_id %>" aria-expanded="false" title="<%= t("profiles.details") %>"
+            class="inline-flex size-[22px] items-center justify-center rounded-[5px] border border-line-strong text-muted font-display text-[13px] font-bold leading-none hover:text-ink aria-expanded:bg-ink aria-expanded:text-ground aria-expanded:border-ink">
+      <span data-sign aria-hidden="true">+</span><span class="sr-only"><%= t("profiles.details") %></span>
+    </button>
+  </td>
+</tr>
+<tr data-event-detail id="<%= detail_id %>" hidden>
+  <td colspan="5" class="p-0 bg-ground/50">
+    <% k = "text-[10.5px] font-semibold uppercase tracking-[0.06em] text-muted" %>
+    <% val = "mt-0.5 font-display text-base font-bold text-ink tabular" %>
+    <div class="pf-detail">
+      <div>
+        <div class="<%= k %>"><%= t("profiles.detail.record") %></div>
+        <div data-wld class="<%= val %>"><%= [row.wins, row.losses, row.draws].join("-") %></div>
+      </div>
+      <div>
+        <div class="<%= k %>"><%= t("profiles.detail.win_rate") %></div>
+        <div class="<%= val %>"><%= profile_percent(profile_share(row.wins, row.games)) %><small class="ml-1 font-body text-xs font-normal text-muted"><%= t("profiles.detail.games", count: row.games) %></small></div>
+      </div>
+      <% if row.round_seats %>
+        <div>
+          <div class="<%= k %>"><%= t("profiles.detail.seats") %></div>
+          <div class="mt-1 flex gap-2">
+            <% (1..(row.seats[5].positive? ? 5 : 4)).each do |seat| %>
+              <% count = row.seats[seat].to_i %>
+              <i title="<%= t("profiles.detail.seat", seat: seat) %>"
+                 class="inline-flex h-[22px] w-[26px] items-center justify-center rounded-[4px] font-display text-[11px] font-semibold not-italic <%= seat == 1 && count.positive? ? "bg-accent/10 text-accent" : "bg-surface-raised text-muted" %>"><%= count %></i>
+            <% end %>
+          </div>
+        </div>
+        <div>
+          <div class="<%= k %>"><%= t("profiles.detail.seat_one") %></div>
+          <div class="<%= val %>"><%= profile_percent(profile_share(row.seats[1].to_i, row.round_seats.size)) %><small class="ml-1 font-body text-xs font-normal text-muted"><%= t("profiles.detail.of_rounds", count: row.round_seats.size) %></small></div>
+        </div>
+        <% if row.round_seats.any? %>
+          <div class="col-span-full flex flex-wrap gap-1.5 text-[11.5px] text-muted">
+            <% row.round_seats.each.with_index(1) do |seat, round| %>
+              <span data-round-seat class="px-2 py-0.5 rounded-[4px] bg-surface-raised"><%= t("profiles.detail.round_seat", round: round, seat: seat) %></span>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="col-span-2">
+          <div class="<%= k %>"><%= t("profiles.detail.seats") %></div>
+          <div class="mt-1 text-xs text-muted"><%= t("profiles.detail.no_seats") %></div>
+        </div>
+      <% end %>
+      <% if row.decklist_visible %>
+        <p class="col-span-full text-sm truncate"><%= t("profiles.decklist") %>: <%= decklist_link(row.decklist) %></p>
+      <% end %>
+    </div>
+  </td>
+</tr>

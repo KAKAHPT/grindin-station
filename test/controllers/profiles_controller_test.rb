@@ -52,7 +52,7 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     assert_response :not_found
   end
 
-  test "shows the header and the finished events with position, W-L-D and seats" do
+  test "shows the header and the finished events with date, name, position and organizer" do
     @owner.update!(country: "pt", bio: "Grinding since 2019.\n\nBlue player.")
 
     get profile_path("rita")
@@ -64,12 +64,116 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     assert_select "[data-profile-initials]", text: "RG"
     assert_select "button[disabled][title=?]", "Coming soon"
     assert_select "[data-profile-comments]"
-    assert_select "[data-profile-event]", 1 do
+    assert_select "tr[data-event]", 1 do
       assert_select "a[href=?]", tournament_path(@event), text: @event.name
-      assert_select "[data-position]", text: "3rd of 4"
-      assert_select "[data-wld]", text: /\A\d-\d-\d\z/
-      assert_select "span[role=img][aria-label]"
+      assert_select "[data-result]", text: "3rd of 4"
     end
+    assert_select "tr[data-event-detail][hidden]", 1 do
+      assert_select "[data-wld]", text: /\A\d-\d-\d\z/
+    end
+  end
+
+  test "three events: the band totals, achievements and commanders" do
+    three_events
+
+    get profile_path("rita")
+
+    assert_response :success
+    win_rate = Profiles::Summary.call(Profiles::History.call(user: @owner)).win_rate
+    assert_select "[data-profile-summary]" do
+      assert_select "[data-stat=events]", text: "3"
+      assert_select "[data-stat=top_cuts]", text: "1"
+      assert_select "[data-stat=win_rate]", text: win_rate ? "#{win_rate}%" : "–"
+      assert_select "[data-stat=conversion]", text: "33%"
+      assert_select "[data-ach=wins]", text: "1"
+      assert_select "[data-ach=top4]", text: "3"
+      assert_select "[data-ach=cuts]", text: "1"
+      assert_select "[data-commanders] li", 2
+      assert_select "[data-commanders] li:nth-child(1)", text: /Kinnan, Bonder Prodigy\s*1 · 33%/
+      assert_select "[data-commanders] li:nth-child(2)", text: /Mono-U Tempo\s*1 · 33%/
+    end
+  end
+
+  test "three events: the toolbar with search, years newest first, the season and the count" do
+    three_events
+
+    get profile_path("rita")
+
+    assert_select "[data-profile-tools]" do
+      assert_select "input[type=search][data-profile-events-target=search][placeholder=?]",
+                    "Search events, organizers, commanders…"
+      assert_select "button[data-year=all]", text: "All"
+      years = css_select("button[data-year]").pluck("data-year")
+      assert_equal ["all", Date.current.year.to_s, 1.year.ago.year.to_s], years
+      assert_select "select[data-season] option", 2
+      assert_select "select[data-season] option[value=all]", text: "All seasons"
+      assert_select "select[data-season] option[value=?]", "Standard Circuit"
+      assert_select "[data-count]", text: "3 of 3 events"
+    end
+  end
+
+  test "three events: table rows with their data, the cut tag, a grey result and the 1v1 detail" do
+    cut, one_v_one = three_events
+
+    get profile_path("rita")
+
+    assert_select "[data-profile-events]" do
+      assert_select "th[data-sort]", 3
+      assert_select "tr[data-event]", 3
+      assert_select "tr[data-event] .text-accent", 0
+    end
+    assert_select "[data-more]", 0 # three events fit in the first six
+    assert_select "tr[data-event][data-name=?]", cut.name do |(row)|
+      assert_cut_row(row, cut)
+      assert_select "td:nth-child(2) [data-cut-tag]", text: "Top 4"
+      assert_select "button[aria-expanded=false][aria-controls] [data-sign]", text: "+"
+    end
+    one_v_one_row = assert_select("tr[data-event][data-name=?][data-cut='0'][data-season='']", one_v_one.name).first
+    detail_id = one_v_one_row.at_css("button[aria-controls]")["aria-controls"]
+    assert_select "tr[data-event-detail][hidden]##{detail_id}", text: /1v1 · no seats/
+  end
+
+  test "a multiplayer detail row shows record, win rate, seats taken, seat 1 share and the rounds" do
+    get profile_path("rita")
+
+    assert_select "tr[data-event-detail]" do
+      assert_select "*", text: /Record/
+      assert_select "*", text: /Win rate/
+      assert_select "*", text: /Seats taken/
+      assert_select "*", text: /of 1 rounds/
+      assert_select "[data-round-seat]", 1
+      assert_select "[data-round-seat]", text: /\AR1 · seat \d\z/
+    end
+  end
+
+  test "more than six events: all rows rendered and the More button" do
+    6.times { |i| played_event([@owner], position: i + 1, start_time: (i + 1).weeks.ago) }
+
+    get profile_path("rita")
+
+    assert_select "tr[data-event]", 7
+    assert_select "[data-more] button, button[data-more]", text: "Show all 7 events"
+  end
+
+  test "the team tag shows after the name only when set" do
+    get profile_path("rita")
+    assert_select "[data-team]", 0
+
+    @owner.update!(team: "Porto Grinders")
+    get profile_path("rita")
+    assert_select "[data-team]", text: "Porto Grinders"
+  end
+
+  test "a user without finished events: the empty card, no band and no toolbar" do
+    @stranger.update!(handle: "outra")
+
+    get profile_path("outra")
+
+    assert_response :success
+    assert_select "[data-profile-summary]", 0
+    assert_select "[data-profile-tools]", 0
+    assert_select "[data-profile-events]", 0
+    assert_select "p", text: "No finished events yet."
   end
 
   test "shows the avatar when there is one" do
@@ -86,7 +190,7 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     get profile_path("rita", locale: "pt")
 
     assert_response :success
-    assert_select "[data-position]", text: "3.º de 4"
+    assert_select "[data-result]", text: "3.º de 4"
     assert_select "button[disabled][title=?]", "Em breve"
   end
 
@@ -116,7 +220,7 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     count = count_queries { get profile_path("rita") }
 
     assert_response :success
-    assert_select "[data-profile-event]", 5
+    assert_select "tr[data-event]", 5
     puts "\n[query budget] profile with 5 events: #{count}" if ENV["QUERY_BUDGET_REPORT"]
     assert_operator count, :<=, 12
   end
@@ -163,6 +267,54 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     TournamentBuilder.play_round!(event, winners: { 1 => 0 })
     event.update_column(:state, state) # rubocop:disable Rails/SkipsModelValidations
     event.reload
+  end
+
+  def assert_cut_row(row, cut)
+    date = cut.start_time.to_date
+    expected = { "data-date" => date.iso8601, "data-year" => date.year.to_s, "data-season" => "Standard Circuit",
+                 "data-commander" => "Kinnan, Bonder Prodigy", "data-organizer" => cut.event_organizer.name,
+                 "data-format" => I18n.t("play.header.multiplayer"), "data-position" => "2",
+                 "data-participants" => "4", "data-cut" => "1" }
+    assert_equal expected, row.to_h.slice(*expected.keys)
+    assert_equal(2, %w[data-wins data-losses data-draws].sum { |key| row[key].to_i }) # two swiss rounds
+  end
+
+  # The plain event of the setup plus a finished Top-4 tournament in a circuit where Rita reached the
+  # single-elimination round (2nd, Kinnan) and a 1v1 a year ago that she won.
+  def three_events
+    cut =
+      history_event(@owner, position: 2, winner_seat: 0, top_cut_size: 4, rounds: 2, start_time: 1.day.ago,
+                            circuit_id: circuits(:standard_circuit).id) do |t|
+        participant_of(t, @owner).update!(decklist: "Kinnan, Bonder Prodigy")
+        t.rounds.create!(type: SingleEliminationRound, number: 3)
+      end
+    [cut, history_event(@owner, position: 1, format: "one_v_one", start_time: 1.year.ago) do |t|
+      participant_of(t, @owner).update!(decklist: "Mono-U Tempo")
+    end]
+  end
+
+  def participant_of(event, user) = event.event_participants.find_by(player: user.player)
+
+  # As Profiles::HistoryTest#played_event: a 4-player tournament with the user, `rounds` swiss rounds played,
+  # then finished; the block runs before (a cut round, a decklist).
+  def history_event(user, position:, winner_seat: :draw, **attrs)
+    event = TournamentBuilder.build(players: 3, organizer: event_organizers(:standard_organizer), state: :swiss,
+                                    format: attrs.delete(:format) || "multiplayer")
+    event.event_participants.create!(player: user.player, accepted_terms: true)
+    rounds = attrs.delete(:rounds) || 1
+    event.update_columns(swiss_rounds_count: rounds, top_cut_size: 0, **attrs) # rubocop:disable Rails/SkipsModelValidations
+    play_swiss_rounds(event, rounds, winner_seat)
+    yield event if block_given?
+    participant_of(event, user).update_columns(final_position: position) # rubocop:disable Rails/SkipsModelValidations
+    event.update_column(:state, :finished) # rubocop:disable Rails/SkipsModelValidations
+    event.reload
+  end
+
+  def play_swiss_rounds(event, rounds, winner_seat)
+    rounds.times do |i|
+      event.rounds.create!(type: SwissRound, number: i + 1)
+      TournamentBuilder.play_round!(event, winners: { 1 => winner_seat })
+    end
   end
 
   def count_queries(&block)

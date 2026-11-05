@@ -1,38 +1,64 @@
 <% content_for :title, @user.display_name %>
 <% content_for :description, t("profiles.description", name: @user.display_name) %>
-<section class="p-5 rounded-2xl bg-surface border border-line shadow-raised">
-  <div class="flex items-center gap-4">
-    <% if @user.avatar.attached? %>
-      <%= image_tag url_for(@user.avatar.variant(:thumb)), alt: "", width: 64, height: 64, class: "size-16 shrink-0 rounded-full object-cover border border-line" %>
-    <% else %>
-      <span data-profile-initials aria-hidden="true"
-            class="inline-flex size-16 shrink-0 items-center justify-center rounded-full bg-surface-raised border border-line font-display text-xl font-semibold text-muted"><%= profile_initials(@user) %></span>
-    <% end %>
-    <div class="min-w-0 flex-1">
-      <h1 class="font-display text-xl font-semibold truncate"><%= @user.display_name %></h1>
-      <p class="text-sm text-muted truncate">@<%= @user.handle %></p>
-      <% if @user.country.present? %>
-        <p data-profile-country class="text-sm text-muted"><%= country_name(@user.country) %></p>
+<% content_for :wide_main, "1" %>
+<section class="card">
+  <div class="p-5">
+    <div class="flex items-center gap-4">
+      <% if @user.avatar.attached? %>
+        <%= image_tag url_for(@user.avatar.variant(:thumb)), alt: "", width: 64, height: 64, class: "size-16 shrink-0 rounded-full object-cover border border-line" %>
+      <% else %>
+        <span data-profile-initials aria-hidden="true"
+              class="inline-flex size-16 shrink-0 items-center justify-center rounded-full bg-surface-raised border border-line font-display text-xl font-semibold text-muted"><%= profile_initials(@user) %></span>
       <% end %>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <h1 class="font-display text-xl font-semibold truncate"><%= @user.display_name %></h1>
+          <%= profile_team_tag(@user) %>
+        </div>
+        <p class="text-sm text-muted truncate">@<%= @user.handle %></p>
+        <% if @user.country.present? %>
+          <p data-profile-country class="text-sm text-muted"><%= country_name(@user.country) %></p>
+        <% end %>
+      </div>
+      <button type="button" disabled title="<%= t("profiles.coming_soon") %>"
+              class="shrink-0 px-3 py-1.5 rounded-lg border border-line text-sm text-muted opacity-60 cursor-not-allowed"><%= t("profiles.follow") %></button>
     </div>
-    <button type="button" disabled title="<%= t("profiles.coming_soon") %>"
-            class="shrink-0 px-3 py-1.5 rounded-lg border border-line text-sm text-muted opacity-60 cursor-not-allowed"><%= t("profiles.follow") %></button>
+    <% if @user.bio.present? %>
+      <div data-profile-bio class="mt-4 text-sm text-ink/90 space-y-2 break-words"><%= simple_format(@user.bio) %></div>
+    <% end %>
   </div>
-  <% if @user.bio.present? %>
-    <div data-profile-bio class="mt-4 text-sm text-ink/90 space-y-2 break-words"><%= simple_format(@user.bio) %></div>
-  <% end %>
+  <%= render "profiles/summary", summary: @summary if @history.any? %>
 </section>
 
-<section class="mt-6">
-  <h2 class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted"><%= t("profiles.events") %></h2>
-  <% if @history.any? %>
-    <ol class="divide-y divide-line/60 rounded-2xl bg-surface border border-line">
-      <%= render partial: "profiles/event_row", collection: @history, as: :row %>
-    </ol>
-  <% else %>
-    <p class="p-4 rounded-2xl bg-surface border border-line text-sm text-muted"><%= t("profiles.no_events") %></p>
-  <% end %>
-</section>
+<% if @history.any? %>
+  <%= render "profiles/toolbar", rows: @history %>
+  <section class="card overflow-hidden">
+    <table data-profile-events class="ctable">
+      <thead>
+        <tr>
+          <th data-sort="date" aria-sort="descending" class="cursor-pointer text-ink"><%= t("profiles.columns.date") %></th>
+          <th data-sort="name" class="cursor-pointer"><%= t("profiles.columns.event") %></th>
+          <th data-sort="position" class="r cursor-pointer"><%= t("profiles.columns.result") %></th>
+          <th><%= t("profiles.columns.commander") %></th>
+          <th class="w-9"><span class="sr-only"><%= t("profiles.details") %></span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= render partial: "profiles/event_row", collection: @history, as: :row %>
+        <tr data-no-match hidden><td colspan="5" class="py-7 text-center text-[13px] text-muted"><%= t("profiles.no_match") %></td></tr>
+      </tbody>
+    </table>
+    <% if @history.size > 6 %>
+      <div class="flex justify-center p-2.5 border-t border-line">
+        <button type="button" data-more data-show-all="<%= t("profiles.show_all", count: "%{count}") %>"
+                data-show-less="<%= t("profiles.show_less") %>"
+                class="<%= button_classes(:secondary, size: :sm) %>"><%= t("profiles.show_all", count: @history.size) %></button>
+      </div>
+    <% end %>
+  </section>
+<% else %>
+  <p class="mt-6 p-4 card text-sm text-muted"><%= t("profiles.no_events") %></p>
+<% end %>
 
 <section data-profile-comments class="mt-6 p-4 rounded-2xl border border-dashed border-line text-sm text-muted">
   <h2 class="mb-1 text-[11px] font-semibold uppercase tracking-wide"><%= t("profiles.comments") %></h2>

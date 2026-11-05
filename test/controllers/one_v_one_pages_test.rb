@@ -116,9 +116,11 @@ class OneVOnePagesTest < ActionDispatch::IntegrationTest # rubocop:disable Metri
     get profile_path(user.handle)
 
     assert_response :success
-    assert_select "[data-profile-event]", 1 do
+    assert_select "tr[data-event]", 1
+    assert_select "tr[data-event-detail]", 1 do
       assert_select "[data-wld]", text: "1-0-0"
-      assert_select "span[role=img]", 0
+      assert_select "[data-round-seat]", 0
+      assert_select "td", text: /1v1 · no seats/
     end
   end
 
