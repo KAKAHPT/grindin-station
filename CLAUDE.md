@@ -145,6 +145,7 @@ Infractions have a hierarchical enum structure:
 - **Helpers**: `PaletteHelper` (palette A buttons, chips, seat squares; dark only), `RosterHelper` (roster desk counters and rows)
 - **Stimulus**: `pod_result` (tap a row to pick the winner, then confirm), `row_expander` (expandable roster stats)
 - **Printing**: `GET /organizer/{tournaments,leagues}/:id/rounds/:id/print` (12 pods per A4) and `/slips` (6 QR slips per A4)
+- **Export (M10)**: `GET /organizer/{tournaments,leagues}/:id/export/{players,melee,standings,rounds}.csv` and, for tournaments, `export/pairings?round=N` and `export/sheet` (print layout: player list, one block per closed round, final standings). Organizer + scorekeeper only; every download audited `data_exported`. CSV POROs in `app/services/exports/` (`Exports::Players` = EventLink invite list, one e-mail or name per line, no header; `Melee` = `Email,FirstName,LastName,WizardsAccountDisplayName`; `Standings`; `Rounds` long format; `Pairings` = TopDeck `Table,Player1..5`), UTF-8 BOM + CRLF via `Exports::CsvFile`. `players.wizards_email` (set at `/account`, staff-only) → `Player#reporting_email` falls back to the sign-in e-mail. EventLink has no results import; Commander events are filed as "Player List Only" (research: `docs/superpowers/notes/2026-11-05-m10-export-research.md`). Overview tab shows the Export card
 
 ### Public API (stream kit feeds)
 

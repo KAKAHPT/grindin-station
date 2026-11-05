@@ -10,6 +10,7 @@ module Accounts
         user.sessions.destroy_all
         user.avatar.purge_later if user.avatar.attached?
         user.update!(removed_attributes)
+        user.player&.update!(wizards_email: nil)
       end
       user
     end

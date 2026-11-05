@@ -11,6 +11,7 @@ gem "kaminari"
 gem "kamal", require: false
 gem "thruster", require: false
 gem "rack-cors"
+gem "csv"
 
 # Sign in with Google / Discord
 gem "omniauth", "~> 2.1"

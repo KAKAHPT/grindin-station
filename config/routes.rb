@@ -80,6 +80,12 @@ Rails.application.routes.draw do
     root "tournaments#index"
 
     resources :tournaments do
+      member do
+        %w[players melee standings rounds pairings].each do |kind|
+          get "export/#{kind}", to: "exports##{kind}", as: "export_#{kind}"
+        end
+        get "export/sheet", to: "exports#sheet", as: :export_sheet
+      end
       resources :staff, only: %i[index create destroy]
       resources :judge_calls, only: %i[index] do
         member do
@@ -113,6 +119,11 @@ Rails.application.routes.draw do
     end
 
     resources :leagues do
+      member do
+        %w[players melee standings rounds].each do |kind|
+          get "export/#{kind}", to: "exports##{kind}", as: "export_#{kind}"
+        end
+      end
       resources :infractions, only: %i[new create]
       resources :event_participants do
         resources :infractions, only: %i[index destroy]

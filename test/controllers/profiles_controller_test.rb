@@ -29,6 +29,15 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     end
   end
 
+  test "the public profile never shows the Wizards e-mail" do
+    @owner.player.update!(wizards_email: "secret-wiz@example.com")
+
+    get profile_path("rita")
+
+    assert_response :success
+    assert_no_match(/secret-wiz@example\.com/, response.body)
+  end
+
   test "an unknown handle is a 404" do
     get profile_path("nobody-here")
 

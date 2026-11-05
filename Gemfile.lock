@@ -125,6 +125,7 @@ GEM
     cruise (0.2.0-arm64-darwin)
     cruise (0.2.0-x86_64-darwin)
     cruise (0.2.0-x86_64-linux-gnu)
+    csv (3.3.5)
     date (3.5.1)
     debug (1.11.1)
       irb (~> 1.10)
@@ -547,6 +548,7 @@ DEPENDENCIES
   brakeman
   capybara
   commonmarker
+  csv
   debug
   dotenv
   herb

@@ -1,0 +1,34 @@
+<% has_rounds = tournament.rounds.exists? %>
+<% rows = [
+     ["players.csv", t("organizer.export.purposes.players"), export_players_organizer_tournament_path(tournament)],
+     ["melee.csv", t("organizer.export.purposes.melee"), export_melee_organizer_tournament_path(tournament)]
+   ] %>
+<% rows << ["pairings.csv", t("organizer.export.purposes.pairings"), export_pairings_organizer_tournament_path(tournament)] if tournament.rounds.published.exists? %>
+<% if has_rounds %>
+  <% rows << ["standings.csv", t("organizer.export.purposes.standings"), export_standings_organizer_tournament_path(tournament)] %>
+  <% rows << ["rounds.csv", t("organizer.export.purposes.rounds"), export_rounds_organizer_tournament_path(tournament)] %>
+<% end %>
+
+<section class="col-span-full card overflow-clip" data-overview-export>
+  <h2 class="card-title"><%= t("organizer.export.title") %></h2>
+  <table class="ctable">
+    <tbody>
+      <% rows.each do |name, purpose, path| %>
+        <tr>
+          <td class="tabular"><%= name %></td>
+          <td><%= purpose %></td>
+          <td class="r"><%= link_to t("organizer.export.download"), path, class: button_classes(:secondary, size: :sm) %></td>
+        </tr>
+      <% end %>
+      <% if has_rounds %>
+        <tr>
+          <td><%= t("organizer.export.sheet_name") %></td>
+          <td><%= t("organizer.export.purposes.sheet") %></td>
+          <td class="r"><%= link_to t("organizer.export.open"), export_sheet_organizer_tournament_path(tournament),
+                                    target: "_blank", rel: "noopener", class: button_classes(:secondary, size: :sm) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <p class="form-help px-4 py-3"><%= t("organizer.export.note_html") %></p>
+</section>

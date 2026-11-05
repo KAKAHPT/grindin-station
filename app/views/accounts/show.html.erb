@@ -46,6 +46,15 @@
             <p class="<%= hint %>"><%= t(".email_hint") %></p>
           <% end %>
         </div>
+        <% if @user.player %>
+          <div class="<%= field %>">
+            <%= f.fields_for :player, update_only: true do |pf| %>
+              <%= pf.label :wizards_email %>
+              <%= pf.email_field :wizards_email, class: input %>
+              <p class="<%= hint %>"><%= t(".wizards_email_hint") %></p>
+            <% end %>
+          </div>
+        <% end %>
         <div class="<%= field %>">
           <%= f.label :handle %>
           <%= f.text_field :handle, required: true, pattern: "[a-z0-9-]{3,30}", class: input %>

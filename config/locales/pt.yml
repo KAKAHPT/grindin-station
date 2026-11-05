@@ -174,6 +174,8 @@ pt:
         password: "Palavra-passe"
         password_confirmation: "Confirmação da palavra-passe"
         current_password: "Palavra-passe atual"
+      player:
+        wizards_email: "E-mail da conta Wizards"
       event:
         format: "Formato"
         match_games: "Duração do match"
@@ -197,6 +199,36 @@ pt:
       event_participant:
         accepted_terms: "Li e aceito as regras deste evento."
   organizer:
+    export:
+      title: "Exportar"
+      download: "Descarregar"
+      open: "Abrir"
+      sheet_name: "Folha de resultados"
+      purposes:
+        players: "Lista de convites do EventLink"
+        melee: "Importação de jogadores do Melee"
+        pairings: "Importação de emparelhamentos do TopDeck"
+        standings: "Classificação final"
+        rounds: "Todas as rondas, uma linha por assento"
+        sheet: "Folha de resultados para introdução manual"
+      note_html: "O EventLink não importa resultados.<br>Eventos de Commander são registados como Player List Only: envia <code>players.csv</code> como lista de convites e encerra o evento."
+      sheet:
+        players: "Jogadores"
+        standings: "Classificação final"
+        name: "Nome"
+        email: "E-mail"
+        dropped: "Desistiu"
+        "yes": "Sim"
+        points: "Pontos"
+        record: "V-D-E"
+        byes: "Byes"
+        results:
+          win: "V"
+          draw: "E"
+          loss: "D"
+          advance: "Avança"
+          eliminated: "Eliminado"
+          penalty: "Penalização"
     shell:
       tournament: "Torneio"
       best_of: "Bo%{games}"
@@ -693,6 +725,7 @@ pt:
       profile: "Perfil"
       avatar_hint: "JPEG, PNG ou WebP, até 2 MB."
       email_hint: "Para mudar o e-mail, escreve também a tua palavra-passe atual em baixo."
+      wizards_email_hint: "Usado pelos organizadores para reportar os teus resultados ao Wizards EventLink. Deixa vazio para usar o e-mail de início de sessão."
       handle_hint: "3 a 30 letras minúsculas, algarismos ou hífenes. Usado no endereço do teu perfil público."
       visibility:
         public: "Público"

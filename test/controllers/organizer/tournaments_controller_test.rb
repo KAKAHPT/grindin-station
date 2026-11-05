@@ -256,6 +256,31 @@ module Organizer
       assert_no_legacy_classes
     end
 
+    test "the Overview Export card lists the files and shows pairings only once a round is published" do
+      tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
+
+      get organizer_tournament_path(tournament)
+      assert_select "[data-overview-export] tbody tr", 2
+      assert_select "[data-overview-export] a[href=?]", export_players_organizer_tournament_path(tournament),
+                    text: "Download"
+      assert_select "[data-overview-export] a[href=?]", export_melee_organizer_tournament_path(tournament)
+      assert_select "[data-overview-export] p", text: /EventLink has no results import/
+
+      round = tournament.rounds.create!(type: SwissRound, number: 1)
+      get organizer_tournament_path(tournament)
+      assert_select "[data-overview-export] tbody tr", 5
+      assert_select "[data-overview-export] a[href=?]", export_pairings_organizer_tournament_path(tournament), 0
+      sheet = export_sheet_organizer_tournament_path(tournament)
+      assert_select "[data-overview-export] a[href=?][target=_blank]", sheet, text: "Open"
+
+      round.update!(published: true)
+      get organizer_tournament_path(tournament)
+      assert_select "[data-overview-export] tbody tr", 6
+      assert_select "[data-overview-export]", text: /TopDeck pairings import/
+      assert_select "[data-overview-export] a[href=?]", export_pairings_organizer_tournament_path(tournament)
+      assert_no_legacy_classes
+    end
+
     test "Roster, Rounds, Judge Center, Staff and Settings render inside the shell with their tab active" do
       tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
       round = tournament.rounds.create!(type: SwissRound, number: 1)
@@ -301,6 +326,7 @@ module Organizer
 
       assert_select "[data-tabs] .tab", 3
       assert_select "[data-event-header] input[name='tournament[state]']", 0
+      assert_select "[data-overview-export]", 1
     end
 
     test "a judge sees Overview, Roster, Rounds and Judge Center, and no Staff or Settings" do
@@ -315,6 +341,7 @@ module Organizer
       assert_select "[data-tabs] .tab", 4
       assert_select "[data-tabs] .tab", text: /Overview|Roster|Rounds|Judge Center/, count: 4
       assert_select "[data-tabs] .tab", text: /Staff|Settings/, count: 0
+      assert_select "[data-overview-export]", 0
     end
 
     test "a tournament with no rounds shows the Rounds tab disabled" do

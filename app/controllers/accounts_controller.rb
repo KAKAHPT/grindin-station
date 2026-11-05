@@ -83,7 +83,8 @@ class AccountsController < ApplicationController
   end
 
   def account_params
-    params.expect(user: %i[name email_address handle country bio visibility avatar password password_confirmation])
+    params.expect(user: [:name, :email_address, :handle, :country, :bio, :visibility, :avatar, :password,
+                         :password_confirmation, { player_attributes: [:wizards_email] }])
   end
 
   # The user typed the locale's delete word ("delete" / "eliminar").
