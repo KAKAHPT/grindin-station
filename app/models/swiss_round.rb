@@ -27,8 +27,12 @@ class SwissRound < Round
     number == event.number_of_swiss_rounds
   end
 
+  # Closing the last swiss round finishes a tournament without a cut; with a cut the organizer makes it.
   def advance_tournament!
-    return if last_swiss_round?
+    if last_swiss_round?
+      event.update!(state: :finished) if event.is_a?(Tournament) && event.number_of_single_elimination_rounds.zero?
+      return
+    end
 
     Tournaments::StartSwissRoundJob.perform_now(event)
   end

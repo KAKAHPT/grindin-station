@@ -91,7 +91,11 @@ module Organizer
       @round.update!(finished_at: Time.zone.now)
       Audit.record(:round_closed, subject: @round, event: event, round_number: @round.number)
       latest = event.rounds.reload.max_by(&:number)
-      notice = latest == @round ? t("rounds.closed") : t("rounds.next_round_created")
+      notice =
+        if event.reload.finished? then t("rounds.tournament_finished")
+        elsif latest == @round then t("rounds.closed")
+        else t("rounds.next_round_created")
+        end
       redirect_to [:organizer, event, latest.becomes(Round)], notice: notice
     end
 

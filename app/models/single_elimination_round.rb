@@ -19,8 +19,9 @@ class SingleEliminationRound < Round
     last_single_elimination_round? ? nil : event.top_cut_round_minutes.minutes
   end
 
+  # Closing the final finishes the tournament (final positions, circuit points, rankings).
   def advance_tournament!
-    return if last_single_elimination_round?
+    return event.update!(state: :finished) if last_single_elimination_round?
 
     Tournaments::StartSingleEliminationRoundJob.perform_now(event)
   end
