@@ -29,8 +29,8 @@ in the accent colour; no new visual language. Layouts reviewed with the owner th
   failures are logged, never block the action). Called from the controllers/services that already know the actor,
   not from model callbacks.
 - Actions and where they are written (data keys in parentheses):
-  - `sign_in` (SessionsController#create success), `sign_in_failed` (same, failure; `email` as entered, actor
-    nil), `sign_out` (#destroy), `sign_up` (RegistrationsController#create), `oauth_sign_in` (OmniauthCallbacks
+  - `sign_in` (SessionsController#create success), `sign_in_failed` (same, failure; `email` as entered,
+    normalised: stripped and downcased; actor nil), `sign_out` (#destroy), `sign_up` (RegistrationsController#create), `oauth_sign_in` (OmniauthCallbacks
     success; `provider`), `oauth_failed` (failure; `provider`, `reason`).
   - `password_reset_requested` (PasswordsController#create, `email`), `password_reset` (#update success),
     `password_changed`, `email_changed` (`from`, `to`) (AccountsController#update, by `saved_change_to_*`),
@@ -42,7 +42,8 @@ in the accent colour; no new visual language. Layouts reviewed with the owner th
     #update when `state_previously_changed?`; `from`, `to`), `infraction_added` / `infraction_removed`
     (`penalty`, `participant_id`), `featured_changed` (admin toggle and organizer switch; `featured`).
   - `rate_limited` (`controller`, `action`, `path`), written by one subscriber to the
-    `rate_limit.action_controller` notification (no change to the `with:` lambdas), actor = current user if any.
+    `rate_limit.action_controller` notification (no change to the `with:` lambdas), actor = current user if any;
+    one row per ip and action per minute (deduped through `Rails.cache`).
 - `/admin/audit`: `ctable` newest first, 50 per page (Kaminari), filters (GET params, `.field` inputs in one
   row): `action` select, `user` (e-mail contains), `event` (name contains), `from`/`to` dates. Columns: when,
   action chip, actor (e-mail or "—"), event, subject, ip, details (compact `key: value` list from `data`).

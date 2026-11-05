@@ -33,6 +33,11 @@
             <i aria-hidden="true"></i><%= t("topbar.organizer_mode") %>
           <% end %>
         <% end %>
+        <% if current_user.admin? %>
+          <%= link_to admin_root_path, class: ["topbar-chip", ("on" if admin_mode?)], data: { admin_mode: true } do %>
+            <i aria-hidden="true"></i><%= t("topbar.admin") %>
+          <% end %>
+        <% end %>
         <%= link_to t("accounts.nav"), account_path(locale: params[:locale]), class: "topbar-link" %>
         <%= link_to t("topbar.logout"), session_path(Current.session), data: { turbo_method: :delete }, class: "topbar-link" %>
       <% end %>

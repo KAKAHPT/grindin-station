@@ -1,0 +1,32 @@
+<%# Audit rows (newest first). Local: audit_events. %>
+<div class="overflow-x-auto">
+  <table class="ctable">
+    <thead>
+      <tr>
+        <th><%= t("admin.audit.when") %></th>
+        <th><%= t("admin.audit.action") %></th>
+        <th><%= t("admin.audit.actor") %></th>
+        <th><%= t("admin.audit.event") %></th>
+        <th><%= t("admin.audit.subject") %></th>
+        <th><%= t("admin.audit.ip") %></th>
+        <th><%= t("admin.audit.details") %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% audit_events.each do |audit_event| %>
+        <tr>
+          <td class="whitespace-nowrap text-muted tabular"><%= l(audit_event.created_at, format: :short) %></td>
+          <td><%= status_chip(audit_event.action.end_with?("failed", "limited") ? :warn : :accent) { audit_event.action } %></td>
+          <td class="text-muted"><%= audit_event.actor_user&.email_address || "—" %></td>
+          <td><%= audit_event.event&.name || "—" %></td>
+          <td class="text-muted"><%= audit_event.subject_type ? "#{audit_event.subject_type} #{audit_event.subject_id.to_s.first(8)}" : "—" %></td>
+          <td class="text-muted tabular"><%= audit_event.ip || "—" %></td>
+          <td class="text-muted break-all"><%= audit_details(audit_event.data) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+<% if audit_events.empty? %>
+  <p class="border-t border-line px-4 py-3 text-[12px] text-muted"><%= t("admin.audit.empty") %></p>
+<% end %>

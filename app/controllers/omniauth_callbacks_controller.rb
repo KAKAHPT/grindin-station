@@ -9,11 +9,20 @@ class OmniauthCallbacksController < ApplicationController
                Accounts::ConnectIdentity::EmailTaken => "auth.email_taken" }.freeze
 
   allow_unauthenticated_access
-  rescue_from(*REFUSALS.keys) { |error| back_to_sign_in t(REFUSALS.fetch(error.class), provider: provider_name) }
-  rescue_from(Accounts::ConnectIdentity::IdentityTaken) do
+  rate_limit to: 20, within: 3.minutes, only: :failure,
+             with: -> { redirect_to new_session_url, alert: t("flash.alert.try_again_later") }
+  rescue_from(*REFUSALS.keys) do |error|
+    audit_failure(error)
+    back_to_sign_in t(REFUSALS.fetch(error.class), provider: provider_name)
+  end
+  rescue_from(Accounts::ConnectIdentity::IdentityTaken) do |error|
+    audit_failure(error)
     redirect_to account_path, alert: t("auth.identity_taken", provider: provider_name)
   end
-  rescue_from(ActiveRecord::RecordInvalid) { back_to_sign_in t("auth.oauth_failed") }
+  rescue_from(ActiveRecord::RecordInvalid) do |error|
+    audit_failure(error)
+    back_to_sign_in t("auth.oauth_failed")
+  end
 
   # Signed in, the identity is linked to the current user (from the account page); otherwise it signs in.
   def create
@@ -22,14 +31,23 @@ class OmniauthCallbacksController < ApplicationController
     return redirect_to(account_path, notice: t("auth.linked", provider: provider_name)) if signed_in
 
     start_new_session_for user
+    Audit.record(:oauth_sign_in, actor: user, subject: user, provider: params[:provider])
     redirect_to after_authentication_url, notice: t("flash.notice.signed_in")
   end
 
+  # OmniAuth sends the strategy and its error key (e.g. "invalid_credentials").
   def failure
+    strategy = params[:strategy].to_s
+    Audit.record(:oauth_failed, provider: PROVIDER_NAMES.key?(strategy) ? strategy : "unknown",
+                                reason: params[:message].to_s.first(64))
     back_to_sign_in t("auth.oauth_failed")
   end
 
   private
+
+  def audit_failure(error)
+    Audit.record(:oauth_failed, provider: params[:provider].to_s, reason: error.class.name.demodulize.underscore)
+  end
 
   def provider_name
     PROVIDER_NAMES.fetch(params[:provider], params[:provider])

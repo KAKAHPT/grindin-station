@@ -119,6 +119,9 @@ Infractions have a hierarchical enum structure:
 - `/account` (profile, handle, visibility `public|participants|private`, avatar via Active Storage, needs libvips; delete = `Accounts::Anonymize`, "Removed player")
 - Password reset functionality with `PasswordsMailer`
 - `EventOrganizer` namespace for tournament management functions
+- **Site admin (M9)**: `users.admin` (never in strong params; only `bin/rails "grindin:admin[email]"` / `grindin:admin:revoke[email]`); `Admin::BaseController` answers 404 to non-admins; `/admin` (Overview: people/events counts, 12-week and 12-month sparklines, tournament-day health per ongoing event, errors summary, recent audit), `/admin/audit` (filters action/user/event/dates, 50 per page), `/admin/errors` (unresolved groups by fingerprint + Resolve, CSP reports 30 d, rate limits 7 d; `/admin/errors/:fingerprint`), `/admin/events` (Featured toggle). Read-only otherwise; the topbar shows an "Admin" chip to admins
+- **Audit log**: `audit_events` written by `Audit.record(action, actor:, subject:, event:, **data)` (actions in `AuditEvent::ACTIONS`; never raises; savepoint so a failed insert cannot poison the caller's transaction) from the controllers/services that know the actor (sign-ins and failures, sign-ups, OAuth, password/e-mail changes, account deletion, identities, staff, result corrections on closed rounds, round close/undo, drops, event state changes, infractions, featured, admin grants, data exports); `rate_limited` from the `rate_limit.action_controller` subscriber, one row per ip+action per minute. `Current` carries `ip_address`, `request_id`, `request_path`
+- **Errors**: `ErrorRecorder` subscribed to `Rails.error` (not in test) writes `error_events` (fingerprint = class + first app frame; `source` request/job/other; resolve sets `resolved_at`); `POST /csp-reports` stores `csp_reports` (64 KB cap, fields cut at 2048). `Admin::TrimJob` nightly 04:30 keeps audit 12 months, errors 90 days, CSP 30 days
 - `Current` concern for request-scoped state
 - Content security policy (`config/initializers/content_security_policy.rb`) runs **report-only**: per-response nonce on the importmap/module scripts, a hash for the font-swap `onload` in `_phone_head`, inline styles allowed (Tailwind/Turbo). `test/system/content_security_policy_test.rb` fails on any console violation on the landing, play and organizer round pages. To enforce, set `config.content_security_policy_report_only = false` (after an event day with no violations reported)
 
@@ -226,6 +229,7 @@ GET/PATCH/DELETE /account        → accounts (DELETE /account/identities/:id un
 GET  /p/:handle                  → profiles#show (public profile, history)
 GET  /notifications              → notifications#index
 GET  /up                         → rails/health#show (health check)
+GET  /admin, /admin/audit, /admin/errors(/:fingerprint), POST /admin/errors/:fingerprint/resolve, /admin/events, PATCH /admin/events/:id/featured → admin/* (site admins only, 404 otherwise)
 GET  /api/v1/events/:slug/{standings,rounds,info} → api/v1/events (public JSON, 30 s cache, CORS)
 
 Play namespace (/t/:slug, public; draft/canceled events 404 for non-staff):

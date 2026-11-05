@@ -13,6 +13,16 @@ class LayoutTest < ActionDispatch::IntegrationTest
     assert_select "[data-topbar] a", text: "Sign in"
   end
 
+  test "the Admin chip shows for admins only, on under /admin" do
+    sign_in users(:organizer_user)
+    get organizer_tournaments_path
+    assert_select "[data-topbar] [data-admin-mode]", count: 0
+
+    sign_in users(:admin_user)
+    get admin_root_path
+    assert_select "[data-topbar] [data-admin-mode].on", text: "Admin"
+  end
+
   test "a play page has the top bar, the viewer and no event name in it" do
     tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
     sign_in users(:player_one)

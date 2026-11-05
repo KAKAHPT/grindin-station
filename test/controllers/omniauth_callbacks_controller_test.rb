@@ -3,6 +3,8 @@
 require "test_helper"
 
 class OmniauthCallbacksControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
+  include RateLimitStore
+
   setup do
     OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
       provider: "google_oauth2", uid: "g-123", info: { email: "player1@example.com", name: "Player One" },
@@ -108,6 +110,26 @@ class OmniauthCallbacksControllerTest < ActionDispatch::IntegrationTest # ruboco
 
     assert_redirected_to new_session_path
     assert_equal I18n.t("auth.oauth_failed"), flash[:alert]
+  end
+
+  test "failure is throttled after 20 requests" do
+    with_memory_rate_limit_store do
+      20.times { get "/auth/failure", params: { message: "x", strategy: "discord" } }
+      assert_equal I18n.t("auth.oauth_failed"), flash[:alert]
+
+      get "/auth/failure", params: { message: "x", strategy: "discord" }
+      assert_redirected_to new_session_path
+      assert_equal I18n.t("flash.alert.try_again_later"), flash[:alert]
+    end
+  end
+
+  test "failure stores an unknown strategy as unknown and truncates the reason" do
+    get "/auth/failure", params: { message: "a" * 300, strategy: "evil" }
+
+    audit = AuditEvent.recent.first
+    assert_equal "oauth_failed", audit.action
+    assert_equal "unknown", audit.data["provider"]
+    assert_equal 64, audit.data["reason"].length
   end
 
   test "mocked provider error ends on the sign in page" do

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_05_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_05_120100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -44,6 +44,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_090000) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "audit_events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "action", null: false
+    t.uuid "actor_user_id"
+    t.datetime "created_at", null: false
+    t.jsonb "data", default: {}, null: false
+    t.uuid "event_id"
+    t.string "ip"
+    t.string "request_id"
+    t.uuid "subject_id"
+    t.string "subject_type"
+    t.index ["action"], name: "index_audit_events_on_action"
+    t.index ["actor_user_id"], name: "index_audit_events_on_actor_user_id"
+    t.index ["created_at"], name: "index_audit_events_on_created_at"
+    t.index ["event_id"], name: "index_audit_events_on_event_id"
+  end
+
   create_table "circuit_standings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "circuit_id", null: false
     t.datetime "created_at", null: false
@@ -63,6 +79,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_090000) do
     t.string "name", null: false
     t.datetime "updated_at", null: false
     t.index ["event_organizer_id"], name: "index_circuits_on_event_organizer_id"
+  end
+
+  create_table "csp_reports", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "blocked_uri"
+    t.datetime "created_at", null: false
+    t.string "document_uri"
+    t.string "ip"
+    t.string "user_agent"
+    t.string "violated_directive"
+    t.index ["created_at"], name: "index_csp_reports_on_created_at"
+  end
+
+  create_table "error_events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.text "backtrace"
+    t.datetime "created_at", null: false
+    t.string "error_class"
+    t.string "fingerprint", null: false
+    t.text "message"
+    t.string "path"
+    t.string "request_id"
+    t.datetime "resolved_at"
+    t.string "source"
+    t.uuid "user_id"
+    t.index ["created_at"], name: "index_error_events_on_created_at"
+    t.index ["fingerprint"], name: "index_error_events_on_fingerprint"
   end
 
   create_table "event_organizers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -312,6 +353,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_090000) do
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.boolean "admin", default: false, null: false
     t.datetime "anonymized_at"
     t.text "bio"
     t.string "country", limit: 2
@@ -336,6 +378,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_090000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "audit_events", "events", on_delete: :nullify
+  add_foreign_key "audit_events", "users", column: "actor_user_id", on_delete: :nullify
   add_foreign_key "circuit_standings", "circuits"
   add_foreign_key "circuit_standings", "players"
   add_foreign_key "circuits", "event_organizers"

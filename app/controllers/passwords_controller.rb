@@ -19,6 +19,8 @@ class PasswordsController < ApplicationController
     if (user = User.find_by(email_address: params[:email_address]))
       PasswordsMailer.reset(user).deliver_later
     end
+    Audit.record(:password_reset_requested, actor: nil, subject: user,
+                                            email: params[:email_address].to_s.strip.downcase)
 
     redirect_to new_session_path, notice: t("flash.notice.password_reset_sent")
   end
@@ -26,6 +28,7 @@ class PasswordsController < ApplicationController
   def update
     if reset_password
       @user.sessions.destroy_all
+      Audit.record(:password_reset, actor: @user, subject: @user)
       redirect_to new_session_path, notice: t("flash.notice.password_reset")
     else
       redirect_to edit_password_path(params[:token]), alert: t(reset_failure_key)

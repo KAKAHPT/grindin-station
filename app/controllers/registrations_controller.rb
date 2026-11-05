@@ -16,6 +16,7 @@ class RegistrationsController < ApplicationController
 
     if @user.save
       start_new_session_for @user
+      Audit.record(:sign_up, actor: @user, subject: @user)
       redirect_to root_path, notice: t("flash.notice.welcome_signed_up")
     else
       render :new, status: :unprocessable_entity

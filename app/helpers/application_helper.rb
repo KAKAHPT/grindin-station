@@ -57,6 +57,10 @@ module ApplicationHelper
     url_for(controller: params[:controller], action: params[:action]).starts_with?("/organizer")
   end
 
+  def admin_mode?
+    controller_path.start_with?("admin/")
+  end
+
   def organizer_path_builder
     path =
       params.dup.tap do |p|

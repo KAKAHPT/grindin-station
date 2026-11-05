@@ -87,16 +87,24 @@ module Results
     end
 
     def call
+      closed = false
       results =
         Result.transaction do
           closed = Round.finished.exists?(@round.id) # fresh: the round may have closed since it was loaded
           assignments.map { |participant, type| closed ? supersede(participant, type) : update(participant, type) }
         end
+      audit_correction if closed
       ::Standings::Snapshot.refresh(@round)
       Outcome.new(results: results, warning: self.class.warning_for(@pod))
     end
 
     private
+
+    # A closed round's result rewritten: who, which pod and what it became ("Win: <winner>").
+    def audit_correction
+      Audit.record(:result_corrected, actor: @by, subject: @pod, event: @round.event, pod_id: @pod.id,
+                                      round_number: @round.number, result: [@type, @winner&.name].compact.join(": "))
+    end
 
     # { participant => result type } for the touched seats. A Penalty already on a seat stays.
     def assignments

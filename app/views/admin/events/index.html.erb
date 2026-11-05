@@ -1,0 +1,38 @@
+<%= render "admin/nav", active: :events %>
+
+<section class="col-span-full card overflow-clip" data-admin-events>
+  <h2 class="card-title"><%= t("admin.events.title") %></h2>
+  <div class="overflow-x-auto">
+    <table class="ctable">
+      <thead>
+        <tr>
+          <th><%= t("admin.events.name") %></th>
+          <th><%= t("admin.events.organizer") %></th>
+          <th><%= t("admin.events.state") %></th>
+          <th><%= t("admin.events.format") %></th>
+          <th class="r"><%= t("admin.events.players") %></th>
+          <th class="r"><%= t("admin.events.start") %></th>
+          <th class="r"><%= t("admin.events.featured") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @events.each do |event| %>
+          <tr data-event="<%= event.id %>">
+            <td class="font-semibold"><%= link_to event.name, [:organizer, event], class: "hover:text-accent" %></td>
+            <td class="text-muted"><%= event.event_organizer.user&.email_address || "—" %></td>
+            <td><%= desk_chip(EventsHelper::EVENT_STATE_TONES.fetch(event.state)) { t("admin.states.#{event.state}") } %></td>
+            <td class="text-muted"><%= t("organizer.format_options.#{event.format}") %></td>
+            <td class="r tabular"><%= event.event_participants_count %></td>
+            <td class="r whitespace-nowrap text-muted tabular"><%= l(event.start_time.to_date) %></td>
+            <td class="r">
+              <%= button_to featured_admin_event_path(event, page: params[:page]), method: :patch, class: button_classes(event.featured ? :primary : :ghost, size: :sm), "aria-pressed": event.featured do %>
+                <%= event.featured ? t("admin.events.featured_on") : t("admin.events.featured_off") %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<div class="col-span-full"><%= paginate @events %></div>

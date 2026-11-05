@@ -1,0 +1,9 @@
+<%# Admin area tabs. Local: active (:overview, :audit, :errors or :events). %>
+<div class="col-span-full">
+  <%= render "shared/tabs", tabs: [
+    { label: t("admin.nav.overview"), path: admin_root_path, active: active == :overview },
+    { label: t("admin.nav.audit"), path: admin_audit_path, active: active == :audit },
+    { label: t("admin.nav.errors"), path: admin_errors_path, active: active == :errors },
+    { label: t("admin.nav.events"), path: admin_events_path, active: active == :events }
+  ] %>
+</div>

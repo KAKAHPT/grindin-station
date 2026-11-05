@@ -47,6 +47,8 @@ module Organizer
 
       if @league.save
         if @league.state_previously_changed?
+          from, to = @league.state_previous_change
+          Audit.record(:event_state_changed, subject: @league, event: @league, from: from, to: to)
           @league.perform_state_based_actions
         end
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Organizer
-  class TournamentsController < OrganizerController
+  class TournamentsController < OrganizerController # rubocop:disable Metrics/ClassLength -- the permitted list
     public_actions :index
     require_organizer only: %i[new create]
     allow_roles :organizer, only: %i[edit update]
@@ -59,6 +59,7 @@ module Organizer
       @tournament.attributes = tournament_params.except(:format)
 
       if @tournament.save
+        audit_settings(@tournament)
         if @tournament.state_previously_changed? && @tournament.single_elimination?
           redirect_to [:organizer, @tournament, @tournament.rounds.max_by(&:number).becomes(Round)],
                       notice: t("flash.notice.tournament_advanced")
@@ -71,6 +72,16 @@ module Organizer
     end
 
     private
+
+    def audit_settings(tournament)
+      if tournament.state_previously_changed?
+        from, to = tournament.state_previous_change
+        Audit.record(:event_state_changed, subject: tournament, event: tournament, from: from, to: to)
+      end
+      return unless tournament.saved_change_to_featured?
+
+      Audit.record(:featured_changed, subject: tournament, event: tournament, featured: tournament.featured)
+    end
 
     # Tournaments the user may edit: owned, or staffed as an organizer (one query for the staff roles).
     def editable_ids(tournaments)

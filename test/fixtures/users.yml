@@ -106,3 +106,9 @@ player_seventeen:
   name: "Player Seventeen"
   email_address: "player17@example.com"
   password_digest: "<%= BCrypt::Password.create('password123') %>"
+admin_user:
+  handle: "admin-user"
+  name: "Site Admin"
+  email_address: "admin@example.com"
+  password_digest: "<%= BCrypt::Password.create('password123') %>"
+  admin: true

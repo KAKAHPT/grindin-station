@@ -1,0 +1,45 @@
+<%= render "admin/nav", active: :errors %>
+
+<section class="col-span-full card overflow-clip" data-error-latest>
+  <h2 class="card-title"><%= @latest.error_class %></h2>
+  <table class="ctable">
+    <tbody>
+      <tr><td class="w-40 text-muted"><%= t("admin.errors.message") %></td><td class="break-all"><%= @latest.message %></td></tr>
+      <tr><td class="text-muted"><%= t("admin.errors.path") %></td><td class="break-all"><%= @latest.path || "—" %></td></tr>
+      <tr><td class="text-muted"><%= t("admin.errors.request_id") %></td><td class="tabular"><%= @latest.request_id || "—" %></td></tr>
+      <tr><td class="text-muted"><%= t("admin.errors.user") %></td><td><%= @user&.email_address || "—" %></td></tr>
+      <tr><td class="text-muted"><%= t("admin.errors.source") %></td><td><%= status_chip(:muted) { @latest.source.to_s } %></td></tr>
+    </tbody>
+  </table>
+  <pre class="overflow-x-auto border-t border-line px-4 py-3 text-[11.5px] leading-relaxed text-muted"><%= @latest.backtrace %></pre>
+</section>
+
+<section class="col-span-full card overflow-clip" data-occurrences>
+  <h2 class="card-title"><%= t("admin.errors.occurrences", count: @occurrences.size) %></h2>
+  <div class="overflow-x-auto">
+    <table class="ctable">
+      <thead>
+        <tr>
+          <th><%= t("admin.errors.last_seen") %></th>
+          <th><%= t("admin.errors.message") %></th>
+          <th><%= t("admin.errors.path") %></th>
+          <th><%= t("admin.errors.request_id") %></th>
+          <th><%= t("admin.errors.status") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @occurrences.each do |occurrence| %>
+          <tr>
+            <td class="whitespace-nowrap text-muted tabular"><%= l(occurrence.created_at, format: :short) %></td>
+            <td class="break-all"><%= truncate(occurrence.message, length: 140) %></td>
+            <td class="text-muted break-all"><%= occurrence.path || "—" %></td>
+            <td class="text-muted tabular"><%= occurrence.request_id || "—" %></td>
+            <td>
+              <%= occurrence.resolved_at ? status_chip(:muted) { t("admin.errors.resolved_chip") } : status_chip(:warn) { t("admin.errors.open_chip") } %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>
