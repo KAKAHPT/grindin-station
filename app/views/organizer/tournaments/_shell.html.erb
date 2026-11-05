@@ -15,6 +15,12 @@
                                   method: :patch, params: { tournament: { state: next_state } },
                                   data: { turbo_confirm: t("organizer.shell.confirm_state") },
                                   class: button_classes(:primary, size: :xs))
+               elsif role == "organizer" && tournament.finished? && tournament.rounds.any?
+                 concat button_to(reopen_organizer_tournament_path(tournament), method: :patch,
+                                  data: { turbo_confirm: t("organizer.shell.confirm_reopen") },
+                                  class: button_classes(:secondary, size: :xs)) {
+                   safe_join([icon("arrow-counter-clockwise", class: "me-2"), t("organizer.shell.reopen")])
+                 }
                end
              } %>
   <%= render "shared/tabs", tabs: tournament_tabs(tournament, role: role, active: tournament_active_tab, open_calls: open_calls) %>

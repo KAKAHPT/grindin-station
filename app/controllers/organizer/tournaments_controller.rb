@@ -4,7 +4,7 @@ module Organizer
   class TournamentsController < OrganizerController # rubocop:disable Metrics/ClassLength -- the permitted list
     public_actions :index
     require_organizer only: %i[new create]
-    allow_roles :organizer, only: %i[edit update]
+    allow_roles :organizer, only: %i[edit update reopen]
     allow_roles :organizer, :judge, :scorekeeper, only: :show
     # New and Settings are full pages (the tournament page's Settings tab), never the modal.
     layout "application"
@@ -69,6 +69,27 @@ module Organizer
       else
         render :edit, status: :unprocessable_entity
       end
+    end
+
+    # A finished tournament goes back to its last round so a result can be corrected; closing it again finishes.
+    def reopen
+      @tournament = Tournament.staffed_by(current_user).find params[:id]
+      last = @tournament.rounds.max_by(&:number)
+      unless @tournament.finished? && last
+        return redirect_to [:organizer, @tournament], alert: t("flash.alert.not_allowed")
+      end
+
+      state = last.is_a?(SingleEliminationRound) ? :single_elimination : :swiss
+      Tournament.transaction do
+        # Finished allows no transition back: the one step the undo of a round also takes, with no state side effects.
+        @tournament.update_columns(state: Tournament.states[state], updated_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
+        @tournament.event_participants.update_all(final_position: nil) # rubocop:disable Rails/SkipsModelValidations
+        last.update!(finished_at: nil)
+        ::Standings::Snapshot.discard(@tournament, last.number) if last.is_a?(SwissRound)
+      end
+      Audit.record(:event_state_changed, subject: @tournament, event: @tournament, from: "finished", to: state.to_s)
+      Rankings::RebuildJob.schedule!
+      redirect_to [:organizer, @tournament, last.becomes(Round)], notice: t("flash.notice.tournament_reopened")
     end
 
     private

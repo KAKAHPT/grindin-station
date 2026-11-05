@@ -323,6 +323,8 @@ pt:
         other: "%{count} rondas suíças"
       view_public: "Ver página pública"
       confirm_state: "Tem a certeza?"
+      reopen: "Reabrir"
+      confirm_reopen: "Reabrir o torneio? A classificação final fica retirada até fechares outra vez a última ronda."
       tabs:
         overview: "Resumo"
         roster: "Jogadores"
@@ -712,6 +714,7 @@ pt:
     closed: "Ronda fechada."
     cannot_close: "A ronda ainda não pode ser fechada: as mesas %{tables} não têm resultado, estão em disputa ou têm um juiz chamado."
     next_round_created: "Ronda seguinte criada — revê os emparelhamentos e publica."
+    tournament_finished: "Torneio terminado — a classificação final está publicada."
     make_cut: "Fazer o corte"
     status:
       playing: "A jogar"
@@ -813,6 +816,7 @@ pt:
       players_swapped: "Jogadores trocados!"
       tournament_created: "Torneio criado com sucesso"
       tournament_advanced: "Torneio avançado!"
+      tournament_reopened: "Torneio reaberto: corrige os resultados e fecha outra vez a ronda para terminar."
       tournament_updated: "Torneio atualizado com sucesso"
       password_reset_sent: "Enviámos as instruções para repor a palavra-passe (se existir um utilizador com esse e-mail)."
       password_reset: "A palavra-passe foi reposta."

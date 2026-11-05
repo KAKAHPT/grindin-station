@@ -95,6 +95,7 @@ Rails.application.routes.draw do
 
     resources :tournaments do
       member do
+        patch :reopen
         %w[players melee standings rounds pairings].each do |kind|
           get "export/#{kind}", to: "exports##{kind}", as: "export_#{kind}"
         end

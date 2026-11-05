@@ -100,9 +100,12 @@ module Results
 
     private
 
-    # A closed round's result rewritten: audited, and the rankings rebuilt soon.
+    # A closed round's result rewritten: audited, the final positions redone if the tournament is over, and the
+    # rankings rebuilt soon.
     def corrected
       audit_correction
+      event = @round.event
+      Tournaments::FinishTournamentJob.perform_now(event) if event.is_a?(Tournament) && event.finished?
       Rankings::RebuildJob.schedule!
     end
 

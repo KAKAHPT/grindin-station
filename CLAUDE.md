@@ -81,6 +81,8 @@ draft → registration_open → registration_closed → swiss → single_elimina
 
 States can transition to `canceled` from most states. Defined in `Tournament::TRANSITIONS`.
 
+Closing the last round finishes the tournament on its own (`SingleEliminationRound#advance_tournament!` after the final; `SwissRound#advance_tournament!` after the last swiss round when there is no cut; with a cut the organizer clicks "Make cut"), which runs `FinishTournamentJob` (final positions, circuit points, rankings rebuild). The public standings then follow the final positions and show a trophy on the winner. **Reopen** (`PATCH /organizer/tournaments/:id/reopen`, organizer role, header button on a finished tournament): back to `single_elimination`/`swiss` via `update_columns`, final positions cleared, the last round reopened (and its snapshot discarded if swiss), audited `event_state_changed`; closing the round again finishes. A result corrected on a closed round of a finished tournament re-runs `FinishTournamentJob` (positions, win bonus) before the rebuild.
+
 ### League State Machine
 
 ```

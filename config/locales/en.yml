@@ -323,6 +323,8 @@ en:
         other: "%{count} Swiss rounds"
       view_public: "View public page"
       confirm_state: "Are you sure?"
+      reopen: "Reopen"
+      confirm_reopen: "Reopen the tournament? The final standings are withdrawn until the last round is closed again."
       tabs:
         overview: "Overview"
         roster: "Roster"
@@ -712,6 +714,7 @@ en:
     closed: "Round closed."
     cannot_close: "The round cannot be closed yet: tables %{tables} have no result, a dispute or an open judge call."
     next_round_created: "Next round created — review pairings and publish."
+    tournament_finished: "Tournament finished — final standings are published."
     make_cut: "Make cut"
     status:
       playing: "Playing"
@@ -813,6 +816,7 @@ en:
       players_swapped: "Players Swapped!"
       tournament_created: "Tournament created successfully"
       tournament_advanced: "Tournament advanceded!"
+      tournament_reopened: "Tournament reopened: correct the results and close the round again to finish it."
       tournament_updated: "Tournament updated successfully"
       password_reset_sent: "Password a reset instructions sent (if user with that email address exists)."
       password_reset: "Password has been reset."
