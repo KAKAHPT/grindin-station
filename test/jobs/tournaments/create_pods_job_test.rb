@@ -172,6 +172,48 @@ module Tournaments
       assert_includes small, PlayerSorter.new(r2).sorted_players.last.id # the rule had to skip someone
     end
 
+    # Round 1 [4,4,3,3,3] seats nine players in pods of 3 and eight in two pods of 4, all draws. Round 2 has nine seats
+    # in pods of 3 and only eight players who were not short; each pod of 3 takes at most two of them without a
+    # rematch, so three repeats is the floor. The pairing alone leaves 4-5; the greedy pass reaches 3-4 depending on
+    # the ids, so the test checks what it guarantees: no swap of a repeating player with a non-short pod-of-4 player
+    # is left that keeps the rematch count, and no rematch at all.
+    test "pods of three, 17 players: round 2 leaves no swap that would stop a pod-of-3 repeat" do
+      (1..4).each do |seed|
+        t = TournamentBuilder.build(players: 17, organizer: event_organizers(:standard_organizer))
+        t.update_columns(uneven_field: "pods_of_three", seed: seed, swiss_rounds_count: 4) # rubocop:disable Rails/SkipsModelValidations
+        r1 = t.rounds.create!(type: SwissRound, number: 1)
+        assert_equal [4, 4, 3, 3, 3], r1.pods.order(:number).map(&:size)
+        short = r1.pods.where(size: 3).flat_map { |pod| pod.event_participants.map(&:id) }.to_set
+        TournamentBuilder.play_round!(t, winners: (1..5).index_with(:draw))
+
+        r2 = t.rounds.create!(type: SwissRound, number: 2)
+        small, large =
+          r2.pods.order(:number).partition { |pod| pod.size == 3 }
+            .map { |pods| pods.map { |pod| pod.event_participants.to_a } }
+        assert_operator small.flatten.count { |p| short.include?(p.id) }, :<=, 4, "seed #{seed}"
+        assert_equal 0, rematches(r2), "seed #{seed}"
+        assert_empty open_short_swaps(small, large, short), "seed #{seed}"
+      end
+    end
+
+    test "the short-pod ladder stops at one win in swiss and power, any gap in random" do
+      t = uneven_tournament(17, "pods_of_three")
+      round = t.rounds.create!(type: SwissRound, number: 1)
+      { "swiss" => [0, 1, 7], "power" => [0, 1, 7], "random" => [Float::INFINITY] }.each do |mode, gaps|
+        t.update_columns(pairing_mode: mode) # rubocop:disable Rails/SkipsModelValidations -- locked after swiss
+        job = CreatePodsJob.new
+        job.instance_variable_set(:@round, round.reload)
+        assert_equal gaps, job.send(:short_pod_gaps), mode
+      end
+    end
+
+    test "byes, 16 players: no pods of 3, no byes, the short-pod pass changes nothing" do
+      round = uneven_tournament(16, "byes").rounds.create!(type: SwissRound, number: 1)
+      assert_equal [4, 4, 4, 4], round.pods.order(:number).map(&:size)
+      assert_equal 0, round.all_results.where(type: "Advance").count
+      assert_equal 16, round.seatings.count
+    end
+
     # Forced-round scenario: the H players' pod order in rounds 1-3.
     LOSER_ORDERS = [(0..11).to_a, [0, 4, 8, 1, 5, 9, 2, 6, 10, 3, 7, 11], [0, 5, 10, 3, 4, 9, 2, 7, 8, 1, 6, 11]].freeze
     # Grid cell (x, y) => pod key per round: columns, rows, slope-1 lines (GF(4) addition is XOR).
@@ -261,6 +303,19 @@ module Tournaments
 
       player == winner ? Win : Loss
     end
+
+    # [repeater, partner] swaps between a pod of 3 and a pod of 4 that add no rematch (from a rematch-free round).
+    def open_short_swaps(small, large, short)
+      small.product(large).flat_map do |pod, other_pod|
+        repeaters = pod.select { |p| short.include?(p.id) }
+        partners = other_pod.reject { |q| short.include?(q.id) }
+        repeaters.product(partners).select do |p, q|
+          clean_after_swap?(pod - [p], q) && clean_after_swap?(other_pod - [q], p)
+        end
+      end
+    end
+
+    def clean_after_swap?(rest, newcomer) = rest.none? { |x| x.played_against?(newcomer) }
 
     def pod_ids(round) = round.pods.order(:number).map { |pod| pod.event_participants.map(&:id).sort }
 

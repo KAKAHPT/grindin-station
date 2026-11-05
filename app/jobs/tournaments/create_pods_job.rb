@@ -12,6 +12,7 @@ module Tournaments
       byes = build_pods!
       match_according_to_strategy!
       repair_rematches!
+      repair_short_pods!
       sit!(byes)
     end
 
@@ -77,6 +78,40 @@ module Tournaments
       rematch_gaps.each do |gap|
         break if Tournaments::RematchRepair.new(@round, max_point_gap: gap).repair!.zero?
       end
+    end
+
+    # After the rematch repair: players sitting short again (pod of 3 or bye before) trade places with pod-of-4
+    # players who sat short fewer times, on a short points ladder (#short_pod_gaps), never adding a rematch.
+    def repair_short_pods!
+      small, large = candidates_by_pod_size
+      return if small.empty?
+
+      met = met_lambda(small + large)
+      short_pod_gaps.each do |gap|
+        repair = Tournaments::ShortPodRepair.new(small: small, large: large, short_count: :short_count.to_proc,
+                                                 points: :match_points.to_proc, met: met, max_point_gap: gap)
+        break if repair.repair!.zero?
+      end
+    end
+
+    # Same points, a draw, one win, and no further even if repeats remain, so the leaders are never pulled into a
+    # pod of 3 from far down the standings. Random pairing ignores points, so any gap.
+    def short_pod_gaps
+      event = @round.event
+      return [Float::INFINITY] if event.random_pairing?
+
+      [0, event.points_draw, event.points_win].uniq.sort
+    end
+
+    # [pods of 3, other pods] as the pods' own candidate Arrays, so the swaps land in the pods.
+    def candidates_by_pod_size
+      @round.pods.partition { |pod| pod.size == Event::SMALLER_POD_SIZE }.map { |pods| pods.map(&:candidates) }
+    end
+
+    # (a, b) -> met before, over opponent sets loaded once (standings-backed, no query per pair).
+    def met_lambda(pods)
+      opponent_ids = pods.flatten.to_h { |player| [player.id, player.opponent_records.to_set(&:id)] }
+      ->(a, b) { opponent_ids[a.id].include?(b.id) }
     end
 
     # Random pairing ignores points, so its repair may swap anyone.
