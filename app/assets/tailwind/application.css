@@ -1840,17 +1840,25 @@
     color: var(--color-muted);
   }
 
-  /* Stub as a disclosure: the summary shows the enrolled count and More info; open, the actions appear. */
-  details.lp-evr-stub > summary {
+  /* Organizer line with the state tag at the right (grid and featured tickets). */
+  .lp-evr-orgrow {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 8px;
+  }
+
+  .lp-evr-orgrow .lp-evr-state {
+    margin-right: 0;
+  }
+
+  /* List rows: the enrolled count and More info on the right; open, the actions sit on a bar under the row. */
+  .ev-more > summary {
     cursor: pointer;
     list-style: none;
   }
 
-  details.lp-evr-stub > summary::-webkit-details-marker {
+  .ev-more > summary::-webkit-details-marker {
     display: none;
   }
 
@@ -1863,21 +1871,17 @@
     font-style: normal;
   }
 
-  details.lp-evr-stub:not([open]) [data-less],
-  details.lp-evr-stub[open] [data-more] {
+  .ev-more:not([open]) [data-less],
+  .ev-more[open] [data-more] {
     display: none;
   }
 
-  details.lp-evr-stub {
-    display: block;
-  }
-
-  details.lp-evr-stub[open] > .lp-evr-act {
+  .ev-more[open] > .ev-more-bar {
     display: flex;
     justify-content: flex-end;
     gap: 6px;
-    margin: 10px 0 0;
-    padding-top: 10px;
+    margin-top: 8px;
+    padding-top: 8px;
     border-top: 1px solid var(--color-line);
   }
 

@@ -1,6 +1,6 @@
 <%# One event ticket (option 4C), on the landing and the event lists: the cover on top with the date, name,
-    format line (the state as a tag before the name), organizer, then the stub with the enrolled count and a More info toggle that opens the actions: View event and, while
-    a tournament's registration is open, Register (Join waiting list once it is sold out). Past events too.
+    format line, organizer with the state tag at the right, then the stub with the enrolled count, View event and, while a tournament's registration is open,
+    Register (Join waiting list once it is sold out). Past events too.
     Locals: event (Tournament or League, cover and organizer preloaded), enrolled (count), sold_out (optional,
     computed from enrolled when not given), large (optional: the /events variant with a taller cover, the time and
     address and a description excerpt). Pieces from EventTicketHelper. %>
@@ -17,7 +17,7 @@
     </div>
   </div>
   <div class="lp-evr-bd">
-    <h3 class="lp-evr-t"><%= ticket_state_line(event, sold_out) %><%= link_to event.name, href %></h3>
+    <h3 class="lp-evr-t"><%= link_to event.name, href %></h3>
     <p class="lp-evr-m"><%= ticket_line(event) %></p>
     <% if large %>
       <p class="lp-evr-m" data-ticket-when><%= ticket_when_where(event) %></p>
@@ -25,16 +25,16 @@
         <p class="lp-evr-x" data-ticket-excerpt><%= excerpt %></p>
       <% end %>
     <% end %>
-    <%= ticket_organizer(event) %>
+    <div class="lp-evr-orgrow">
+      <%= ticket_organizer(event) %>
+      <%= ticket_state_line(event, sold_out) %>
+    </div>
   </div>
-  <details class="lp-evr-stub" data-ticket-more>
-    <summary>
-      <span class="lp-evr-n"><%= ticket_enrolled(event, enrolled) %></span>
-      <span class="lp-evr-more" aria-hidden="true"><i data-more><%= t("landing.upcoming.more") %></i><i data-less><%= t("landing.upcoming.less") %></i></span>
-    </summary>
+  <div class="lp-evr-stub">
+    <p class="lp-evr-n"><%= ticket_enrolled(event, enrolled) %></p>
     <div class="lp-evr-act">
       <%= link_to t("landing.upcoming.view"), href, class: button_classes(:secondary, size: :xs) %>
       <%= ticket_register_button(event, sold_out) %>
     </div>
-  </details>
+  </div>
 <% end %>
