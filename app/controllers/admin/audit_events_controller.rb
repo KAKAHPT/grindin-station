@@ -5,8 +5,12 @@ module Admin
   class AuditEventsController < BaseController
     PER_PAGE = 50
 
+    FILTERS = %i[action_name user event from to].freeze
+
     def index
-      @audit_events = AuditSearch.call(params).page(params[:page]).per(PER_PAGE)
+      # permit keeps only plain strings: ?user[]=x is dropped, not a 500.
+      @filters = params.slice(*FILTERS).permit(*FILTERS)
+      @audit_events = AuditSearch.call(@filters).page(params[:page]).per(PER_PAGE)
     end
   end
 end

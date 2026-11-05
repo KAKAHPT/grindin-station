@@ -65,6 +65,13 @@ module Admin
       assert_select "table.ctable tbody", text: /staff_added/, count: 0
     end
 
+    test "array params are ignored, not an error" do
+      get admin_audit_path, params: { user: ["admin"], from: ["2026-01-01"] }
+
+      assert_response :success
+      assert_select "table.ctable tbody tr", count: AuditEvent.count
+    end
+
     private
 
     def sign_in(user)

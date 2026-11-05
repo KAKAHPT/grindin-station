@@ -57,7 +57,7 @@ es:
         unresolved: "Grupos sin resolver"
         last_day: "Errores, últimas 24 h"
         csp_week: "Informes CSP, últimos 7 días"
-        rate_limited_week: "Límites de peticiones, últimos 7 días"
+        rate_limited_week: "Peticiones limitadas, últimos 7 días"
         open: "Ver errores"
       recent_audit: "Auditoría reciente"
       open_audit: "Ver auditoría"
@@ -92,7 +92,7 @@ es:
       resolved: "Grupo de errores resuelto."
       resolved_chip: "Resuelto"
       open_chip: "Abierto"
-      empty: "Sin errores sin resolver."
+      empty: "No hay errores sin resolver."
       occurrences:
         one: "Última ocurrencia"
         other: "Últimas %{count} ocurrencias"
@@ -102,9 +102,9 @@ es:
         blocked_uri: "URI bloqueada"
         empty: "Sin informes CSP."
       rate_limits:
-        title: "Límites de peticiones, últimos 7 días"
+        title: "Peticiones limitadas, últimos 7 días"
         endpoint: "Endpoint"
-        empty: "Sin límites alcanzados."
+        empty: "Ningún límite alcanzado."
     events:
       title: "Torneos y ligas"
       name: "Nombre"

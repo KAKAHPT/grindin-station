@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 module Admin
-  # Tournament-day health: one row per ongoing tournament or league, for its latest round. Four queries in all.
+  # Tournament-day health: one row per ongoing tournament or league, for its latest round. Five queries in
+  # all: round durations come from the event columns, never from Round#duration (which queries per event).
   class Health
     Row = Data.define(:event, :round_number, :judge_calls, :disputed, :pending, :review, :late)
 
@@ -13,7 +14,8 @@ module Admin
 
       rounds = latest_rounds(events)
       pods = pod_counts(rounds.values.map(&:id))
-      calls = JudgeCall.open_or_acknowledged.where(event_id: events.map(&:id)).group(:event_id).count
+      calls = per_event(JudgeCall.open_or_acknowledged, events)
+      @enrolled = per_event(EventParticipant.enrolled, events)
       events.map { |event| row(event, rounds[event.id], pods, calls) }
     end
 
@@ -24,6 +26,8 @@ module Admin
       Event.where(id: Tournament.ongoing.select(:id)).or(Event.where(id: League.ongoing.select(:id)))
         .order(:start_time).to_a
     end
+
+    def per_event(scope, events) = scope.where(event_id: events.map(&:id)).group(:event_id).count
 
     def latest_rounds(events)
       by_id = events.index_by(&:id)
@@ -48,10 +52,31 @@ module Admin
     end
 
     def late?(round, extra_minutes)
-      return false unless round&.started_at && round.finished_at.nil? && round.respond_to?(:duration)
+      return false unless round&.started_at && round.finished_at.nil?
 
-      duration = round.duration
-      duration.present? && Time.current > round.started_at + duration + extra_minutes.minutes
+      minutes = round_minutes(round)
+      minutes.present? && Time.current > round.started_at + (minutes + extra_minutes).minutes
+    end
+
+    # Same as SwissRound#duration / SingleEliminationRound#duration (nil for the last cut round). League rounds
+    # (play rounds stay open for weeks) are never late.
+    def round_minutes(round)
+      event = round.event
+      return unless event.is_a?(Tournament)
+
+      case round
+      when SwissRound then event.round_minutes
+      when SingleEliminationRound then event.top_cut_round_minutes unless last_cut_round?(round, event)
+      end
+    end
+
+    # Tournament#rounds_info's planned swiss rounds + cut stages, with the enrolled count from one grouped query.
+    def last_cut_round?(round, event)
+      suggested = Tournaments::Structure.suggested(@enrolled.fetch(event.id, 0), format: event.format)
+      swiss = event.swiss_rounds_count || suggested[:swiss_rounds]
+      cut = event.top_cut_size || suggested[:top_cut_size]
+      stages = cut.positive? ? Tournaments::TopCut.for(cut, format: event.format).stages.size : 0
+      round.number == swiss + stages
     end
   end
 end

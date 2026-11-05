@@ -11,13 +11,19 @@ module Admin
 
     def call
       scope = AuditEvent.recent.includes(:actor_user, :event)
-      scope = scope.for_action(@params[:action_name]) if @params[:action_name].present?
-      scope = contains(scope, :actor_user, User.arel_table[:email_address], @params[:user])
-      scope = contains(scope, :event, Event.arel_table[:name], @params[:event])
+      scope = scope.for_action(param(:action_name)) if param(:action_name).present?
+      scope = contains(scope, :actor_user, User.arel_table[:email_address], param(:user))
+      scope = contains(scope, :event, Event.arel_table[:name], param(:event))
       dated(scope)
     end
 
     private
+
+    # A filter value, or nil when it is not a plain string (?user[]=x is ignored, not a 500).
+    def param(key)
+      value = @params[key]
+      value if value.is_a?(String)
+    end
 
     def contains(scope, association, column, text)
       return scope if text.blank?
@@ -26,8 +32,8 @@ module Admin
     end
 
     def dated(scope)
-      from = date(@params[:from])&.beginning_of_day
-      to = date(@params[:to])&.end_of_day
+      from = date(param(:from))&.beginning_of_day
+      to = date(param(:to))&.end_of_day
       from || to ? scope.where(created_at: from..to) : scope
     end
 

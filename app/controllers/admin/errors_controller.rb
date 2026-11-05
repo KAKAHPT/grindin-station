@@ -21,8 +21,8 @@ module Admin
     end
 
     def resolve
-      ErrorEvent.unresolved.where(fingerprint: params[:fingerprint]).update_all(resolved_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
-      Audit.record("error_resolved", fingerprint: params[:fingerprint])
+      resolved = ErrorEvent.unresolved.where(fingerprint: params[:fingerprint]).update_all(resolved_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
+      Audit.record("error_resolved", fingerprint: params[:fingerprint]) if resolved.positive?
       redirect_to admin_errors_path, notice: t("admin.errors.resolved")
     end
   end

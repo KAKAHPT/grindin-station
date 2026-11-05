@@ -53,7 +53,8 @@ module Admin
     end
 
     test "the overview says nothing is running when no event is ongoing" do
-      Event.where(state: [3, 4]).update_all(state: 5) # rubocop:disable Rails/SkipsModelValidations
+      Tournament.ongoing.update_all(state: :finished) # rubocop:disable Rails/SkipsModelValidations
+      League.ongoing.update_all(state: :finished) # rubocop:disable Rails/SkipsModelValidations
       sign_in users(:admin_user)
 
       get admin_root_path

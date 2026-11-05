@@ -57,7 +57,7 @@ pt:
         unresolved: "Grupos por resolver"
         last_day: "Erros, últimas 24 h"
         csp_week: "Relatórios CSP, últimos 7 dias"
-        rate_limited_week: "Limites de pedidos, últimos 7 dias"
+        rate_limited_week: "Pedidos limitados, últimos 7 dias"
         open: "Ver erros"
       recent_audit: "Auditoria recente"
       open_audit: "Ver auditoria"
@@ -102,7 +102,7 @@ pt:
         blocked_uri: "URI bloqueado"
         empty: "Sem relatórios CSP."
       rate_limits:
-        title: "Limites de pedidos, últimos 7 dias"
+        title: "Pedidos limitados, últimos 7 dias"
         endpoint: "Endpoint"
         empty: "Sem limites atingidos."
     events:

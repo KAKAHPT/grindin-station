@@ -44,6 +44,14 @@ module Admin
       assert_select "tr[data-error='aaa'] td[data-col=count]", text: "1"
     end
 
+    test "resolving an already resolved group writes no audit" do
+      post resolve_admin_error_path("aaa")
+
+      assert_no_difference -> { AuditEvent.where(action: "error_resolved").count } do
+        post resolve_admin_error_path("aaa")
+      end
+    end
+
     test "shows the latest occurrence with its backtrace and the last occurrences" do
       get admin_error_path("aaa")
 
