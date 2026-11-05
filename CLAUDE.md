@@ -96,6 +96,19 @@ States can transition to `canceled` from most states. Play mode can be `schedule
 - `CircuitStanding` tracks per-player accumulated points and events count
 - Circuits have `ranked` scope (ordered by points descending)
 
+### Rankings (M13)
+
+- **Tables**: `ranking_contributions` (one row per player and finished event: season, format, organizer, country/team from the player's account, field, wins/draws/byes/losses, cut/top-4/win flags, `points`, `invitational_points`) and `elo_ratings` (per player and season, `season` nil = all time: rating, peak, games, wins, previous_rating). Spec `docs/superpowers/specs/2026-11-05-m13-rankings-and-event-filters.md`
+- **Services** (`app/services/rankings/`): `Points` (formula), `Contributions` (an event's rows), `Duels` (a pod's Elo duels), `Elo` (calculator), `Rebuild` (deletes and reinserts every contribution, replays Elo per season and all time; one transaction, advisory lock), `RebuildJob` (`app/jobs/rankings/`); `Rankings::Board` (`app/queries/rankings/`) reads the `/rankings` tables
+- **Points**: per game in the Swiss rounds (and league pods) only: win 3, draw 1, loss 0, bye 1 (a penalty is a loss, a 1v1 match is one game); bonuses cut +5, top 4 +5, win +10 (tournaments only); × field factor (≤16 ×1, ≤32 ×1.25, ≤64 ×1.5, more ×2; waitlist excluded). Losses never subtract
+- **Elo**: start 1500, K 32, provisional under 10 games; a pod is its pairs as duels (winner 1 against each, the others 0.5 among themselves, all-draw = draws), updated simultaneously from the ratings before the pod; cut rounds never rated; games and wins count pods. Filters choose who is listed, never change a rating
+- **Teams**: `users.team`; team points = the five best contributions (ranking points + 15 × top cuts + 30 × wins, `Board::CUT_BONUS`/`WIN_BONUS`)
+- **Seasons** = calendar year of the event start; only finished events count
+- **Rebuild**: `bin/rails rankings:rebuild`; nightly 05:00 (`config/recurring.yml`); `RebuildJob.schedule!` (event finished, result applied, tier changed) debounced: one run 5 min later, cache key `rankings:rebuild:scheduled`, immediate on adapters without delays
+- **`/rankings`** params: `tab=points|elo|teams`, `season` (year or `all`, default the current one), `country`, `organizer` (handle), `play` (`multiplayer|one_v_one`), `team`, `q`, `sort` (points tab: `events|wins|top_cuts|conversion`), `all=1` (beyond 20 rows). `shared/_filter_bar` (search, segment links, selects submitting on change via `submit-on-change`) + `shared/_filter_chips` (✕ per filter, Clear all); each tab's "How is … calculated?" opens a `<dialog>` (`dialog` controller; ✕, Escape, backdrop)
+- **Tiers** (admin-only, never public): `events.tier` `none|bronze|silver|gold|platinum` (× 0/1/1.5/2/3 → `invitational_points`), set on `/admin/events`; `/admin/invitational` (season leaderboard + audited CSV)
+- **Events**: `events.country` (ISO 2, Settings, defaults to the organizer's); one entry per player and event (unique partial index + `Registrations::AlreadyEnrolled`); guests get `players.guest_name`, distinct within the event, blank = "Manual player N"
+
 ### Infraction System (MTG-style)
 
 Infractions have a hierarchical enum structure:
@@ -121,7 +134,7 @@ Infractions have a hierarchical enum structure:
 - **Public profile (M12)** `/p/:handle`: header (avatar, name + team tag, handle, country, bio), band from `Profiles::Summary` (events, top cuts, win rate = wins ÷ games, conversion = cuts ÷ events, "–" without a denominator; achievements wins / top 4 / top cuts; four most played commanders with count, share and bar), then search + year + season filters and a sortable table (date desc default, event, result) of finished events with a "+" detail row (record, win rate, seats taken, seat 1 share, seat per round). `profile_events_controller` (Stimulus) filters, sorts, shows 6 rows until "Show all" and recomputes the band from the matching rows with the same figures; without JavaScript the server-rendered table and totals stay
 - Password reset functionality with `PasswordsMailer`
 - `EventOrganizer` namespace for tournament management functions
-- **Site admin (M9)**: `users.admin` (never in strong params; only `bin/rails "grindin:admin[email]"` / `grindin:admin:revoke[email]`); `Admin::BaseController` answers 404 to non-admins; `/admin` (Overview: people/events counts, 12-week and 12-month sparklines, tournament-day health per ongoing event, errors summary, recent audit), `/admin/audit` (filters action/user/event/dates, 50 per page), `/admin/errors` (unresolved groups by fingerprint + Resolve, CSP reports 30 d, rate limits 7 d; `/admin/errors/:fingerprint`), `/admin/events` (Featured toggle). Read-only otherwise; the topbar shows an "Admin" chip to admins
+- **Site admin (M9)**: `users.admin` (never in strong params; only `bin/rails "grindin:admin[email]"` / `grindin:admin:revoke[email]`); `Admin::BaseController` answers 404 to non-admins; `/admin` (Overview: people/events counts, 12-week and 12-month sparklines, tournament-day health per ongoing event, errors summary, recent audit), `/admin/audit` (filters action/user/event/dates, 50 per page), `/admin/errors` (unresolved groups by fingerprint + Resolve, CSP reports 30 d, rate limits 7 d; `/admin/errors/:fingerprint`), `/admin/events` (filters q/state/format/tier/organizer, Featured toggle, tier), `/admin/invitational` (M13, + `export.csv`), `/admin/organizers` (M13: waiting-list signups Pending/Approved/Declined with search; Approve needs an account with that e-mail, creates the `EventOrganizer`, audits and e-mails; Decline; Revoke only without events or circuits). Read-only otherwise; the topbar shows an "Admin" chip to admins
 - **Audit log**: `audit_events` written by `Audit.record(action, actor:, subject:, event:, **data)` (actions in `AuditEvent::ACTIONS`; never raises; savepoint so a failed insert cannot poison the caller's transaction) from the controllers/services that know the actor (sign-ins and failures, sign-ups, OAuth, password/e-mail changes, account deletion, identities, staff, result corrections on closed rounds, round close/undo, drops, event state changes, infractions, featured, admin grants, data exports); `rate_limited` from the `rate_limit.action_controller` subscriber, one row per ip+action per minute. `Current` carries `ip_address`, `request_id`, `request_path`
 - **Errors**: `ErrorRecorder` subscribed to `Rails.error` (not in test) writes `error_events` (fingerprint = class + first app frame; `source` request/job/other; resolve sets `resolved_at`); `POST /csp-reports` stores `csp_reports` (64 KB cap, fields cut at 2048). `Admin::TrimJob` nightly 04:30 keeps audit 12 months, errors 90 days, CSP 30 days
 - `Current` concern for request-scoped state
@@ -164,6 +177,7 @@ Uses Solid Queue for job processing:
 - **Events**: `GeocodeJob`, `SubmitResultJob`
 - **Results**: `Results::ExpirePendingJob` (recurring, every minute): pending results unconfirmed after `confirmation_timeout_minutes` go to staff review, never auto-accepted
 - **Circuits**: `UpdateStandingsJob`
+- **Rankings**: `Rankings::RebuildJob` (nightly 05:00; debounced 5 min after an event finishes, a result is applied or a tier changes)
 - **Live** (Turbo Streams): `Live::BroadcastTableJob` (a participant's table), `Live::BroadcastPodJob`, `Live::BroadcastRoundJob` (organizer round page via state partial + morph refresh). `refresh_pairings` morph-refreshes the public pairings page (all rounds, any pod change); `refresh_standings` morph-refreshes the public standings page (round published/closed, or a pod change on a closed round)
 - Tournaments record `final_position` at finish (used by circuit points)
 - **Standings snapshots**: `Round#round_finished` writes `Standings::Snapshot` (each participant's rank, `Feeds::Standings.ranked` order, keyed by round number) before advancing; swiss rounds only (no cut rounds, no leagues); a result corrected on a closed swiss round re-writes the snapshot of the latest closed swiss round only (earlier rounds stay historical); undoing a round discards the reopened round's snapshot and later ones. `EventParticipant#movement_since_last_round` (one query per standings load) feeds the ▲n/▼n/– arrows (`shared/_movement`) and the feed
@@ -226,13 +240,14 @@ POST /passwords/:token           → passwords (reset)
 GET  /tournaments                → tournaments#index (tickets, ?filter=past; show redirects to /t/:slug, rounds/:id to /t/:slug/pairings?round=N)
 GET  /leagues                    → leagues#index/show (tickets; league page with the event header)
 GET  /circuits                   → circuits#index/show (Rankings: circuit cards, standings table, event tickets)
-GET  /events                     → events#index (tournament and league tickets, ?filter=past)
+GET  /events                     → events#index (tickets, ?filter=past; filters q/season/country/organizer/play, chips, Featured strip, ?view=grid|list remembered in cookie `events_view`)
+GET  /rankings                   → rankings#show (tab=points|elo|teams + filters, see Rankings)
 GET  /auth/:provider/callback    → omniauth_callbacks#create (+ /auth/failure)
 GET/PATCH/DELETE /account        → accounts (DELETE /account/identities/:id unlinks)
 GET  /p/:handle                  → profiles#show (public profile, history)
 GET  /notifications              → notifications#index
 GET  /up                         → rails/health#show (health check)
-GET  /admin, /admin/audit, /admin/errors(/:fingerprint), POST /admin/errors/:fingerprint/resolve, /admin/events, PATCH /admin/events/:id/featured → admin/* (site admins only, 404 otherwise)
+GET  /admin, /admin/audit, /admin/errors(/:fingerprint), POST /admin/errors/:fingerprint/resolve, /admin/events, PATCH /admin/events/:id/{featured,tier}, /admin/invitational(/export.csv), /admin/organizers + PATCH /admin/organizers/:id/{approve,decline,revoke} → admin/* (site admins only, 404 otherwise)
 GET  /api/v1/events/:slug/{standings,rounds,info} → api/v1/events (public JSON, 30 s cache, CORS)
 
 Play namespace (/t/:slug, public; draft/canceled events 404 for non-staff):
