@@ -734,6 +734,7 @@ es:
     on_time_hint: "tiempo"
     finished_in: "Terminó en %{time}"
     cancel: "Cancelar"
+    confirm_pick: "Confirmar"
     undo: "Anular ronda"
     undo_confirm: "¿Anular esta ronda? Las mesas y los resultados desaparecen."
     cannot_undo_first: "La primera ronda no se puede anular."

@@ -1,9 +1,10 @@
 import { Controller } from "@hotwired/stimulus";
 
-// Pod card: tap a player row to pick the winner, then confirm. Confirming submits the hidden per-seat Win form.
-// 1v1 cards confirm with a score button (its games param fills the form's result[games]) and Draw opens the draw scores.
+// Pod card: tap a player row (or Draw) to pick the result, then Confirm. Confirming submits the hidden per-seat Win
+// form, or the hidden Draw form when Draw was picked. 1v1 cards confirm with a score button (its games param fills
+// the form's result[games]) and their Draw opens the draw scores.
 export default class extends Controller {
-  static targets = ["row", "winForm", "draw", "confirm", "confirmLabel", "drawScores"];
+  static targets = ["row", "winForm", "draw", "confirm", "confirmLabel", "drawScores", "drawForm"];
   static values = { template: String };
 
   connect() {
@@ -45,6 +46,10 @@ export default class extends Controller {
   }
 
   confirm(event) {
+    if (this.drawPicked) {
+      this.drawFormTarget.requestSubmit();
+      return;
+    }
     const row = this.selectedRow;
     if (!row) return;
     const form = this.winFormTargets.find((f) => f.dataset.seat === row.dataset.seat);
@@ -64,6 +69,14 @@ export default class extends Controller {
     this.showDrawScores();
   }
 
+  // Multiplayer: Draw is picked like a winner and waits for Confirm.
+  pickDraw() {
+    this.clear();
+    this.drawPicked = true;
+    this.drawTarget.hidden = true;
+    this.confirmTarget.hidden = false;
+  }
+
   showDrawScores() {
     this.drawTarget.hidden = true;
     this.drawScoresTarget.hidden = false;
@@ -73,7 +86,7 @@ export default class extends Controller {
     this.selectedSeat = row.dataset.seat;
     row.dataset.selected = "true";
     row.setAttribute("aria-pressed", "true");
-    this.confirmLabelTarget.textContent = this.templateValue.replace("%{name}", row.dataset.name);
+    if (this.hasConfirmLabelTarget) this.confirmLabelTarget.textContent = this.templateValue.replace("%{name}", row.dataset.name);
     this.drawTarget.hidden = true;
     this.confirmTarget.hidden = false;
   }
@@ -81,6 +94,7 @@ export default class extends Controller {
   clear() {
     this.selectedSeat = null;
     this.drawOpen = false;
+    this.drawPicked = false;
     this.rowTargets.forEach((row) => {
       delete row.dataset.selected;
       row.setAttribute("aria-pressed", "false");

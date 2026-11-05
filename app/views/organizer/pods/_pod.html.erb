@@ -27,7 +27,8 @@
       <% if draw_allowed && one_v_one %>
         <button type="button" data-action="pod-result#openDraw" class="<%= button_classes(:secondary, "w-full", size: :sm) %>"><%= t("rounds.draw") %></button>
       <% elsif draw_allowed %>
-        <%= button_to t("rounds.draw"), [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Draw" } }, form_class: "contents", class: button_classes(:secondary, "w-full", size: :sm) %>
+        <button type="button" data-action="pod-result#pickDraw" class="<%= button_classes(:secondary, "w-full", size: :sm) %>"><%= t("rounds.draw") %></button>
+        <%= button_to t("rounds.draw"), [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Draw" } }, form_class: "hidden", form: { data: { pod_result_target: "drawForm" } }, class: "hidden" %>
       <% end %>
       <% if staff_can_act %>
         <%= button_to t("rounds.add_extra_time"), [:extra_time, :organizer, pod.event, pod.round.becomes(Round), pod], method: :patch, form_class: "contents", class: button_classes(:ghost, nil, size: :sm) %>
@@ -57,7 +58,7 @@
     <% elsif show_results %>
       <div data-pod-result-target="confirm" class="grid grid-cols-[1fr_auto] gap-2" hidden>
         <button type="button" data-action="pod-result#confirm" class="<%= button_classes(:primary, "w-full min-w-0", size: :sm) %>">
-          <%= icon("trophy") %><span data-pod-result-target="confirmLabel" class="truncate"></span>
+          <%= t("rounds.confirm_pick") %>
         </button>
         <button type="button" data-action="pod-result#cancel" class="<%= button_classes(:ghost, nil, size: :sm) %>"><%= t("rounds.cancel") %></button>
       </div>

@@ -22,8 +22,11 @@ module Organizer
         assert_select "li[data-pod-result-target=row][role=button][data-seat][data-name]", 4
         assert_select "form.hidden[data-pod-result-target=winForm][data-seat]", 4
         assert_select "form.hidden[data-pod-result-target=winForm] input[name='result[type]'][value=Win]", 4
-        assert_select "[data-pod-result-target=draw] form:not(.hidden) button", text: "Draw"
-        assert_select "[data-pod-result-target=confirm][hidden]"
+        assert_select "[data-pod-result-target=draw] button[data-action~='pod-result#pickDraw']", text: "Draw"
+        assert_select "[data-pod-result-target=draw] form.hidden[data-pod-result-target=drawForm]" do
+          assert_select "input[name='result[type]'][value=Draw]"
+        end
+        assert_select "[data-pod-result-target=confirm][hidden]", text: /Confirm/
       end
     end
 
