@@ -127,12 +127,23 @@
 - [ ] Step 2: Run; expect failures. Step 3: implement. Step 4: tests + rubocop.
 - [ ] Step 5: Commit `feat(m13): admin event tiers and the invitational leaderboard`.
 
-### Task 7: System test, docs
+### Task 7: Admin organizers tab (waiting-list approvals)
+
+**Files:**
+- Create: `db/migrate/<ts>_add_review_to_waitlist_signups.rb` (`approved_at` datetime, `approved_by_id` uuid, `declined_at` datetime), `app/controllers/admin/organizers_controller.rb` (`index` with `filter` pending|approved|declined, `approve`, `decline`, `revoke`), `app/views/admin/organizers/index.html.erb`, `app/mailers/organizers_mailer.rb` + `app/views/organizers_mailer/approved.{html,text}.erb`
+- Modify: `app/models/waitlist_signup.rb` (scopes `pending`/`approved`/`declined`, `#user -> User | nil` by e-mail, `#approvable?`), `app/models/audit_event.rb` (`organizer_approved organizer_declined organizer_revoked`), `app/views/admin/_nav.html.erb` (Organizers tab), `config/routes.rb` (`resources :organizers, only: :index { member { patch :approve; patch :decline } }` + `patch "organizers/:id/revoke"` on the organizer id), `config/locales/*`
+- Test: `test/controllers/admin/organizers_controller_test.rb`, `test/mailers/organizers_mailer_test.rb`
+
+- [ ] Step 1: Failing tests per spec acceptance 10 (approve with account → organizer created, stamps, audit, mail delivered; approve without account → 422/alert, no organizer; decline; revoke refused with events, allowed without; non-admin 404; filters).
+- [ ] Step 2: Run; expect failures. Step 3: implement (M7 pieces: `ctable`, `desk_chip` for the status, `button_classes(:secondary, size: :sm)`; the Approve button `:light`). Step 4: tests + rubocop + i18n parity.
+- [ ] Step 5: Commit `feat(m13): admin organizers tab with waiting-list approvals`.
+
+### Task 8: System test, docs
 
 **Files:**
 - Create: `test/system/rankings_test.rb`
-- Modify: `CLAUDE.md` (Rankings section: tables, points, Elo, teams, tiers, filters, rebuild job/task), `docs/superpowers/notes/2026-11-04-backlog-after-m6.md` (M13 DONE)
+- Modify: `CLAUDE.md` (Rankings section: tables, points, Elo, teams, tiers, filters, rebuild job/task; Admin: organizers tab), `docs/superpowers/notes/2026-11-04-backlog-after-m6.md` (M13 DONE)
 
-- [ ] Step 1: System test: `/rankings` tab switching, a filter via the bar updates the URL and the table, chips ✕ removes one filter, each "How…" dialog opens and closes (✕, Escape); `/events` filter by country.
+- [ ] Step 1: System test: `/rankings` tab switching, a filter via the bar updates the URL and the table, chips ✕ removes one filter, each "How…" dialog opens and closes (✕, Escape); `/events` filter by country; `/admin/organizers` approve flow.
 - [ ] Step 2: `bin/rails test`, `bin/rails test:system`, rubocop, colour grep, `bin/rails rankings:rebuild`.
-- [ ] Step 3: Commit `docs(m13): rankings in CLAUDE.md and the backlog; system test`.
+- [ ] Step 3: Commit `docs(m13): rankings and admin organizers in CLAUDE.md and the backlog; system test`.
