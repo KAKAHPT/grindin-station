@@ -9,5 +9,8 @@
     "@phosphor-icons/core": "^2.1.1",
     "leaflet": "^1.9.4",
     "tailwindcss": "4.2.4"
+  },
+  "overrides": {
+    "postcss-selector-parser": "^6.1.5"
   }
 }
