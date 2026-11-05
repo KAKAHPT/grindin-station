@@ -117,6 +117,7 @@ module Organizer
                       round_minutes
                       top_cut_round_minutes
                       pairing_mode
+                      uneven_field
                       self_report_enabled
                       result_confirmation
                       confirmation_timeout_minutes

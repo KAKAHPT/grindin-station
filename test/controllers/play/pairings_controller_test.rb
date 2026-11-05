@@ -154,14 +154,16 @@ module Play
       assert_each_once(round.seatings.pluck(:event_participant_id))
     end
 
-    test "every player of a 5-player pod appears exactly once" do
+    test "5 players: the pod of 4 and the bye each appear exactly once" do
       tournament = TournamentBuilder.build(players: 5, organizer: event_organizers(:standard_organizer))
       round = tournament.rounds.create!(type: SwissRound, number: 1)
       round.update!(published: true)
+      bye = round.byes.sole.event_participant
 
       get play_pairings_path(tournament.slug)
 
-      assert_each_once(round.seatings.pluck(:event_participant_id))
+      assert_equal 4, round.seatings.count
+      assert_each_once(round.seatings.pluck(:event_participant_id) + [bye.id])
     end
 
     test "byes are listed at the end and every player of the round appears exactly once" do

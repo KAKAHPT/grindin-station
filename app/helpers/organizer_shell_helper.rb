@@ -42,6 +42,11 @@ module OrganizerShellHelper
     t("organizer.pairing_modes.#{event.pairing_mode}") unless event.one_v_one?
   end
 
+  # "Byes"; nil for 1v1 (2-player pods, odd field always gets a bye).
+  def uneven_field_name(event)
+    t("organizer.uneven_fields.#{event.uneven_field}") unless event.one_v_one?
+  end
+
   # Swiss rounds and top cut as set, else as suggested for the field (one count query).
   def tournament_structure(tournament)
     suggested = Tournaments::Structure.suggested(tournament.playing_participants_count, format: tournament.format)

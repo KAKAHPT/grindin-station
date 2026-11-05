@@ -16,18 +16,21 @@ module Tournaments
 
     # Swiss pairing order: the ranking, with each group of equal match points dealt by seat need (.deal).
     # Only the order inside a points group changes, so pod composition by points is the same.
-    def paired_players
-      sorted_players.chunk_while { |a, b| a.match_points == b.match_points }.flat_map do |group|
+    # `players` is a ranking (default: the whole round), e.g. with the byes taken out.
+    def paired_players(players = sorted_players)
+      players.chunk_while { |a, b| a.match_points == b.match_points }.flat_map do |group|
         self.class.deal(group, group.index_with(&:seat_counts))
       end
     end
 
     # Random pairing order: the whole field (by id, so only the rng decides) shuffled with `rng`, then dealt by
-    # seat need as one group. Points play no part.
-    def random_players(rng)
-      field = participants.sort_by(&:id).shuffle(random: rng)
-      self.class.deal(field, field.index_with(&:seat_counts))
+    # seat need as one group. Points play no part. `players` is that field, e.g. with the byes taken out.
+    def random_players(rng, players = random_field(rng))
+      self.class.deal(players, players.index_with(&:seat_counts))
     end
+
+    # The round's field by id, shuffled with `rng`: the random order before dealing.
+    def random_field(rng) = participants.sort_by(&:id).shuffle(random: rng)
 
     # Need-aware dealing (spec §5.3, measured by grindin:simulate): sort the group by the seat each player needs
     # most (their least-used of seats 1..4, lowest seat on ties), then by fewest seat-1s, keeping the incoming

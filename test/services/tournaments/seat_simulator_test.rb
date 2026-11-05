@@ -42,5 +42,23 @@ module Tournaments
       error = assert_raises(ArgumentError) { Tournaments::SeatSimulator.new(players: 16, rounds: 5, rng: Random.new(1), mode: :bubble) }
       assert_match(/unknown mode :bubble/, error.message)
     end
+
+    test "short pod repair narrows the spread of pods of 3 (13 players, 4 rounds)" do
+      spreads =
+        [true, false].index_with do |short_repair|
+          reports =
+            Array.new(50) do |i|
+              Tournaments::SeatSimulator.new(players: 13, rounds: 4, rng: Random.new(i), short_repair: short_repair).run
+            end
+          reports.each do |report|
+            [report.short_spread, report.short_max].each do |value|
+              assert_kind_of Integer, value
+              assert_includes 0..4, value
+            end
+          end
+          reports.sum(&:short_spread).fdiv(reports.size)
+        end
+      assert_operator spreads[true], :<, spreads[false]
+    end
   end
 end

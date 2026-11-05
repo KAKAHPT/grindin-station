@@ -53,6 +53,10 @@
     <p class="form-help -mt-3 mb-3">
       <%= safe_join(Event::PAIRING_MODES.map { |mode| "#{t("organizer.pairing_modes.#{mode}")}: #{t("organizer.pairing_help.#{mode}")}" }, tag.br) %>
     </p>
+    <%= f.select_with_label :uneven_field, uneven_field_options, { selected: tournament.uneven_field }, disabled: locked %>
+    <p class="form-help -mt-3 mb-3">
+      <%= safe_join(Event::UNEVEN_FIELDS.map { |mode| "#{t("organizer.uneven_fields.#{mode}")}: #{t("organizer.uneven_help.#{mode}")}" }, tag.br) %>
+    </p>
   <% end %>
   <p class="form-help mb-3"><%= t("organizer.points_help") %></p>
   <div class="grid grid-cols-2 gap-x-3 sm:grid-cols-4">
@@ -60,6 +64,7 @@
       <%= f.number_field_with_label attribute, min: (attribute == :points_win ? 1 : 0), step: 1, disabled: locked, data: { format_fields_target: "points", attribute: attribute, action: "input->format-fields#touch" } %>
     <% end %>
   </div>
+  <p class="form-help mb-3"><%= t("organizer.points_bye_help") %></p>
 
   <h2 class="form-section"><%= t("organizer.settings.results") %></h2>
   <%= f.check_box_with_label :self_report_enabled %>

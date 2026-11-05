@@ -194,6 +194,63 @@ module Organizer
       assert_select "[data-format-fields-target=pairing][hidden] select[name='tournament[pairing_mode]']"
     end
 
+    test "the organizer picks the uneven field before the swiss; once the swiss starts it is locked" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_open)
+
+      patch organizer_tournament_path(tournament), params: { tournament: { uneven_field: "byes" } }
+      assert_redirected_to organizer_tournament_path(tournament)
+      assert tournament.reload.byes?
+
+      running = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+      patch organizer_tournament_path(running), params: { tournament: { uneven_field: "byes" } }
+      assert_response :unprocessable_entity
+      assert_includes response.body, "Uneven field cannot change once the tournament has started"
+      assert running.reload.pods_of_three?
+    end
+
+    test "Settings offers the uneven field with its help for multiplayer, disabled once locked, hidden for 1v1" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_open)
+
+      get edit_organizer_tournament_path(tournament)
+      assert_select "[data-format-fields-target=pairing]:not([hidden])" do
+        assert_select "label[for=tournament_uneven_field]", text: "Uneven field"
+        assert_select "select[name='tournament[uneven_field]']:not([disabled])" do
+          assert_select "option[value=pods_of_three][selected]", text: "Pods of 3"
+          assert_select "option[value=byes]", text: "Byes"
+        end
+        assert_select ".form-help", text: /When the field is not a multiple of four, the last tables seat three/
+        assert_select ".form-help", text: /Only pods of four; one or two players left over get a bye/
+      end
+      assert_select ".form-help", text: "Used for 1v1 byes and when the uneven field is set to byes."
+
+      running = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+      get edit_organizer_tournament_path(running)
+      assert_select "select[name='tournament[uneven_field]'][disabled]"
+
+      duel = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                     state: :registration_open, format: "one_v_one")
+      get edit_organizer_tournament_path(duel)
+      assert_select "[data-format-fields-target=pairing]:not([hidden]) select[name='tournament[uneven_field]']",
+                    count: 0
+      assert_select "[data-format-fields-target=pairing][hidden] select[name='tournament[uneven_field]']"
+    end
+
+    test "the Overview names the uneven field, multiplayer only" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_open)
+      tournament.update!(uneven_field: "byes")
+
+      get organizer_tournament_path(tournament)
+      assert_select "[data-overview-format] tr", text: /Uneven field\s*Byes/
+
+      duel = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                     state: :registration_open, format: "one_v_one")
+      get organizer_tournament_path(duel)
+      assert_select "[data-overview-format] tr", text: /Uneven field/, count: 0
+    end
+
     test "the Overview and the header line name the pairing mode, multiplayer only" do
       tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
                                            state: :registration_open)

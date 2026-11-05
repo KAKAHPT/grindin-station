@@ -42,7 +42,7 @@ Event (abstract base)
 - **EventParticipant**: Player's registration and tracking within an event (Tournament or League)
 - **Player**: A user's gaming identity (linked to User, has a unique key)
 - **Round**: Supports SwissRound and SingleEliminationRound with complex pairing algorithms
-- **Pod**: Tournament matches/tables with 3-5 players per pod
+- **Pod**: Tournament matches/tables of 4 players (3 for the remainder, per `uneven_field`)
 - **Seating**: Links event_participants to pods with ordering
 - **Result**: Match outcomes (Win, Draw, Loss, Eliminated, Advance, Penalty)
 - **Infraction**: Tournament violations and penalties (MTG-style)
@@ -58,14 +58,15 @@ Event (abstract base)
 - **Fair seats**: `Tournaments::SeatAssigner` gives seat 1 to whoever had it least, then the cheapest order; ties drawn from the event seed; audited in `seatings.assigned_by`/`cost`. Within equal points, `PlayerSorter.deal` spreads players across pods by the seat they need
 - **Rematch repair**: `Tournaments::RematchRepair` swaps players between pods while rematches decrease, nearest pods and closest points first; `CreatePodsJob` widens the allowed points gap (0, a draw, a win, two wins, …, any) only while rematches remain
 - **Pairing modes** (M8, multiplayer only): `events.pairing_mode` `swiss` (default: round 2 spread, then top-down by points) | `power` (strict top-down every round, never spread) | `random` (seeded shuffle of the whole field, dealt by seat need as one group; rematch gap = any). Chosen in Settings, locked with the structure; `RematchRepair` and `SeatAssigner` run in every mode; `grindin:simulate` gates every mode; `Feeds::Info` exposes `pairingMode` (nil for 1v1). Spec `docs/superpowers/specs/2026-11-05-m8-pairing-modes.md`, numbers in `docs/superpowers/notes/2026-11-05-m8-pairing-modes.md`
-- **Pod Sizing**: Prefers 4-player pods, allows 3-5 players with sophisticated balancing
+- **Uneven field** (M11, multiplayer only): `events.uneven_field` `pods_of_three` (default) | `byes`, chosen in Settings, locked with the structure, 1v1 ignores it. Shape by r = n mod 4: r=1 → three 3s or 1 bye; r=2 → two 3s or 2 byes; r=3 → one 3 in both modes; n=5 → one 4 + 1 bye; pods of 5 removed. A bye is an `Advance` in the SwissRound worth `points_bye`, given from the bottom of the ranking to the lowest short count (pods of 3 + byes). `Tournaments::ShortPodRepair` runs after `RematchRepair` with the gap ladder `[0, draw, win]` so pods of 3 do not repeat; `grindin:simulate` gate "short pods (13 × 4): spread ≤ baseline and ≤ 1.563". `Feeds::Info` exposes `unevenField` (nil for 1v1). Spec `docs/superpowers/specs/2026-11-05-m11-uneven-field.md`, numbers in `docs/superpowers/notes/2026-11-05-m11-uneven-field.md`
+- **Pod Sizing**: Pods of 4; the remainder plays pods of 3 or gets byes (`uneven_field`); never a pod of 5
 - **Byes**: a bye scores `points_bye` but is not an opponent; byes do not count in opponents' win rate (OWR)
 - **Spread Matching**: Serpentine pod assignment for spread-based rounds
 - **Forced Pairing**: Rank-diff-based pairing with swap logic for forced rounds
 
 ### Event Formats
 
-- `events.format`: `multiplayer` (default; pods of 3–5, seat fairness, cEDH tiebreakers) or `one_v_one` (tables of two). Chosen at creation, locked afterwards (`Event#format_locked_after_creation`); leagues are multiplayer only. `events.match_games` (3 = best-of-3, 1 = best-of-1) is editable until the swiss starts, like points. 1v1 points default to 3/1/0, bye 3.
+- `events.format`: `multiplayer` (default; pods of 4, plus pods of 3 or byes, seat fairness, cEDH tiebreakers) or `one_v_one` (tables of two). Chosen at creation, locked afterwards (`Event#format_locked_after_creation`); leagues are multiplayer only. `events.match_games` (3 = best-of-3, 1 = best-of-1) is editable until the swiss starts, like points. 1v1 points default to 3/1/0, bye 3.
 - **1v1 pairing**: `Tournaments::OneVOnePairer` (dispatched from `CreatePodsJob`): round 1 seeded shuffle; later rounds grouped by match points, seeded random inside the group, odd group pairs its last player down, last swiss round pairs top-down; `RematchRepair` with the same escalating gap; odd field → bye (`Advance`, no seating, 2-0) to the lowest-ranked player without one. Seats are a seeded coin flip (`assigned_by: "random"`); no seat fairness.
 - **1v1 cut**: `Tournaments::OneVOneBracket` (from `CreateSingleEliminationPodsJob`): sizes 2/4/8/16/32, first round 1vN, 2vN-1 …, later rounds winners of pods `i` and `k+1-i`; vacant slots (short field, dropped winner) are walkovers. Names Finals / Semifinals / Quarterfinals / Round of 16 / Round of 32 (`rounds.cut_names`, en/pt). `Tournaments::Structure.suggested(n, format:)` follows MTR Appendix E for 1v1 (4 players → top 4, 5–8 → top 8, both straight single elimination with `swiss_rounds_count: 0`; with no swiss the cut may be the next power of two at or above the field, vacant slots being walkovers, and the swiss state is refused).
 - **1v1 scoring**: results carry `games_won/lost/drawn`; `Results::Apply` takes `games:` (`{ winner: [w,l,d] }` or `{ games: [w,l,d] }` for a draw) and validates against `match_games` (bo3: 2-0, 2-1, 1-0-1 / 1-0-0 for a match stopped on time, draws 1-1-1 / 1-1-0 / 0-0-1; bo1: 1-0, 0-0-1); `Results::Timeout` writes `UNSCORED` (0-0-0, Advance only). Tiebreakers (MTR Appendix C): match points, opponents' match-win % (floor 0.33, byes excluded), game-win %, opponents' game-win %, then the seeded salt (`EventParticipant#rank_score`, integer). `standing_columns` → `{points, omw, gw, ogw}`.
@@ -259,7 +260,7 @@ REST /organizer/circuits         → CRUD + nested tournaments (new/create)
 - `config/routes.rb`: Nested resource structure with organizer namespace
 - `app/services/tournaments/strategies/swiss_matcher.rb`: Swiss pairing with swaps
 - `app/services/tournaments/strategies/spread_matcher.rb`: Serpentine spread matching
-- `app/services/tournaments/uneven_pod_generator.rb`: 3-5 player pod generation
+- `app/services/tournaments/uneven_pod_generator.rb`: pod sizes (4s, then 3s or byes)
 - `app/services/scoring/point_wager.rb`: League score/wager calculations
 - `app/services/circuits/calculate_points.rb`: Circuit point awards
 - `app/models/play/table_state.rb`: state of a player's table (page and Turbo broadcasts)

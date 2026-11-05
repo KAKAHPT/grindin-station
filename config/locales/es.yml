@@ -142,6 +142,8 @@ es:
               locked: "no se puede cambiar una vez empezado el torneo"
             pairing_mode:
               locked: "no se puede cambiar una vez empezado el torneo"
+            uneven_field:
+              locked: "no se puede cambiar una vez empezado el torneo"
             points_win:
               locked: "no se puede cambiar una vez empezado el torneo"
             points_draw:
@@ -180,6 +182,7 @@ es:
         format: "Formato"
         match_games: "Duración del match"
         pairing_mode: "Emparejamiento"
+        uneven_field: "Campo desigual"
         points_win: "Puntos por victoria"
         points_draw: "Puntos por empate"
         points_loss: "Puntos por derrota"
@@ -269,6 +272,7 @@ es:
       top_cut: "Top cut"
       cut_line: "Top %{size} · %{minutes} min"
       pairing: "Emparejamiento"
+      uneven_field: "Campo desigual"
       points: "Puntos"
       points_line: "%{win} / %{draw} / %{loss} · bye %{bye}"
       self_report: "Resultados por los jugadores"
@@ -321,6 +325,7 @@ es:
       events_column: "Eventos"
       no_standings: "Aún sin clasificación."
     points_help: "Puntos por resultado. Se bloquean cuando empieza el suizo."
+    points_bye_help: "Se usa en los byes de 1v1 y cuando el campo desigual está en byes."
     format_options:
       multiplayer: "Mesas multijugador"
       one_v_one: "1v1"
@@ -335,6 +340,12 @@ es:
       swiss: "Mesas según los resultados; la ronda 2 reparte a los líderes entre las mesas."
       power: "Estrictamente de arriba abajo por la clasificación en cada ronda, como en una ronda final."
       random: "Los resultados se ignoran; cada ronda es un sorteo."
+    uneven_fields:
+      pods_of_three: "Pods de 3"
+      byes: "Byes"
+    uneven_help:
+      pods_of_three: "Cuando el campo no es múltiplo de cuatro, las últimas mesas tienen tres jugadores."
+      byes: "Solo pods de cuatro; quien sobra (uno o dos) recibe un bye con los puntos de bye (si sobran tres, juegan un pod de 3)."
     structure_suggestion: "Sugerencia para %{players} jugadores: %{rounds} rondas suizas, top %{cut}"
     structure_suggestion_no_cut: "Sugerencia para %{players} jugadores: %{rounds} rondas suizas, sin corte"
     structure_suggestion_elimination_only: "Sugerencia para %{players} jugadores: eliminación directa, top %{cut}"

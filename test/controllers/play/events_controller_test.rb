@@ -44,6 +44,20 @@ module Play
       assert_select "[data-event-format]", text: /Swiss pods/, count: 0
     end
 
+    test "the About card names the uneven field only when it is byes" do
+      get play_event_path(@tournament.slug)
+      assert_select "[data-event-format]", text: /Pods of 3/, count: 0
+
+      @tournament.update!(uneven_field: "byes")
+      get play_event_path(@tournament.slug)
+      assert_select "[data-event-format]", text: /Swiss pods · Byes · /
+
+      duel = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                     state: :registration_open, format: "one_v_one")
+      get play_event_path(duel.slug)
+      assert_select "[data-event-format]", text: /Byes|Pods of 3/, count: 0
+    end
+
     test "never shows anyone's decklist or commander, even with commanders on" do
       @tournament.update!(show_commanders_in_standings: true)
 

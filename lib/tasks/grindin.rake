@@ -57,6 +57,36 @@ namespace :grindin do # rubocop:disable Metrics/BlockLength -- one task, kept in
       end
     end
 
+    # Short pods (M11): 13 players = 1x4 + 3x3 every round. Gate: the repaired mean spread of short counts never
+    # above the baseline, nor above its measured level (SIM_SEED=42, 2000 runs) + 0.1;
+    # see docs/superpowers/notes/2026-11-05-m11-uneven-field.md.
+    short_spread_level = 1.463
+    rng = Random.new((ENV["SIM_SEED"] || 42).to_i)
+    seeds = Array.new(n) { rng.rand(2**32) }
+    short =
+      [true, false].index_with do |short_repair|
+        reports =
+          seeds.map do |seed|
+            Tournaments::SeatSimulator.new(players: 13, rounds: 4, rng: Random.new(seed),
+                                           short_repair: short_repair).run
+          end
+        { spread: mean.call(reports.map(&:short_spread)), max: mean.call(reports.map(&:short_max)) }
+      end
+    puts "== short pods (13 players, 4 rounds)"
+    puts "repair       n  spread avg  max avg"
+    short.each do |repair, means|
+      puts format("%<repair>-6s %<n>6d %<spread>11.4f %<max>8.4f", repair: repair, n: n, **means)
+    end
+    spread = short[true][:spread]
+    puts "Regression gate [short pods] (spread <= baseline #{short[false][:spread].round(4)} and <= " \
+         "#{(short_spread_level + 0.1).round(4)})"
+    if spread > short[false][:spread] || spread > short_spread_level + 0.1
+      failed = true
+      puts "FAIL [short pods] (short_spread #{spread.round(4)})"
+    else
+      puts "OK [short pods] (short_spread #{spread.round(4)})"
+    end
+
     exit 1 if failed
   end
 end

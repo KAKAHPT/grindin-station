@@ -7,24 +7,54 @@ module Tournaments
       return Tournaments::OneVOnePairer.call(round) if round.event.one_v_one?
 
       @round = round
-      Tournaments::UnevenPodGenerator.new(@round).generate_pods!
-      @players_by_rank = pairing_order
+      raise ArgumentError, "round #{@round.number} already has pods or results" if already_paired?
 
+      byes = build_pods!
       match_according_to_strategy!
       repair_rematches!
-
-      @round.transaction do
-        @round.pods.each(&:sit_participants!)
-      end
+      repair_short_pods!
+      sit!(byes)
     end
 
     private
 
-    # Swiss and power feed the ranking (points groups dealt by seat need); random feeds the seeded shuffled field.
-    def pairing_order
+    # Builds the pods for the field, takes the byes from the bottom of the ranking (before dealing by seat need),
+    # deals the rest into the pairing order and returns the byes.
+    def build_pods!
       sorter = Tournaments::PlayerSorter.new(@round)
-      @round.event.random_pairing? ? sorter.random_players(pairing_rng) : sorter.paired_players
+      ranked = random? ? sorter.random_field(pairing_rng) : sorter.sorted_players
+      shape = Tournaments::UnevenPodGenerator.new(@round).generate_pods!(ranked.size)
+      byes = pick_byes(ranked, shape[:byes])
+      @players_by_rank = pairing_order(sorter, ranked - byes)
+      byes
     end
+
+    def sit!(byes)
+      @round.transaction do
+        byes.each { |participant| Advance.create!(round: @round, event_participant: participant) }
+        @round.pods.each(&:sit_participants!)
+      end
+    end
+
+    # Pods, or a leftover bye result, mean the round was paired: a second call would hand out more byes.
+    def already_paired? = @round.pods.any? || @round.all_results.exists?
+
+    # Walks the ranking from the end and takes the player shortest on games (byes plus pods of 3 so far);
+    # ties go to the later position, so the lowest ordered player gets the bye. Repeats for each bye.
+    def pick_byes(order, count)
+      remaining = order.dup
+      Array.new(count) do
+        bye = remaining.reverse.min_by.with_index { |player, i| [player.short_count, i] }
+        remaining.delete(bye)
+      end
+    end
+
+    # Swiss and power feed the ranking (points groups dealt by seat need); random feeds the seeded shuffled field.
+    def pairing_order(sorter, field)
+      random? ? sorter.random_players(pairing_rng, field) : sorter.paired_players(field)
+    end
+
+    def random? = @round.event.random_pairing?
 
     def pairing_rng
       Random.new(Digest::SHA256.hexdigest("#{@round.event.seed || 0}:#{@round.number}:pairing")[0, 8].hex)
@@ -48,6 +78,40 @@ module Tournaments
       rematch_gaps.each do |gap|
         break if Tournaments::RematchRepair.new(@round, max_point_gap: gap).repair!.zero?
       end
+    end
+
+    # After the rematch repair: players sitting short again (pod of 3 or bye before) trade places with pod-of-4
+    # players who sat short fewer times, on a short points ladder (#short_pod_gaps), never adding a rematch.
+    def repair_short_pods!
+      small, large = candidates_by_pod_size
+      return if small.empty?
+
+      met = met_lambda(small + large)
+      short_pod_gaps.each do |gap|
+        repair = Tournaments::ShortPodRepair.new(small: small, large: large, short_count: :short_count.to_proc,
+                                                 points: :match_points.to_proc, met: met, max_point_gap: gap)
+        break if repair.repair!.zero?
+      end
+    end
+
+    # Same points, a draw, one win, and no further even if repeats remain, so the leaders are never pulled into a
+    # pod of 3 from far down the standings. Random pairing ignores points, so any gap.
+    def short_pod_gaps
+      event = @round.event
+      return [Float::INFINITY] if event.random_pairing?
+
+      [0, event.points_draw, event.points_win].uniq.sort
+    end
+
+    # [pods of 3, other pods] as the pods' own candidate Arrays, so the swaps land in the pods.
+    def candidates_by_pod_size
+      @round.pods.partition { |pod| pod.size == Event::SMALLER_POD_SIZE }.map { |pods| pods.map(&:candidates) }
+    end
+
+    # (a, b) -> met before, over opponent sets loaded once (standings-backed, no query per pair).
+    def met_lambda(pods)
+      opponent_ids = pods.flatten.to_h { |player| [player.id, player.opponent_records.to_set(&:id)] }
+      ->(a, b) { opponent_ids[a.id].include?(b.id) }
     end
 
     # Random pairing ignores points, so its repair may swap anyone.

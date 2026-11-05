@@ -141,6 +141,23 @@ class EventParticipant < ApplicationRecord
 
   def self.empty_seat_counts = (1..5).index_with(0)
 
+  # Swiss rounds played in a pod of 3.
+  def small_pod_count
+    return @standings.small_pod_counts(id) if @standings
+
+    self.class.small_pod_counts_for(event, participant_ids: [id]).fetch(id, 0)
+  end
+
+  # Swiss rounds short of a full pod: byes plus pods of 3. The fewest gets the next bye.
+  def short_count = number_of_byes + small_pod_count
+
+  # { participant id => swiss rounds in a pod of 3 } for the whole event (or the given participants) in one query.
+  def self.small_pod_counts_for(event, participant_ids: nil)
+    scope = Seating.joins(pod: :round).where(rounds: { event_id: event.id, type: "SwissRound" }, pods: { size: 3 })
+    scope = scope.where(event_participant_id: participant_ids) if participant_ids
+    scope.group(:event_participant_id).count
+  end
+
   # The event's participants loaded for the standings: players, current results with their rounds,
   # seat counts and swiss tables come in a fixed number of queries, whatever the field size.
   def self.standings_for(event)
@@ -159,6 +176,9 @@ class EventParticipant < ApplicationRecord
     end
 
     def seat_counts(id) = @seat_counts.fetch(id) { EventParticipant.empty_seat_counts }
+
+    # Loaded on first use, in one query for the whole field.
+    def small_pod_counts(id) = (@small_pod_counts ||= EventParticipant.small_pod_counts_for(@event)).fetch(id, 0)
 
     # Loaded on first use, in one query for the whole field.
     def movement(id) = (@movements ||= StandingsSnapshot.movements_for(@event))[id]
