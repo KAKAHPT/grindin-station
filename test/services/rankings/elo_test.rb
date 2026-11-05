@@ -11,8 +11,9 @@ module Rankings
                     [:bia, :rui, 0.5], [:bia, :zé, 0.5], [:rui, :zé, 0.5]])
 
       assert_in_delta 1548, elo.rating(:ana), 0.5
-      assert_equal 3, elo.games(:ana)
-      assert_equal 3, elo.wins(:ana)
+      assert_equal 1, elo.games(:ana)
+      assert_equal 1, elo.wins(:ana)
+      assert_equal 1, elo.games(:bia)
       assert_in_delta 1548, elo.peak(:ana), 0.5
       assert_equal 0, elo.wins(:bia)
     end
@@ -24,7 +25,8 @@ module Rankings
       elo.play_pod(players.combination(2).map { |a, b| [a, b, 0.5] })
 
       players.each { |id| assert_in_delta 1500, elo.rating(id), 1e-9 }
-      assert_equal 3, elo.games(:a)
+      assert_equal [1], players.map { elo.games(it) }.uniq
+      assert_equal [0], players.map { elo.wins(it) }.uniq
     end
 
     test "expected score of 1500 against 1700 is about 0.24" do
@@ -43,16 +45,18 @@ module Rankings
       assert_equal 0, elo.wins(:b)
     end
 
-    test "a player is provisional until 10 rated games" do
+    test "a player is provisional until 10 rated pods" do
       elo = Elo.new
-      9.times { elo.play(:a, :b, 0.5) }
+      pod = %i[a b c d].combination(2).map { |x, y| [x, y, 0.5] }
+      9.times { elo.play_pod(pod) }
 
       assert elo.provisional?(:a)
       assert elo.provisional?(:unknown)
 
-      elo.play(:a, :b, 0.5)
+      elo.play_pod(pod)
 
       assert_not elo.provisional?(:a)
+      assert_equal 10, elo.games(:a)
     end
 
     test "to_h lists rating, peak, games and wins per player" do

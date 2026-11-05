@@ -3,7 +3,7 @@
 require "test_helper"
 
 module Rankings
-  class DuelsTest < ActiveSupport::TestCase
+  class DuelsTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLength
     setup do
       @organizer = event_organizers(:standard_organizer)
     end
@@ -36,6 +36,22 @@ module Rankings
 
       assert_equal 6, duels.size
       assert_equal 1, score_of(duels, winner, penalized)
+    end
+
+    test "a mixed pod: Draws beat the Loss and the Penalty, equal ranks draw" do
+      pod = swiss_pod(winner: :draw)
+      loss_seat, penalty_seat = pod.seatings.last(2)
+      Result.where(event_participant_id: [loss_seat, penalty_seat].map(&:event_participant_id)).destroy_all
+      Loss.create!(round: pod.round, event_participant_id: loss_seat.event_participant_id)
+      Penalty.create!(round: pod.round, event_participant_id: penalty_seat.event_participant_id)
+      draw_a, draw_b, loss, penalty = player_ids(pod)
+
+      duels = Duels.for_pod(pod.reload)
+
+      assert_equal 6, duels.size
+      assert_equal 0.5, score_of(duels, draw_a, draw_b)
+      [draw_a, draw_b].product([loss, penalty]).each { |x, y| assert_equal 1, score_of(duels, x, y) }
+      assert_equal 0.5, score_of(duels, loss, penalty)
     end
 
     test "a player without a current result is skipped" do
@@ -81,6 +97,20 @@ module Rankings
 
       assert_equal 4, pod.seatings.size
       assert_empty Duels.for_pod(pod.reload)
+    end
+
+    test "a cut pod is not rated even with direct Win and Loss rows, and for_event leaves the cut out" do
+      event = swiss_event(4, winners: { 1 => 0 })
+      event.update_columns(top_cut_size: 4) # rubocop:disable Rails/SkipsModelValidations
+      cut = event.rounds.create!(type: SingleEliminationRound, number: 2)
+      Result.where(round: cut).destroy_all
+      pod = cut.pods.first
+      pod.seatings.each_with_index do |seating, i|
+        (i.zero? ? Win : Loss).create!(round: cut, event_participant_id: seating.event_participant_id)
+      end
+
+      assert_empty Duels.for_pod(pod.reload)
+      assert_equal [Duels.for_pod(event.rounds.find_by!(number: 1).pods.first)], Duels.for_event(event.reload)
     end
 
     test "for_event lists each pod's duels by round then pod number, in fixed queries" do
