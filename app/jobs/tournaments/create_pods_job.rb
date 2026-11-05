@@ -7,18 +7,44 @@ module Tournaments
       return Tournaments::OneVOnePairer.call(round) if round.event.one_v_one?
 
       @round = round
-      Tournaments::UnevenPodGenerator.new(@round).generate_pods!
-      @players_by_rank = pairing_order
+      raise ArgumentError, "round #{@round.number} already has pods or results" if already_paired?
 
+      byes = build_pods!
       match_according_to_strategy!
       repair_rematches!
+      sit!(byes)
+    end
 
+    private
+
+    # Builds the pods for the field, takes the byes out of the pairing order and returns them.
+    def build_pods!
+      order = pairing_order
+      shape = Tournaments::UnevenPodGenerator.new(@round).generate_pods!(order.size)
+      byes = pick_byes(order, shape[:byes])
+      @players_by_rank = order - byes
+      byes
+    end
+
+    def sit!(byes)
       @round.transaction do
+        byes.each { |participant| Advance.create!(round: @round, event_participant: participant) }
         @round.pods.each(&:sit_participants!)
       end
     end
 
-    private
+    # Pods, or a leftover bye result, mean the round was paired: a second call would hand out more byes.
+    def already_paired? = @round.pods.any? || @round.all_results.exists?
+
+    # Walks the pairing order from the end and takes the player shortest on games (byes plus pods of 3 so far);
+    # ties go to the later position, so the lowest ordered player gets the bye. Repeats for each bye.
+    def pick_byes(order, count)
+      remaining = order.dup
+      Array.new(count) do
+        bye = remaining.reverse.min_by.with_index { |player, i| [player.short_count, i] }
+        remaining.delete(bye)
+      end
+    end
 
     # Swiss and power feed the ranking (points groups dealt by seat need); random feeds the seeded shuffled field.
     def pairing_order

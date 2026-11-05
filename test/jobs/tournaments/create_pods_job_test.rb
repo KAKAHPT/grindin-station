@@ -100,6 +100,57 @@ module Tournaments
       end
     end
 
+    test "byes, 13 players: three pods of 4 and a bye for the lowest ordered player" do
+      t = uneven_tournament(13, "byes")
+      round = t.rounds.create!(type: SwissRound, number: 1)
+      assert_equal [4, 4, 4], round.pods.order(:number).map(&:size)
+      byes = round.all_results.where(type: "Advance").to_a
+      assert_equal 1, byes.size
+      assert_equal PlayerSorter.new(round).paired_players.last.id, byes.first.event_participant_id
+      assert_equal 12, round.seatings.count
+      assert_not_includes round.seatings.map(&:event_participant_id), byes.first.event_participant_id
+
+      round.update_columns(finished_at: Time.current, published: true) # rubocop:disable Rails/SkipsModelValidations
+      bye = EventParticipant.find(byes.first.event_participant_id)
+      assert_equal 1, bye.number_of_byes
+      assert_equal t.points_bye, bye.match_points
+    end
+
+    test "byes, 14 players: three pods of 4 and two byes" do
+      round = uneven_tournament(14, "byes").rounds.create!(type: SwissRound, number: 1)
+      assert_equal [4, 4, 4], round.pods.order(:number).map(&:size)
+      assert_equal 2, round.all_results.where(type: "Advance").count
+      assert_equal 12, round.seatings.count
+    end
+
+    test "pods of three, 5 players: one pod of 4 and a bye" do
+      round = uneven_tournament(5, "pods_of_three").rounds.create!(type: SwissRound, number: 1)
+      assert_equal [4], round.pods.order(:number).map(&:size)
+      assert_equal 1, round.all_results.where(type: "Advance").count
+      assert_equal 4, round.seatings.count
+    end
+
+    test "a round already paired is not paired again" do
+      t = uneven_tournament(13, "byes")
+      round = t.rounds.create!(type: SwissRound, number: 1)
+      assert_raises(ArgumentError) { CreatePodsJob.perform_now(round) }
+
+      round.pods.destroy_all # the bye result alone still marks the round as paired
+      assert_raises(ArgumentError) { CreatePodsJob.perform_now(round.reload) }
+      assert_equal 1, round.all_results.where(type: "Advance").count
+    end
+
+    test "byes, 13 players: the round 1 bye is not the round 2 bye" do
+      t = uneven_tournament(13, "byes")
+      r1 = t.rounds.create!(type: SwissRound, number: 1)
+      first_bye = r1.all_results.find_by!(type: "Advance").event_participant_id
+      TournamentBuilder.play_round!(t, winners: { 1 => :draw, 2 => :draw, 3 => :draw })
+      r2 = t.rounds.create!(type: SwissRound, number: 2)
+      second_bye = r2.all_results.find_by!(type: "Advance").event_participant_id
+      assert_not_equal first_bye, second_bye
+      assert_equal 13, r2.seatings.count + 1
+    end
+
     # Forced-round scenario: the H players' pod order in rounds 1-3.
     LOSER_ORDERS = [(0..11).to_a, [0, 4, 8, 1, 5, 9, 2, 6, 10, 3, 7, 11], [0, 5, 10, 3, 4, 9, 2, 7, 8, 1, 6, 11]].freeze
     # Grid cell (x, y) => pod key per round: columns, rows, slope-1 lines (GF(4) addition is XOR).
@@ -126,6 +177,12 @@ module Tournaments
     end
 
     private
+
+    def uneven_tournament(players, mode)
+      t = TournamentBuilder.build(players: players, organizer: event_organizers(:standard_organizer))
+      t.update_columns(uneven_field: mode) # rubocop:disable Rails/SkipsModelValidations -- locked after the swiss starts
+      t
+    end
 
     # Plays rounds 1-3 as described above; returns the four leaders.
     def script_forced_history!(tournament)
