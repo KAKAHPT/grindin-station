@@ -256,13 +256,6 @@
     color: var(--color-ink);
   }
 
-  /* "GS" monogram next to the mark (the full name stays for screen readers). */
-  .topbar-gs {
-    font: 800 17px var(--font-display);
-    letter-spacing: 0.12em;
-    line-height: 1;
-  }
-
   .topbar-panel {
     display: flex;
     flex: 1;

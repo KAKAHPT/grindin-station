@@ -1,4 +1,4 @@
-<%# Top bar of every page layout (application, play, public). Phones keep the mark, the GS monogram, the viewer and the
+<%# Top bar of every page layout (application, play, public). Phones keep the mark, the viewer and the
     bell in the bar; the nav links, language switch (EN / PT / ES) and account links fold under the hamburger (Stimulus menu).
     Local modal_sign_in: true opens Sign in in the modal frame (only the application layout has one). %>
 <% here = ->(path) { request.path == path || request.path.start_with?("#{path}/") } %>
@@ -9,7 +9,6 @@
   <div class="topbar-in">
     <%= link_to root_path(locale: params[:locale]), class: "topbar-brand" do %>
       <%= render "shared/mark", size: 30, rotating: true, id_suffix: "topbar" %>
-      <span class="topbar-gs" aria-hidden="true">GS</span>
       <span class="sr-only"><%= t("app.name") %></span>
     <% end %>
 
