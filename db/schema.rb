@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_05_110000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_05_120100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -79,6 +79,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_110000) do
     t.string "name", null: false
     t.datetime "updated_at", null: false
     t.index ["event_organizer_id"], name: "index_circuits_on_event_organizer_id"
+  end
+
+  create_table "csp_reports", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "blocked_uri"
+    t.datetime "created_at", null: false
+    t.string "document_uri"
+    t.string "ip"
+    t.string "user_agent"
+    t.string "violated_directive"
+    t.index ["created_at"], name: "index_csp_reports_on_created_at"
+  end
+
+  create_table "error_events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.text "backtrace"
+    t.datetime "created_at", null: false
+    t.string "error_class"
+    t.string "fingerprint", null: false
+    t.text "message"
+    t.string "path"
+    t.string "request_id"
+    t.datetime "resolved_at"
+    t.string "source"
+    t.uuid "user_id"
+    t.index ["created_at"], name: "index_error_events_on_created_at"
+    t.index ["fingerprint"], name: "index_error_events_on_fingerprint"
   end
 
   create_table "event_organizers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

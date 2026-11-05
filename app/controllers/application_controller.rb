@@ -25,6 +25,7 @@ class ApplicationController < ActionController::Base
   def set_request_context
     Current.ip_address = request.remote_ip
     Current.request_id = request.request_id
+    Current.request_path = request.path
   end
 
   # Locale: ?locale= (which is also remembered), else the locale cookie, else the browser's Accept-Language,
