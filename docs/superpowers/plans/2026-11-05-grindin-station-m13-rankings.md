@@ -122,15 +122,16 @@
 **Interfaces:**
 - Produces: `Exports::Invitational.call(season:) -> String` CSV (`standing,name,handle,email,invitational_points,tier_events,points,events`) via `Exports::CsvFile.generate` (safe cells); audited `data_exported` kind `invitational`.
 - Page: season segmented control, table (#, player, invitational points, tier events, ranking points, events), export link; 404 for non-admins (inherits `Admin::BaseController`).
+- `/admin/events` gets a filter form in the Audit page's style (read app/views/admin/audit/index.html.erb and its controller for the pattern): `q` (name or slug ILIKE, or the organizer user's name/e-mail), `state`, `format`, `tier`, `organizer` (handle); filters survive pagination and the tier PATCH redirect (pass them through like `page`).
 
-- [ ] Step 1: Failing tests: PATCH tier gold persists, audits, rejects `diamond` (422/redirect with alert, unchanged); after `Rankings::Rebuild.call` a gold event's players have `invitational_points == points × 2`, none for `none`; `/admin/invitational` lists them ordered, filtered by season; export CSV headers and a row; non-admin 404; `/rankings` and `/t/:slug` contain no tier text.
+- [ ] Step 1: Failing tests: `/admin/events?q=porto&state=finished&tier=gold&format=multiplayer` narrows the rows and keeps the filters in the pagination links and after a tier change; PATCH tier gold persists, audits, rejects `diamond` (422/redirect with alert, unchanged); after `Rankings::Rebuild.call` a gold event's players have `invitational_points == points × 2`, none for `none`; `/admin/invitational` lists them ordered, filtered by season; export CSV headers and a row; non-admin 404; `/rankings` and `/t/:slug` contain no tier text.
 - [ ] Step 2: Run; expect failures. Step 3: implement. Step 4: tests + rubocop.
 - [ ] Step 5: Commit `feat(m13): admin event tiers and the invitational leaderboard`.
 
 ### Task 7: Admin organizers tab (waiting-list approvals)
 
 **Files:**
-- Create: `db/migrate/<ts>_add_review_to_waitlist_signups.rb` (`approved_at` datetime, `approved_by_id` uuid, `declined_at` datetime), `app/controllers/admin/organizers_controller.rb` (`index` with `filter` pending|approved|declined, `approve`, `decline`, `revoke`), `app/views/admin/organizers/index.html.erb`, `app/mailers/organizers_mailer.rb` + `app/views/organizers_mailer/approved.{html,text}.erb`
+- Create: `db/migrate/<ts>_add_review_to_waitlist_signups.rb` (`approved_at` datetime, `approved_by_id` uuid, `declined_at` datetime), `app/controllers/admin/organizers_controller.rb` (`index` with `filter` pending|approved|declined and `q` on name/e-mail for both the signups and the organizers list, in the Audit page's filter style; `approve`, `decline`, `revoke`), `app/views/admin/organizers/index.html.erb`, `app/mailers/organizers_mailer.rb` + `app/views/organizers_mailer/approved.{html,text}.erb`
 - Modify: `app/models/waitlist_signup.rb` (scopes `pending`/`approved`/`declined`, `#user -> User | nil` by e-mail, `#approvable?`), `app/models/audit_event.rb` (`organizer_approved organizer_declined organizer_revoked`), `app/views/admin/_nav.html.erb` (Organizers tab), `config/routes.rb` (`resources :organizers, only: :index { member { patch :approve; patch :decline } }` + `patch "organizers/:id/revoke"` on the organizer id), `config/locales/*`
 - Test: `test/controllers/admin/organizers_controller_test.rb`, `test/mailers/organizers_mailer_test.rb`
 
