@@ -4,15 +4,18 @@
 module PaletteHelper
   LABEL = "font-display text-[13px] font-semibold tracking-[0.01em]"
 
-  # Button sizes: :md 48 px (default, player pages and toolbars on mobile), :sm 36 px (cards, dense toolbars).
+  # Button sizes: :md 48 px (default, player pages and toolbars on mobile), :sm 36 px (cards, dense toolbars),
+  # :xs 30 px (event tickets).
   BUTTON_SIZES = {
     md: "h-12 px-5 text-[13px]",
-    sm: "h-9 px-3 text-[12px]"
+    sm: "h-9 px-3 text-[12px]",
+    xs: "h-[30px] px-2.5 text-[11.5px]"
   }.freeze
   # Material lives in the .btn-* component classes of application.css.
   BUTTON_BASE = "btn inline-flex items-center justify-center gap-2 rounded-md whitespace-nowrap " \
                 "font-display font-semibold tracking-[0.01em]"
-  BUTTON_KINDS = { primary: "btn-primary", secondary: "btn-secondary", danger: "btn-danger", ghost: "btn-ghost" }.freeze
+  BUTTON_KINDS = { primary: "btn-primary", secondary: "btn-secondary", light: "btn-light", danger: "btn-danger",
+                   ghost: "btn-ghost" }.freeze
 
   # Icon-only action: 36 px square by default, :sm 32 px (card headers), :xs 28 px (table rows).
   ICON_BUTTON = "btn btn-ghost inline-flex shrink-0 items-center justify-center rounded-md"

@@ -1,14 +1,14 @@
 <%# A grid of event tickets (shared/_event_ticket) under an optional heading. Locals: events, enrolled (counts by
-    event id), heading (optional), paginate (optional Kaminari collection). %>
+    event id), heading (optional), paginate (optional Kaminari collection), large (optional: /events tickets). %>
 <% if events.any? %>
   <section class="col-span-full" data-ticket-grid>
     <% if local_assigns[:heading] %>
       <h2 class="mb-3 font-display text-[17px] font-semibold text-ink"><%= heading %></h2>
     <% end %>
-    <div class="lp-evl">
+    <div class="<%= local_assigns[:large] ? "lp-evl lp-evl-lg" : "lp-evl" %>">
       <% events.each do |event| %>
         <% count = enrolled.fetch(event.id, 0) %>
-        <%= render "shared/event_ticket", event: event, enrolled: count, sold_out: event.sold_out?(count) %>
+        <%= render "shared/event_ticket", event: event, enrolled: count, sold_out: event.sold_out?(count), large: local_assigns[:large] %>
       <% end %>
     </div>
     <% if local_assigns[:paginate] %>

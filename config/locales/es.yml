@@ -470,6 +470,7 @@ es:
         other: "%{count} jugadores"
       round_minutes: "rondas de %{minutes} min"
     events:
+      organizer: "Organizador"
       format_badge: "1v1 · Bo%{games}"
       about: "Acerca de"
       format: "Formato"
@@ -803,6 +804,15 @@ es:
     kinds:
       judge_call: "Se ha llamado a un juez en %{event}."
       result_contested: "Se ha impugnado un resultado de tu mesa en %{event}. Viene un juez."
+  organizers:
+    title: "Organizador"
+    lead: "Eventos organizados en Grindin Station"
+    upcoming: "Próximos eventos"
+    past: "Eventos pasados"
+    no_events: "Aún sin eventos públicos."
+    events_count:
+      one: "%{count} evento"
+      other: "%{count} eventos"
   profiles:
     description: "%{name} en Grindin Station: eventos y resultados."
     sign_in: "Iniciar sesión"

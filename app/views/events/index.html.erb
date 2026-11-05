@@ -2,11 +2,11 @@
 <%= render "shared/list_header", title: t("lists.events.title"), lead: t("lists.events.lead"), past: @past,
                                  path: ->(filter) { events_path(filter: filter, locale: url_locale) } %>
 
-<%= render "shared/ticket_grid", events: @ongoing, enrolled: @enrolled, heading: t("lists.ongoing") %>
+<%= render "shared/ticket_grid", events: @ongoing, enrolled: @enrolled, heading: t("lists.ongoing"), large: true %>
 <%= render "shared/ticket_grid", events: @tournaments, enrolled: @enrolled, paginate: @tournaments,
-                                 heading: (t("lists.tournaments.title") if @leagues.any?) %>
+                                 heading: (t("lists.tournaments.title") if @leagues.any?), large: true %>
 <%= render "shared/ticket_grid", events: @leagues, enrolled: @enrolled, paginate: @leagues,
-                                 heading: t("lists.leagues.title") %>
+                                 heading: t("lists.leagues.title"), large: true %>
 
 <% if @tournaments.none? && @leagues.none? %>
   <p class="col-span-full card px-4 py-8 text-center text-[13px] text-muted" data-list-empty>
