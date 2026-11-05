@@ -20,9 +20,12 @@ module EventTicketHelper
 
   # "Lisboa · cEDH · pods of four · 5 Swiss rounds · Top 10 · 10,00 €"
   def ticket_line(event)
-    city = event.address.to_s.split(",").last.to_s.strip.presence
-    safe_join([city, event_format_label(event), *ticket_structure(event), ticket_price(event)].compact, " · ")
+    safe_join([ticket_city(event), event_format_label(event), *ticket_structure(event), ticket_price(event)].compact,
+              " · ")
   end
+
+  # The last part of the address ("Rua Augusta, Lisboa" gives "Lisboa"), or nil.
+  def ticket_city(event) = event.address.to_s.split(",").last.to_s.strip.presence
 
   # The swiss rounds and the top cut, when set.
   def ticket_structure(event)

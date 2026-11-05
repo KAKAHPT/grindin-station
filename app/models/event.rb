@@ -78,6 +78,8 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   before_validation :populate_slug, if: -> { slug.blank? }
   before_validation { self.pairing_mode = "swiss" if one_v_one? } # 1v1 never pairs by mode (spec M8 §1)
   before_validation { self.uneven_field = "pods_of_three" if one_v_one? } # 1v1 pairs 2-player pods only
+  # The country filter on /events (M13 D12): a new event starts in its organizer's country.
+  before_validation(on: :create) { self.country = event_organizer&.user&.country if country.blank? }
 
   after_update :perform_state_based_actions, if: -> { state_previously_changed? }
   after_save :geocode_address, if: -> { address_previously_changed? }

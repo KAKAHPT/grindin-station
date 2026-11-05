@@ -80,6 +80,7 @@ module Organizer
           maximum_participants
           prizes
           address
+          country
           schedule
           rules
           price

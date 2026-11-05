@@ -206,6 +206,7 @@ pt:
         show_commanders_in_standings: "Mostrar comandantes na classificação"
         show_decklists: "Mostrar decklists nos perfis dos jogadores"
         top_cut_timeout_rule: "Se um jogo do corte esgotar o tempo"
+        country: "País"
       event_participant:
         accepted_terms: "Li e aceito as regras deste evento."
   organizer:
@@ -302,6 +303,7 @@ pt:
       results: "Resultados"
       name_placeholder: "Um nome curto e apelativo"
       address_placeholder: "Rua, cidade"
+      country_help: "Código de duas letras, usado pelo filtro de país em /events"
       price_placeholder: "Preço por jogador"
       no_limit: "Sem limite"
       description_placeholder: "Como chegar ao local, onde comer, etc."
@@ -948,6 +950,27 @@ pt:
       register: "Inscrever"
   helpers:
     required: "obrigatório"
+  events:
+    featured: "Em destaque"
+    view:
+      label: "Vista"
+      grid: "Mosaico"
+      list: "Lista"
+    filters:
+      search: "Procura um evento ou morada…"
+      search_chip: "Pesquisa"
+      season: "Época"
+      all_seasons: "Todas"
+      country: "País"
+      all_countries: "Todos os países"
+      organizer: "Organizador"
+      all_organizers: "Todos os organizadores"
+      format: "Formato"
+      all_formats: "Todos os formatos"
+      formats:
+        multiplayer: "cEDH · mesas de quatro"
+        one_v_one: "1v1"
+      empty: "Nenhum evento corresponde a estes filtros."
   lists:
     upcoming: "Próximos"
     past: "Passados"

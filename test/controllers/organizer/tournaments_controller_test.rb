@@ -78,6 +78,30 @@ module Organizer
       assert_equal ["one_v_one", 1, 3], [tournament.format, tournament.match_games, tournament.points_win]
     end
 
+    test "Settings shows the country after the address and saves it" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_open)
+
+      get edit_organizer_tournament_path(tournament)
+      assert_operator response.body.index("tournament[address]"), :<, response.body.index("tournament[country]")
+      assert_select "input.uppercase[name='tournament[country]'][maxlength='2']"
+      assert_select ".form-help", text: "Two-letter code, used by the country filter on /events"
+
+      patch organizer_tournament_path(tournament), params: { tournament: { country: "pt" } }
+      assert_redirected_to organizer_tournament_path(tournament)
+      assert_equal "PT", tournament.reload.country
+    end
+
+    test "a tournament created without a country takes the organizer's" do
+      users(:organizer_user).update!(country: "PT")
+
+      post organizer_tournaments_path, params: {
+        tournament: { name: "Sem país", start_time: 1.day.from_now, end_time: 2.days.from_now }
+      }
+
+      assert_equal "PT", Tournament.find_by!(name: "Sem país").country
+    end
+
     test "the edit form shows the format locked and keeps the match length visible for 1v1" do
       tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
                                            state: :registration_open, format: "one_v_one")

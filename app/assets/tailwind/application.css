@@ -1991,3 +1991,37 @@
     animation: none;
   }
 }
+
+/* events list (M13): the compact tickets four per row on wide screens, and the featured mini boxes */
+@layer components {
+  .lp-evl.lp-evl-dense {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  @media (max-width: 1099px) {
+    .lp-evl.lp-evl-dense {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 759px) {
+    .lp-evl.lp-evl-dense {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 539px) {
+    .lp-evl.lp-evl-dense {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .lp-feat-mini {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 260px;
+    max-width: 100%;
+    padding: 8px;
+  }
+}

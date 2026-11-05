@@ -206,6 +206,7 @@ en:
         show_commanders_in_standings: "Show commanders in standings"
         show_decklists: "Show decklists on player profiles"
         top_cut_timeout_rule: "If a top cut game times out"
+        country: "Country"
       event_participant:
         accepted_terms: "I have read and accepted the rules for this event."
   organizer:
@@ -302,6 +303,7 @@ en:
       results: "Results"
       name_placeholder: "A short, appealing name"
       address_placeholder: "Street, city"
+      country_help: "Two-letter code, used by the country filter on /events"
       price_placeholder: "Fee per player"
       no_limit: "No limit"
       description_placeholder: "How to get to the venue, where to eat, etc."
@@ -948,6 +950,27 @@ en:
       register: "Register"
   helpers:
     required: "required"
+  events:
+    featured: "Featured"
+    view:
+      label: "View"
+      grid: "Grid"
+      list: "List"
+    filters:
+      search: "Search an event or address…"
+      search_chip: "Search"
+      season: "Season"
+      all_seasons: "All"
+      country: "Country"
+      all_countries: "All countries"
+      organizer: "Organizer"
+      all_organizers: "All organizers"
+      format: "Format"
+      all_formats: "All formats"
+      formats:
+        multiplayer: "cEDH · pods of four"
+        one_v_one: "1v1"
+      empty: "No events match these filters."
   lists:
     upcoming: "Upcoming"
     past: "Past"
