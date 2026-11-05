@@ -61,6 +61,27 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
                  [@user.name, @user.handle, @user.country, @user.bio, @user.visibility]
   end
 
+  test "shows the Wizards e-mail field with its hint" do
+    get account_path
+
+    assert_select "input[name='user[player_attributes][wizards_email]']"
+    assert_select "p", text: /report your results to Wizards EventLink/
+  end
+
+  test "saves the Wizards e-mail on the player, normalised" do
+    patch account_path, params: { user: { player_attributes: { wizards_email: " Wiz@Example.com " } } }
+
+    assert_redirected_to account_path
+    assert_equal "wiz@example.com", @user.player.reload.wizards_email
+  end
+
+  test "an invalid Wizards e-mail re-renders with an error" do
+    patch account_path, params: { user: { player_attributes: { wizards_email: "nope" } } }
+
+    assert_response :unprocessable_content
+    assert_nil @user.player.reload.wizards_email
+  end
+
   test "invalid handle re-renders with an error" do
     patch account_path, params: { user: { handle: "No Spaces" } }
 

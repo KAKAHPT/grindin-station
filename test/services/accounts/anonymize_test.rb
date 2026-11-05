@@ -27,6 +27,14 @@ module Accounts
       assert_empty @user.sessions
     end
 
+    test "clears the Wizards e-mail" do
+      @user.player.update!(wizards_email: "wiz@example.com")
+
+      Anonymize.call(user: @user)
+
+      assert_nil @user.player.reload.wizards_email
+    end
+
     test "clears the admin flag" do
       @user.update_column(:admin, true) # rubocop:disable Rails/SkipsModelValidations
 

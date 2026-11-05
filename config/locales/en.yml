@@ -174,6 +174,8 @@ en:
         password: "Password"
         password_confirmation: "Password confirmation"
         current_password: "Current password"
+      player:
+        wizards_email: "Wizards account e-mail"
       event:
         format: "Format"
         match_games: "Match length"
@@ -693,6 +695,7 @@ en:
       profile: "Profile"
       avatar_hint: "JPEG, PNG or WebP, up to 2 MB."
       email_hint: "To change your e-mail, also type your current password below."
+      wizards_email_hint: "Used by organizers to report your results to Wizards EventLink. Leave empty to use your sign-in e-mail."
       handle_hint: "3 to 30 lowercase letters, digits or hyphens. Used in your public profile address."
       visibility:
         public: "Public"
