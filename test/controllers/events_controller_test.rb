@@ -57,11 +57,11 @@ class EventsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable M
     assert_select "[data-filter-bar] .seg a", text: "All"
   end
 
-  test "format=one_v_one lists only 1v1 events" do
+  test "play=one_v_one lists only 1v1 events" do
     duel = upcoming("Duel Night", format: "one_v_one")
     pods = upcoming("Pod Night")
 
-    get events_path(format: "one_v_one")
+    get events_path(play: "one_v_one")
 
     assert_listed duel
     assert_not_listed pods
@@ -83,14 +83,15 @@ class EventsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable M
                                     start: Time.zone.local(2026, 12, 1))
     upcoming("Porto Pods", country: "PT", organizer: @other, start: Time.zone.local(2026, 12, 2))
 
-    get events_path(country: "PT", organizer: "porto-org", season: "2026", format: "one_v_one", q: "porto")
+    get events_path(country: "PT", organizer: "porto-org", season: "2026", play: "one_v_one", q: "porto")
 
     assert_listed match
     assert_select "[data-upcoming-event]", 1
     assert_select "[data-filter-chips] [data-chip]", 5
     assert_select "[data-filter-chips] a[data-clear-all][href=?]", events_path
+    assert_select "a[href*='/events.']", 0 # play, not format: no /events.one_v_one links
     assert_select "[data-chip] a[href=?]",
-                  events_path(organizer: "porto-org", season: "2026", format: "one_v_one", q: "porto")
+                  events_path(organizer: "porto-org", season: "2026", play: "one_v_one", q: "porto")
   end
 
   test "the Upcoming / Past switch and the pagination keep the filters" do
@@ -113,7 +114,7 @@ class EventsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable M
     assert_select "select[name=country] option", 2 # All countries + PT
     assert_select "select[name=country] option[value=ES]", 0
     assert_select "select[name=organizer] option[value=porto-org]", text: "Porto Org"
-    assert_select "select[name=format] option[value=one_v_one]"
+    assert_select "select[name=play] option[value=one_v_one]"
   end
 
   test "the featured strip lists the featured events above the filter bar, compact tickets below" do
@@ -153,6 +154,18 @@ class EventsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable M
     get events_path(view: "weird")
     assert_select "[data-event-row]", 0
     assert_select ".lp-evr"
+    assert_equal "list", cookies[:events_view]
+
+    get events_path
+    assert_select "[data-event-row]"
+  end
+
+  test "the view cookie is HttpOnly and SameSite=Lax" do
+    get events_path(view: "list")
+
+    cookie = Array(response.headers["Set-Cookie"]).join("\n").lines.find { |line| line.start_with?("events_view=") }
+    assert_match(/httponly/i, cookie)
+    assert_match(/samesite=lax/i, cookie)
   end
 
   test "the view switch keeps the filters" do

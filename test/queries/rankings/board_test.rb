@@ -68,7 +68,7 @@ module Rankings
         { season: "all" } => %w[Ana Bruno Carla],
         { country: "ES" } => %w[Carla Diogo],
         { organizer: "lisboa-cedh" } => %w[Carla Diogo],
-        { format: "one_v_one" } => %w[Carla Diogo],
+        { play: "one_v_one" } => %w[Carla Diogo],
         { team: "Porto Grinders" } => %w[Ana Bruno],
         { q: "carl" } => %w[Carla]
       }.each do |params, names|
@@ -79,9 +79,9 @@ module Rankings
     end
 
     test "unknown values are ignored" do
-      board = Board.new(season: "1999", country: "XX", organizer: "nobody", format: "chess", team: "Nope", q: " ")
+      board = Board.new(season: "1999", country: "XX", organizer: "nobody", play: "chess", team: "Nope", q: " ")
 
-      expected = { season: @this_year, country: nil, organizer: nil, event_organizer_id: nil, format: nil, team: nil,
+      expected = { season: @this_year, country: nil, organizer: nil, event_organizer_id: nil, play: nil, team: nil,
                    q: nil }
       assert_equal expected, board.filters
       assert_equal 4, board.points.size

@@ -5,7 +5,7 @@
 module EventTickets
   extend ActiveSupport::Concern
 
-  FILTER_KEYS = %i[q season country organizer format].freeze
+  FILTER_KEYS = %i[q season country organizer play].freeze
   SEASON_SQL = "EXTRACT(YEAR FROM events.start_time)::integer"
 
   private
@@ -19,7 +19,7 @@ module EventTickets
   end
 
   # The /events filters from the URL (spec M13 D13), unknown values dropped: q, season (Integer), country,
-  # organizer ([id, name, handle] of a listed organizer) and format.
+  # organizer ([id, name, handle] of a listed organizer) and play (the format; `format` is Rails' request format).
   def ticket_filters # rubocop:disable Metrics/AbcSize,Metrics/MethodLength -- one entry per filter
     @ticket_filters ||=
       begin
@@ -30,7 +30,7 @@ module EventTickets
           season: given[:season].to_i.presence_in(options[:seasons]),
           country: given[:country].to_s.upcase.presence_in(options[:countries]),
           organizer: options[:organizers].find { |_, _, handle| handle == given[:organizer] },
-          format: given[:format].presence_in(Event::FORMATS)
+          play: given[:play].presence_in(Event::FORMATS)
         }.compact
       end
   end
@@ -60,7 +60,7 @@ module EventTickets
   end
 
   def filter_tickets(scope, filters)
-    scope = scope.where(filters.slice(:country, :format))
+    scope = scope.where({ country: filters[:country], format: filters[:play] }.compact)
     scope = scope.where(event_organizer_id: filters[:organizer].first) if filters[:organizer]
     scope = scope.where("#{SEASON_SQL} = ?", filters[:season]) if filters[:season]
     filters[:q] ? search_tickets(scope, filters[:q]) : scope

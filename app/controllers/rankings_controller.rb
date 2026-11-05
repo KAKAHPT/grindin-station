@@ -9,7 +9,7 @@ class RankingsController < ApplicationController
   LIMIT = 20
 
   def show
-    @board = Rankings::Board.new(params.permit(:season, :country, :organizer, :format, :team, :q, :sort))
+    @board = Rankings::Board.new(params.permit(:season, :country, :organizer, :play, :team, :q, :sort))
     @tab = TABS.include?(params[:tab]) ? params[:tab] : "points"
     @rows = @board.public_send(BOARDS.fetch(@tab))
     @all = params[:all] == "1"

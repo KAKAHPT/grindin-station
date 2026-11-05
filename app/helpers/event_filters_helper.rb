@@ -2,6 +2,8 @@
 
 # The /events filter bar and chips (spec M13 D13) over EventTickets#ticket_filters.
 module EventFiltersHelper
+  EVENT_FILTER_LABELS = { q: :search_chip, play: :format }.freeze
+
   # The active filters as URL params (the organizer by handle).
   def event_filter_query(filters)
     filters.merge(organizer: filters[:organizer]&.last).compact
@@ -17,8 +19,8 @@ module EventFiltersHelper
        filters[:country], t("events.filters.country")],
       [:organizer, :select, all_option(:all_organizers) + options[:organizers].map { |_, name, handle| [name, handle] },
        filters[:organizer]&.last, t("events.filters.organizer")],
-      [:format, :select, all_option(:all_formats) + Event::FORMATS.map { |f| [t("events.filters.formats.#{f}"), f] },
-       filters[:format], t("events.filters.format")]
+      [:play, :select, all_option(:all_formats) + Event::FORMATS.map { |f| [t("events.filters.formats.#{f}"), f] },
+       filters[:play], t("events.filters.format")]
     ]
   end
 
@@ -26,8 +28,9 @@ module EventFiltersHelper
   def event_filter_chips(filters, base)
     query = event_filter_query(filters)
     values = event_filter_values(filters)
-    %i[season country organizer format q].select { |key| query.key?(key) }.map do |key|
-      [t("events.filters.#{key == :q ? :search_chip : key}"), values[key], events_path(**base, **query.except(key))]
+    %i[season country organizer play q].select { |key| query.key?(key) }.map do |key|
+      label = t("events.filters.#{EVENT_FILTER_LABELS.fetch(key, key)}")
+      [label, values[key], events_path(**base, **query.except(key))]
     end
   end
 
@@ -40,7 +43,7 @@ module EventFiltersHelper
     {
       season: filters[:season].to_s, country: (country_name(filters[:country]) if filters[:country]),
       organizer: filters[:organizer]&.second, q: filters[:q],
-      format: (t("events.filters.formats.#{filters[:format]}") if filters[:format])
+      play: (t("events.filters.formats.#{filters[:play]}") if filters[:play])
     }
   end
 end

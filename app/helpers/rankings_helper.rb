@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module RankingsHelper
-  QUERY_KEYS = %w[season country organizer format team q tab sort all].freeze
+  QUERY_KEYS = %w[season country organizer play team q tab sort all].freeze
 
   # The /rankings URL of the current query with changes merged in (nil values drop a key); filter changes reset all=1.
   def rankings_url(changes = {})
@@ -28,10 +28,10 @@ module RankingsHelper
         [team, team]
       end, board.filters[:team],
        t("rankings.filters.team")],
-      [:format, :select, [[t("rankings.filters.all_formats"), ""]] + Rankings::Board::FORMATS.map do |f|
+      [:play, :select, [[t("rankings.filters.all_formats"), ""]] + Rankings::Board::FORMATS.map do |f|
         [t("rankings.formats.#{f}"), f]
       end,
-       board.filters[:format], t("rankings.filters.format")]
+       board.filters[:play], t("rankings.filters.format")]
     ]
   end
 
@@ -48,7 +48,7 @@ module RankingsHelper
       name = board.organizers.find { |_, handle| handle == filters[:organizer] }.first
       chips << [t("rankings.filters.organizer"), name, :organizer]
     end
-    chips << [t("rankings.filters.format"), t("rankings.formats.#{filters[:format]}"), :format] if filters[:format]
+    chips << [t("rankings.filters.format"), t("rankings.formats.#{filters[:play]}"), :play] if filters[:play]
     chips << [t("rankings.filters.team"), filters[:team], :team] if filters[:team]
     chips << [t("rankings.filters.search_chip"), filters[:q], :q] if filters[:q]
     chips.map { |label, value, key| [label, value, rankings_url(key => nil, all: nil)] }

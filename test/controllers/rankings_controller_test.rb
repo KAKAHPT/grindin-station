@@ -41,7 +41,7 @@ class RankingsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
       assert_select "select[name=country][data-action='change->submit-on-change#submit'] option[value=ES]",
                     text: "Spain"
       assert_select "select[name=organizer] option[value=lisboa-cedh]", text: "Lisboa cEDH"
-      assert_select "select[name=format] option[value=one_v_one]"
+      assert_select "select[name=play] option[value=one_v_one]"
       assert_select "select[name=team] option", text: "Porto Grinders"
       assert_select "input[type=hidden][name=tab][value=points]"
       assert_select "[data-filter-count]", text: "4 players"

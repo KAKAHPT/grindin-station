@@ -1,5 +1,5 @@
 <%# One event as a list row (/events?view=list), the same data as shared/_event_ticket: cover thumbnail, name and
-    format line, date and city, organizer and state line, enrolled count with View event and Register. Stacks on
+    format line (with the city), date, organizer and state line, enrolled count with View event and Register. Stacks on
     phones. Locals: event (cover and organizer preloaded), enrolled (count). %>
 <% sold_out = event.sold_out?(enrolled) %>
 <% href = ticket_href(event) %>
@@ -12,7 +12,6 @@
   </div>
   <div class="col-span-2 min-w-0 text-xs text-muted md:col-span-1" data-row-when>
     <p class="text-ink"><%= l(event.start_time, format: "%d %b %Y · %H:%M") %></p>
-    <p class="truncate"><%= ticket_city(event) %></p>
   </div>
   <div class="col-span-2 min-w-0 md:col-span-1">
     <%= ticket_organizer(event) %>

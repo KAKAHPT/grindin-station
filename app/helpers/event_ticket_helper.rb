@@ -57,7 +57,7 @@ module EventTicketHelper
     link_to user.name, organizer_profile_path(user.handle, locale: params[:locale])
   end
 
-  # Large tickets (/events): the start time and the full address on one line.
+  # Large tickets (the organizer page /o/:handle): the start time and the full address on one line.
   def ticket_when_where(event)
     safe_join([l(event.start_time, format: t("play.events.time_format")), event.address.presence].compact, " · ")
   end

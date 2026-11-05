@@ -28,13 +28,17 @@ class EventsController < ApplicationController
 
   private
 
-  # ?view= wins (an unknown value is the grid) and is remembered for a year; without it, the cookie or the grid.
+  # A known ?view= wins and is remembered for a year; an unknown one is the grid for this request only; without it,
+  # the cookie or the grid.
   def events_view
-    return VIEWS.include?(cookies[:events_view]) ? cookies[:events_view] : "grid" unless params.key?(:view)
-
-    view = VIEWS.include?(params[:view]) ? params[:view] : "grid"
-    cookies[:events_view] = { value: view, expires: 1.year }
-    view
+    if VIEWS.include?(params[:view])
+      cookies[:events_view] = { value: params[:view], expires: 1.year, httponly: true, same_site: :lax }
+      params[:view]
+    elsif params.key?(:view)
+      "grid"
+    else
+      VIEWS.include?(cookies[:events_view]) ? cookies[:events_view] : "grid"
+    end
   end
 
   # Featured visible events running now or upcoming, soonest first.

@@ -49,7 +49,7 @@ module Rankings
     def filters
       @filters ||= {
         season: season, country: pick(:country, countries), organizer: organizer&.last,
-        event_organizer_id: organizer&.first, format: pick(:format, FORMATS), team: pick(:team, teams), q: query
+        event_organizer_id: organizer&.first, play: pick(:play, FORMATS), team: pick(:team, teams), q: query
       }
     end
 
@@ -144,7 +144,7 @@ module Rankings
       scope = RankingContribution.left_joins(player: :user)
       scope = scope.where(season: filters[:season]) unless filters[:season] == :all
       scope = scope.where(event_organizer_id: filters[:event_organizer_id]) if filters[:event_organizer_id]
-      scope = scope.where(format: filters[:format]) if filters[:format]
+      scope = scope.where(format: filters[:play]) if filters[:play]
       scope = scope.where(users: { country: filters[:country] }) if filters[:country]
       team_from == :user ? player_filters(scope) : team_filters(scope)
     end

@@ -1,4 +1,4 @@
-<% base = { filter: ("past" if @past), locale: params[:locale], view: params[:view].presence && @view }.compact %>
+<% base = { filter: ("past" if @past), locale: params[:locale], view: (@view if EventsController::VIEWS.include?(params[:view])) }.compact %>
 <% query = event_filter_query(@filters) %>
 <%= render "shared/list_header", title: t("lists.events.title"), lead: t("lists.events.lead"), past: @past,
                                  path: ->(filter) { events_path(**base, filter: filter, **query) } %>
