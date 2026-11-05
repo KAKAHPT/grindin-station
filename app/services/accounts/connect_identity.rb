@@ -51,7 +51,9 @@ module Accounts
     end
 
     def self.link(user, auth)
-      user.identities.create!(provider: auth.provider, uid: auth.uid.to_s, email: auth.info.email, name: auth.info.name)
+      identity = user.identities.create!(provider: auth.provider, uid: auth.uid.to_s, email: auth.info.email,
+                                         name: auth.info.name)
+      Audit.record(:identity_linked, actor: user, subject: identity, provider: auth.provider)
       user
     end
     private_class_method :claimed, :ensure_new_account!, :email_verified?, :create_user, :link

@@ -12,7 +12,7 @@ class AccountsController < ApplicationController
       @user.errors.add(:base, :current_password_invalid)
       render :show, status: :unprocessable_content
     elsif @user.update(attrs)
-      end_other_sessions if @user.saved_change_to_password_digest? || @user.saved_change_to_email_address?
+      credentials_saved
       back_to_account notice: t("accounts.flash.updated")
     else
       render :show, status: :unprocessable_content
@@ -24,12 +24,14 @@ class AccountsController < ApplicationController
     return back_to_account alert: t("accounts.flash.unlink_refused") unless @user.can_unlink_identity?
 
     identity.destroy
+    Audit.record(:identity_unlinked, subject: identity, provider: identity.provider)
     back_to_account notice: t("accounts.flash.unlinked")
   end
 
   def destroy
     return back_to_account alert: t("accounts.flash.confirmation_mismatch") unless deletion_confirmed?
 
+    Audit.record(:account_deleted, subject: @user)
     Accounts::Anonymize.call(user: @user)
     terminate_session
     redirect_to root_path(locale: params[:locale]), notice: t("accounts.flash.deleted")
@@ -59,6 +61,20 @@ class AccountsController < ApplicationController
     email_changes = attrs.key?(:email_address) &&
                     User.normalize_value_for(:email_address, attrs[:email_address].to_s) != @user.email_address
     @user.password_set && (attrs[:password].present? || email_changes)
+  end
+
+  def credentials_saved
+    end_other_sessions if @user.saved_change_to_password_digest? || @user.saved_change_to_email_address?
+    audit_credential_changes
+  end
+
+  # Only the fact of a new password; the e-mail change with both addresses.
+  def audit_credential_changes
+    Audit.record(:password_changed, subject: @user) if @user.saved_change_to_password_digest?
+    return unless @user.saved_change_to_email_address?
+
+    from, to = @user.saved_change_to_email_address
+    Audit.record(:email_changed, subject: @user, from: from, to: to)
   end
 
   # A new password or e-mail signs out every other device.

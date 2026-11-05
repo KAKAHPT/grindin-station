@@ -51,6 +51,7 @@ module Organizer
       end
 
       Round.transaction { roll_back(event, round) }
+      Audit.record(:round_undone, event: event, round_number: round.number)
       redirect_to [:organizer, event, event.rounds.max_by(&:number).becomes(Round)],
                   notice: t("flash.notice.round_rollback")
     end
@@ -88,6 +89,7 @@ module Organizer
       end
 
       @round.update(finished_at: Time.zone.now)
+      Audit.record(:round_closed, subject: @round, event: event, round_number: @round.number)
       latest = event.rounds.reload.max_by(&:number)
       notice = latest == @round ? t("rounds.closed") : t("rounds.next_round_created")
       redirect_to [:organizer, event, latest.becomes(Round)], notice: notice

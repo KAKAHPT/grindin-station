@@ -18,7 +18,8 @@ module Organizer
     end
 
     def destroy
-      load_tournament.event_staff.find(params.expect(:id)).destroy
+      staff = load_tournament.event_staff.find(params.expect(:id))
+      audit_staff(:staff_removed, staff) if staff.destroy
       redirect_to staff_path, notice: t("flash.notice.staff_removed")
     end
 
@@ -26,9 +27,14 @@ module Organizer
 
     def add_staff(user)
       staff = load_tournament.event_staff.new(user: user, role: staff_params[:role])
-      return { notice: t("flash.notice.staff_added", name: user.name) } if staff.save
+      return { alert: staff.errors.full_messages.to_sentence } unless staff.save
 
-      { alert: staff.errors.full_messages.to_sentence }
+      audit_staff(:staff_added, staff)
+      { notice: t("flash.notice.staff_added", name: user.name) }
+    end
+
+    def audit_staff(action, staff)
+      Audit.record(action, subject: staff, event: load_tournament, user_id: staff.user_id, role: staff.role)
     end
 
     def load_tournament

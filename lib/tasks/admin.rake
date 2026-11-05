@@ -5,6 +5,7 @@ namespace :grindin do
   task :admin, [:email] => :environment do |_, args|
     user = User.find_by(email_address: args[:email].to_s.strip.downcase) || abort("No user with that email.")
     user.update!(admin: true)
+    Audit.record(:admin_granted, actor: nil, subject: user, email: user.email_address)
     puts "#{user.email_address} is now an admin."
   end
 
@@ -13,6 +14,7 @@ namespace :grindin do
     task :revoke, [:email] => :environment do |_, args|
       user = User.find_by(email_address: args[:email].to_s.strip.downcase) || abort("No user with that email.")
       user.update!(admin: false)
+      Audit.record(:admin_revoked, actor: nil, subject: user, email: user.email_address)
       puts "#{user.email_address} is no longer an admin."
     end
   end
