@@ -41,7 +41,8 @@ module Rankings
       Rebuild.call
 
       points = [old_winner, new_winner].map { |id| RankingContribution.find_by!(player_id: id).points }
-      assert_equal [BigDecimal("0"), BigDecimal("3")], points
+      # The correction on a finished tournament redoes the final positions: the new winner also takes the win bonus.
+      assert_equal [BigDecimal("0"), BigDecimal("13")], points
       old = EloRating.find_by!(player_id: old_winner, season: nil)
       assert_operator before, :>, 1500
       assert_operator old.rating, :<, 1500
