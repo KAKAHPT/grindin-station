@@ -8,7 +8,10 @@ module Tournaments
     PREFERRED = Event::PREFERRED_POD_SIZE
     SMALLER = Event::SMALLER_POD_SIZE
 
+    # Fields under 4 are not paired; they get one pod of everyone rather than an error.
     def self.shape(count, uneven_field)
+      return { sizes: [count], byes: 0 } if count < PREFERRED
+
       fours, rest = count.divmod(PREFERRED)
       return { sizes: [PREFERRED] * fours, byes: rest } if rest.between?(1, 2) && (uneven_field == "byes" || count == 5)
 

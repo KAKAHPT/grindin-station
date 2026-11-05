@@ -37,5 +37,13 @@ module Tournaments
       assert_equal({ sizes: [4], byes: 1 }, UnevenPodGenerator.shape(5, "pods_of_three"))
       assert_equal({ sizes: [4], byes: 1 }, UnevenPodGenerator.shape(5, "byes"))
     end
+
+    test "fewer than 4 players: one pod of everyone in both modes, no error" do
+      (1..3).each do |n|
+        Event::UNEVEN_FIELDS.each do |mode|
+          assert_equal({ sizes: [n], byes: 0 }, UnevenPodGenerator.shape(n, mode), "n = #{n}, #{mode}")
+        end
+      end
+    end
   end
 end

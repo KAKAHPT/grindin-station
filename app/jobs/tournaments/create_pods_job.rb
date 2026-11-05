@@ -17,12 +17,14 @@ module Tournaments
 
     private
 
-    # Builds the pods for the field, takes the byes out of the pairing order and returns them.
+    # Builds the pods for the field, takes the byes from the bottom of the ranking (before dealing by seat need),
+    # deals the rest into the pairing order and returns the byes.
     def build_pods!
-      order = pairing_order
-      shape = Tournaments::UnevenPodGenerator.new(@round).generate_pods!(order.size)
-      byes = pick_byes(order, shape[:byes])
-      @players_by_rank = order - byes
+      sorter = Tournaments::PlayerSorter.new(@round)
+      ranked = random? ? sorter.random_field(pairing_rng) : sorter.sorted_players
+      shape = Tournaments::UnevenPodGenerator.new(@round).generate_pods!(ranked.size)
+      byes = pick_byes(ranked, shape[:byes])
+      @players_by_rank = pairing_order(sorter, ranked - byes)
       byes
     end
 
@@ -36,7 +38,7 @@ module Tournaments
     # Pods, or a leftover bye result, mean the round was paired: a second call would hand out more byes.
     def already_paired? = @round.pods.any? || @round.all_results.exists?
 
-    # Walks the pairing order from the end and takes the player shortest on games (byes plus pods of 3 so far);
+    # Walks the ranking from the end and takes the player shortest on games (byes plus pods of 3 so far);
     # ties go to the later position, so the lowest ordered player gets the bye. Repeats for each bye.
     def pick_byes(order, count)
       remaining = order.dup
@@ -47,10 +49,11 @@ module Tournaments
     end
 
     # Swiss and power feed the ranking (points groups dealt by seat need); random feeds the seeded shuffled field.
-    def pairing_order
-      sorter = Tournaments::PlayerSorter.new(@round)
-      @round.event.random_pairing? ? sorter.random_players(pairing_rng) : sorter.paired_players
+    def pairing_order(sorter, field)
+      random? ? sorter.random_players(pairing_rng, field) : sorter.paired_players(field)
     end
+
+    def random? = @round.event.random_pairing?
 
     def pairing_rng
       Random.new(Digest::SHA256.hexdigest("#{@round.event.seed || 0}:#{@round.number}:pairing")[0, 8].hex)

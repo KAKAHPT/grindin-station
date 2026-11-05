@@ -100,13 +100,13 @@ module Tournaments
       end
     end
 
-    test "byes, 13 players: three pods of 4 and a bye for the lowest ordered player" do
+    test "byes, 13 players: three pods of 4 and a bye for the lowest ranked player" do
       t = uneven_tournament(13, "byes")
       round = t.rounds.create!(type: SwissRound, number: 1)
       assert_equal [4, 4, 4], round.pods.order(:number).map(&:size)
       byes = round.all_results.where(type: "Advance").to_a
       assert_equal 1, byes.size
-      assert_equal PlayerSorter.new(round).paired_players.last.id, byes.first.event_participant_id
+      assert_equal PlayerSorter.new(round).sorted_players.last.id, byes.first.event_participant_id
       assert_equal 12, round.seatings.count
       assert_not_includes round.seatings.map(&:event_participant_id), byes.first.event_participant_id
 
@@ -140,15 +140,36 @@ module Tournaments
       assert_equal 1, round.all_results.where(type: "Advance").count
     end
 
-    test "byes, 13 players: the round 1 bye is not the round 2 bye" do
+    # A bye worth a draw: after an all-draw round 1 everybody has 1 point, and the round 1 bye (no opponents yet)
+    # ranks last, so only the short count keeps them from a second bye.
+    test "byes, 13 players, bye worth a draw: the round 1 bye is not the round 2 bye" do
       t = uneven_tournament(13, "byes")
+      t.update_columns(points_bye: 1) # rubocop:disable Rails/SkipsModelValidations -- locked after the swiss starts
+      assert_second_bye_skips_first(t)
+    end
+
+    test "byes, 13 players, bye worth nothing: the round 1 bye ranks last and is still skipped" do
+      t = uneven_tournament(13, "byes")
+      t.update_columns(points_bye: 0) # rubocop:disable Rails/SkipsModelValidations -- locked after the swiss starts
+      assert_second_bye_skips_first(t)
+    end
+
+    # Round 1 [4,4,4,3], all draws; two players of pod 1 drop, so round 2 is 13 players with one bye. The pod of 3
+    # players met fewer opponents and rank last on equal points; their pod of 3 counts as a short round.
+    test "byes, 15 players: the round 2 bye skips the round 1 pod of 3" do
+      t = uneven_tournament(15, "byes")
       r1 = t.rounds.create!(type: SwissRound, number: 1)
-      first_bye = r1.all_results.find_by!(type: "Advance").event_participant_id
-      TournamentBuilder.play_round!(t, winners: { 1 => :draw, 2 => :draw, 3 => :draw })
+      assert_equal [4, 4, 4, 3], r1.pods.order(:number).map(&:size)
+      small = r1.pods.find_by!(number: 4).event_participants.map(&:id)
+      TournamentBuilder.play_round!(t, winners: (1..4).index_with(:draw))
+      r1.pods.find_by!(number: 1).event_participants.first(2).each { |participant| participant.update!(dropped: true) }
+
       r2 = t.rounds.create!(type: SwissRound, number: 2)
-      second_bye = r2.all_results.find_by!(type: "Advance").event_participant_id
-      assert_not_equal first_bye, second_bye
-      assert_equal 13, r2.seatings.count + 1
+      assert_equal [4, 4, 4], r2.pods.order(:number).map(&:size)
+      bye = r2.all_results.find_by!(type: "Advance").event_participant_id
+      assert_equal 3, small.size
+      assert_not_includes small, bye
+      assert_includes small, PlayerSorter.new(r2).sorted_players.last.id # the rule had to skip someone
     end
 
     # Forced-round scenario: the H players' pod order in rounds 1-3.
@@ -178,11 +199,25 @@ module Tournaments
 
     private
 
+    # The seed is the first whose tiebreak salts are all distinct, so the ranking (and the bye) is deterministic.
     def uneven_tournament(players, mode)
       t = TournamentBuilder.build(players: players, organizer: event_organizers(:standard_organizer))
-      t.update_columns(uneven_field: mode) # rubocop:disable Rails/SkipsModelValidations -- locked after the swiss starts
+      seed = (1..).find { |s| t.event_participants.map { |p| Digest::MD5.hexdigest("#{s}-#{p.id}").to_i(16) % 10_000 }.uniq.size == players }
+      t.update_columns(uneven_field: mode, seed: seed) # rubocop:disable Rails/SkipsModelValidations -- locked after the swiss starts
       t
     end
+
+    # Round 1 all draws, then round 2: the round 1 bye does not get the round 2 bye although they rank last.
+    def assert_second_bye_skips_first(tournament)
+      r1 = tournament.rounds.create!(type: SwissRound, number: 1)
+      first_bye = bye_of(r1)
+      TournamentBuilder.play_round!(tournament, winners: { 1 => :draw, 2 => :draw, 3 => :draw })
+      r2 = tournament.rounds.create!(type: SwissRound, number: 2)
+      assert_equal first_bye, PlayerSorter.new(r2).sorted_players.last.id
+      assert_not_equal first_bye, bye_of(r2)
+    end
+
+    def bye_of(round) = round.all_results.find_by!(type: "Advance").event_participant_id
 
     # Plays rounds 1-3 as described above; returns the four leaders.
     def script_forced_history!(tournament)
