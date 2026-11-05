@@ -84,7 +84,7 @@
       <% end %>
       </div>
       <% unless scorekeeper %>
-        <%= link_to [:new, :organizer, @event, :event_participant], data: { turbo_frame: "modal" }, class: button_classes(:primary, size: :sm) do %>
+        <%= link_to [:new, :organizer, @event, :event_participant], data: { turbo_frame: "modal" }, class: button_classes(:primary, size: :xs) do %>
           <%= icon("plus") %>
           <%= t("organizer.roster.add_player") %>
         <% end %>

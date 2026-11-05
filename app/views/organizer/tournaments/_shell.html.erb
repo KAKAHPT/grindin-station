@@ -14,7 +14,7 @@
                  concat button_to(transition_for(state: next_state), organizer_tournament_path(tournament),
                                   method: :patch, params: { tournament: { state: next_state } },
                                   data: { turbo_confirm: t("organizer.shell.confirm_state") },
-                                  class: button_classes(:primary, size: :sm))
+                                  class: button_classes(:primary, size: :xs))
                end
              } %>
   <%= render "shared/tabs", tabs: tournament_tabs(tournament, role: role, active: tournament_active_tab, open_calls: open_calls) %>
