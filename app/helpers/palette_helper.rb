@@ -4,12 +4,12 @@
 module PaletteHelper
   LABEL = "font-display text-[13px] font-semibold tracking-[0.01em]"
 
-  # Button sizes: :md 48 px (default, player pages and toolbars on mobile), :sm 36 px (cards, dense toolbars),
-  # :xs 30 px (event tickets).
+  # Button sizes: :md 44 px (default, player pages and toolbars on mobile), :sm 32 px (cards, dense toolbars),
+  # :xs 28 px (event tickets).
   BUTTON_SIZES = {
-    md: "h-12 px-5 text-[13px]",
-    sm: "h-9 px-3 text-[12px]",
-    xs: "h-[30px] px-2.5 text-[11.5px]"
+    md: "h-11 px-4 text-[13px]",
+    sm: "h-8 px-3 text-[12px]",
+    xs: "h-7 px-2.5 text-[11px]"
   }.freeze
   # Material lives in the .btn-* component classes of application.css.
   BUTTON_BASE = "btn inline-flex items-center justify-center gap-2 rounded-md whitespace-nowrap " \

@@ -30,9 +30,10 @@
       <p class="lp-lead"><%= t("landing.lead") %></p>
       <div class="lp-ctas">
         <%= link_to t("landing.cta_events"), "#upcoming", class: button_classes(:light, size: :sm) %>
-        <%= link_to t("landing.cta_organise"),
-                    current_user&.event_organizer ? organizer_root_path(locale: url_locale) : "#waitlist",
-                    class: button_classes(:secondary, size: :sm) %>
+        <%# Organising is by invitation: visitors use the waiting-list card below; organizers get their panel. %>
+        <% if current_user&.event_organizer %>
+          <%= link_to t("landing.cta_organise"), organizer_root_path(locale: url_locale), class: button_classes(:secondary, size: :sm) %>
+        <% end %>
       </div>
       <%= render "pages/waitlist", signup: @waitlist_signup, state: nil %>
     </div>
