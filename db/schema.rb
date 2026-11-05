@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_05_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_05_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -144,6 +144,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_150000) do
     t.datetime "updated_at", null: false
     t.integer "waitlist_position"
     t.boolean "waitlisted", default: false, null: false
+    t.index ["event_id", "player_id"], name: "index_event_participants_on_event_id_and_player_id", unique: true, where: "(player_id IS NOT NULL)"
     t.index ["event_id"], name: "index_event_participants_on_event_id"
     t.index ["player_id"], name: "index_event_participants_on_player_id"
   end
@@ -270,6 +271,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_150000) do
 
   create_table "players", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.string "guest_name"
     t.string "key", null: false
     t.datetime "updated_at", null: false
     t.uuid "user_id"

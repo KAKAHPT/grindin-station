@@ -13,7 +13,7 @@ class Player < ApplicationRecord
   validates :wizards_email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
 
   def name
-    user&.display_name || "Anonymous ##{key&.first(4)}"
+    user&.display_name || guest_name.presence || "Anonymous ##{key&.first(4)}"
   end
 
   # Where stores report this player's results on Wizards EventLink: their own Wizards e-mail, else the sign-in one.

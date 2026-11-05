@@ -123,6 +123,12 @@ pt:
   activerecord:
     errors:
       models:
+        event_participant:
+          attributes:
+            base:
+              guest_name_taken: "nome já usado neste evento; acrescenta um apelido ou um número"
+            player_id:
+              taken_in_event: "já está neste evento"
         user:
           current_password_invalid: "A palavra-passe atual está incorreta"
           attributes:
@@ -719,6 +725,7 @@ pt:
       decklist_locked: "As decklists ficam fechadas depois de publicada a ronda 1: pede ao staff para a mudar."
       registration_closed: "Inscrições fechadas: o torneio já começou."
       registration_full: "Inscrições esgotadas."
+      already_enrolled: "Já estás inscrito neste evento."
       staff_user_not_found: "Não há nenhum utilizador com esse e-mail. Tem de se registar primeiro."
       judge_call_closed: "Essa chamada de juiz já foi tratada."
       not_authorized_circuit: "Não tens permissão para gerir o circuito selecionado"
@@ -730,6 +737,8 @@ pt:
       password_reset_link_invalid: "A ligação para repor a palavra-passe é inválida ou expirou."
       try_again_later: "Tenta novamente mais tarde."
       invalid_credentials: "Tenta outro e-mail ou outra palavra-passe."
+  event_participants:
+    manual_player: "Jogador manual %{n}"
   accounts:
     confirm_new_password: "Confirmar nova palavra-passe"
     nav: "Conta"

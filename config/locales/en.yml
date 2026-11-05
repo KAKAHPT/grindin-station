@@ -123,6 +123,12 @@ en:
   activerecord:
     errors:
       models:
+        event_participant:
+          attributes:
+            base:
+              guest_name_taken: "name already used in this event; add a surname or a number"
+            player_id:
+              taken_in_event: "is already in this event"
         user:
           current_password_invalid: "Current password is incorrect"
           attributes:
@@ -719,6 +725,7 @@ en:
       decklist_locked: "Decklists are locked once round 1 is published: ask the staff to change it."
       registration_closed: "Registration closed: the tournament has started."
       registration_full: "Registration full."
+      already_enrolled: "You are already registered for this event."
       staff_user_not_found: "No user with that e-mail. They must sign up first."
       judge_call_closed: "That judge call was already handled."
       not_authorized_circuit: "Not authorized to manage the selected circuit"
@@ -730,6 +737,8 @@ en:
       password_reset_link_invalid: "Password reset link is invalid or has expired."
       try_again_later: "Try again later."
       invalid_credentials: "Try another email address or password."
+  event_participants:
+    manual_player: "Manual player %{n}"
   accounts:
     confirm_new_password: "Confirm new password"
     nav: "Account"

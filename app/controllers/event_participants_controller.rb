@@ -6,6 +6,7 @@ class EventParticipantsController < ApplicationController
   skip_before_action :require_authentication, only: %i[index]
   rescue_from(Registrations::Closed) { redirect_to load_event, alert: t("flash.alert.registration_closed") }
   rescue_from(Registrations::Full) { redirect_to load_event, alert: t("flash.alert.registration_full") }
+  rescue_from(Registrations::AlreadyEnrolled) { redirect_to load_event, alert: t("flash.alert.already_enrolled") }
 
   # Inside the app's modal frame it stays a modal; opened as a page it moved to /t/:slug/standings.
   def index

@@ -6,7 +6,7 @@ module Registrations
   class Enroll
     def self.call(event:, player:, decklist: nil)
       event.with_lock do
-        raise Closed if event.points_locked?
+        guard!(event, player)
 
         attributes = { event: event, player: player, decklist: decklist, accepted_terms: true }
         if event.playing_participants_count >= event.maximum_participants
@@ -18,5 +18,11 @@ module Registrations
         EventParticipant.create!(attributes)
       end
     end
+
+    def self.guard!(event, player)
+      raise Closed if event.points_locked?
+      raise AlreadyEnrolled if event.event_participants.exists?(player: player)
+    end
+    private_class_method :guard!
   end
 end

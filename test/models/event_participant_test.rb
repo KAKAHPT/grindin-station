@@ -13,6 +13,48 @@ class EventParticipantTest < ActiveSupport::TestCase # rubocop:disable Metrics/C
     assert_not_nil participant.player
   end
 
+  test "a player has one entry per event" do
+    existing = event_participants(:small_event_participant_one)
+    duplicate = EventParticipant.new(event: existing.event, player: existing.player, accepted_terms: true)
+
+    assert_not duplicate.valid?
+    assert_includes duplicate.errors.full_messages.join, "is already in this event"
+  end
+
+  test "the database refuses a duplicate player in an event" do
+    existing = event_participants(:small_event_participant_one)
+    duplicate = EventParticipant.new(event: existing.event, player: existing.player, accepted_terms: true)
+
+    assert_raises(ActiveRecord::RecordNotUnique) { duplicate.save!(validate: false) }
+  end
+
+  test "guests in one event need distinct names, ignoring case and spacing" do
+    event = events(:small_tournament)
+    EventParticipant.create!(event: event, player_name: "João Silva", accepted_terms: true)
+
+    same = EventParticipant.new(event: event, player_name: "joão  silva", accepted_terms: true)
+
+    assert_not same.valid?
+    assert_includes same.errors.full_messages, "name already used in this event; add a surname or a number"
+    assert EventParticipant.new(event: event, player_name: "João Costa", accepted_terms: true).valid?
+  end
+
+  test "the same guest name is fine in another event" do
+    EventParticipant.create!(event: events(:small_tournament), player_name: "João Silva", accepted_terms: true)
+    other_event = Event.where.not(id: events(:small_tournament).id).first
+
+    assert EventParticipant.new(event: other_event, player_name: "João Silva", accepted_terms: true).valid?
+  end
+
+  test "a guest without a name is called Manual player N" do
+    event = events(:small_tournament)
+    first = EventParticipant.create!(event: event, accepted_terms: true)
+    second = EventParticipant.create!(event: event, accepted_terms: true)
+
+    assert_equal "Manual player 1", first.name
+    assert_equal "Manual player 2", second.name
+  end
+
   # ===== ASSOCIATIONS =====
 
   test "belongs to tournament and player" do
@@ -46,7 +88,7 @@ class EventParticipantTest < ActiveSupport::TestCase # rubocop:disable Metrics/C
     # Create a dropped participant
     dropped_participant = EventParticipant.create!(
       event: events(:small_tournament),
-      player: players(:player_one),
+      player: players(:player_five),
       dropped: true,
       accepted_terms: true
     )
@@ -162,7 +204,7 @@ class EventParticipantTest < ActiveSupport::TestCase # rubocop:disable Metrics/C
     # Create dropped participant
     dropped_participant = EventParticipant.create!(
       event: events(:small_tournament),
-      player: players(:player_three),
+      player: players(:player_five),
       dropped: true,
       accepted_terms: true
     )
@@ -201,7 +243,7 @@ class EventParticipantTest < ActiveSupport::TestCase # rubocop:disable Metrics/C
   test "requires accepted_terms on create" do
     participant = EventParticipant.new(
       event: events(:small_tournament),
-      player: players(:player_one)
+      player: players(:player_five)
     )
 
     # Should be invalid without accepted_terms
@@ -220,7 +262,7 @@ class EventParticipantTest < ActiveSupport::TestCase # rubocop:disable Metrics/C
     # Create new participant
     new_participant = EventParticipant.create!(
       event: tournament,
-      player: players(:player_three),
+      player: players(:player_five),
       accepted_terms: true
     )
 
