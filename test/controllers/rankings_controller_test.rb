@@ -36,7 +36,7 @@ class RankingsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     get rankings_path
     assert_select "form[data-filter-bar][method=get][action=?]", rankings_path do
       assert_select "input[name=q]"
-      assert_select "a.seg-on", text: "2026"
+      assert_select "a.seg-on[href=?]", rankings_path(season: @this_year, tab: "points"), text: @this_year.to_s
       assert_select "a", text: "All time"
       assert_select "select[name=country][data-action='change->submit-on-change#submit'] option[value=ES]",
                     text: "Spain"
@@ -62,7 +62,7 @@ class RankingsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
 
   test "20 rows then Show all, all=1 shows every row" do
     crowd = TournamentBuilder.build(players: 24, organizer: @standard, state: :finished)
-    crowd.update_columns(start_time: Time.zone.local(2026, 7, 1)) # rubocop:disable Rails/SkipsModelValidations
+    crowd.update_columns(start_time: Time.zone.local(@this_year, 7, 1)) # rubocop:disable Rails/SkipsModelValidations
     Rankings::Rebuild.call
 
     get rankings_path
@@ -74,6 +74,22 @@ class RankingsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
 
     assert_select "tr[data-player]", 28
     assert_select "a[data-show-all]", 0
+  end
+
+  test "segment links keep only the bar's params" do
+    get rankings_path(country: "ES", page: 3, utm_source: "x", all: 1)
+
+    assert_select "a[href=?]", rankings_path(country: "ES", tab: "points", season: "all"), text: "All time"
+  end
+
+  test "the current year with no data yet shows the empty state" do
+    travel_to Time.zone.local(@this_year + 1, 2, 1) do
+      get rankings_path
+
+      assert_select "a.seg-on", text: (@this_year + 1).to_s
+      assert_select "tr[data-player]", 0
+      assert_select "td", text: "No players match."
+    end
   end
 
   test "the leaderboard tab shows the rating columns and the provisional mark" do
@@ -144,6 +160,17 @@ class RankingsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
       assert_response :success
       assert_operator count, :<=, 10, "#{tab} ran #{count} queries"
     end
+  end
+
+  test "a signed-in viewer on the leaderboard, with an avatar listed, runs in at most 12 queries" do
+    @ana.avatar.attach(io: file_fixture("cover1.jpg").open, filename: "ana.jpg", content_type: "image/jpeg")
+    sign_in(@bruno)
+
+    count = count_queries { get rankings_path(tab: "elo") }
+
+    assert_response :success
+    assert_select "tr[data-player] img[src*='ana.jpg']"
+    assert_operator count, :<=, 12, "signed-in elo ran #{count} queries"
   end
 
   private

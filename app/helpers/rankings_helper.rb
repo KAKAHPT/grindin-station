@@ -10,7 +10,7 @@ module RankingsHelper
   end
 
   def rankings_filter_fields(board, tab) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength -- one entry per filter
-    seasons = board.seasons.presence || [board.default_season]
+    seasons = board.seasons
     season = board.filters[:season].to_s
     [
       [:q, :search, t(tab == "teams" ? "rankings.filters.search_team" : "rankings.filters.search"), board.filters[:q]],

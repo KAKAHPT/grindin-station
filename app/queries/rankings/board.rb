@@ -13,20 +13,33 @@ module Rankings
     WIN_BONUS = 30
     PROVISIONAL = 10
     START = 1500
+    AVATAR = { avatar_attachment: { blob: { variant_records: { image_attachment: :blob } } } }.freeze
 
     PointsRow = Data.define(:player, :user, :points, :events, :wins, :top_cuts, :conversion, :best)
     EloRow = Data.define(:player, :user, :rating, :change, :peak, :games, :win_pct, :provisional)
     TeamRow = Data.define(:team, :points, :avg_rating, :players, :events, :wins, :top_cuts)
 
-    # The player's best finish: the lowest final position among the matching events (one row per player and event).
+    # The player's best finish: the lowest final position among the matching events. A derived table with one row
+    # per (event, player), so a player entered twice in an event does not multiply the contribution rows.
     POSITIONS = <<~SQL.squish
-      LEFT JOIN event_participants ON event_participants.event_id = ranking_contributions.event_id
-        AND event_participants.player_id = ranking_contributions.player_id AND event_participants.waitlisted = FALSE
+      LEFT JOIN (SELECT event_id, player_id, MIN(final_position) AS best FROM event_participants
+        WHERE NOT waitlisted GROUP BY event_id, player_id) positions
+        ON positions.event_id = ranking_contributions.event_id AND positions.player_id = ranking_contributions.player_id
     SQL
     POINTS_COLUMNS = [
       "ranking_contributions.player_id", "SUM(ranking_contributions.points)", "COUNT(*)",
       "COUNT(*) FILTER (WHERE ranking_contributions.won)", "COUNT(*) FILTER (WHERE ranking_contributions.made_cut)",
-      "MIN(event_participants.final_position)"
+      "MIN(positions.best)"
+    ].map { |column| Arel.sql(column) }.freeze
+
+    # Organizer accounts of the contributions, joined under their own alias (users is the players' accounts).
+    ORGANIZERS = <<~SQL.squish
+      LEFT JOIN event_organizers organizers ON organizers.id = ranking_contributions.event_organizer_id
+      LEFT JOIN users organizer_users ON organizer_users.id = organizers.user_id
+    SQL
+    OPTION_COLUMNS = [
+      "ranking_contributions.season", "users.country", "users.team", "ranking_contributions.team",
+      "organizers.id", "organizer_users.name", "organizer_users.handle"
     ].map { |column| Arel.sql(column) }.freeze
 
     def initialize(params)
@@ -40,17 +53,18 @@ module Rankings
       }
     end
 
-    # Years with contributions, newest first.
-    def seasons = @seasons ||= RankingContribution.distinct.order(season: :desc).pluck(:season)
+    # The current year (D3, always offered, even before it has data), then the other years with contributions,
+    # newest first.
+    def seasons = @seasons ||= ([default_season] + options[:seasons]).uniq
 
-    def countries = options.first
+    def countries = options[:countries]
 
-    def teams = options.last
+    def teams = options[:teams]
 
     # [[name, handle]] of the organizers with contributions, by name.
     def organizers = organizer_options.map { |_, name, handle| [name, handle] }
 
-    def default_season = seasons.first || Date.current.year
+    def default_season = Date.current.year
 
     def points
       totals = filtered.joins(POSITIONS).group(:player_id).pluck(*POINTS_COLUMNS)
@@ -59,10 +73,9 @@ module Rankings
     end
 
     def elo
-      ids = filtered.distinct.pluck(:player_id)
-      ratings = EloRating.where(player_id: ids, season: rating_season).index_by(&:player_id)
-      players = players_by_id(ids)
-      sort_elo(ids.map { |id| elo_row(players.fetch(id), ratings[id]) })
+      matching = filtered.select(:player_id)
+      ratings = EloRating.where(player_id: matching, season: rating_season).index_by(&:player_id)
+      sort_elo(players(Player.where(id: matching)).map { |player| elo_row(player, ratings[player.id]) })
     end
 
     def teams_board
@@ -75,12 +88,14 @@ module Rankings
     end
 
     def summary
-      players, events, organizers = filtered.pick(
+      players, events, organizers, updated_at = filtered.pick(
         *%w[player_id event_id event_organizer_id].map do |column|
           Arel.sql("COUNT(DISTINCT ranking_contributions.#{column})")
-        end
+        end,
+        Arel.sql("(SELECT MAX(elo_ratings.updated_at) FROM elo_ratings)")
       )
-      { players: players, events: events, organizers: organizers, updated_at: Rankings.last_rebuilt_at }
+      # The same instant as Rankings.last_rebuilt_at, read in the counts query.
+      { players: players, events: events, organizers: organizers, updated_at: updated_at&.in_time_zone }
     end
 
     # The points column to sort by (points unless a known one is asked for).
@@ -105,20 +120,23 @@ module Rankings
       @organizer ||= organizer_options.find { |_, _, value| value == handle }&.values_at(0, 2)
     end
 
-    def organizer_options
-      @organizer_options ||= EventOrganizer.joins(:user).where(id: RankingContribution.select(:event_organizer_id))
-        .where.not(users: { handle: nil }).order("users.name").pluck(:id, "users.name", "users.handle")
-    end
+    # [[id, name, handle]] of the organizers with contributions (and a handle), by name.
+    def organizer_options = options[:organizers]
 
-    # [countries, teams] from the current accounts of the ranked players (and the teams stored on contributions).
+    # Seasons with data (newest first), the countries and teams of the ranked players' current accounts (plus the
+    # teams stored on contributions) and the organizers, in one query.
     def options
       @options ||=
-        begin
-          rows = RankingContribution.left_joins(player: :user).distinct
-            .pluck("users.country", "users.team", "ranking_contributions.team")
-          [rows.map(&:first).compact_blank.uniq.sort, rows.flat_map { |row| row.drop(1) }.compact_blank.uniq.sort]
-        end
+        option_lists(RankingContribution.left_joins(player: :user).joins(ORGANIZERS).distinct.pluck(*OPTION_COLUMNS))
     end
+
+    def option_lists(rows)
+      { seasons: rows.map(&:first).uniq.sort.reverse, countries: sorted(rows.map(&:second)),
+        teams: sorted(rows.flat_map { |row| row.values_at(2, 3) }),
+        organizers: rows.map { |row| row.last(3) }.uniq.select(&:last).sort_by(&:second) }
+    end
+
+    def sorted(values) = values.compact_blank.uniq.sort
 
     # The contributions matching the filters; the team filter and the search match the account (players' tabs) or
     # the team stored on the contribution (Teams tab, where the search is the team name).
@@ -147,8 +165,13 @@ module Rankings
 
     def like(text) = "%#{ActiveRecord::Base.sanitize_sql_like(text)}%"
 
-    def players_by_id(ids)
-      Player.where(id: ids).preload(user: { avatar_attachment: :blob }).index_by(&:id)
+    def players_by_id(ids) = players(Player.where(id: ids)).index_by(&:id)
+
+    # Players with their accounts in one joined query, then the avatars (attachment, blob, variant records).
+    def players(scope)
+      scope.eager_load(:user).to_a.tap do |players|
+        ActiveRecord::Associations::Preloader.new(records: players.filter_map(&:user), associations: AVATAR).call
+      end
     end
 
     def points_row(player, sum, events, wins, cuts, best) # rubocop:disable Metrics/ParameterLists -- one SQL row

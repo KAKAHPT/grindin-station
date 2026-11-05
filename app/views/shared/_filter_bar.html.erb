@@ -1,8 +1,11 @@
 <%# A GET filter form (M13): fields are [name, type, options, selected, label] with type :search (options = the
     placeholder), :segment (options = [[label, value]], links to the current query with that value; a hidden field keeps
-    it for the other fields) or :select (options = [[label, value]], submits on change via submit-on-change). Locals:
+    it for the other fields; the links go to the current page with only the bar's params) or :select (options =
+    [[label, value]], submits on change via submit-on-change). Locals:
     url:, fields:, count: (text on the right), hidden: {} (extra hidden fields, e.g. the tab). %>
 <% hidden = local_assigns.fetch(:hidden, {}) %>
+<%# Segment links keep only this bar's own params (its fields and hidden fields) and point at the current page. %>
+<% kept = params.permit(*fields.map { |field| field.first.to_s }).to_h.merge(hidden.stringify_keys).compact_blank %>
 <%= form_with url: url, method: :get, local: true, data: { turbo_frame: "_top", filter_bar: true },
               class: "flex flex-wrap items-center gap-2 my-3.5" do %>
   <% hidden.each do |name, value| %>
@@ -20,8 +23,8 @@
       <%= hidden_field_tag name, selected, id: nil %>
       <span class="seg" role="group" aria-label="<%= label %>">
         <% options.each do |text, value| %>
-          <% query = request.query_parameters.except("page", "all").merge(name.to_s => value) %>
-          <%= link_to text, "#{url}?#{query.to_query}", class: ("seg-on" if value.to_s == selected.to_s),
+          <% href = url_for(kept.merge(name.to_s => value, "only_path" => true)) %>
+          <%= link_to text, href, class: ("seg-on" if value.to_s == selected.to_s),
                       "aria-current": (value.to_s == selected.to_s).to_s %>
         <% end %>
       </span>

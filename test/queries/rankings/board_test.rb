@@ -5,17 +5,17 @@ require_relative "../../support/rankings_fixture"
 
 module Rankings
   # Players in PT/ES, two organizers, both formats, two teams, two seasons; contributions from Rankings::Rebuild.
-  # 2026: Ana wins two pods (cEDH PT), Carla beats Diogo 1v1 (Lisboa cEDH); 2025: Bruno wins one pod.
-  class BoardTest < ActiveSupport::TestCase
+  # This year: Ana wins two pods (cEDH PT), Carla beats Diogo 1v1 (Lisboa cEDH); last year: Bruno wins one pod.
+  class BoardTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLength
     include RankingsFixture
 
     setup { build_rankings_world }
 
-    test "defaults to the latest season with data; points rows ordered by points" do
+    test "defaults to the current year; points rows ordered by points" do
       board = Board.new({})
 
-      assert_equal 2026, board.filters[:season]
-      assert_equal [2026, 2025], board.seasons
+      assert_equal @this_year, board.filters[:season]
+      assert_equal [@this_year, @last_year], board.seasons
       rows = board.points
       assert_equal(%w[Ana Carla], rows.first(2).map { |row| row.player.name.split.first })
       assert_equal [BigDecimal("26"), BigDecimal("13")], rows.first(2).map(&:points)
@@ -24,6 +24,34 @@ module Rankings
       assert_equal 1, ana.best
       assert_equal @ana, ana.user
       assert_equal 4, rows.size
+    end
+
+    test "the current year is the default and listed even before it has data" do
+      travel_to Time.zone.local(@this_year + 1, 2, 1) do
+        board = Board.new({})
+
+        assert_equal @this_year + 1, board.filters[:season]
+        assert_equal [@this_year + 1, @this_year, @last_year], board.seasons
+        assert_empty board.points
+        assert_equal @this_year, Board.new(season: @this_year.to_s).filters[:season]
+      end
+    end
+
+    test "a player entered twice in an event does not multiply the points row" do
+      before = Board.new({}).points.find { |row| row.user == @ana }
+      entry = EventParticipant.where(player: @ana.player).order(:created_at).first
+      # Validations (and the unique index, when present) refuse this now; older data may still hold such duplicates.
+      # The index is dropped inside the test transaction, which rolls the DDL back.
+      index = "index_event_participants_on_event_id_and_player_id"
+      connection = EventParticipant.connection
+      connection.remove_index(:event_participants, name: index) if connection.index_name_exists?(:event_participants,
+                                                                                                 index)
+      entry.event.event_participants.new(player: @ana.player, accepted_terms: true,
+                                         final_position: 3).save!(validate: false)
+
+      after = Board.new({}).points.find { |row| row.user == @ana }
+
+      assert_equal before.to_h.except(:player, :user), after.to_h.except(:player, :user)
     end
 
     test "option lists" do
@@ -36,7 +64,7 @@ module Rankings
 
     test "each filter narrows the points rows" do
       {
-        { season: "2025" } => %w[Bruno],
+        { season: @last_year.to_s } => %w[Bruno],
         { season: "all" } => %w[Ana Bruno Carla],
         { country: "ES" } => %w[Carla Diogo],
         { organizer: "lisboa-cedh" } => %w[Carla Diogo],
@@ -53,7 +81,8 @@ module Rankings
     test "unknown values are ignored" do
       board = Board.new(season: "1999", country: "XX", organizer: "nobody", format: "chess", team: "Nope", q: " ")
 
-      expected = { season: 2026, country: nil, organizer: nil, event_organizer_id: nil, format: nil, team: nil, q: nil }
+      expected = { season: @this_year, country: nil, organizer: nil, event_organizer_id: nil, format: nil, team: nil,
+                   q: nil }
       assert_equal expected, board.filters
       assert_equal 4, board.points.size
     end
@@ -102,7 +131,7 @@ module Rankings
       event = events(:finished_tournament)
       users = (1..6).map { |i| new_user("Six #{i}", team: "Six Pack") }
       users.each_with_index do |user, i|
-        RankingContribution.create!(player: user.player, event: event, season: 2026, team: "Six Pack", field: 6,
+        RankingContribution.create!(player: user.player, event: event, season: @this_year, team: "Six Pack", field: 6,
                                     format: "multiplayer", points: (i + 1) * 10, made_cut: i == 5, won: i == 4)
       end
 
