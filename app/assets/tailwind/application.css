@@ -933,6 +933,152 @@
   }
 }
 
+/* rankings */
+@layer components {
+  /* Tabs under the title: Sora label with a small muted subtitle, ink underline on the current one. */
+  .rk-tabs {
+    display: flex;
+    gap: 4px;
+    margin-top: 18px;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .rk-tabs a {
+    padding: 10px 14px;
+    margin-bottom: -1px;
+    border-bottom: 2px solid transparent;
+    font: 600 13px var(--font-display);
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+
+  .rk-tabs a:hover,
+  .rk-tabs a.on {
+    color: var(--color-ink);
+  }
+
+  .rk-tabs a.on {
+    border-bottom-color: var(--color-ink);
+  }
+
+  .rk-tabs small {
+    display: block;
+    margin-top: 1px;
+    font: 500 11px var(--font-body);
+    color: var(--color-muted);
+  }
+
+  /* Active filter chip (shared/_filter_chips). */
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 24px;
+    padding: 0 8px;
+    border-radius: 5px;
+    border: 1px solid var(--color-line-strong);
+    background: var(--color-surface-raised);
+    font: 600 11px var(--font-body);
+    color: var(--color-muted);
+  }
+
+  /* Summary strip above the table: four grey cells, two per line on phones. */
+  .rk-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    background: var(--color-surface-raised);
+  }
+
+  .rk-strip > div {
+    padding: 12px 16px;
+    border-right: 1px solid var(--color-line-strong);
+  }
+
+  .rk-strip > div:last-child {
+    border-right: 0;
+  }
+
+  .rk-strip b {
+    display: block;
+    font: 700 20px var(--font-display);
+    color: var(--color-ink);
+  }
+
+  .rk-strip span {
+    font: 600 10.5px var(--font-body);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  /* "How is it calculated?" modal (dialog controller): the app's modal frame on a blurred backdrop. */
+  .rk-dialog {
+    width: min(680px, calc(100% - 32px));
+    max-height: calc(100% - 80px);
+    margin: 40px auto;
+    padding: 0;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 14px;
+    background: var(--color-surface);
+    color: var(--color-ink);
+    box-shadow: var(--shadow-card);
+  }
+
+  .rk-dialog::backdrop {
+    background: rgb(0 0 0 / 0.6);
+    backdrop-filter: blur(2px);
+  }
+
+  .rk-dialog-body {
+    padding: 18px;
+    font-size: 13.5px;
+    line-height: 1.65;
+  }
+
+  .rk-dialog-body p {
+    margin: 0 0 10px;
+  }
+
+  .rk-dialog-body h3 {
+    margin: 18px 0 6px;
+    font: 600 13px var(--font-display);
+  }
+
+  .rk-dialog-body code {
+    padding: 1px 5px;
+    border: 1px solid var(--color-line);
+    border-radius: 4px;
+    background: var(--color-ground);
+    font: 12.5px ui-monospace, Menlo, monospace;
+  }
+
+  .rk-dialog-body .ctable {
+    margin: 6px 0 10px;
+  }
+
+  .rk-short {
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: var(--color-surface-raised);
+    font-size: 14px;
+  }
+
+  .rk-short p:last-child {
+    margin: 0;
+  }
+
+  @media (max-width: 640px) {
+    .rk-strip {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .rk-strip > div:nth-child(2) {
+      border-right: 0;
+    }
+  }
+}
+
 @keyframes gearspin {
   to {
     transform: rotate(360deg);

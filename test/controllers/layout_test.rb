@@ -86,7 +86,7 @@ class LayoutTest < ActionDispatch::IntegrationTest
     assert_select "[data-topbar]", count: 1
     assert_select "[data-topbar] .gslogo[data-rotating]", count: 1
     assert_select "[data-topbar] nav a[href^=?]", events_path, text: "Events"
-    assert_select "[data-topbar] nav a[href^=?]", circuits_path, text: "Rankings"
+    assert_select "[data-topbar] nav a[href^=?]", rankings_path, text: "Rankings"
     assert_select "[data-topbar] nav a[href$=?]", "#about", text: "About"
     assert_select "[data-topbar] [data-lang-switch] button", count: I18n.available_locales.size
     assert_select "[data-lang-switch] button[data-locale=en]", text: "EN"

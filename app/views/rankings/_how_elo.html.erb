@@ -1,0 +1,28 @@
+<%# The leaderboard rating explained (spec M13 D5–D6), text from the approved mock. %>
+<%= render layout: "rankings/dialog", locals: { kind: "elo" } do %>
+  <p><%= t("rankings.how.elo.d1_html") %></p>
+  <p><code>E(A) = 1 / (1 + 10^((R(B) − R(A)) / 400))</code></p>
+  <p><%= t("rankings.how.elo.d2_html") %></p>
+  <p><code>R' = R + K × (S − E)</code></p>
+  <p><%= t("rankings.how.elo.d3_html") %></p>
+  <h3><%= t("rankings.how.elo.pods") %></h3>
+  <p><%= t("rankings.how.elo.pods_text") %></p>
+  <h3><%= t("rankings.how.example") %></h3>
+  <p><%= t("rankings.how.elo.example_lead") %></p>
+  <table class="ctable">
+    <thead>
+      <tr><th><%= t("rankings.how.elo.duel") %></th><th class="r"><%= t("rankings.how.elo.expected") %></th>
+        <th class="r"><%= t("rankings.how.elo.actual") %></th><th class="r"><%= t("rankings.how.elo.change") %></th></tr>
+    </thead>
+    <tbody>
+      <% [["Bruno", 1600, "0.36", "+20.5"], ["Carla", 1500, "0.50", "+16.0"], ["Diogo", 1400, "0.64", "+11.5"]].each do |name, rating, expected, change| %>
+        <tr><td><%= t("rankings.how.elo.versus", name: name, rating: rating) %></td><td class="r tabular-nums"><%= expected %></td>
+          <td class="r tabular-nums">1</td><td class="r tabular-nums"><%= change %></td></tr>
+      <% end %>
+      <tr><td><b><%= t("rankings.how.elo.after") %></b></td><td></td><td></td><td class="r tabular-nums"><b>1548</b></td></tr>
+    </tbody>
+  </table>
+  <p class="text-muted"><%= t("rankings.how.elo.example_note") %></p>
+  <h3><%= t("rankings.how.rules") %></h3>
+  <p><%= t("rankings.how.elo.rules") %></p>
+<% end %>

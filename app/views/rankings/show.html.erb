@@ -1,0 +1,45 @@
+<%# /rankings (M13): three tabs, the shared filter bar and chips, the summary strip, the tab's table, its note with the
+    "How is it calculated?" dialog, and the footer link to the organizer circuits. %>
+<% content_for :title, t("rankings.title") %>
+<% count = @tab == "teams" ? t("rankings.count_teams", count: @rows.size) : t("rankings.count_players", count: @rows.size) %>
+<% shown = @all || @tab == "teams" ? @rows : @rows.first(RankingsController::LIMIT) %>
+<div class="col-span-full w-full max-w-5xl mx-auto pt-2 pb-10">
+  <h1 class="font-display text-2xl font-semibold text-ink"><%= t("rankings.title") %></h1>
+  <p class="mt-1 text-[13px] text-muted"><%= t("rankings.lead") %></p>
+
+  <nav class="rk-tabs" data-rankings-tabs aria-label="<%= t("rankings.title") %>">
+    <% RankingsController::TABS.each do |tab| %>
+      <%= link_to rankings_url(tab: tab, all: nil, sort: nil), class: ("on" if tab == @tab), "aria-current": ("page" if tab == @tab) do %>
+        <%= t("rankings.tabs.#{tab}") %><small><%= t("rankings.tabs.#{tab}_sub") %></small>
+      <% end %>
+    <% end %>
+  </nav>
+
+  <%= render "shared/filter_bar", url: rankings_path, fields: rankings_filter_fields(@board, @tab), count: count,
+                                  hidden: { tab: @tab } %>
+  <%= render "shared/filter_chips", chips: rankings_chips(@board), clear_url: rankings_path(tab: @tab) %>
+
+  <section class="card overflow-hidden">
+    <div class="rk-strip" data-summary>
+      <div><b data-summary-players><%= @summary[:players] %></b><span><%= t("rankings.summary.players") %></span></div>
+      <div><b data-summary-events><%= @summary[:events] %></b><span><%= t("rankings.summary.events") %></span></div>
+      <div><b data-summary-organizers><%= @summary[:organizers] %></b><span><%= t("rankings.summary.organizers") %></span></div>
+      <div><b data-summary-updated><%= @summary[:updated_at] ? l(@summary[:updated_at].to_date, format: :long) : "–" %></b><span><%= t("rankings.summary.updated") %></span></div>
+    </div>
+    <div class="overflow-x-auto">
+      <%= render @tab, rows: shown %>
+    </div>
+    <% if @tab != "teams" && !@all && @rows.size > RankingsController::LIMIT %>
+      <div class="flex justify-center p-2.5 border-t border-line">
+        <%= link_to t("rankings.show_all", count: @rows.size), rankings_url(all: 1), data: { show_all: true },
+                    class: button_classes(:secondary, size: :sm) %>
+      </div>
+    <% end %>
+  </section>
+
+  <%= render "how_#{@tab}" %>
+
+  <p class="mt-6 text-xs text-muted" data-circuits-note>
+    <%= t("rankings.circuits_html", link: link_to(t("rankings.circuits_link"), circuits_path(locale: params[:locale]), class: "text-ink underline underline-offset-2")) %>
+  </p>
+</div>

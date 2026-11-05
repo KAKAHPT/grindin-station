@@ -1,0 +1,40 @@
+<%# Teams table: team points = the five best contributions (D7). Locals: rows:. %>
+<table class="ctable">
+  <thead>
+    <tr>
+      <th class="r w-10"><%= t("rankings.columns.rank") %></th>
+      <th><%= t("rankings.columns.team") %></th>
+      <th class="r"><%= t("rankings.columns.team_points") %></th>
+      <th class="r max-sm:hidden"><%= t("rankings.columns.avg_rating") %></th>
+      <th class="r"><%= t("rankings.columns.players") %></th>
+      <th class="r max-sm:hidden"><%= t("rankings.columns.events") %></th>
+      <th class="r max-sm:hidden"><%= t("rankings.columns.wins") %></th>
+      <th class="r max-sm:hidden"><%= t("rankings.columns.top_cuts") %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% rows.each_with_index do |row, index| %>
+      <tr data-team-row>
+        <td class="r font-display text-sm font-bold <%= ranking_rank_class(index) %>"><%= index + 1 %></td>
+        <td>
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span aria-hidden="true" class="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-surface-raised border border-line-strong font-display text-[10.5px] font-semibold text-muted"><%= ranking_initials(row.team) %></span>
+            <div class="min-w-0">
+              <div class="font-display text-[13px] font-semibold text-ink truncate"><%= row.team %></div>
+              <div class="text-[11px] text-muted"><%= t("rankings.team_players", count: row.players) %></div>
+            </div>
+          </div>
+        </td>
+        <td class="r tabular-nums"><span class="font-display text-sm font-bold text-ink" data-points><%= ranking_points(row.points) %></span></td>
+        <td class="r tabular-nums max-sm:hidden"><%= row.avg_rating %></td>
+        <td class="r tabular-nums"><%= row.players %></td>
+        <td class="r tabular-nums max-sm:hidden"><%= row.events %></td>
+        <td class="r tabular-nums max-sm:hidden"><%= row.wins %></td>
+        <td class="r tabular-nums max-sm:hidden"><%= row.top_cuts %></td>
+      </tr>
+    <% end %>
+    <% if rows.empty? %>
+      <tr><td colspan="8" class="py-7 text-center text-[13px] text-muted"><%= t("rankings.empty_teams") %></td></tr>
+    <% end %>
+  </tbody>
+</table>

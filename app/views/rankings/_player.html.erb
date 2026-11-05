@@ -1,0 +1,24 @@
+<%# Player cell: avatar (photo or initials), name (linked to the profile when the viewer may open it) with the team tag,
+    then handle (visible profiles only) and country. Locals: player:, user:. %>
+<% visible = ranking_visible?(user) %>
+<div class="flex items-center gap-2.5 min-w-0">
+  <% if user&.avatar&.attached? %>
+    <%= image_tag url_for(user.avatar.variant(:thumb)), alt: "", width: 28, height: 28, class: "size-7 shrink-0 rounded-full object-cover border border-line-strong" %>
+  <% else %>
+    <span aria-hidden="true" class="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-surface-raised border border-line-strong font-display text-[10.5px] font-semibold text-muted"><%= ranking_initials(player.name) %></span>
+  <% end %>
+  <div class="min-w-0">
+    <div class="flex items-center gap-1.5 min-w-0 font-display text-[13px] font-semibold text-ink">
+      <% if visible %>
+        <%= link_to player.name, profile_path(user.handle, locale: params[:locale]), class: "truncate hover:underline" %>
+      <% else %>
+        <span class="truncate"><%= player.name %></span>
+      <% end %>
+      <%= profile_team_tag(user) if user %>
+    </div>
+    <% meta = [("@#{user.handle}" if visible), (country_name(user.country) if user&.country.present?)].compact %>
+    <% if meta.any? %>
+      <div class="text-[11px] text-muted truncate"><%= meta.join(" · ") %></div>
+    <% end %>
+  </div>
+</div>

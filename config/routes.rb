@@ -65,6 +65,7 @@ Rails.application.routes.draw do
 
   resources :events, only: %i[index]
   resources :circuits, only: %i[index show]
+  get "/rankings", to: "rankings#show", as: :rankings
 
   namespace :admin do
     root "dashboard#show"

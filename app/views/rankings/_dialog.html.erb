@@ -1,0 +1,26 @@
+<%# The tab's note with its "How is it calculated?" button and the <dialog> it opens (dialog controller): the short
+    version box, then the detailed version yielded by the caller. Locals: kind: (points | elo | teams). %>
+<div data-controller="dialog">
+  <p class="mt-3 text-xs leading-relaxed text-muted" data-note="<%= kind %>">
+    <%= t("rankings.how.#{kind}.note_html") %>
+    <button type="button" class="text-ink underline underline-offset-[3px] cursor-pointer" data-action="dialog#open"><%= t("rankings.how.#{kind}.open") %></button>
+  </p>
+  <dialog class="rk-dialog" data-dialog-target="dialog" data-action="click->dialog#backdrop" data-how="<%= kind %>"
+          aria-labelledby="how-<%= kind %>-title">
+    <div class="flex items-center justify-between px-[18px] py-3.5 border-b border-line">
+      <h2 id="how-<%= kind %>-title" class="font-display text-base font-semibold text-ink"><%= t("rankings.how.#{kind}.title") %></h2>
+      <button type="button" class="<%= icon_button_classes(size: :sm) %>" data-action="dialog#close" aria-label="<%= t("rankings.how.close") %>">✕</button>
+    </div>
+    <div class="rk-dialog-body">
+      <div class="rk-short" data-short>
+        <% t("rankings.how.#{kind}.short").each_with_index do |paragraph, index| %>
+          <p><% if index.zero? %><b><%= t("rankings.how.short_title") %></b> <% end %><%= sanitize(paragraph, tags: %w[b]) %></p>
+        <% end %>
+      </div>
+      <div data-detailed>
+        <h3><%= t("rankings.how.detailed") %></h3>
+        <%= yield %>
+      </div>
+    </div>
+  </dialog>
+</div>

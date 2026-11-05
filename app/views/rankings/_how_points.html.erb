@@ -1,0 +1,36 @@
+<%# Ranking points explained (spec M13 D4), numbers from Rankings::Points. %>
+<%= render layout: "rankings/dialog", locals: { kind: "points" } do %>
+  <p><%= t("rankings.how.points.d1") %></p>
+  <p><code><%= t("rankings.how.points.formula") %></code></p>
+  <p><%= t("rankings.how.points.d2_html") %></p>
+  <h3><%= t("rankings.how.points.bonuses") %></h3>
+  <p><%= t("rankings.how.points.bonuses_html") %></p>
+  <h3><%= t("rankings.how.points.factor") %></h3>
+  <p><%= t("rankings.how.points.factor_lead") %></p>
+  <table class="ctable">
+    <thead><tr><th><%= t("rankings.how.points.field") %></th><th class="r"><%= t("rankings.how.points.multiplier") %></th></tr></thead>
+    <tbody>
+      <% lower = 1 %>
+      <% Rankings::Points::FIELD_FACTORS.each do |largest, factor| %>
+        <% label = if lower == 1 then t("rankings.how.points.up_to", count: largest)
+                   elsif largest.infinite? then t("rankings.how.points.more_than", count: lower - 1)
+                   else t("rankings.how.points.between", from: lower, to: largest) end %>
+        <tr><td><%= label %></td><td class="r tabular-nums">× <%= number_with_precision(factor, precision: 2, strip_insignificant_zeros: true) %></td></tr>
+        <% lower = largest + 1 unless largest.infinite? %>
+      <% end %>
+    </tbody>
+  </table>
+  <h3><%= t("rankings.how.example") %></h3>
+  <p><%= t("rankings.how.points.example_lead") %></p>
+  <table class="ctable">
+    <thead><tr><th><%= t("rankings.how.points.step") %></th><th class="r"><%= t("rankings.columns.points") %></th></tr></thead>
+    <tbody>
+      <% [["swiss", "13"], ["cut", "+5"], ["top4", "+5"], ["won", "+10"], ["subtotal", "33"]].each do |key, value| %>
+        <tr><td><%= t("rankings.how.points.rows.#{key}") %></td><td class="r tabular-nums"><%= value %></td></tr>
+      <% end %>
+      <tr><td><b><%= t("rankings.how.points.rows.total") %></b></td><td class="r tabular-nums"><b>49.5</b></td></tr>
+    </tbody>
+  </table>
+  <h3><%= t("rankings.how.rules") %></h3>
+  <p><%= t("rankings.how.points.rules") %></p>
+<% end %>
