@@ -171,6 +171,7 @@ pt:
         handle: "Identificador"
         country: "País (código de 2 letras)"
         bio: "Bio"
+        team: "Equipa"
         visibility: "Visibilidade do perfil"
         avatar: "Avatar"
         password: "Palavra-passe"
@@ -739,6 +740,8 @@ pt:
       email_hint: "Para mudar o e-mail, escreve também a tua palavra-passe atual em baixo."
       wizards_email_hint: "Usado pelos organizadores para reportar os teus resultados ao Wizards EventLink. Deixa vazio para usar o e-mail de início de sessão."
       handle_hint: "3 a 30 letras minúsculas, algarismos ou hífenes. Usado no endereço do teu perfil público."
+      team: "Equipa"
+      team_hint: "O grupo com quem testas e jogas. Aparece ao lado do teu nome."
       visibility:
         public: "Público"
         participants: "Só jogadores dos meus eventos"

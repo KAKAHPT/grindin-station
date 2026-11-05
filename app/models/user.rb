@@ -34,6 +34,7 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
   normalizes :country, with: ->(c) { c.strip.upcase.presence }
+  normalizes :team, with: ->(t) { t.strip.presence }
 
   validates :password, length: { minimum: 8 }, allow_nil: true
   validates :email_address, presence: true, uniqueness: true
@@ -44,7 +45,13 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
   validates :visibility, inclusion: { in: VISIBILITIES }
   validates :country, format: { with: /\A[A-Z]{2}\z/ }, allow_nil: true
   validates :bio, length: { maximum: 500 }
+  validates :team, length: { maximum: 30 }
   validate :avatar_type_and_size
+
+  # Teams already in use, for the account form's autocomplete.
+  def self.team_suggestions
+    where.not(team: nil).distinct.order(:team).limit(50).pluck(:team)
+  end
 
   # A retry has to wrap the whole save (callbacks run inside it), so these override save itself.
   def save(**) # rubocop:disable Rails/ActiveRecordOverride

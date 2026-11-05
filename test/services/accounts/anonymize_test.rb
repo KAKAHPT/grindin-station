@@ -27,6 +27,14 @@ module Accounts
       assert_empty @user.sessions
     end
 
+    test "clears the team" do
+      @user.update!(team: "Porto Grinders")
+
+      Anonymize.call(user: @user)
+
+      assert_nil @user.reload.team
+    end
+
     test "clears the Wizards e-mail" do
       @user.player.update!(wizards_email: "wiz@example.com")
 

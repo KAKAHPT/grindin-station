@@ -18,7 +18,7 @@ module Accounts
     def self.removed_attributes
       { name: "Removed player", email_address: "deleted-#{SecureRandom.uuid}@removed.invalid",
         password: SecureRandom.base58(32), password_set: false, admin: false, handle: nil, bio: nil, country: nil,
-        anonymized_at: Time.current }
+        team: nil, anonymized_at: Time.current }
     end
     private_class_method :removed_attributes
   end

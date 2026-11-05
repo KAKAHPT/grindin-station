@@ -171,6 +171,7 @@ en:
         handle: "Handle"
         country: "Country (2-letter code)"
         bio: "Bio"
+        team: "Team"
         visibility: "Profile visibility"
         avatar: "Avatar"
         password: "Password"
@@ -739,6 +740,8 @@ en:
       email_hint: "To change your e-mail, also type your current password below."
       wizards_email_hint: "Used by organizers to report your results to Wizards EventLink. Leave empty to use your sign-in e-mail."
       handle_hint: "3 to 30 lowercase letters, digits or hyphens. Used in your public profile address."
+      team: "Team"
+      team_hint: "The group you test and play with. Shown next to your name."
       visibility:
         public: "Public"
         participants: "Only players of my events"

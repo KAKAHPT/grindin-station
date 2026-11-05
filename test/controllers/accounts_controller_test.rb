@@ -61,6 +61,31 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
                  [@user.name, @user.handle, @user.country, @user.bio, @user.visibility]
   end
 
+  test "saves the team" do
+    patch account_path, params: { user: { team: " Porto Grinders " } }
+
+    assert_redirected_to account_path
+    assert_equal "Porto Grinders", @user.reload.team
+  end
+
+  test "the team field suggests other users' teams" do
+    users(:player_two).update!(team: "Lisbon Lords")
+
+    get account_path
+
+    assert_select "input[name='user[team]'][list='team-suggestions'][maxlength='30']"
+    assert_select "datalist#team-suggestions option[value=?]", "Lisbon Lords"
+  end
+
+  test "an invalid team re-renders the page with the suggestions" do
+    users(:player_two).update!(team: "Lisbon Lords")
+
+    patch account_path, params: { user: { team: "x" * 31 } }
+
+    assert_response :unprocessable_content
+    assert_select "datalist#team-suggestions option[value=?]", "Lisbon Lords"
+  end
+
   test "shows the Wizards e-mail field with its hint" do
     get account_path
 
