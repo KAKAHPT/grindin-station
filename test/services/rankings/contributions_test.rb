@@ -81,6 +81,27 @@ module Rankings
       assert_equal ["one_v_one"], rows.pluck(:format).uniq
     end
 
+    test "a 1v1 cut match won gives no per-game points, only the bonuses" do
+      event = TournamentBuilder.build(players: 2, organizer: @organizer, state: :swiss, format: "one_v_one")
+      event.update_columns(swiss_rounds_count: 1, top_cut_size: 2) # rubocop:disable Rails/SkipsModelValidations
+      event.rounds.create!(type: SwissRound, number: 1)
+      TournamentBuilder.play_1v1_round!(event, scores: { 1 => [2, 0] })
+      swiss_winner = Win.joins(:round).find_by!(rounds: { event_id: event.id }).event_participant
+      cut = event.rounds.create!(type: SingleEliminationRound, number: 2)
+      Result.where(round: cut).destroy_all
+      cut_winner = event.event_participants.where.not(id: swiss_winner.id).first
+      TournamentBuilder.record_1v1!(cut, cut_winner.id, 2, 1)
+      TournamentBuilder.record_1v1!(cut, swiss_winner.id, 1, 2)
+      cut.update_columns(finished_at: Time.current, published: true) # rubocop:disable Rails/SkipsModelValidations
+      cut_winner.update_columns(final_position: 1) # rubocop:disable Rails/SkipsModelValidations
+
+      row = Contributions.build(event.reload).find { |r| r[:player_id] == cut_winner.player_id }
+
+      assert_equal [0, 1, 0, 0], row.values_at(:wins, :losses, :draws, :byes)
+      assert_equal [true, true, true], row.values_at(:made_cut, :top4, :won)
+      assert_equal BigDecimal("20"), row[:points]
+    end
+
     test "waitlisted and playerless participants are skipped; the field counts every non-waitlisted entry" do
       event = swiss_event(4, winners: { 1 => 0 })
       event.event_participants.first.update_column(:player_id, nil) # rubocop:disable Rails/SkipsModelValidations

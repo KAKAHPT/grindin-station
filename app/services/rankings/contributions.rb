@@ -32,12 +32,19 @@ module Rankings
     end
 
     def row(participant, field, made_cut)
-      games = { wins: participant.number_of_wins, draws: participant.number_of_draws,
-                byes: participant.number_of_byes }
+      games = swiss_games(participant)
       flags = flags(participant, made_cut)
-      points = Points.total(field: field, **games, **flags, league: @league)
-      base_attributes(participant, field).merge(games, flags, losses: participant.number_of_losses, points: points,
-                                                              invitational_points: invitational(points))
+      points = Points.total(field: field, **games.except(:losses), **flags, league: @league)
+      base_attributes(participant, field).merge(games, flags, points: points, invitational_points: invitational(points))
+    end
+
+    # Per-game counts over Swiss rounds only (league play pods are Swiss rounds too); cut rounds count for
+    # nothing per game in every format, the cut being rewarded by the bonuses (spec M13 D4). A bye is an
+    # Advance in a Swiss round; Penalty is a Loss.
+    def swiss_games(participant)
+      swiss = participant.results.select { |result| result.round.is_a?(SwissRound) }
+      { wins: swiss.count { |result| result.is_a?(Win) }, draws: swiss.count { |result| result.is_a?(Draw) },
+        losses: swiss.count { |result| result.is_a?(Loss) }, byes: swiss.count { |result| result.is_a?(Advance) } }
     end
 
     def base_attributes(participant, field)
