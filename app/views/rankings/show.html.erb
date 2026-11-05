@@ -27,7 +27,12 @@
       <div><b data-summary-updated><%= @summary[:updated_at] ? l(@summary[:updated_at].to_date, format: :long) : "–" %></b><span><%= t("rankings.summary.updated") %></span></div>
     </div>
     <div class="overflow-x-auto">
-      <%= render @tab, rows: shown %>
+      <%# Literal partial names (the tab is whitelisted in the controller; Brakeman wants no params in a render path). %>
+      <% case @tab %>
+      <% when "elo" %><%= render "elo", rows: shown %>
+      <% when "teams" %><%= render "teams", rows: shown %>
+      <% else %><%= render "points", rows: shown %>
+      <% end %>
     </div>
     <% if @tab != "teams" && !@all && @rows.size > RankingsController::LIMIT %>
       <div class="flex justify-center p-2.5 border-t border-line">
@@ -37,7 +42,11 @@
     <% end %>
   </section>
 
-  <%= render "how_#{@tab}" %>
+  <% case @tab %>
+  <% when "elo" %><%= render "how_elo" %>
+  <% when "teams" %><%= render "how_teams" %>
+  <% else %><%= render "how_points" %>
+  <% end %>
 
   <p class="mt-6 text-xs text-muted" data-circuits-note>
     <%= t("rankings.circuits_html", link: link_to(t("rankings.circuits_link"), circuits_path(locale: params[:locale]), class: "text-ink underline underline-offset-2")) %>

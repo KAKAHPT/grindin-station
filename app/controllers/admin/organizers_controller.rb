@@ -79,8 +79,9 @@ module Admin
     def search(scope, name_column, email_column)
       return scope if @q.empty?
 
-      q = "%#{WaitlistSignup.sanitize_sql_like(@q)}%"
-      scope.where("#{name_column} ILIKE :q OR #{email_column} ILIKE :q", q: q)
+      pattern = "%#{WaitlistSignup.sanitize_sql_like(@q)}%"
+      table = scope.klass.arel_table
+      scope.where(table[name_column].matches(pattern).or(table[email_column].matches(pattern)))
     end
 
     # The list with the filter and search the action was taken from.
