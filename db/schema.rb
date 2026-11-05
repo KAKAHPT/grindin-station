@@ -429,6 +429,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_150000) do
   add_foreign_key "circuit_standings", "circuits"
   add_foreign_key "circuit_standings", "players"
   add_foreign_key "circuits", "event_organizers"
+  add_foreign_key "elo_ratings", "players", on_delete: :cascade
   add_foreign_key "event_organizers", "users"
   add_foreign_key "event_participants", "events"
   add_foreign_key "event_participants", "players"
@@ -447,6 +448,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_150000) do
   add_foreign_key "players", "users"
   add_foreign_key "pods", "event_participants", column: "reported_by_participant_id", on_delete: :nullify
   add_foreign_key "pods", "rounds"
+  add_foreign_key "ranking_contributions", "event_organizers", on_delete: :nullify
+  add_foreign_key "ranking_contributions", "events", on_delete: :cascade
+  add_foreign_key "ranking_contributions", "players", on_delete: :cascade
   add_foreign_key "results", "event_participants"
   add_foreign_key "results", "results", column: "superseded_by_id", on_delete: :nullify, deferrable: :deferred
   add_foreign_key "results", "rounds"

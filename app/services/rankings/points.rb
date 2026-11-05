@@ -2,7 +2,7 @@
 
 module Rankings
   # Ranking points of one player in one event (spec M13 D4): 3 per win, 1 per draw or bye, 0 per loss;
-  # tournaments add +5 for the cut, +5 more for the top 4, +10 more for the win; the sum times the field factor.
+  # tournaments add +5 for the cut, +5 for a top 4 in the cut, +10 for the win; the sum times the field factor.
   module Points
     extend self
 
@@ -13,11 +13,8 @@ module Rankings
 
     def games(wins:, draws:, byes:) = (3 * wins) + draws + byes
 
-    def bonuses(made_cut:, top4:, won:)
-      return 0 unless made_cut
-
-      5 + (top4 ? 5 : 0) + (top4 && won ? 10 : 0)
-    end
+    # Independent terms: a winner without a cut still gets the +10.
+    def bonuses(made_cut:, top4:, won:) = (made_cut ? 5 : 0) + (top4 ? 5 : 0) + (won ? 10 : 0)
 
     # Leagues get games only.
     def total(field:, wins:, draws:, byes:, made_cut:, top4:, won:, league: false) # rubocop:disable Metrics/ParameterLists

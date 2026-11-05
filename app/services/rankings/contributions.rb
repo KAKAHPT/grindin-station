@@ -57,8 +57,9 @@ module Rankings
     def flags(participant, made_cut)
       return { made_cut: false, top4: false, won: false } if @league
 
+      # won with or without a cut; top4 only inside a cut.
       position = participant.final_position
-      { made_cut: made_cut, top4: position.present? && position.between?(1, 4), won: position == 1 }
+      { made_cut: made_cut, top4: made_cut && position.present? && position.between?(1, 4), won: position == 1 }
     end
 
     def invitational(points)

@@ -39,6 +39,11 @@ class CreateRankingTables < ActiveRecord::Migration[8.1]
       t.index %i[player_id season], unique: true, nulls_not_distinct: true
     end
 
+    add_foreign_key :ranking_contributions, :players, on_delete: :cascade
+    add_foreign_key :ranking_contributions, :events, on_delete: :cascade
+    add_foreign_key :ranking_contributions, :event_organizers, on_delete: :nullify
+    add_foreign_key :elo_ratings, :players, on_delete: :cascade
+
     add_column :events, :country, :string, limit: 2
     add_column :events, :tier, :string, null: false, default: "none"
   end

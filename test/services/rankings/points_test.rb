@@ -20,15 +20,21 @@ module Rankings
       assert_equal BigDecimal("15"), total(field: 20, wins: 4, made_cut: true, top4: true, won: true, league: true)
     end
 
+    test "the winner of a tournament without a cut gets the +10" do
+      assert_equal BigDecimal("13"), total(field: 8, wins: 1, won: true)
+    end
+
     test "a bye counts 1" do
       assert_equal 1, Points.games(wins: 0, draws: 0, byes: 1)
       assert_equal BigDecimal("1"), total(field: 8, byes: 1)
     end
 
-    test "bonuses are cumulative" do
-      flags = [[false, false, false], [true, false, false], [true, true, false], [true, true, true]]
+    test "bonuses are independent terms: 5 for the cut, 5 for a top 4, 10 for the win" do
+      flags = [[false, false, false], [true, false, false], [true, true, false], [true, true, true],
+               [false, false, true]]
 
-      assert_equal([0, 5, 10, 20], flags.map { |cut, top4, won| Points.bonuses(made_cut: cut, top4: top4, won: won) })
+      assert_equal([0, 5, 10, 20, 10],
+                   flags.map { |cut, top4, won| Points.bonuses(made_cut: cut, top4: top4, won: won) })
     end
 
     test "field factor boundaries" do
