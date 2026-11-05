@@ -211,7 +211,7 @@ pt:
         standings: "Classificação final"
         rounds: "Todas as rondas, uma linha por assento"
         sheet: "Folha de resultados para introdução manual"
-      note_html: "O EventLink não importa resultados.<br>Eventos de Commander são registados como Player List Only: envie <code>players.csv</code> como lista de convites e encerre o evento."
+      note_html: "O EventLink não importa resultados.<br>Eventos de Commander são registados como Player List Only: envia <code>players.csv</code> como lista de convites e encerra o evento."
       sheet:
         players: "Jogadores"
         standings: "Classificação final"

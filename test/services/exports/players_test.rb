@@ -23,6 +23,7 @@ module Exports
       emails = rows.flatten
       assert_includes emails, "wizards2@example.com"
       assert_includes emails, @guest.reload.name
+      assert_equal emails, emails.uniq
       assert_includes emails, participant_named(@t, "Jogador 1").player.user.email_address
       assert_not_includes emails, "Jogador 1"
     end
