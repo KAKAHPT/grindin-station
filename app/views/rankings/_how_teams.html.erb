@@ -1,0 +1,23 @@
+<%# Team points explained (spec M13 D7), text from the approved mock; bonuses from Rankings::Board. %>
+<%= render layout: "rankings/dialog", locals: { kind: "teams" } do %>
+  <p><%= t("rankings.how.teams.d1") %></p>
+  <p><code><%= t("rankings.how.teams.formula", cut: Rankings::Board::CUT_BONUS, win: Rankings::Board::WIN_BONUS) %></code></p>
+  <p><%= t("rankings.how.teams.d2_html") %></p>
+  <h3><%= t("rankings.how.example") %></h3>
+  <table class="ctable">
+    <thead>
+      <tr><th><%= t("rankings.columns.player") %></th><th class="r"><%= t("rankings.how.teams.ranking_points") %></th>
+        <th class="r"><%= t("rankings.columns.top_cuts") %></th><th class="r"><%= t("rankings.columns.wins") %></th>
+        <th class="r"><%= t("rankings.how.teams.contribution") %></th></tr>
+    </thead>
+    <tbody>
+      <% [["Ana", 120, 2, 1, "120 + 30 + 30 = 180"], ["Bruno", 95, 1, 0, "95 + 15 = 110"], ["Carla", 40, 0, 0, "40"]].each do |name, points, cuts, wins, total| %>
+        <tr><td><%= name %></td><td class="r tabular-nums"><%= points %></td><td class="r tabular-nums"><%= cuts %></td>
+          <td class="r tabular-nums"><%= wins %></td><td class="r tabular-nums"><%= total %></td></tr>
+      <% end %>
+      <tr><td><b><%= t("rankings.how.teams.total", count: 3) %></b></td><td></td><td></td><td></td><td class="r tabular-nums"><b>330</b></td></tr>
+    </tbody>
+  </table>
+  <h3><%= t("rankings.how.rules") %></h3>
+  <p><%= t("rankings.how.teams.rules") %></p>
+<% end %>

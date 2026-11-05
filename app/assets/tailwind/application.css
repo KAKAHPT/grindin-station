@@ -195,9 +195,10 @@
 
 /* ---- M7 design foundation (mock F) ---- */
 
-/* Table header rows are a dark band by default (utilities still override). */
+/* Table header rows are a dark band by default (utilities still override). Row headers in the body
+   (standings use th scope="row" for the rank and the player) keep the row's background. */
 @layer base {
-  th {
+  thead th {
     background: rgb(0 0 0 / 0.28);
   }
 }
@@ -253,13 +254,6 @@
     font: 700 15px var(--font-display);
     white-space: nowrap;
     color: var(--color-ink);
-  }
-
-  /* "GS" monogram next to the mark (the full name stays for screen readers). */
-  .topbar-gs {
-    font: 800 17px var(--font-display);
-    letter-spacing: 0.12em;
-    line-height: 1;
   }
 
   .topbar-panel {
@@ -932,6 +926,152 @@
   }
 }
 
+/* rankings */
+@layer components {
+  /* Tabs under the title: Sora label with a small muted subtitle, ink underline on the current one. */
+  .rk-tabs {
+    display: flex;
+    gap: 4px;
+    margin-top: 18px;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .rk-tabs a {
+    padding: 10px 14px;
+    margin-bottom: -1px;
+    border-bottom: 2px solid transparent;
+    font: 600 13px var(--font-display);
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+
+  .rk-tabs a:hover,
+  .rk-tabs a.on {
+    color: var(--color-ink);
+  }
+
+  .rk-tabs a.on {
+    border-bottom-color: var(--color-ink);
+  }
+
+  .rk-tabs small {
+    display: block;
+    margin-top: 1px;
+    font: 500 11px var(--font-body);
+    color: var(--color-muted);
+  }
+
+  /* Active filter chip (shared/_filter_chips). */
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 24px;
+    padding: 0 8px;
+    border-radius: 5px;
+    border: 1px solid var(--color-line-strong);
+    background: var(--color-surface-raised);
+    font: 600 11px var(--font-body);
+    color: var(--color-muted);
+  }
+
+  /* Summary strip above the table: four grey cells, two per line on phones. */
+  .rk-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    background: var(--color-surface-raised);
+  }
+
+  .rk-strip > div {
+    padding: 12px 16px;
+    border-right: 1px solid var(--color-line-strong);
+  }
+
+  .rk-strip > div:last-child {
+    border-right: 0;
+  }
+
+  .rk-strip b {
+    display: block;
+    font: 700 20px var(--font-display);
+    color: var(--color-ink);
+  }
+
+  .rk-strip span {
+    font: 600 10.5px var(--font-body);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  /* "How is it calculated?" modal (dialog controller): the app's modal frame on a blurred backdrop. */
+  .rk-dialog {
+    width: min(680px, calc(100% - 32px));
+    max-height: calc(100% - 80px);
+    margin: 40px auto;
+    padding: 0;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 14px;
+    background: var(--color-surface);
+    color: var(--color-ink);
+    box-shadow: var(--shadow-card);
+  }
+
+  .rk-dialog::backdrop {
+    background: rgb(0 0 0 / 0.6);
+    backdrop-filter: blur(2px);
+  }
+
+  .rk-dialog-body {
+    padding: 18px;
+    font-size: 13.5px;
+    line-height: 1.65;
+  }
+
+  .rk-dialog-body p {
+    margin: 0 0 10px;
+  }
+
+  .rk-dialog-body h3 {
+    margin: 18px 0 6px;
+    font: 600 13px var(--font-display);
+  }
+
+  .rk-dialog-body code {
+    padding: 1px 5px;
+    border: 1px solid var(--color-line);
+    border-radius: 4px;
+    background: var(--color-ground);
+    font: 12.5px ui-monospace, Menlo, monospace;
+  }
+
+  .rk-dialog-body .ctable {
+    margin: 6px 0 10px;
+  }
+
+  .rk-short {
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: var(--color-surface-raised);
+    font-size: 14px;
+  }
+
+  .rk-short p:last-child {
+    margin: 0;
+  }
+
+  @media (max-width: 640px) {
+    .rk-strip {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .rk-strip > div:nth-child(2) {
+      border-right: 0;
+    }
+  }
+}
+
 @keyframes gearspin {
   to {
     transform: rotate(360deg);
@@ -1086,8 +1226,8 @@
     font: 600 10.5px var(--font-body);
     letter-spacing: 0.02em;
     white-space: nowrap;
-    color: var(--color-info);
-    background: rgb(122 162 247 / 0.07);
+    color: var(--color-muted);
+    background: rgb(255 255 255 / 0.06);
   }
 
   .lp-chip i {
@@ -1220,7 +1360,7 @@
 
   .lp-pod-lab em {
     font-style: normal;
-    color: var(--color-accent);
+    color: var(--color-ink);
   }
 
   .lp-pod-seats {
@@ -1257,15 +1397,14 @@
   }
 
   .lp-pod-p.me {
-    background: linear-gradient(180deg, rgb(45 212 191 / 0.26), rgb(45 212 191 / 0.1));
-    border-color: rgb(45 212 191 / 0.55);
-    color: var(--color-accent);
-    box-shadow: 0 0 12px -3px var(--color-accent);
+    background: #343a43;
+    border-color: #4a525c;
+    color: var(--color-ink);
   }
 
   .lp-pod-p.me i {
-    background: var(--color-accent);
-    color: #0b2d29;
+    background: var(--color-ink);
+    color: var(--color-ground);
   }
 
   .lp-sb-sum {
@@ -1286,10 +1425,10 @@
     gap: 6px;
     padding: 3px 9px;
     border-radius: 999px;
-    background: rgb(45 212 191 / 0.1);
-    border: 1px solid rgb(45 212 191 / 0.35);
+    background: rgb(255 255 255 / 0.06);
+    border: 1px solid var(--color-line-strong);
     font: 700 11px var(--font-body);
-    color: var(--color-accent);
+    color: var(--color-ink);
   }
 
   .lp-fairchip::before {
@@ -1297,8 +1436,7 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--color-accent);
-    box-shadow: 0 0 8px var(--color-accent);
+    background: var(--color-muted);
   }
 
   /* Texture on the two story cards: fine grain, a soft accent light and a hairline grid. */
@@ -1322,7 +1460,7 @@
 
   .lp-tex::after {
     background:
-      radial-gradient(120% 80% at 0% 0%, rgb(45 212 191 / 0.07), transparent 55%),
+      radial-gradient(120% 80% at 0% 0%, rgb(255 255 255 / 0.05), transparent 55%),
       linear-gradient(rgb(255 255 255 / 0.025) 1px, transparent 1px) 0 0 / 100% 28px,
       linear-gradient(90deg, rgb(255 255 255 / 0.018) 1px, transparent 1px) 0 0 / 28px 100%;
     mask: linear-gradient(180deg, #000, rgb(0 0 0 / 0.35));
@@ -1502,8 +1640,8 @@
     top: 0;
     bottom: 0;
     right: -1px;
-    width: 2px;
-    background: repeating-linear-gradient(180deg, var(--color-line-strong) 0 6px, transparent 6px 12px);
+    width: 1px;
+    background: var(--color-line-strong);
   }
 
   .lp-ft-stub b {
@@ -1688,12 +1826,63 @@
     color: rgb(238 240 242 / 0.82);
   }
 
+  /* State tag before the event name (sold out in the warn tone). */
   .lp-evr-state {
-    margin-top: 4px;
-    font: 600 10.5px var(--font-body);
+    display: inline-block;
+    vertical-align: 2px;
+    margin-right: 8px;
+    padding: 1px 6px;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 4px;
+    font: 600 10px var(--font-body);
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--color-muted);
+  }
+
+  /* Organizer line with the state tag at the right (grid and featured tickets). */
+  .lp-evr-orgrow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .lp-evr-orgrow .lp-evr-state {
+    margin-right: 0;
+  }
+
+  /* List rows: the enrolled count and More info on the right; open, the actions sit on a bar under the row. */
+  .ev-more > summary {
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .ev-more > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .lp-evr-more {
+    font: 600 11px var(--font-display);
+    color: var(--color-muted);
+  }
+
+  .lp-evr-more i {
+    font-style: normal;
+  }
+
+  .ev-more:not([open]) [data-less],
+  .ev-more[open] [data-more] {
+    display: none;
+  }
+
+  .ev-more[open] > .ev-more-bar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--color-line);
   }
 
   .lp-evr-state[data-tone="warn"] {
@@ -1723,28 +1912,8 @@
     gap: 8px;
     margin-top: auto;
     padding: 10px 14px;
-    border-top: 1px dashed var(--color-line-strong);
+    border-top: 1px solid var(--color-line);
     background: var(--color-surface-raised);
-  }
-
-  .lp-evr-stub::before,
-  .lp-evr-stub::after {
-    content: "";
-    position: absolute;
-    top: -8px;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--color-ground);
-    border: 1px solid var(--color-line);
-  }
-
-  .lp-evr-stub::before {
-    left: -8px;
-  }
-
-  .lp-evr-stub::after {
-    right: -8px;
   }
 
   .lp-evr-n {
@@ -1842,5 +2011,39 @@
 @media (prefers-reduced-motion: reduce) {
   .lp-mosaic {
     animation: none;
+  }
+}
+
+/* events list (M13): the compact tickets four per row on wide screens, and the featured mini boxes */
+@layer components {
+  .lp-evl.lp-evl-dense {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  @media (max-width: 1099px) {
+    .lp-evl.lp-evl-dense {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 759px) {
+    .lp-evl.lp-evl-dense {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 539px) {
+    .lp-evl.lp-evl-dense {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .lp-feat-mini {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 260px;
+    max-width: 100%;
+    padding: 8px;
   }
 }

@@ -19,7 +19,7 @@
       <%= f.label :email, t("landing.waitlist.email"), class: "sr-only" %>
       <%= f.email_field :email, placeholder: t("landing.waitlist.email"), required: true, maxlength: 254,
                                 autocomplete: "email", class: "field-input", "aria-invalid": signup.errors.include?(:email) %>
-      <%= f.submit t("landing.waitlist.join"), name: nil, class: button_classes(:primary, size: :sm) %>
+      <%= f.submit t("landing.waitlist.join"), name: nil, class: button_classes(:light, size: :sm) %>
     <% end %>
   <% end %>
 </div>

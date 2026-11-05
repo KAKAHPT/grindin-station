@@ -18,6 +18,13 @@ module Registrations
       assert_equal 5, @tournament.reload.playing_participants_count
     end
 
+    test "refuses a player already in the event" do
+      Enroll.call(event: @tournament, player: players(:player_one))
+
+      assert_raises(AlreadyEnrolled) { Enroll.call(event: @tournament, player: players(:player_one)) }
+      assert_equal 5, @tournament.reload.playing_participants_count
+    end
+
     test "refuses once the swiss has started" do
       @tournament.update_column(:state, "swiss") # rubocop:disable Rails/SkipsModelValidations
 

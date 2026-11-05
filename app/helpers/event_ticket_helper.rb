@@ -20,9 +20,12 @@ module EventTicketHelper
 
   # "Lisboa · cEDH · pods of four · 5 Swiss rounds · Top 10 · 10,00 €"
   def ticket_line(event)
-    city = event.address.to_s.split(",").last.to_s.strip.presence
-    safe_join([city, event_format_label(event), *ticket_structure(event), ticket_price(event)].compact, " · ")
+    safe_join([ticket_city(event), event_format_label(event), *ticket_structure(event), ticket_price(event)].compact,
+              " · ")
   end
+
+  # The last part of the address ("Rua Augusta, Lisboa" gives "Lisboa"), or nil.
+  def ticket_city(event) = event.address.to_s.split(",").last.to_s.strip.presence
 
   # The swiss rounds and the top cut, when set.
   def ticket_structure(event)
@@ -54,7 +57,7 @@ module EventTicketHelper
     link_to user.name, organizer_profile_path(user.handle, locale: params[:locale])
   end
 
-  # Large tickets (/events): the start time and the full address on one line.
+  # Large tickets (the organizer page /o/:handle): the start time and the full address on one line.
   def ticket_when_where(event)
     safe_join([l(event.start_time, format: t("play.events.time_format")), event.address.presence].compact, " · ")
   end
@@ -81,12 +84,13 @@ module EventTicketHelper
     ticket_sold_out?(event, sold_out) ? :warn : EventsHelper::EVENT_STATE_TONES.fetch(event.state)
   end
 
-  # The state as a small line under the organizer ("Sold out", "Registration open", "Swiss round 2"); sold out in
-  # the warn tone, everything else muted.
+  # The state as a small outlined tag before the event name ("Sold out", "Registration open", "Swiss round 2");
+  # sold out in the warn tone, everything else muted.
   def ticket_state_line(event, sold_out)
     sold = ticket_sold_out?(event, sold_out)
     text = sold ? t("play.events.state.sold_out") : event_state_label(event, event.latest_published_round_number)
-    tag.p(text, class: "lp-evr-state", data: { state_line: (sold ? "sold_out" : event.state), tone: ("warn" if sold) })
+    tag.span(text, class: "lp-evr-state",
+                   data: { state_line: (sold ? "sold_out" : event.state), tone: ("warn" if sold) })
   end
 
   # Register while a tournament's registration is open; Join waiting list once it is full (when the event keeps

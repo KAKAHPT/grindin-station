@@ -51,6 +51,7 @@ class EventParticipant < ApplicationRecord
   attribute :player_email, :string
   attribute :player_name, :string
   attribute :accepted_terms, :boolean, default: false
+  validates :player_id, uniqueness: { scope: :event_id, message: :taken_in_event }, allow_nil: true
   validates :drop_reason, inclusion: { in: DROP_REASONS }, allow_nil: true
   validate on: :create do
     errors.add(:accepted_terms, "Must accept the terms and conditions") unless accepted_terms?
@@ -68,7 +69,20 @@ class EventParticipant < ApplicationRecord
     end
   end
 
+  # Added by hand with no e-mail: a guest player, named after the form or "Manual player N".
+  before_validation on: :create do
+    self.player = Player.new(key: "guest-#{SecureRandom.hex(6)}", guest_name: guest_name_or_default) if guest?
+  end
+
+  validate :guest_name_free, on: :create
+
   delegate :name, to: :player
+
+  # Names the next manual player in this event ("Manual player 1", 2, ...).
+  def self.manual_name(event)
+    n = event.event_participants.joins(:player).where(players: { user_id: nil }).count + 1
+    I18n.t("event_participants.manual_player", n: n)
+  end
 
   before_save :reset_rank_score_cache, if: -> { league_score_previously_changed? }
   before_save :stamp_check_in, if: -> { checked_in_changed? }
@@ -396,6 +410,24 @@ class EventParticipant < ApplicationRecord
   end
 
   private
+
+  def guest?
+    player.blank? && player_email.blank? && event.present?
+  end
+
+  def guest_name_or_default
+    player_name.to_s.squish.presence || self.class.manual_name(event)
+  end
+
+  # Players without an account can only be told apart by name, so it must be unique in the event.
+  def guest_name_free
+    return unless event && player&.guest_name.present?
+
+    names = event.event_participants.includes(player: :user).map { |p| normalized(p.name) }
+    errors.add(:base, :guest_name_taken) if names.include?(normalized(name))
+  end
+
+  def normalized(value) = value.to_s.squish.downcase
 
   # Advancements outrank the seed score (points, OMW, GW, OGW, then the salt).
   def one_v_one_score = (number_of_advancements * (10**21)) + one_v_one_seed_score

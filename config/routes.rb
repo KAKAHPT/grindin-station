@@ -65,6 +65,7 @@ Rails.application.routes.draw do
 
   resources :events, only: %i[index]
   resources :circuits, only: %i[index show]
+  get "/rankings", to: "rankings#show", as: :rankings
 
   namespace :admin do
     root "dashboard#show"
@@ -74,7 +75,18 @@ Rails.application.routes.draw do
     end
     resources :events, only: %i[index] do
       patch :featured, on: :member
+      patch :tier, on: :member
     end
+    get "invitational", to: "invitational#show", as: :invitational
+    get "invitational/export.csv", to: "invitational#export", as: :invitational_export, format: false
+    # The approve/decline id is the waiting-list signup's, the revoke id the EventOrganizer's.
+    resources :organizers, only: :index do
+      member do
+        patch :approve
+        patch :decline
+      end
+    end
+    patch "organizers/:id/revoke", to: "organizers#revoke", as: :revoke_organizer
   end
 
   namespace :organizer do

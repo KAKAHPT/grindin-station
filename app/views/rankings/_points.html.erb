@@ -1,0 +1,32 @@
+<%# Ranking points table; the numeric headers sort (sort=…). Locals: rows:. %>
+<table class="ctable">
+  <thead>
+    <tr>
+      <th class="r w-10"><%= t("rankings.columns.rank") %></th>
+      <th><%= t("rankings.columns.player") %></th>
+      <th class="r"><%= ranking_sort_link(@board, :points, t("rankings.columns.points")) %></th>
+      <th class="r"><%= ranking_sort_link(@board, :events, t("rankings.columns.events")) %></th>
+      <th class="r max-sm:hidden"><%= ranking_sort_link(@board, :wins, t("rankings.columns.wins")) %></th>
+      <th class="r max-sm:hidden"><%= ranking_sort_link(@board, :top_cuts, t("rankings.columns.top_cuts")) %></th>
+      <th class="r max-sm:hidden"><%= ranking_sort_link(@board, :conversion, t("rankings.columns.conversion")) %></th>
+      <th class="r max-sm:hidden"><%= t("rankings.columns.best") %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% rows.each_with_index do |row, index| %>
+      <tr data-player>
+        <td class="r font-display text-sm font-bold <%= ranking_rank_class(index) %>"><%= index + 1 %></td>
+        <td><%= render "rankings/player", player: row.player, user: row.user %></td>
+        <td class="r tabular-nums"><span class="font-display text-sm font-bold text-ink" data-points><%= ranking_points(row.points) %></span></td>
+        <td class="r tabular-nums"><%= row.events %></td>
+        <td class="r tabular-nums max-sm:hidden"><%= row.wins %></td>
+        <td class="r tabular-nums max-sm:hidden"><%= row.top_cuts %></td>
+        <td class="r tabular-nums max-sm:hidden"><%= ranking_percent(row.conversion) %></td>
+        <td class="r tabular-nums text-muted max-sm:hidden" data-best><%= ranking_best(row.best) %></td>
+      </tr>
+    <% end %>
+    <% if rows.empty? %>
+      <tr><td colspan="8" class="py-7 text-center text-[13px] text-muted"><%= t("rankings.empty_players") %></td></tr>
+    <% end %>
+  </tbody>
+</table>

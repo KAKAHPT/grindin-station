@@ -1,15 +1,33 @@
-<% url_locale = params[:locale] %>
+<% base = { filter: ("past" if @past), locale: params[:locale], view: (@view if EventsController::VIEWS.include?(params[:view])) }.compact %>
+<% query = event_filter_query(@filters) %>
 <%= render "shared/list_header", title: t("lists.events.title"), lead: t("lists.events.lead"), past: @past,
-                                 path: ->(filter) { events_path(filter: filter, locale: url_locale) } %>
+                                 path: ->(filter) { events_path(**base, filter: filter, **query) } %>
 
-<%= render "shared/ticket_grid", events: @ongoing, enrolled: @enrolled, heading: t("lists.ongoing"), large: true %>
-<%= render "shared/ticket_grid", events: @tournaments, enrolled: @enrolled, paginate: @tournaments,
-                                 heading: (t("lists.tournaments.title") if @leagues.any?), large: true %>
-<%= render "shared/ticket_grid", events: @leagues, enrolled: @enrolled, paginate: @leagues,
-                                 heading: t("lists.leagues.title"), large: true %>
+<%= render "featured", events: @featured, enrolled: @enrolled %>
+
+<div class="col-span-full">
+  <div class="flex flex-wrap items-center gap-x-3 [&>form]:flex-1 [&>form]:min-w-0">
+    <%= render "shared/filter_bar", url: events_path, fields: event_filter_fields(@filters, @filter_options), hidden: base,
+                                    count: t("lists.events_count", count: @tournaments.total_count + @leagues.total_count) %>
+    <span class="seg ml-auto" role="group" aria-label="<%= t("events.view.label") %>" data-view-switch>
+      <% EventsController::VIEWS.each do |view| %>
+        <%= link_to t("events.view.#{view}"), events_path(**base, **query, page: params[:page].presence, view: view),
+                    class: ("seg-on" if view == @view), "aria-pressed": (view == @view).to_s %>
+      <% end %>
+    </span>
+  </div>
+  <%= render "shared/filter_chips", chips: event_filter_chips(@filters, base), clear_url: events_path(**base) %>
+</div>
+
+<% list = @view == "list" %>
+<%= render "shared/ticket_grid", events: @ongoing, enrolled: @enrolled, heading: t("lists.ongoing"), dense: true, list: list %>
+<%= render "shared/ticket_grid", events: @tournaments, enrolled: @enrolled, paginate: @tournaments, dense: true, list: list,
+                                 heading: (t("lists.tournaments.title") if @leagues.any?) %>
+<%= render "shared/ticket_grid", events: @leagues, enrolled: @enrolled, paginate: @leagues, dense: true, list: list,
+                                 heading: t("lists.leagues.title") %>
 
 <% if @tournaments.none? && @leagues.none? %>
   <p class="col-span-full card px-4 py-8 text-center text-[13px] text-muted" data-list-empty>
-    <%= t(@past ? "lists.empty_past" : "lists.empty_upcoming") %>
+    <%= t(@filters.any? ? "events.filters.empty" : (@past ? "lists.empty_past" : "lists.empty_upcoming")) %>
   </p>
 <% end %>

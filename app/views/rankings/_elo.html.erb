@@ -1,0 +1,35 @@
+<%# Leaderboard (Elo) table; provisional players (under 10 rated games) carry a mark. Locals: rows:. %>
+<table class="ctable">
+  <thead>
+    <tr>
+      <th class="r w-10"><%= t("rankings.columns.rank") %></th>
+      <th><%= t("rankings.columns.player") %></th>
+      <th class="r"><%= t("rankings.columns.rating") %></th>
+      <th class="r"><%= t("rankings.columns.change") %></th>
+      <th class="r max-sm:hidden"><%= t("rankings.columns.peak") %></th>
+      <th class="r max-sm:hidden"><%= t("rankings.columns.games") %></th>
+      <th class="r max-sm:hidden"><%= t("rankings.columns.win_pct") %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% rows.each_with_index do |row, index| %>
+      <tr data-player>
+        <td class="r font-display text-sm font-bold <%= ranking_rank_class(index) %>"><%= index + 1 %></td>
+        <td><%= render "rankings/player", player: row.player, user: row.user %></td>
+        <td class="r tabular-nums whitespace-nowrap">
+          <span class="font-display text-sm font-bold text-ink" data-rating><%= row.rating %></span>
+          <% if row.provisional %>
+            <span class="<%= ProfilesHelper::PROFILE_TAG %> ml-1" title="<%= t("rankings.provisional_hint") %>" data-provisional><%= t("rankings.provisional") %></span>
+          <% end %>
+        </td>
+        <td class="r tabular-nums"><%= ranking_change(row.change) %></td>
+        <td class="r tabular-nums text-muted max-sm:hidden"><%= row.peak %></td>
+        <td class="r tabular-nums max-sm:hidden"><%= row.games %></td>
+        <td class="r tabular-nums max-sm:hidden"><%= ranking_percent(row.win_pct) %></td>
+      </tr>
+    <% end %>
+    <% if rows.empty? %>
+      <tr><td colspan="7" class="py-7 text-center text-[13px] text-muted"><%= t("rankings.empty_players") %></td></tr>
+    <% end %>
+  </tbody>
+</table>

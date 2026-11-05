@@ -63,3 +63,16 @@ Open research before specifying: what EventLink actually accepts today (as of 20
   sorting by date/event/result and a "+" detail row (record, win rate, seats taken, seat 1 share, seat per round).
 - `profile_events_controller` filters, sorts, pages (6, "Show all") and recomputes the band in the browser; without
   JavaScript the full table and server totals render. `users.team` (30 chars, edited in `/account`) tags the name.
+
+## M13 — rankings and event filters — DONE 2026-11-05 (spec `../specs/2026-11-05-m13-rankings-and-event-filters.md`; tiers stay admin-only)
+- `/rankings` with three tabs (ranking points, Elo leaderboard, teams), the shared filter bar and chips, and a "How is
+  it calculated?" dialog per tab; `ranking_contributions` and `elo_ratings` rebuilt nightly and after each change.
+- `/events` filters (search, season, country, organizer, format), Featured strip, grid/list; event country; admin
+  tiers + invitational leaderboard; `/admin/organizers` approves the waiting list; one entry per player and event.
+
+## Added 2026-11-05 (afternoon, with the organiser)
+- **M14 — Standings display options — DONE 2026-11-05** (columns gated in the public page/modal/help, the hide rule also empties `Feeds::Standings`): Settings group "Standings": show the Beaten column (default off), show the Unique column (default off), hide the public standings while the tournament runs (public page shows pairings only until finished; organizer mode unaffected). Columns live in `app/views/event_participants/index.html.erb` + `_event_participant.html.erb` and the organizer twins; help text in `tournaments/_standings_help.html.erb`.
+- ~~Unique index on `event_participants(event_id, player_id)`~~ (done in M13: unique partial index, distinct guest names).
+- Roster: consider a bulk "promote next N from the waitlist" action (promotion exists per row).
+- **Landing, more monochrome (with M14):** the hero "Upcoming events" button, the waiting-list card ("Organising is by invitation for now": the Join button and the "Waiting list" chip) and Anne's seat board in light greys instead of the accent; keep accent only for the headline word.
+- **Logo idea (organiser, 2026-11-05):** keep the mark (triangle, point down, gear in the middle) and add a half gear peeking over the top edge, static, in dark grey or black — a second tone, not the accent. Mock first (`shared/_mark` SVG), then the favicon/OG variants.

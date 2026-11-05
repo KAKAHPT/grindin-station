@@ -1,0 +1,21 @@
+<%# The featured strip on /events: small boxes in one wrapping row (cover thumbnail, name, date and city, state).
+    Locals: events, enrolled (counts by event id). %>
+<% if events.any? %>
+  <section class="col-span-full mt-4" data-featured-strip>
+    <h2 class="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted"><%= t("events.featured") %></h2>
+    <div class="flex flex-wrap gap-2.5">
+      <% events.each do |event| %>
+        <article class="card lp-feat-mini" data-featured-event="<%= event.slug %>">
+          <img src="<%= ticket_banner(event, size: 160) %>" alt="" class="size-14 shrink-0 rounded-md object-cover" loading="lazy">
+          <div class="min-w-0">
+            <h3 class="truncate text-[13px] font-semibold text-ink"><%= link_to event.name, ticket_href(event), class: "hover:underline" %></h3>
+            <p class="truncate text-xs text-muted">
+              <%= safe_join([l(event.start_time, format: "%d %b %Y"), ticket_city(event)].compact, " · ") %>
+            </p>
+            <%= ticket_state_line(event, event.sold_out?(enrolled.fetch(event.id, 0))) %>
+          </div>
+        </article>
+      <% end %>
+    </div>
+  </section>
+<% end %>

@@ -8,10 +8,11 @@ class AuditEvent < ApplicationRecord
     identity_linked identity_unlinked
     staff_added staff_removed
     result_corrected round_undone round_closed participant_dropped event_state_changed
-    infraction_added infraction_removed featured_changed
+    infraction_added infraction_removed featured_changed tier_changed
     rate_limited
     admin_granted admin_revoked
     error_resolved data_exported
+    organizer_approved organizer_declined organizer_revoked
   ].freeze
 
   belongs_to :actor_user, class_name: "User", optional: true

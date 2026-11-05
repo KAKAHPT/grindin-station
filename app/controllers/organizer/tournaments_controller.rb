@@ -101,6 +101,7 @@ module Organizer
                       maximum_participants
                       prizes
                       address
+                      country
                       schedule
                       rules
                       price
@@ -124,6 +125,9 @@ module Organizer
                       waitlist_enabled
                       show_commanders_in_standings
                       show_decklists
+                      show_beaten_in_standings
+                      show_unique_in_standings
+                      hide_standings_until_finished
                       top_cut_timeout_rule
                       featured
                     ])

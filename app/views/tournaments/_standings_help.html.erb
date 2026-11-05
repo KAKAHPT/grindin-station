@@ -8,8 +8,8 @@
   <% else %>
     <p><%= t("standings.help.owr") %></p>
     <p><%= t("standings.help.win_rate") %></p>
-    <p><%= t("standings.help.beaten") %></p>
-    <p><%= t("standings.help.unique") %></p>
+    <% if local_assigns[:show_beaten] %><p><%= t("standings.help.beaten") %></p><% end %>
+    <% if local_assigns[:show_unique] %><p><%= t("standings.help.unique") %></p><% end %>
   <% end %>
   <p><%= t("standings.help.seed") %></p>
   <p><%= t("standings.help.movement") %></p>

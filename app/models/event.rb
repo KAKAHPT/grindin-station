@@ -19,6 +19,9 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   PAIRING_MODES = %w[swiss power random].freeze
   UNEVEN_FIELDS = %w[pods_of_three byes].freeze
   MATCH_GAMES = [1, 3].freeze
+  # Admin-only tier (M13 D16): invitational points = ranking points x multiplier; never shown publicly.
+  TIERS = %w[none bronze silver gold platinum].freeze
+  TIER_MULTIPLIERS = { "none" => 0, "bronze" => 1, "silver" => 1.5, "gold" => 2, "platinum" => 3 }.freeze
   # MTR match points for 1v1 events (win/draw/loss/bye); multiplayer keeps the column defaults.
   ONE_V_ONE_POINTS = { points_win: 3, points_draw: 1, points_loss: 0, points_bye: 3 }.freeze
   POINT_ATTRIBUTES = %i[points_win points_draw points_loss points_bye].freeze
@@ -46,6 +49,8 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   has_one_attached :cover
 
+  normalizes :country, with: ->(country) { country.strip.upcase.presence }
+
   with_options presence: true do
     validates :state, :name, :slug, :start_time, :end_time
   end
@@ -58,6 +63,8 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   validates :match_games, inclusion: { in: MATCH_GAMES }
   validates :pairing_mode, inclusion: { in: PAIRING_MODES }
   validates :uneven_field, inclusion: { in: UNEVEN_FIELDS }
+  validates :tier, inclusion: { in: TIERS }
+  validates :country, format: { with: /\A[A-Z]{2}\z/ }, allow_nil: true
   validate :format_locked_after_creation, on: :update
   validates :result_confirmation, inclusion: { in: RESULT_CONFIRMATIONS }
   validates :top_cut_timeout_rule, inclusion: { in: TOP_CUT_TIMEOUT_RULES }
@@ -71,6 +78,8 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   before_validation :populate_slug, if: -> { slug.blank? }
   before_validation { self.pairing_mode = "swiss" if one_v_one? } # 1v1 never pairs by mode (spec M8 §1)
   before_validation { self.uneven_field = "pods_of_three" if one_v_one? } # 1v1 pairs 2-player pods only
+  # The country filter on /events (M13 D12): a new event starts in its organizer's country.
+  before_validation(on: :create) { self.country = event_organizer&.user&.country if country.blank? }
 
   after_update :perform_state_based_actions, if: -> { state_previously_changed? }
   after_save :geocode_address, if: -> { address_previously_changed? }
@@ -80,6 +89,9 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   def one_v_one? = self[:format] == "one_v_one"
 
   def multiplayer? = self[:format] == "multiplayer"
+
+  # M14: the public standings (page, modal, standings feed) wait for the end when the organizer asks.
+  def standings_hidden? = hide_standings_until_finished && !finished?
 
   def swiss_pairing? = pairing_mode == "swiss"
 

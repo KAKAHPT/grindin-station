@@ -19,3 +19,6 @@ production:
   admin_trim:
     class: Admin::TrimJob
     schedule: every day at 4:30am
+  rankings_rebuild:
+    class: Rankings::RebuildJob
+    schedule: every day at 5am

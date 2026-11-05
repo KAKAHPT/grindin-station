@@ -15,6 +15,8 @@
   <%= f.file_field_with_label :cover %>
   <%= f.text_area_with_label :prizes, rows: 4, placeholder: "- 1st place: $100\n- 2nd~3rd: Gift cards" %>
   <%= f.text_field_with_label :address, placeholder: "123 Main St, City" %>
+  <%= f.text_field_with_label :country, maxlength: 2, placeholder: "PT", class: "uppercase" %>
+  <p class="form-help -mt-3 mb-4"><%= t("organizer.settings.country_help") %></p>
 
   <div class="flex gap-2">
     <%= f.datetime_local_field_with_label :start_time, required: true %>

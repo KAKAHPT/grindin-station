@@ -23,6 +23,10 @@
     <%= f.datetime_local_field_with_label :start_time, required: true %>
     <%= f.datetime_local_field_with_label :end_time, required: true %>
     <%= f.text_field_with_label :address, placeholder: t("organizer.settings.address_placeholder") %>
+    <div>
+      <%= f.text_field_with_label :country, maxlength: 2, placeholder: "PT", class: "uppercase" %>
+      <p class="form-help -mt-3 mb-4"><%= t("organizer.settings.country_help") %></p>
+    </div>
     <div class="grid grid-cols-[1fr_88px] gap-x-3">
       <%= f.number_field_with_label :price, placeholder: t("organizer.settings.price_placeholder"), min: 0, step: 0.01 %>
       <%= f.select_with_label :currency, currency_options, selected: tournament.currency %>
@@ -77,6 +81,12 @@
   <%= f.check_box_with_label :waitlist_enabled %>
   <%= f.check_box_with_label :show_commanders_in_standings %>
   <%= f.check_box_with_label :show_decklists %>
+
+  <h2 class="form-section"><%= t("organizer.settings.standings") %></h2>
+  <%= f.check_box_with_label :show_beaten_in_standings %>
+  <%= f.check_box_with_label :show_unique_in_standings %>
+  <%= f.check_box_with_label :hide_standings_until_finished %>
+  <p class="form-help mb-4"><%= t("organizer.settings.standings_help") %></p>
 
   <div class="mt-2 flex flex-wrap justify-end gap-2 border-t border-line pt-4">
     <%= link_to t("organizer.settings.back"), (tournament.persisted? ? organizer_tournament_path(tournament) : organizer_tournaments_path), class: button_classes(:ghost, size: :sm) %>

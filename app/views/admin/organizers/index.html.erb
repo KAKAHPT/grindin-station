@@ -1,0 +1,103 @@
+<%= render "admin/nav", active: :organizers %>
+<% back = { filter: (@filter unless @filter == "pending"), q: @q.presence }.compact %>
+
+<section class="col-span-full card overflow-clip" data-admin-signups>
+  <h2 class="card-title"><%= t("admin.organizers.signups_title") %></h2>
+  <%= form_with url: admin_organizers_path, method: :get, class: "flex flex-wrap items-end gap-2 border-b border-line px-3.5 py-3" do |f| %>
+    <label class="field">
+      <%= t("admin.organizers.status") %>
+      <%= f.select :filter, Admin::OrganizersController::FILTERS.map { |filter| [t("admin.organizers.filters.#{filter}"), filter] }, { selected: @filter }, class: "field-input" %>
+    </label>
+    <label class="field w-full sm:w-56">
+      <%= t("admin.organizers.search") %>
+      <%= f.search_field :q, value: @q, class: "field-input" %>
+    </label>
+    <%= f.submit t("admin.organizers.filter"), name: nil, class: button_classes(:primary, size: :sm) %>
+    <%= link_to t("admin.organizers.clear"), admin_organizers_path, class: button_classes(:ghost, size: :sm) %>
+  <% end %>
+  <div class="overflow-x-auto">
+    <table class="ctable">
+      <thead>
+        <tr>
+          <th><%= t("admin.organizers.name") %></th>
+          <th><%= t("admin.organizers.email") %></th>
+          <th class="r"><%= t("admin.organizers.date") %></th>
+          <th><%= t("admin.organizers.account") %></th>
+          <th class="r"><%= t("admin.organizers.actions") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @signups.each do |signup| %>
+          <% account = @accounts[signup.email] %>
+          <tr data-signup="<%= signup.id %>">
+            <td class="font-semibold"><%= signup.name %></td>
+            <td class="text-muted break-all"><%= signup.email %></td>
+            <td class="r whitespace-nowrap text-muted tabular"><%= l(signup.created_at.to_date) %></td>
+            <td>
+              <% if account %>
+                <%= desk_chip(:ok) { t("admin.organizers.has_account") } %>
+              <% else %>
+                <%= desk_chip(:missing) { t("admin.organizers.no_account") } %>
+              <% end %>
+            </td>
+            <td class="r">
+              <% if signup.pending? %>
+                <div class="inline-flex items-center gap-1.5">
+                  <% if signup.approvable?(account) %>
+                    <%= button_to t("admin.organizers.approve"), approve_admin_organizer_path(signup, **back), method: :patch, class: button_classes(:light, size: :sm) %>
+                  <% end %>
+                  <%= button_to t("admin.organizers.decline"), decline_admin_organizer_path(signup, **back), method: :patch, class: button_classes(:secondary, size: :sm) %>
+                </div>
+              <% elsif signup.approved_at %>
+                <%= desk_chip(:ok) { t("admin.organizers.approved_on", date: l(signup.approved_at.to_date)) } %>
+              <% else %>
+                <%= desk_chip(:bad) { t("admin.organizers.declined_on", date: l(signup.declined_at.to_date)) } %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <% if @signups.empty? %>
+    <p class="border-t border-line px-4 py-3 text-[12px] text-muted"><%= t("admin.organizers.signups_empty") %></p>
+  <% end %>
+</section>
+
+<section class="col-span-full card overflow-clip" data-admin-organizers>
+  <h2 class="card-title"><%= t("admin.organizers.organizers_title") %></h2>
+  <div class="overflow-x-auto">
+    <table class="ctable">
+      <thead>
+        <tr>
+          <th><%= t("admin.organizers.name") %></th>
+          <th><%= t("admin.organizers.email") %></th>
+          <th class="r"><%= t("admin.organizers.events") %></th>
+          <th class="r"><%= t("admin.organizers.since") %></th>
+          <th class="r"><%= t("admin.organizers.actions") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @organizers.each do |organizer| %>
+          <% events_count = @events_counts.fetch(organizer.id, 0) %>
+          <tr data-organizer="<%= organizer.id %>">
+            <td class="font-semibold"><%= organizer.user.name %></td>
+            <td class="text-muted break-all"><%= organizer.user.email_address %></td>
+            <td class="r tabular"><%= events_count %></td>
+            <td class="r whitespace-nowrap text-muted tabular"><%= l(organizer.created_at.to_date) %></td>
+            <td class="r">
+              <% if events_count.zero? && @circuits_counts.fetch(organizer.id, 0).zero? %>
+                <%= button_to t("admin.organizers.revoke"), admin_revoke_organizer_path(organizer, **back), method: :patch, class: button_classes(:secondary, size: :sm), form: { data: { turbo_confirm: t("admin.organizers.revoke_confirm", email: organizer.user.email_address) } } %>
+              <% else %>
+                <span class="text-[12px] text-muted" title="<%= t("admin.organizers.revoke_refused") %>">—</span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <% if @organizers.empty? %>
+    <p class="border-t border-line px-4 py-3 text-[12px] text-muted"><%= t("admin.organizers.organizers_empty") %></p>
+  <% end %>
+</section>

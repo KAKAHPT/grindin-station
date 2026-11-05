@@ -8,6 +8,7 @@ class EventParticipantsStandingsTest < ActionDispatch::IntegrationTest
     @tournament.update_columns(seed: 99, swiss_rounds_count: 2, top_cut_size: 0) # rubocop:disable Rails/SkipsModelValidations
     @tournament.rounds.create!(type: SwissRound, number: 1)
     TournamentBuilder.play_round!(@tournament, winners: { 1 => 0, 2 => :draw })
+    @tournament.update_columns(show_beaten_in_standings: true, show_unique_in_standings: true) # rubocop:disable Rails/SkipsModelValidations
   end
 
   test "public standings show the tiebreaker columns and explain them" do
