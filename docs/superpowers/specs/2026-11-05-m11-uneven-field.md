@@ -37,7 +37,7 @@ Definition: a player's **short count** = number of Swiss rounds of this event in
 
 ### 4.1 Byes
 
-Chosen before the pods are built, from the pairing order (`PlayerSorter#paired_players`, or `#random_players` in random mode), bottom up: the lowest-ordered player with the **lowest short count** takes the bye; with two byes, repeat on the remaining field. This mirrors `OneVOnePairer#bye_player` (lowest-ranked without a bye yet, else the last).
+Chosen before the pods are built and before the need-aware dealing, from the ranking order (`PlayerSorter#sorted_players`; in random mode the seeded shuffled field), bottom up: the lowest-ordered player with the **lowest short count** takes the bye; with two byes, repeat on the remaining field. This mirrors `OneVOnePairer#bye_player` (lowest-ranked without a bye yet, else the last).
 
 ### 4.2 Pods of 3
 
@@ -57,7 +57,7 @@ Rematch repair keeps priority: it runs first, and the short-pod pass never undoe
   - Byes: "Only pods of four; the one or two players left over get a bye worth the bye points (three left over still play a pod of three)."
   - The `points_bye` field keeps working for both modes; its label help gets one line: "Used for byes in 1v1 and when the uneven field is set to byes."
 - **Overview** (organizer `show`): a row "Uneven field" under "Pairing".
-- **Public About card** (`play_format_line`): append the mode name after the pairing name, multiplayer only ("… · Swiss pods · Byes · Top 4 · …").
+- **Public About card** (`play_format_line`): append "Byes" after the pairing name when the mode is `byes` ("… · Swiss pods · Byes · Top 4 · …"); the default pods-of-3 mode adds nothing (it is the norm).
 - **Feeds::Info** (`app/models/feeds/info` or wherever `pairingMode` lives): `unevenField` string, nil for 1v1.
 - i18n: `organizer.uneven_fields.{pods_of_three,byes}`, `organizer.uneven_help.{pods_of_three,byes}`, label `uneven_field` under the same activerecord attribute keys as `pairing_mode`; en + pt-PT (pt-PT: "Campo desigual", "Pods de 3", "Byes", tu-form help).
 - Layout: existing M7 pieces only (`.field`, `form-help`, `ctable` rows). No new visual language.
@@ -82,10 +82,10 @@ Note for the plan: the simulator builds pods without the database, so `ShortPodR
 
 ## 9. Acceptance
 
-1. Settings shows the new select for multiplayer tournaments, hidden for 1v1, locked after the Swiss starts; Overview and the public About card show the chosen mode.
+1. Settings shows the new select for multiplayer tournaments, hidden for 1v1, locked after the Swiss starts; Overview shows the chosen mode and the public About card shows "Byes" when that mode is on.
 2. `pods_of_three`: 13 players → 1×4 + 3×3; 6 → 2×3; 5 → 1×4 + 1 bye; never a pod of 5.
 3. `byes`: 13 → 3×4 + 1 bye; 14 → 3×4 + 2 byes; 15 → 3×4 + 1×3; 5 → 1×4 + 1 bye.
 4. A bye is an `Advance` in the Swiss round, worth `points_bye`, shown as a bye on the player's "my table", in standings and in the exports.
 5. Over a 13-player, 4-round simulated Swiss, the mean short spread (max − min pods of 3 per player) is lower with `ShortPodRepair` than without, and no swap of that pass adds a rematch.
-6. Round 2 of a real 17-player tournament (`[4,4,3,3,3]`, nine of seventeen in a pod of 3 each round, so at least one repeat per pod of 3 is unavoidable) seats exactly one round-1 pod-of-3 player in each pod of 3 and adds no rematch (unit test on `CreatePodsJob`); the test fails without `ShortPodRepair`.
+6. Round 2 of a real 17-player tournament (`[4,4,3,3,3]`, nine of seventeen in a pod of 3 each round, so at least one repeat per pod of 3 is unavoidable) seats at most four round-1 pod-of-3 players across the pods of 3 (the greedy single-swap pass reaches three or four depending on ids), adds no rematch and leaves no single swap open that would lower the repeats (unit test on `CreatePodsJob`); the test fails without `ShortPodRepair`.
 7. 1v1 tournaments behave exactly as before (existing suite).
