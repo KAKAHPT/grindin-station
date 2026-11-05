@@ -26,7 +26,7 @@ Recorded from the design session so nothing is lost. Each item becomes a task in
   seeded ties) and `RematchRepair` run for every mode; the simulation gate (`grindin:simulate`) must pass for each.
 - The organizer can change the mode until the swiss starts (locked with the structure).
 
-## M9 — admin dashboard (owner: "seguir tudo o que se passa")
+## M9 — admin dashboard (owner: "seguir tudo o que se passa") — DONE 2026-11-05 (spec `../specs/2026-11-05-m9-admin-dashboard.md`; 4xx/5xx rates not tracked, error counts stand in)
 - A site-admin role (separate from event organizer; the first admin is promoted by a rake task, never by sign-up).
 - `/admin` with: counts and trends (registered players, organizers, tournaments by state and format, events per
   month, players per event), tournament-day health (open judge calls, disputed tables, rounds running late,
