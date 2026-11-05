@@ -42,8 +42,8 @@ module Rankings
       rows.size
     end
 
-    # One row per player and event: event_participants does not forbid the same player twice in an event, so
-    # duplicates keep the entry with the most points (the first on a tie).
+    # One row per player and event. A unique index forbids a player twice in an event since M13; this stays as a
+    # defensive guard for older data: duplicates keep the entry with the most points (the first on a tie).
     def unique(rows)
       rows.group_by { |row| row.values_at(:player_id, :event_id) }.values
         .map { |group| group.max_by { |row| row[:points] } }

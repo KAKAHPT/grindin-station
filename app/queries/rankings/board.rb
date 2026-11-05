@@ -20,7 +20,7 @@ module Rankings
     TeamRow = Data.define(:team, :points, :avg_rating, :players, :events, :wins, :top_cuts)
 
     # The player's best finish: the lowest final position among the matching events. A derived table with one row
-    # per (event, player), so a player entered twice in an event does not multiply the contribution rows.
+    # per (event, player): defensive, since a unique index forbids duplicate entries since M13.
     POSITIONS = <<~SQL.squish
       LEFT JOIN (SELECT event_id, player_id, MIN(final_position) AS best FROM event_participants
         WHERE NOT waitlisted GROUP BY event_id, player_id) positions
