@@ -153,7 +153,8 @@ module Organizer
       assert_no_difference -> { EventParticipant.count } do
         post tournament_event_participants_path(@tournament), params: { event_participant: { accepted_terms: "0" } }
       end
-      assert_response :unprocessable_entity
+      assert_redirected_to @tournament
+      assert flash[:alert].present?
     end
 
     test "an enrolled player cancelling before the swiss lets the first on the waitlist in" do

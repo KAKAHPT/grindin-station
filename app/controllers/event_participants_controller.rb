@@ -38,7 +38,7 @@ class EventParticipantsController < ApplicationController # rubocop:disable Metr
     event = load_event
     @event_participant = EventParticipant.new(event: event, player: current_user.player)
     @event_participant.attributes = event_participant_params
-    return render(:new, status: :unprocessable_entity, layout: "modal") unless terms_accepted? && decklist_given?
+    return redirect_to(event, alert: registration_errors) unless terms_accepted? && decklist_given?
 
     enroll(event)
   end
@@ -119,7 +119,12 @@ class EventParticipantsController < ApplicationController # rubocop:disable Metr
     redirect_to event, notice: registration_notice(participant)
   rescue ActiveRecord::RecordInvalid => e
     @event_participant.errors.merge!(e.record.errors)
-    render :new, status: :unprocessable_entity, layout: "modal"
+    redirect_to event, alert: registration_errors
+  end
+
+  # The inline form on the event page has no error list of its own: the messages travel as one alert.
+  def registration_errors
+    @event_participant.errors.map(&:message).uniq.to_sentence
   end
 
   def registration_notice(participant)

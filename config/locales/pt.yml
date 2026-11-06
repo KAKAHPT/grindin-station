@@ -347,6 +347,9 @@ pt:
         country: "País"
       event_participant:
         accepted_terms: "Li e aceito as regras deste evento."
+      result:
+        type: "Resultado"
+        event_participant_id: "Jogador"
   organizer:
     about:
       title: "Sobre"
@@ -699,6 +702,7 @@ pt:
       enrol: "Inscrever"
       sign_in_to_enrol: "Entrar para te inscreveres"
       decklist_placeholder: "Decklist ou comandante (opcional)"
+      decklist_placeholder_required: "Link da decklist (obrigatório)"
       cancel_registration: "Anular inscrição"
       cancel_confirm: "Anular a tua inscrição neste evento?"
       you_are_enrolled: "Estás inscrito"
@@ -766,6 +770,7 @@ pt:
     waiting: "À espera da próxima ronda"
     closed: "Ronda fechada"
   results:
+    save: "Guardar resultado"
     timeout_confirm: "Tempo chamado: a mesa é decidida pela regra de tempo do evento. Continuar?"
     timeout_applied:
       highest_seed_advances: "Tempo chamado — o melhor seed avança"

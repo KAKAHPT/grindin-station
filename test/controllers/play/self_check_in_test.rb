@@ -88,8 +88,8 @@ module Play
       @tournament.update!(decklist_required: true)
       post tournament_event_participants_path(@tournament),
            params: { event_participant: { accepted_terms: "1", decklist: "" } }
-      assert_response :unprocessable_entity
-      assert_includes response.body, I18n.t("flash.alert.decklist_required")
+      assert_redirected_to @tournament
+      assert_equal I18n.t("flash.alert.decklist_required"), flash[:alert]
       assert_not @tournament.event_participants.exists?(player: player)
 
       post tournament_event_participants_path(@tournament),

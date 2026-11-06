@@ -31,7 +31,7 @@
   <% end %>
 
   <% content_for :footer do %>
-    <%= f.submit %>
+    <%= f.submit t("results.save") %>
     <%= link_to [:organizer, @result.event, @result.round.becomes(Round)], class: "ms-3 #{small_button_classes(:ghost)}" do %>
       Cancel
     <% end %>

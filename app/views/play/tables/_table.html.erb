@@ -22,7 +22,7 @@
         <% end %>
       </div>
 
-      <% winner = (pod.current_results.find { |result| result.is_a?(Win) || result.is_a?(Advance) } if one_v_one && status == :completed) %>
+      <% winner = (pod.current_results.find { |result| result.is_a?(Win) || result.is_a?(Advance) } if status == :completed) %>
       <ol class="mt-5 divide-y divide-line/60 border-t border-line">
         <% seatings.each do |seating| %>
           <% seated = seating.event_participant %>
@@ -38,8 +38,12 @@
                 <span class="block text-xs font-normal text-muted"><%= commander_text(seated) %></span>
               <% end %>
             </span>
-            <% if winner&.event_participant_id == seated.id && (score = winner.score) %>
-              <span data-score class="font-display text-[15px] font-semibold text-accent"><%= score %></span>
+            <% if winner&.event_participant_id == seated.id %>
+              <% if one_v_one && (score = winner.score) %>
+                <span data-score class="font-display text-[15px] font-semibold text-accent"><%= score %></span>
+              <% else %>
+                <span data-winner class="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-accent"><%= icon("trophy", class: "text-[14px]") %><%= t("play.pairings.winner") %></span>
+              <% end %>
             <% end %>
           <% end %>
         <% end %>
