@@ -1,33 +1,61 @@
-<%# Organizer page: the organizer card (avatar or initials, name, event count, link to their player profile when
-    it is visible) and their public events as large tickets: current or upcoming first, then the past ones. %>
+<%# Organizer page: a banner hero (avatar or initials, name, location, description, links, link to their player
+    profile when it is visible) and their public events as compact tickets: current or upcoming first, then the past ones. %>
 <% content_for :title, "#{@user.display_name} · #{t("organizers.title")}" %>
 <% content_for :description, t("organizers.lead") %>
 <% url_locale = params[:locale] %>
 
 <% banner = @user.banner.attached? %>
-<section class="card org-card col-span-full <%= "org-card-banner" if banner %>" data-organizer-header
+<%# Hero: the banner behind the organizer's avatar, name, location, description and links. %>
+<section class="card col-span-full circuit-hero <%= "circuit-hero-banner" if banner %>" data-organizer-header
          <% if banner %>style="background-image: url('<%= url_for(@user.banner.variant(:wide)) %>')" data-organizer-banner<% end %>>
-  <div class="flex items-center gap-4 p-5">
-    <% if @user.avatar.attached? %>
-      <%= image_tag url_for(@user.avatar.variant(:thumb)), alt: "", width: 64, height: 64, class: "size-16 shrink-0 rounded-full object-cover border border-line" %>
-    <% else %>
-      <span data-profile-initials aria-hidden="true"
-            class="inline-flex size-16 shrink-0 items-center justify-center rounded-full bg-surface-raised border border-line font-display text-xl font-semibold text-muted"><%= profile_initials(@user) %></span>
-    <% end %>
-    <div class="min-w-0 flex-1">
-      <p class="text-[10.5px] font-semibold uppercase tracking-[0.06em] text-muted"><%= t("organizers.title") %></p>
-      <h1 class="font-display text-xl font-semibold truncate"><%= @user.display_name %></h1>
-      <p class="text-sm text-muted" data-organizer-count><%= t("organizers.events_count", count: @events_count) %></p>
+  <div class="circuit-hero-in">
+    <div class="flex items-end gap-4">
+      <% if @user.avatar.attached? %>
+        <%= image_tag url_for(@user.avatar.variant(:thumb)), alt: "", width: 64, height: 64, class: "size-16 shrink-0 rounded-full object-cover border border-line" %>
+      <% else %>
+        <span data-profile-initials aria-hidden="true"
+              class="inline-flex size-16 shrink-0 items-center justify-center rounded-full bg-surface-raised border border-line font-display text-xl font-semibold text-muted"><%= profile_initials(@user) %></span>
+      <% end %>
+      <div class="min-w-0 flex-1">
+        <p class="text-[10.5px] font-semibold uppercase tracking-[0.06em] text-muted"><%= t("organizers.title") %></p>
+        <h1 class="font-display text-3xl font-semibold truncate"><%= @user.display_name %></h1>
+        <p class="text-[13px] text-muted" data-organizer-count>
+          <% if @organizer.location.present? %><span data-organizer-location><%= icon("map-pin", class: "me-1") %><%= @organizer.location %></span> · <% end %>
+          <%= t("organizers.events_count", count: @events_count) %>
+        </p>
+      </div>
+      <% if @user.profile_visible_to?(current_user) %>
+        <%= link_to "@#{@user.handle}", profile_path(@user.handle, locale: url_locale), class: button_classes(:secondary, size: :xs), data: { organizer_player: true } %>
+      <% end %>
     </div>
-    <% if @user.profile_visible_to?(current_user) %>
-      <%= link_to "@#{@user.handle}", profile_path(@user.handle, locale: url_locale), class: button_classes(:secondary, size: :xs), data: { organizer_player: true } %>
+    <% if @organizer.description.present? %>
+      <p class="mt-3 max-w-2xl text-[13.5px] text-ink/85" data-organizer-description><%= simple_format(@organizer.description, {}, wrapper_tag: "span") %></p>
+    <% end %>
+    <% if @organizer.link_list.any? %>
+      <div class="mt-3 flex flex-wrap gap-2" data-organizer-links>
+        <% @organizer.link_list.each do |key, url| %>
+          <%= link_to EventOrganizer::LINK_LABELS.fetch(key), url, target: "_blank", rel: "noopener nofollow", class: button_classes(:secondary, size: :xs), data: { organizer_link: key } %>
+        <% end %>
+      </div>
     <% end %>
   </div>
 </section>
 
+<% if @circuits.any? %>
+  <section class="col-span-full" data-organizer-circuits>
+    <h2 class="mb-3 font-display text-[17px] font-semibold text-ink"><%= t("lists.circuits.title") %></h2>
+    <div class="grid grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-3">
+      <% @circuits.each do |circuit| %>
+        <% leagues_count = @league_counts.fetch(circuit.id, 0) %>
+        <%= render "circuits/card", circuit: circuit, leagues_count: leagues_count, events_count: @tournament_counts.fetch(circuit.id, 0) + leagues_count %>
+      <% end %>
+    </div>
+  </section>
+<% end %>
+
 <div class="col-span-full mt-2 space-y-8">
-  <%= render "shared/ticket_grid", events: @upcoming, enrolled: @enrolled, heading: t("organizers.upcoming"), large: true %>
-  <%= render "shared/ticket_grid", events: @past, enrolled: @enrolled, paginate: @past, heading: t("organizers.past"), large: true %>
+  <%= render "shared/ticket_grid", events: @upcoming, enrolled: @enrolled, heading: t("organizers.upcoming"), dense: true %>
+  <%= render "shared/ticket_grid", events: @past, enrolled: @enrolled, paginate: @past, heading: t("organizers.past"), dense: true %>
   <% if @upcoming.none? && @past.none? %>
     <p class="card px-4 py-8 text-center text-[13px] text-muted" data-list-empty><%= t("organizers.no_events") %></p>
   <% end %>

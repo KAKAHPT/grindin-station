@@ -217,6 +217,10 @@ en:
             banner:
               content_type: "must be a JPEG, PNG or WebP image"
               too_big: "must be 4 MB or smaller"
+        event_organizer:
+          attributes:
+            links:
+              invalid_url: "%{label} must be a full address starting with http:// or https://"
         circuit:
           attributes:
             banner:
@@ -308,6 +312,28 @@ en:
       event_participant:
         accepted_terms: "I have read and accepted the rules for this event."
   organizer:
+    about:
+      title: "About"
+      lead: "What players see on your organizer page: banner, where you are, who you are and your links."
+      view_page: "View your page"
+      banner: "Banner"
+      banner_file: "Banner image"
+      about: "About you"
+      location: "Where"
+      location_placeholder: "Lisboa, Portugal"
+      description: "Description"
+      description_placeholder: "Who you are, what you organise, how to reach you"
+      description_help: "Up to 2000 characters. Line breaks are kept."
+      links: "Links"
+      link_labels:
+        website: "Website"
+        instagram: "Instagram"
+        discord: "Discord"
+        youtube: "YouTube"
+        twitch: "Twitch"
+        x: "X"
+      save: "Save"
+      saved: "About saved."
     export:
       title: "Export"
       download: "Download"
@@ -429,6 +455,7 @@ en:
       new: "New circuit"
       empty: "No circuits yet."
       banner_hint: "Shown behind the circuit's card on /circuits and on its page. JPEG, PNG or WebP, up to 4 MB; about 4:1 works best."
+      description_placeholder: "What the circuit is, how points add up, where to find the rules"
       events:
         one: "1 event"
         other: "%{count} events"
@@ -1143,6 +1170,14 @@ en:
       lead: "Circuits add up the points players earn across their events."
       featured: "Featured"
       one: "Circuit"
+      players_ranked:
+        one: "1 player ranked"
+        other: "%{count} players ranked"
+      register_next: "Register for %{name}"
+      next_event: "Next: %{name} · %{date}"
+      no_upcoming: "No upcoming event yet."
+      show_top: "Show the top %{count}"
+      no_upcoming_events: "No upcoming events in this circuit."
       empty: "No circuits yet."
       standings: "Standings"
       standings_empty: "No standings yet."

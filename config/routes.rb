@@ -96,6 +96,7 @@ Rails.application.routes.draw do
 
   namespace :organizer do
     root "tournaments#index"
+    resource :about, only: %i[edit update], controller: "about"
 
     resources :tournaments do
       member do

@@ -9,26 +9,7 @@
   <div class="col-span-full grid grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-3">
     <% @circuits.each do |circuit| %>
       <% leagues_count = @league_counts.fetch(circuit.id, 0) %>
-      <% events_count = @tournament_counts.fetch(circuit.id, 0) + leagues_count %>
-      <% banner = circuit.banner.attached? %>
-      <%= link_to circuit_path(circuit, locale: url_locale), class: "card block overflow-clip hover:border-line-strong #{"org-card org-card-banner" if banner}",
-                  style: ("background-image: url('#{url_for(circuit.banner.variant(:card))}')" if banner), data: { circuit: circuit.id, circuit_banner: banner || nil } do %>
-        <h2 class="card-title flex items-center justify-between gap-3 <%= "bg-transparent" if banner %>">
-          <span class="truncate"><%= circuit.name %></span>
-          <span class="flex items-center gap-2">
-            <% if circuit.featured %><%= desk_chip(:ok) { t("lists.circuits.featured") } %><% end %>
-            <%= icon("trophy", class: "text-muted") %>
-          </span>
-        </h2>
-        <div class="px-4 py-3 text-[12.5px] text-muted">
-          <% if circuit.event_organizer %>
-            <p><%= t("lists.organized_by_html", name: circuit.event_organizer.name) %></p>
-          <% end %>
-          <p class="mt-0.5" data-circuit-events>
-            <%= t("lists.events_count", count: events_count) %><% if leagues_count.positive? %> · <%= t("lists.leagues_count", count: leagues_count) %><% end %>
-          </p>
-        </div>
-      <% end %>
+      <%= render "circuits/card", circuit: circuit, leagues_count: leagues_count, events_count: @tournament_counts.fetch(circuit.id, 0) + leagues_count %>
     <% end %>
   </div>
   <div class="col-span-full"><%= paginate @circuits %></div>

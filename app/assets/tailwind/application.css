@@ -263,7 +263,7 @@
     top: 0;
     z-index: 30;
     border-bottom: 1px solid var(--color-line);
-    background: rgb(27 30 34 / 0.6);
+    background: rgb(27 30 34 / 0.9);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
@@ -671,6 +671,41 @@
 
   .org-card > * {
     position: relative;
+  }
+
+  /* Circuit page hero: a tall banner with the text at the bottom over a vertical shade. */
+  .circuit-hero {
+    position: relative;
+    overflow: hidden;
+    min-height: 12rem;
+  }
+
+  .circuit-hero-banner {
+    min-height: 18rem;
+    background-size: cover;
+    background-position: center;
+  }
+
+  @media (min-width: 768px) {
+    .circuit-hero-banner {
+      min-height: 22rem;
+    }
+  }
+
+  .circuit-hero-banner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgb(17 19 21 / 0.15) 0%, rgb(17 19 21 / 0.55) 45%, rgb(17 19 21 / 0.94) 100%);
+  }
+
+  .circuit-hero-in {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: inherit;
+    padding: 20px;
   }
 
   .card-title {

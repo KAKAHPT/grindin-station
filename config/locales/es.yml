@@ -217,6 +217,10 @@ es:
             banner:
               content_type: "debe ser una imagen JPEG, PNG o WebP"
               too_big: "debe tener 4 MB o menos"
+        event_organizer:
+          attributes:
+            links:
+              invalid_url: "%{label} debe ser una dirección completa que empiece por http:// o https://"
         circuit:
           attributes:
             banner:
@@ -308,6 +312,28 @@ es:
       event_participant:
         accepted_terms: "He leído y acepto las reglas de este evento."
   organizer:
+    about:
+      title: "Acerca de"
+      lead: "Lo que los jugadores ven en tu página de organizador: banner, dónde estás, quién eres y tus enlaces."
+      view_page: "Ver tu página"
+      banner: "Banner"
+      banner_file: "Imagen del banner"
+      about: "Sobre ti"
+      location: "Dónde"
+      location_placeholder: "Madrid, España"
+      description: "Descripción"
+      description_placeholder: "Quién eres, qué organizas, cómo contactarte"
+      description_help: "Hasta 2000 caracteres. Se mantienen los saltos de línea."
+      links: "Enlaces"
+      link_labels:
+        website: "Website"
+        instagram: "Instagram"
+        discord: "Discord"
+        youtube: "YouTube"
+        twitch: "Twitch"
+        x: "X"
+      save: "Guardar"
+      saved: "Acerca de guardado."
     export:
       title: "Exportar"
       download: "Descargar"
@@ -429,6 +455,7 @@ es:
       new: "Nuevo circuito"
       empty: "Aún no hay circuitos."
       banner_hint: "Se muestra detrás de la tarjeta del circuito en /circuits y en su página. JPEG, PNG o WebP, hasta 4 MB; alrededor de 4:1 queda mejor."
+      description_placeholder: "Qué es el circuito, cómo suman los puntos, dónde están las reglas"
       events:
         one: "1 evento"
         other: "%{count} eventos"
@@ -1143,6 +1170,14 @@ es:
       lead: "Los circuitos suman los puntos que los jugadores ganan en sus eventos."
       featured: "Destacado"
       one: "Circuito"
+      players_ranked:
+        one: "1 jugador clasificado"
+        other: "%{count} jugadores clasificados"
+      register_next: "Inscribirse en %{name}"
+      next_event: "Próximo: %{name} · %{date}"
+      no_upcoming: "Aún sin próximo evento."
+      show_top: "Mostrar los %{count} primeros"
+      no_upcoming_events: "Sin próximos eventos en este circuito."
       empty: "Aún no hay circuitos."
       standings: "Clasificación"
       standings_empty: "Aún no hay clasificación."

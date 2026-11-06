@@ -1,21 +1,50 @@
 <%# One circuit: name and organizer, the standings (rank, player, points, events) and its open events as tickets. %>
 <% url_locale = params[:locale] %>
 <% events = @tournaments.to_a + @leagues.to_a %>
+<% listed = events.select { |event| event.end_time && (event.end_time >= Time.current) != @past }.sort_by { |event| @past ? -event.start_time.to_i : event.start_time.to_i } %>
+<% shown = @show_all ? @standings : @standings.first(CircuitsController::STANDINGS_SHOWN) %>
 <% banner = @circuit.banner.attached? %>
-<div class="col-span-full <%= banner ? "card org-card org-card-banner p-5" : "pt-2" %>"<% if banner %> style="background-image: url('<%= url_for(@circuit.banner.variant(:wide)) %>')" data-circuit-banner<% end %>>
-  <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
-    <%= link_to t("lists.circuits.title"), circuits_path(locale: url_locale), class: "hover:text-ink" %>
-  </p>
-  <h1 class="mt-1 flex items-center gap-2 font-display text-2xl font-semibold text-ink">
-    <%= icon("trophy", class: "text-muted") %><%= @circuit.name %>
-  </h1>
-  <p class="mt-1 text-[13px] text-muted" data-circuit-events>
-    <% if @circuit.event_organizer %>
-      <%= t("lists.organized_by_html", name: @circuit.event_organizer.name) %> ·
+<% organizer_user = @circuit.event_organizer&.user %>
+<% upcoming = events.select { |event| event.end_time && event.end_time >= Time.current }.min_by(&:start_time) %>
+<% open_event = events.select { |event| event.registration_open? && !event.sold_out?(@enrolled.fetch(event.id, 0)) }.min_by(&:start_time) %>
+<%# Hero: the banner (when the organizer set one) behind the circuit's name, description, organizer, counts and the
+    next event to register for. %>
+<section class="col-span-full card circuit-hero <%= "circuit-hero-banner" if banner %>"<% if banner %> style="background-image: url('<%= url_for(@circuit.banner.variant(:wide)) %>')" data-circuit-banner<% end %> data-circuit-hero>
+  <div class="circuit-hero-in">
+    <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+      <%= link_to t("lists.circuits.title"), circuits_path(locale: url_locale), class: "hover:text-ink" %>
+      <% if @circuit.featured %> · <span class="text-accent"><%= t("lists.circuits.featured") %></span><% end %>
+    </p>
+    <h1 class="mt-1 flex items-center gap-2 font-display text-3xl font-semibold text-ink">
+      <%= icon("trophy", class: "text-muted text-2xl") %><%= @circuit.name %>
+    </h1>
+    <% if @circuit.description.present? %>
+      <p class="mt-2 max-w-2xl text-[13.5px] text-ink/85" data-circuit-description><%= simple_format(@circuit.description, {}, wrapper_tag: "span") %></p>
     <% end %>
-    <%= t("lists.events_count", count: events.size) %><% if @leagues.any? %> · <%= t("lists.leagues_count", count: @leagues.size) %><% end %>
-  </p>
-</div>
+    <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-muted" data-circuit-events>
+      <% if @circuit.event_organizer %>
+        <span data-circuit-organizer>
+          <% if organizer_user&.handle %>
+            <%= t("lists.organized_by_html", name: link_to(@circuit.event_organizer.name, organizer_profile_path(organizer_user.handle, locale: url_locale), class: "text-ink hover:underline")) %>
+          <% else %>
+            <%= t("lists.organized_by_html", name: @circuit.event_organizer.name) %>
+          <% end %>
+        </span>
+      <% end %>
+      <span><%= t("lists.events_count", count: events.size) %><% if @leagues.any? %> · <%= t("lists.leagues_count", count: @leagues.size) %><% end %></span>
+      <span data-circuit-players><%= t("lists.circuits.players_ranked", count: @standings.size) %></span>
+    </div>
+    <div class="mt-4 flex flex-wrap items-center gap-2">
+      <% if open_event %>
+        <%= link_to t("lists.circuits.register_next", name: open_event.name), ticket_href(open_event), class: button_classes(:primary, size: :sm), data: { circuit_register: true } %>
+      <% elsif upcoming %>
+        <span class="text-[13px] text-muted" data-circuit-next><%= t("lists.circuits.next_event", name: link_to(upcoming.name, ticket_href(upcoming), class: "text-ink hover:underline"), date: l(upcoming.start_time, format: "%d %b %Y")).html_safe %></span>
+      <% else %>
+        <span class="text-[13px] text-muted" data-circuit-next><%= t("lists.circuits.no_upcoming") %></span>
+      <% end %>
+    </div>
+  </div>
+</section>
 
 <section class="col-span-full card overflow-clip" data-circuit-standings>
   <h2 class="card-title"><%= t("lists.circuits.standings") %></h2>
@@ -31,7 +60,7 @@
           </tr>
         </thead>
         <tbody>
-          <% @standings.each.with_index(1) do |standing, rank| %>
+          <% shown.each.with_index(1) do |standing, rank| %>
             <tr>
               <td class="r font-display font-semibold text-muted"><%= rank %></td>
               <td class="text-ink"><%= standing.player.name %></td>
@@ -42,13 +71,31 @@
         </tbody>
       </table>
     </div>
+    <% if @standings.size > shown.size %>
+      <div class="border-t border-line px-4 py-2.5 text-center">
+        <%= link_to t("rankings.show_all", count: @standings.size), circuit_path(@circuit, all: 1, filter: (@past ? "past" : nil), locale: url_locale),
+                    class: button_classes(:ghost, size: :sm), data: { show_all: true } %>
+      </div>
+    <% elsif @show_all && @standings.size > CircuitsController::STANDINGS_SHOWN %>
+      <div class="border-t border-line px-4 py-2.5 text-center">
+        <%= link_to t("lists.circuits.show_top", count: CircuitsController::STANDINGS_SHOWN), circuit_path(@circuit, filter: (@past ? "past" : nil), locale: url_locale),
+                    class: button_classes(:ghost, size: :sm), data: { show_top: true } %>
+      </div>
+    <% end %>
   <% else %>
     <p class="px-4 py-6 text-center text-[12.5px] text-muted"><%= t("lists.circuits.standings_empty") %></p>
   <% end %>
 </section>
 
-<% if events.any? %>
-  <%= render "shared/ticket_grid", events: events, enrolled: @enrolled, heading: t("lists.circuits.events") %>
+<div class="col-span-full flex flex-wrap items-center justify-between gap-3" data-circuit-events-switch>
+  <h2 class="font-display text-lg font-semibold text-ink"><%= t("lists.circuits.events") %></h2>
+  <span class="seg">
+    <%= link_to t("lists.upcoming"), circuit_path(@circuit, all: (1 if @show_all), locale: url_locale), class: ("seg-on" unless @past), "aria-current": ("page" unless @past) %>
+    <%= link_to t("lists.past"), circuit_path(@circuit, filter: "past", all: (1 if @show_all), locale: url_locale), class: ("seg-on" if @past), "aria-current": ("page" if @past) %>
+  </span>
+</div>
+<% if listed.any? %>
+  <%= render "shared/ticket_grid", events: listed, enrolled: @enrolled %>
 <% else %>
-  <p class="col-span-full card px-4 py-8 text-center text-[13px] text-muted"><%= t("lists.circuits.events_empty") %></p>
+  <p class="col-span-full card px-4 py-8 text-center text-[13px] text-muted"><%= t(@past ? "lists.empty_past" : "lists.circuits.no_upcoming_events") %></p>
 <% end %>
