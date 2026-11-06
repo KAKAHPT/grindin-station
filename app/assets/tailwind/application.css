@@ -703,6 +703,57 @@
         rgb(17 19 21 / 0.35) 100%);
   }
 
+  /* The feed's fixed banner: six card arts in a row, darkened towards the bottom, the title at the bottom-left. */
+  .feed-hero {
+    position: relative;
+    overflow: hidden;
+    min-height: 190px;
+    border-radius: 12px;
+    border: 1px solid var(--color-line-strong);
+    box-shadow: var(--shadow-card);
+  }
+
+  .feed-hero-art {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .feed-hero-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.85) brightness(0.8);
+  }
+
+  @media (max-width: 640px) {
+    .feed-hero-art {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .feed-hero-art img:nth-child(n + 4) {
+      display: none;
+    }
+  }
+
+  .feed-hero-shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgb(17 19 21 / 0.15) 0%, rgb(17 19 21 / 0.55) 55%, rgb(17 19 21 / 0.92) 100%);
+  }
+
+  .feed-hero-in {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 190px;
+    padding: 18px 20px;
+  }
+
   .feed-col {
     position: relative;
     z-index: 1;

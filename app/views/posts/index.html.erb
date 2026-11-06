@@ -9,11 +9,19 @@
   <div class="feed-vig" aria-hidden="true"></div>
 
   <div class="feed-col" data-feed>
-    <div class="flex flex-wrap items-end justify-between gap-3 px-1" data-list-header>
-      <div class="min-w-0">
-        <h1 class="font-display text-2xl font-semibold text-ink"><%= t("feed.title") %></h1>
-        <p class="mt-1 text-[13px] text-muted"><%= t("feed.lead") %></p>
+    <%# Fixed banner: a strip of card art (the landing's set) with the title over it. %>
+    <section class="feed-hero" data-feed-hero>
+      <div class="feed-hero-art" aria-hidden="true">
+        <% %w[c7 c14 c22 c29 c36 c43].each do |name| %>
+          <img src="<%= image_path("landing/#{name}.jpg") %>" alt="" width="240" height="175" decoding="async">
+        <% end %>
       </div>
+      <div class="feed-hero-shade" aria-hidden="true"></div>
+      <div class="feed-hero-in" data-list-header>
+        <div class="min-w-0">
+          <h1 class="font-display text-3xl font-semibold text-ink"><%= t("feed.title") %></h1>
+          <p class="mt-1 text-[13px] text-ink/80"><%= t("feed.lead") %></p>
+        </div>
       <% if authenticated? %>
         <span class="seg" data-feed-scope>
           <% User::FEED_SCOPES.each do |scope| %>
@@ -21,7 +29,8 @@
           <% end %>
         </span>
       <% end %>
-    </div>
+      </div>
+    </section>
 
     <% if @circuit %>
       <p class="rounded-lg border border-line bg-surface/80 px-4 py-2.5 text-[13px] text-muted" data-feed-circuit>
