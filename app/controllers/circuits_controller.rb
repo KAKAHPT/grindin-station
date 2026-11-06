@@ -7,7 +7,8 @@ class CircuitsController < ApplicationController
 
   # Draft and canceled events are left out of the lists and the counts.
   def index
-    @circuits = Circuit.preload(event_organizer: :user).page(params[:page])
+    @circuits = Circuit.preload(event_organizer: :user).with_attached_banner.order(featured: :desc, created_at: :desc)
+      .page(params[:page])
     ids = @circuits.map(&:id)
     @tournament_counts = Tournament.visible.where(circuit_id: ids).group(:circuit_id).count
     @league_counts = League.visible.where(circuit_id: ids).group(:circuit_id).count

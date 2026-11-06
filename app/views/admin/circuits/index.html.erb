@@ -1,0 +1,37 @@
+<%= render "admin/nav", active: :circuits %>
+
+<section class="col-span-full card overflow-clip" data-admin-circuits>
+  <h2 class="card-title"><%= t("admin.circuits.title") %></h2>
+  <div class="overflow-x-auto">
+    <table class="ctable">
+      <thead>
+        <tr>
+          <th><%= t("admin.circuits.name") %></th>
+          <th><%= t("admin.circuits.organizer") %></th>
+          <th class="r"><%= t("admin.circuits.events") %></th>
+          <th class="r"><%= t("admin.circuits.created") %></th>
+          <th class="r"><%= t("admin.circuits.featured") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @circuits.each do |circuit| %>
+          <tr data-circuit="<%= circuit.id %>">
+            <td class="font-semibold text-ink"><%= link_to circuit.name, circuit_path(circuit), class: "hover:underline" %></td>
+            <td><%= circuit.event_organizer&.name %></td>
+            <td class="r tabular"><%= @events_counts.fetch(circuit.id, 0) %></td>
+            <td class="r tabular whitespace-nowrap"><%= l(circuit.created_at, format: :short) %></td>
+            <td class="r">
+              <%= button_to featured_admin_circuit_path(circuit, page: params[:page]), method: :patch, class: button_classes(circuit.featured ? :primary : :ghost, size: :sm), "aria-pressed": circuit.featured do %>
+                <%= circuit.featured ? t("admin.circuits.featured_on") : t("admin.circuits.featured_off") %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <% if @circuits.empty? %>
+    <p class="border-t border-line px-4 py-3 text-[12px] text-muted"><%= t("admin.circuits.empty") %></p>
+  <% end %>
+  <div class="px-4 py-2"><%= paginate @circuits %></div>
+</section>

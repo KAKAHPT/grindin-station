@@ -3,6 +3,7 @@ es:
     events: "Eventos"
     rankings: "Rankings"
     organizers: "Organizadores"
+    circuits: "Circuitos"
     about: "Acerca de"
     language: "Idioma"
     sign_in: "Iniciar sesión"
@@ -17,6 +18,7 @@ es:
       audit: "Auditoría"
       errors: "Errores"
       events: "Eventos"
+      circuits: "Circuitos"
       invitational: "Invitaciones"
       organizers: "Organizadores"
     states:
@@ -136,6 +138,17 @@ es:
       silver: "Plata"
       gold: "Oro"
       platinum: "Platino"
+    circuits:
+      title: "Circuitos"
+      name: "Circuito"
+      organizer: "Organizador"
+      events: "Eventos"
+      created: "Creado"
+      featured: "Destacado"
+      featured_on: "Destacado"
+      featured_off: "No destacado"
+      featured_saved: "Destacado actualizado."
+      empty: "Aún no hay circuitos."
     invitational:
       title: "Ranking de invitaciones"
       lead: "Puntos de ranking de los eventos con nivel por el nivel (bronce ×1, plata ×1,5, oro ×2, platino ×3). Solo los admins ven esta página."
@@ -201,6 +214,11 @@ es:
             avatar:
               content_type: "debe ser una imagen JPEG, PNG o WebP"
               too_big: "debe tener 2 MB o menos"
+            banner:
+              content_type: "debe ser una imagen JPEG, PNG o WebP"
+              too_big: "debe tener 4 MB o menos"
+        circuit:
+          attributes:
             banner:
               content_type: "debe ser una imagen JPEG, PNG o WebP"
               too_big: "debe tener 4 MB o menos"
@@ -410,6 +428,7 @@ es:
       title: "Mis circuitos"
       new: "Nuevo circuito"
       empty: "Aún no hay circuitos."
+      banner_hint: "Se muestra detrás de la tarjeta del circuito en /circuits y en su página. JPEG, PNG o WebP, hasta 4 MB; alrededor de 4:1 queda mejor."
       events:
         one: "1 evento"
         other: "%{count} eventos"
@@ -1063,6 +1082,7 @@ es:
           text: "Lo que siga igualado se sortea con la semilla del evento, fijada en la ronda 1, así que nada se elige a mano."
     featured:
       title: "Destacados"
+    featured_circuits: "Circuitos destacados"
     upcoming:
       title: "Próximos eventos"
       open:
@@ -1121,6 +1141,8 @@ es:
     circuits:
       title: "Circuitos"
       lead: "Los circuitos suman los puntos que los jugadores ganan en sus eventos."
+      featured: "Destacado"
+      one: "Circuito"
       empty: "Aún no hay circuitos."
       standings: "Clasificación"
       standings_empty: "Aún no hay clasificación."

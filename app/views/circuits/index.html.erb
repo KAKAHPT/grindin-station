@@ -1,4 +1,4 @@
-<%# Rankings: every circuit as a card (name with the grey trophy, organizer, number of open events). %>
+<%# Circuits: every circuit as a card (banner behind when the organizer set one, name with the grey trophy, organizer, number of open events). %>
 <% url_locale = params[:locale] %>
 <div class="col-span-full pt-2">
   <h1 class="font-display text-2xl font-semibold text-ink"><%= t("lists.circuits.title") %></h1>
@@ -10,10 +10,15 @@
     <% @circuits.each do |circuit| %>
       <% leagues_count = @league_counts.fetch(circuit.id, 0) %>
       <% events_count = @tournament_counts.fetch(circuit.id, 0) + leagues_count %>
-      <%= link_to circuit_path(circuit, locale: url_locale), class: "card block overflow-clip hover:border-line-strong", data: { circuit: circuit.id } do %>
-        <h2 class="card-title flex items-center justify-between gap-3">
+      <% banner = circuit.banner.attached? %>
+      <%= link_to circuit_path(circuit, locale: url_locale), class: "card block overflow-clip hover:border-line-strong #{"org-card org-card-banner" if banner}",
+                  style: ("background-image: url('#{url_for(circuit.banner.variant(:card))}')" if banner), data: { circuit: circuit.id, circuit_banner: banner || nil } do %>
+        <h2 class="card-title flex items-center justify-between gap-3 <%= "bg-transparent" if banner %>">
           <span class="truncate"><%= circuit.name %></span>
-          <%= icon("trophy", class: "text-muted") %>
+          <span class="flex items-center gap-2">
+            <% if circuit.featured %><%= desk_chip(:ok) { t("lists.circuits.featured") } %><% end %>
+            <%= icon("trophy", class: "text-muted") %>
+          </span>
         </h2>
         <div class="px-4 py-3 text-[12.5px] text-muted">
           <% if circuit.event_organizer %>

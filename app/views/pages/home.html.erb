@@ -88,6 +88,23 @@
     </section>
   <% end %>
 
+  <% if @featured_circuits.any? %>
+    <section class="lp-feat" data-featured-circuits>
+      <h2 class="lp-eyebrow"><%= t("landing.featured_circuits") %></h2>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <% @featured_circuits.each do |circuit| %>
+          <% banner = circuit.banner.attached? %>
+          <%= link_to circuit_path(circuit, locale: url_locale), class: "card org-card block p-4 hover:border-line-strong #{"org-card-banner" if banner}",
+                      style: ("background-image: url('#{url_for(circuit.banner.variant(:card))}')" if banner), data: { featured_circuit: circuit.id } do %>
+            <p class="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted"><%= t("lists.circuits.one") %></p>
+            <h3 class="mt-1 font-display text-[15px] font-semibold text-ink"><%= circuit.name %></h3>
+            <% if circuit.event_organizer %><p class="mt-0.5 text-[12px] text-muted"><%= t("lists.organized_by_html", name: circuit.event_organizer.name) %></p><% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
   <section class="lp-upc" id="upcoming" data-upcoming>
     <div class="lp-upc-hd">
       <h2><%= t("landing.upcoming.title") %></h2>

@@ -4,6 +4,7 @@
 <% here = ->(path) { request.path == path || request.path.start_with?("#{path}/") } %>
 <% links = [[t("topbar.events"), events_path(locale: params[:locale]), here.(events_path)],
             [t("topbar.rankings"), rankings_path(locale: params[:locale]), here.(rankings_path)],
+            [t("topbar.circuits"), circuits_path(locale: params[:locale]), here.(circuits_path)],
             [t("topbar.organizers"), organizers_path(locale: params[:locale]), here.(organizers_path) || request.path.start_with?("/o/")]] %>
 <header class="topbar" data-controller="menu" data-topbar>
   <div class="topbar-in">

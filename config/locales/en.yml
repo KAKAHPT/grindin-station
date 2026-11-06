@@ -3,6 +3,7 @@ en:
     events: "Events"
     rankings: "Rankings"
     organizers: "Organizers"
+    circuits: "Circuits"
     about: "About"
     language: "Language"
     sign_in: "Sign in"
@@ -17,6 +18,7 @@ en:
       audit: "Audit"
       errors: "Errors"
       events: "Events"
+      circuits: "Circuits"
       invitational: "Invitational"
       organizers: "Organizers"
     states:
@@ -136,6 +138,17 @@ en:
       silver: "Silver"
       gold: "Gold"
       platinum: "Platinum"
+    circuits:
+      title: "Circuits"
+      name: "Circuit"
+      organizer: "Organizer"
+      events: "Events"
+      created: "Created"
+      featured: "Featured"
+      featured_on: "Featured"
+      featured_off: "Not featured"
+      featured_saved: "Featured updated."
+      empty: "No circuits yet."
     invitational:
       title: "Invitational leaderboard"
       lead: "Ranking points of the tier events times the tier (bronze ×1, silver ×1.5, gold ×2, platinum ×3). Only admins see this page."
@@ -201,6 +214,11 @@ en:
             avatar:
               content_type: "must be a JPEG, PNG or WebP image"
               too_big: "must be 2 MB or smaller"
+            banner:
+              content_type: "must be a JPEG, PNG or WebP image"
+              too_big: "must be 4 MB or smaller"
+        circuit:
+          attributes:
             banner:
               content_type: "must be a JPEG, PNG or WebP image"
               too_big: "must be 4 MB or smaller"
@@ -410,6 +428,7 @@ en:
       title: "My circuits"
       new: "New circuit"
       empty: "No circuits yet."
+      banner_hint: "Shown behind the circuit's card on /circuits and on its page. JPEG, PNG or WebP, up to 4 MB; about 4:1 works best."
       events:
         one: "1 event"
         other: "%{count} events"
@@ -1063,6 +1082,7 @@ en:
           text: "Anything still equal is drawn from the event seed, fixed in round 1, so nothing is chosen by hand."
     featured:
       title: "Featured"
+    featured_circuits: "Featured circuits"
     upcoming:
       title: "Upcoming events"
       open:
@@ -1121,6 +1141,8 @@ en:
     circuits:
       title: "Circuits"
       lead: "Circuits add up the points players earn across their events."
+      featured: "Featured"
+      one: "Circuit"
       empty: "No circuits yet."
       standings: "Standings"
       standings_empty: "No standings yet."
