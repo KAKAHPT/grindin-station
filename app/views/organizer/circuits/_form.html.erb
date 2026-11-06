@@ -12,6 +12,7 @@
   <% end %>
 
   <%= f.text_field_with_label :name, placeholder: "A name for this circuit", required: true %>
+  <%= f.text_area_with_label :description, rows: 3, placeholder: t("organizer.circuits.description_placeholder") %>
   <% if circuit.banner.attached? && circuit.banner.blob.persisted? %>
     <%= image_tag circuit.banner.variant(:card), alt: "", class: "mb-2 h-24 w-full rounded-lg object-cover border border-line" %>
   <% end %>

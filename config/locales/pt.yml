@@ -429,6 +429,7 @@ pt:
       new: "Novo circuito"
       empty: "Ainda não há circuitos."
       banner_hint: "Aparece por trás do cartão do circuito em /circuits e na página dele. JPEG, PNG ou WebP, até 4 MB; cerca de 4:1 fica melhor."
+      description_placeholder: "O que é o circuito, como somam os pontos, onde estão as regras"
       events:
         one: "1 evento"
         other: "%{count} eventos"
@@ -1143,6 +1144,12 @@ pt:
       lead: "Os circuitos somam os pontos que os jogadores ganham nos seus eventos."
       featured: "Em destaque"
       one: "Circuito"
+      players_ranked:
+        one: "1 jogador classificado"
+        other: "%{count} jogadores classificados"
+      register_next: "Inscrever em %{name}"
+      next_event: "Próximo: %{name} · %{date}"
+      no_upcoming: "Ainda sem próximo evento."
       empty: "Ainda não há circuitos."
       standings: "Classificação"
       standings_empty: "Ainda sem classificação."
