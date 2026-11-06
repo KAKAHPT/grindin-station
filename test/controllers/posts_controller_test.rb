@@ -142,8 +142,8 @@ class PostsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     get feed_path
     assert_select "[data-post]", 3
 
-    get feed_path(event: @t.id)
-    assert_select "[data-feed-format] select[name=event] option[selected][value='#{@t.id}']"
+    get feed_path(event: @t.id) # by link, e.g. from an event page; no select for it
+    assert_select "[data-feed-format] select[name=event]", count: 0
     assert_select "[data-post='#{pods_post.id}']"
     assert_select "[data-post='#{legacy_post.id}']", count: 0
   end

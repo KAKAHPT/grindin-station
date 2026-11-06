@@ -5,8 +5,6 @@ module Posts
   # Filters: scope (everyone | following, signed-in only), circuit, play (a play pool), event, organizer (handle),
   # sort (new | top), mine (events the viewer played or organizes), mentions (posts naming the viewer).
   class Feed
-    EVENTS_LISTED = 60
-
     attr_reader :viewer, :circuit, :play, :event, :organizer, :sort, :scope
 
     def initialize(params, viewer)
@@ -21,11 +19,6 @@ module Posts
     def mentions? = viewer.present? && @params[:mentions] == "1"
     def top? = sort == "top"
     def following? = scope == "following"
-
-    # Public events that have posts, newest first: the event filter's choices.
-    def events
-      @events ||= posted_events.order(start_time: :desc).limit(EVENTS_LISTED).to_a
-    end
 
     # Organizers whose events have posts, A–Z: the organizer filter's choices.
     def organizers
@@ -54,7 +47,7 @@ module Posts
     end
 
     def read_event_and_organizer
-      @event = events.find { |event| event.id == @params[:event] }
+      @event = posted_events.find_by(id: @params[:event]) if @params[:event].present?
       @organizer = organizers.find { |organizer| organizer.user&.handle == @params[:organizer] }
     end
 

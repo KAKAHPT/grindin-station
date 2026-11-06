@@ -1023,8 +1023,6 @@ es:
     title: "Feed social"
     format: "Formato"
     all_formats: "Todos los formatos"
-    event: "Evento"
-    all_events: "Todos los eventos"
     organizer: "Organizador"
     all_organizers: "Todos los organizadores"
     mine: "Mis eventos"

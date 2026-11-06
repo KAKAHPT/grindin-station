@@ -1023,8 +1023,6 @@ en:
     title: "Social feed"
     format: "Format"
     all_formats: "All formats"
-    event: "Event"
-    all_events: "All events"
     organizer: "Organizer"
     all_organizers: "All organizers"
     mine: "My events"

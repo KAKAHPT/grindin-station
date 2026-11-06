@@ -79,7 +79,7 @@
       <p class="rounded-lg border border-line bg-surface/80 px-4 py-3 text-[13px] text-muted" data-feed-signin><%= t("feed.sign_in_html", link: link_to(t("topbar.sign_in"), new_session_path(locale: url_locale), class: "text-ink underline")) %></p>
         <% end %>
       </div>
-      <%# Filters: posts about events of one play pool and/or one event. %>
+      <%# Filters: posts about events of one play pool and/or one organizer (?event= still works from links). %>
       <%= form_with url: feed_path, method: :get, local: true, class: "shrink-0 sm:w-56", data: { turbo_frame: "_top", feed_format: true } do %>
         <%= hidden_field_tag :scope, @feed.scope, id: nil %>
         <% if @feed.circuit %><%= hidden_field_tag :circuit, @feed.circuit.id, id: nil %><% end %>
@@ -87,9 +87,6 @@
           <%= select_tag :play, options_for_select([[t("feed.all_formats"), ""]] + Event::PLAYS.map { |play| [play_label(play), play] }, @feed.play),
                          "aria-label": t("feed.format"), class: "field-input h-9 text-[12.5px]",
                          data: { controller: "submit-on-change", action: "change->submit-on-change#submit" } %>
-          <%= select_tag :event, options_for_select([[t("feed.all_events"), ""]] + @feed.events.map { |event| ["#{event.name} · #{l(event.start_time, format: '%d %b %Y')}", event.id] }, @feed.event&.id),
-                         "aria-label": t("feed.event"), class: "field-input h-9 text-[12.5px]",
-                         data: { controller: "submit-on-change", action: "change->submit-on-change#submit", feed_event: true } %>
           <%= select_tag :organizer, options_for_select([[t("feed.all_organizers"), ""]] + @feed.organizers.map { |organizer| [organizer.name, organizer.user.handle] }, @feed.organizer&.user&.handle),
                          "aria-label": t("feed.organizer"), class: "field-input h-9 text-[12.5px]",
                          data: { controller: "submit-on-change", action: "change->submit-on-change#submit", feed_organizer: true } %>
