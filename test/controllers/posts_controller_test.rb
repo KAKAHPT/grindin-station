@@ -83,9 +83,11 @@ class PostsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
 
     target = Post.create!(user: @player, event: @t, body: "Fine report")
     3.times do |i|
-      fan = User.create!(name: "L#{i}", email_address: "l#{i}-#{SecureRandom.hex(3)}@example.com",
-                         password: "password123")
-      liked.post_likes.create!(user: fan)
+      reader = User.create!(name: "Reader #{i}", email_address: "r#{i}-#{SecureRandom.hex(3)}@example.com",
+                            password: "password123")
+      sign_in(reader)
+      post report_feed_post_path(target)
+      post report_feed_post_path(target) # a second report by the same person counts once
     end
     assert target.reload.hidden
     assert_equal 3, target.reports_count
@@ -155,8 +157,9 @@ class PostsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     theirs = Post.create!(user: other_org, event: foreign, kind: "note", body: "Their event, hi @me-grind")
     liked = Post.create!(user: other_org, event: foreign, kind: "note", body: "Popular")
     3.times do |i|
-      liked.post_likes.create!(user: User.create!(name: "L#{i}", email_address: "l#{i}-#{SecureRandom.hex(3)}@example.com",
-                                                  password: "password123"))
+      fan = User.create!(name: "L#{i}", email_address: "l#{i}-#{SecureRandom.hex(3)}@example.com",
+                         password: "password123")
+      liked.post_likes.create!(user: fan)
     end
     sign_in(@player)
 
