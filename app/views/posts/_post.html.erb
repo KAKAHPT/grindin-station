@@ -21,13 +21,13 @@
         <div class="mt-2 flex items-center gap-2">
           <% if authenticated? %>
             <%= button_to like_feed_post_path(post, locale: url_locale), method: :post, class: button_classes(liked ? :primary : :secondary, size: :xs), "aria-pressed": liked, data: { post_like: true } do %>
-              <%= icon("handshake", class: "me-1.5") %><%= post.likes_count %>
+              <%= icon(liked ? "bolt" : "bolt-line", class: "me-1.5 text-[14px]") %><%= post.likes_count %>
             <% end %>
           <% else %>
-            <span class="<%= button_classes(:secondary, size: :xs) %>" aria-disabled="true"><%= icon("handshake", class: "me-1.5") %><%= post.likes_count %></span>
+            <span class="<%= button_classes(:secondary, size: :xs) %>" aria-disabled="true"><%= icon("bolt-line", class: "me-1.5 text-[14px]") %><%= post.likes_count %></span>
           <% end %>
           <% if authenticated? && post.user_id != current_user.id && !local_assigns[:reported] %>
-            <%= button_to t("feed.report"), report_feed_post_path(post, locale: url_locale), method: :post, class: button_classes(:ghost, size: :xs), form: { data: { turbo_confirm: t("feed.report_confirm") } }, data: { post_report: true } %>
+            <%= button_to t("feed.report"), report_feed_post_path(post, locale: url_locale), method: :post, class: "ms-1 text-[10.5px] text-muted hover:text-ink hover:underline", form: { data: { turbo_confirm: t("feed.report_confirm") }, class: "inline" }, data: { post_report: true } %>
           <% elsif local_assigns[:reported] %>
             <span class="text-[11px] text-muted" data-post-reported><%= t("feed.reported_label") %></span>
           <% end %>
