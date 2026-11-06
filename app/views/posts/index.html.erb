@@ -1,10 +1,11 @@
-<%# The social feed: the stream kit's black-and-white studio photo behind, a wide central column with the composer
-    (about an event, or a thought) and the posts, newest first. %>
+<%# The social feed: the cEDH PT stream's grey card mosaic behind (tilted, like the kit's pod scenes), a wide central
+    column with the composer (about an event, or a thought) and the posts, newest first. %>
 <% content_for :title, t("feed.title") %>
 <% content_for :full_main, "1" %>
 <% url_locale = params[:locale] %>
 <% mentioned = User.where(handle: @posts.flat_map(&:mentioned_handles).uniq).index_by(&:handle) %>
-<div class="feed-page" style="background-image: url('<%= image_path("feed-bg.jpg") %>')">
+<div class="feed-page">
+  <div class="feed-mosaic" style="background-image: url('<%= image_path("feed-mosaic.jpg") %>')" aria-hidden="true"></div>
   <div class="feed-vig" aria-hidden="true"></div>
 
   <div class="feed-col" data-feed>

@@ -673,24 +673,34 @@
     position: relative;
   }
 
-  /* Social feed: the stream kit's black-and-white studio photo behind (fixed, covering), a vignette, and one wide
-     central column. */
+  /* Social feed: the cEDH PT stream's grey card mosaic behind, tilted like the kit's pod scenes, a vignette, and one
+     wide central column. */
   .feed-page {
     position: relative;
     overflow: hidden;
     min-height: 70vh;
     padding: 24px 16px 48px;
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
+  }
+
+  .feed-mosaic {
+    position: absolute;
+    left: -12%;
+    right: -12%;
+    top: -14%;
+    bottom: -14%;
+    pointer-events: none;
+    background-repeat: repeat;
+    background-size: 1100px auto;
+    transform: rotate(-6deg);
+    opacity: 0.3;
   }
 
   .feed-vig {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(90deg, rgb(17 19 21 / 0.55) 0%, rgb(17 19 21 / 0.8) 22%, rgb(17 19 21 / 0.8) 78%,
-        rgb(17 19 21 / 0.55) 100%);
+    background: linear-gradient(90deg, rgb(17 19 21 / 0.35) 0%, rgb(17 19 21 / 0.75) 22%, rgb(17 19 21 / 0.75) 78%,
+        rgb(17 19 21 / 0.35) 100%);
   }
 
   .feed-col {
