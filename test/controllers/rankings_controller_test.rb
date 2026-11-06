@@ -41,7 +41,7 @@ class RankingsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
       assert_select "select[name=country][data-action='change->submit-on-change#submit'] option[value=ES]",
                     text: "Spain"
       assert_select "select[name=organizer] option[value=lisboa-cedh]", text: "Lisboa cEDH"
-      assert_select "select[name=play] option", 9 # All formats + the eight plays
+      assert_select "select[name=play] option", 8 # All formats + the seven plays
       assert_select "select[name=play] option[value='']", text: "All formats"
       assert_select "select[name=play] option[value=legacy]", text: "Legacy"
       assert_select "select[name=team] option", text: "Porto Grinders"
@@ -109,10 +109,10 @@ class RankingsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
   test "the leaderboard defaults to the multiplayer pool, shown as a chip, with no All formats option" do
     get rankings_path(tab: "elo")
 
-    assert_select "select[name=play] option", 8
+    assert_select "select[name=play] option", 7
     assert_select "select[name=play] option[value='']", 0
     assert_select "select[name=play] option[selected][value=multiplayer]"
-    assert_select "[data-chip]", count: 1, text: /Format\s+cEDH · pods of four/
+    assert_select "[data-chip]", count: 1, text: %r{Format\s+Commander / cEDH}
     assert_select "[data-chip] a[href=?]", rankings_path(tab: "elo")
     assert_select "[data-summary-players]", text: "4"
   end

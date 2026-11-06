@@ -79,7 +79,7 @@ class EventFormatTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassL
     t.game_format = "commander"
     assert_not t.valid?
     assert t.errors.of_kind?(:game_format, :one_v_one)
-    assert_includes t.errors.full_messages.to_sentence, "Game format must be a 1v1 format"
+    assert_includes t.errors.full_messages.to_sentence, "Format must be a 1v1 format"
 
     t.game_format = "chess"
     assert_not t.valid?
@@ -103,7 +103,7 @@ class EventFormatTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassL
 
     assert_equal "multiplayer", pods.play
     assert_equal "legacy", duel.play
-    assert_equal %w[multiplayer standard pioneer modern legacy vintage pauper other], Event::PLAYS
+    assert_equal %w[multiplayer standard pioneer modern legacy vintage pauper], Event::PLAYS
   end
 
   test "with_play picks the pods or one 1v1 game format" do

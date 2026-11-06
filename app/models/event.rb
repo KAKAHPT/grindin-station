@@ -17,7 +17,7 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   FORMATS = %w[multiplayer one_v_one].freeze
   # M15: the Magic game format; multiplayer is always commander, 1v1 picks one of the others.
-  GAME_FORMATS = %w[commander standard pioneer modern legacy vintage pauper other].freeze
+  GAME_FORMATS = %w[commander standard pioneer modern legacy vintage pauper].freeze
   # The play pool used wherever events are filtered or rated: the pods, or one 1v1 game format.
   PLAYS = (["multiplayer"] + (GAME_FORMATS - ["commander"])).freeze
   PAIRING_MODES = %w[swiss power random].freeze

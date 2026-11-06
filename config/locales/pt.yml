@@ -261,7 +261,7 @@ pt:
       event:
         format: "Formato"
         match_games: "Duração do match"
-        game_format: "Formato de jogo"
+        game_format: "Formato"
         pairing_mode: "Emparelhamento"
         uneven_field: "Campo desigual"
         points_win: "Pontos por vitória"
@@ -563,14 +563,13 @@ pt:
       event: "Evento"
       pairings: "Emparelhamentos"
     formats:
-      multiplayer: "cEDH · mesas de quatro"
+      multiplayer: "Commander / cEDH"
       standard: "Standard"
       pioneer: "Pioneer"
       modern: "Modern"
       legacy: "Legacy"
       vintage: "Vintage"
       pauper: "Pauper"
-      other: "Outro 1v1"
     header:
       multiplayer: "cEDH · mesas de quatro"
       live: "ao vivo"
@@ -721,6 +720,8 @@ pt:
     next_round_created: "Ronda seguinte criada — revê os emparelhamentos e publica."
     tournament_finished: "Torneio terminado — a classificação final está publicada."
     make_cut: "Fazer o corte"
+    finish_without_cut: "Terminar sem corte"
+    finish_without_cut_confirm: "Terminar o torneio agora, sem jogar o top? A classificação suíça passa a ser a final."
     status:
       playing: "A jogar"
       pending: "Pendente"
@@ -1025,7 +1026,6 @@ pt:
     headline_html: "O software de torneios <br>com <em>lugares justos</em>."
     lead: "Feito para cEDH e jogos multiplayer, mas aberto a todos os formatos. Emparelhamentos, classificações e mesas atualizam ao vivo em todos os telemóveis da sala."
     cta_events: "Próximos eventos"
-    cta_organise: "Organizar um torneio"
     attribution: "As ilustrações das cartas são Fan Content não oficial, permitido pela Fan Content Policy. Não aprovado nem apoiado pela Wizards. Partes dos materiais usados são propriedade da Wizards of the Coast. ©Wizards of the Coast LLC."
     waitlist:
       title: "Para já, organizar é só por convite"

@@ -1,14 +1,15 @@
 import { Controller } from "@hotwired/stimulus";
 
-// Tournament form: the game format and the match length show only for 1v1, the pairing mode only for multiplayer; switching the format resets the points to that
-// format's defaults (unless the organiser already typed some) and swaps the top cut sizes it allows.
+// Tournament form: one Format select (Commander / cEDH = pods, any other game format = 1v1). The match length shows only for 1v1, the pairing
+// mode only for multiplayer; switching the format resets the points to that side's defaults (unless the organiser already typed some) and
+// swaps the top cut sizes it allows.
 export default class extends Controller {
-  static targets = ["format", "gameFormat", "matchGames", "pairing", "points", "topCut"];
+  static targets = ["format", "matchGames", "pairing", "points", "topCut"];
   static values = { points: Object, cutOptions: Object };
 
   // Points that came back from the server off the format's defaults (a failed create) count as typed.
   connect() {
-    const defaults = this.pointsValue[this.formatTarget.value] || {};
+    const defaults = this.pointsValue[this.format] || {};
     this.pointsTargets.forEach((input) => {
       const value = defaults[input.dataset.attribute];
       if (value !== undefined && input.value !== String(value)) input.dataset.touched = "true";
@@ -19,9 +20,12 @@ export default class extends Controller {
     event.currentTarget.dataset.touched = "true";
   }
 
+  get format() {
+    return this.formatTarget.value === "commander" ? "multiplayer" : "one_v_one";
+  }
+
   change() {
-    const format = this.formatTarget.value;
-    this.gameFormatTarget.hidden = format !== "one_v_one";
+    const format = this.format;
     this.matchGamesTarget.hidden = format !== "one_v_one";
     this.pairingTarget.hidden = format === "one_v_one";
 

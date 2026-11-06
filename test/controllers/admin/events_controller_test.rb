@@ -60,14 +60,14 @@ module Admin
       assert_select "select[name=tier] option[selected][value=gold]"
     end
 
-    test "the play filter offers the eight plays and lists only that play" do
+    test "the play filter offers the seven plays and lists only that play" do
       legacy = events(:standard_tournament)
       legacy.update_columns(format: "one_v_one", game_format: "legacy") # rubocop:disable Rails/SkipsModelValidations
       pods = events(:finished_tournament)
 
       get admin_events_path(play: "legacy")
 
-      assert_select "select[name=play] option", 9 # All + the eight plays
+      assert_select "select[name=play] option", 8 # All + the seven plays
       assert_select "select[name=play] option[selected][value=legacy]", text: "Legacy"
       assert_select "tr[data-event='#{legacy.id}']"
       assert_select "tr[data-event='#{pods.id}']", count: 0

@@ -2,10 +2,17 @@
 
 module Organizer
   class RoundsController < OrganizerController
-    allow_roles :organizer, :judge, :scorekeeper, only: %i[show print slips]
-    allow_roles :organizer, except: %i[show print slips]
+    allow_roles :organizer, :judge, :scorekeeper, only: %i[index show print slips]
+    allow_roles :organizer, except: %i[index show print slips]
 
     layout "print", only: %i[print slips]
+
+    # The Rounds tab's own address: the latest round, or the Overview before the first one.
+    def index
+      event = load_tournament
+      latest = event.rounds.max_by(&:number)
+      redirect_to(latest ? [:organizer, event, latest.becomes(Round)] : [:organizer, event])
+    end
 
     def show
       event = load_tournament

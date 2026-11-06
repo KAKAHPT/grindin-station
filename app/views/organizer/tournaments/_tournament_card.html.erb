@@ -1,6 +1,5 @@
-<%# A "My tournaments" card: cover blurred as the top band, name, state chip, date · place · enrolled, actions.
-    Locals: tournament, editable_ids (ids the viewer may edit; omit to hide Edit). %>
-<% latest = tournament.rounds.max_by(&:number) %>
+<%# A "My tournaments" card: the cover behind the whole card (darkened towards the text), name, state chip,
+    date · place · enrolled, and one Edit button into the roster, where the event is run. Local: tournament. %>
 <article class="card evc" data-tournament-card id="<%= dom_id(tournament, :card) %>">
   <% if tournament.cover.attached? %>
     <div class="evc-ban" style="background-image: url('<%= tournament.cover.representable? ? ticket_banner(tournament, size: 960) : rails_blob_path(tournament.cover, only_path: true) %>')" aria-hidden="true"></div>
@@ -16,15 +15,7 @@
            t("organizer.tournaments.enrolled", count: tournament.event_participants_count)].compact.join(" · ") %>
     </span>
     <div class="mt-1 flex flex-wrap gap-2">
-      <% if latest %>
-        <%= link_to t("organizer.shell.tabs.rounds"), organizer_tournament_round_path(tournament, latest), class: button_classes(:secondary, size: :sm) %>
-      <% else %>
-        <span class="<%= button_classes(:secondary, size: :sm) %>" aria-disabled="true"><%= t("organizer.tournaments.no_rounds") %></span>
-      <% end %>
-      <%= link_to t("organizer.shell.tabs.roster"), organizer_tournament_event_participants_path(tournament, layout: "application"), class: button_classes(:secondary, size: :sm) %>
-      <% if local_assigns[:editable_ids]&.include?(tournament.id) %>
-        <%= link_to t("organizer.tournaments.edit"), edit_organizer_tournament_path(tournament), class: button_classes(:ghost, size: :sm) %>
-      <% end %>
+      <%= link_to t("organizer.tournaments.edit"), organizer_tournament_event_participants_path(tournament, layout: "application"), class: button_classes(:secondary, size: :sm) %>
     </div>
   </div>
 </article>

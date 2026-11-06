@@ -53,9 +53,11 @@ module Organizer
       get new_organizer_tournament_path
 
       assert_select "form[data-controller~=format-fields]" do
-        assert_select "select[name='tournament[format]']:not([disabled])" do
-          assert_select "option[value=multiplayer][selected]", text: "Multiplayer pods"
-          assert_select "option[value=one_v_one]", text: "1v1"
+        assert_select "select[name='tournament[format]']", count: 0
+        assert_select "select[name='tournament[game_format]']:not([disabled])" do
+          assert_select "option", Event::GAME_FORMATS.size
+          assert_select "option[value=commander][selected]", text: "Commander / cEDH"
+          assert_select "option[value=legacy]", text: "Legacy"
         end
         assert_select "[data-format-fields-target=matchGames][hidden] select[name='tournament[match_games]']" do
           assert_select "option[value='3']", text: "Best of 3"
@@ -79,14 +81,25 @@ module Organizer
                    [tournament.format, tournament.match_games, tournament.points_win, tournament.game_format]
     end
 
-    test "the game format select is hidden for multiplayer and offers the seven 1v1 formats" do
-      get new_organizer_tournament_path
+    test "the Format select alone decides pods or 1v1 on creation" do
+      post organizer_tournaments_path, params: {
+        tournament: { name: "Legacy Night", start_time: 1.day.from_now, end_time: 2.days.from_now,
+                      game_format: "legacy" }
+      }
+      legacy = Tournament.find_by!(name: "Legacy Night")
+      assert_equal %w[one_v_one legacy], [legacy.format, legacy.game_format]
 
-      assert_select "[data-format-fields-target=gameFormat][hidden] select[name='tournament[game_format]']" do
-        assert_select "option", 7
-        assert_select "option[value=commander]", 0
-        assert_select "option[value=legacy]", text: "Legacy"
-        assert_select "option[value=other]", text: "Other 1v1"
+      post organizer_tournaments_path, params: {
+        tournament: { name: "Pods Night", start_time: 1.day.from_now, end_time: 2.days.from_now,
+                      game_format: "commander" }
+      }
+      pods = Tournament.find_by!(name: "Pods Night")
+      assert_equal %w[multiplayer commander], [pods.format, pods.game_format]
+
+      get edit_organizer_tournament_path(pods)
+      assert_select "select[name='tournament[game_format]'][disabled]" do
+        assert_select "option", 1
+        assert_select "option[value=commander][selected]"
       end
     end
 
@@ -95,9 +108,10 @@ module Organizer
                                      state: :registration_open, format: "one_v_one")
 
       get edit_organizer_tournament_path(duel)
-      assert_select "[data-format-fields-target=gameFormat]:not([hidden])" do
-        assert_select "label[for=tournament_game_format]", text: "Game format"
-        assert_select "select[name='tournament[game_format]']:not([disabled]) option[value=other][selected]"
+      assert_select "label[for=tournament_game_format]", text: "Format"
+      assert_select "select[name='tournament[game_format]']:not([disabled])" do
+        assert_select "option[value=commander]", 0
+        assert_select "option[value=standard][selected]"
       end
 
       patch organizer_tournament_path(duel), params: { tournament: { game_format: "legacy" } }
@@ -111,8 +125,8 @@ module Organizer
 
       patch organizer_tournament_path(running), params: { tournament: { game_format: "modern" } }
       assert_response :unprocessable_entity
-      assert_includes response.body, "Game format cannot change once the tournament has started"
-      assert_equal "other", running.reload.game_format
+      assert_includes response.body, "Format cannot change once the tournament has started"
+      assert_equal "standard", running.reload.game_format
     end
 
     test "the Overview and the header name the game format, 1v1 only" do
@@ -121,7 +135,7 @@ module Organizer
       duel.update!(game_format: "legacy")
 
       get organizer_tournament_path(duel)
-      assert_select "[data-overview-format] tr", text: /Game format\s*Legacy/
+      assert_select "[data-overview-format] tr", text: /Legacy/
       assert_select ".evhead-eyebrow", text: /· Legacy · Bo3\z/
 
       pods = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
@@ -161,7 +175,8 @@ module Organizer
       get edit_organizer_tournament_path(tournament)
 
       assert_response :success
-      assert_select "select[name='tournament[format]'][disabled] option[value=one_v_one][selected]"
+      assert_select "select[name='tournament[format]']", count: 0
+      assert_select "select[name='tournament[game_format]'] option[value=commander]", count: 0
       assert_select "[data-format-fields-target=matchGames]:not([hidden]) select[name='tournament[match_games]']"
     end
 
@@ -381,8 +396,9 @@ module Organizer
       assert_select "a[href=?]", new_organizer_tournament_path, text: "New tournament"
       assert_select "##{ActionView::RecordIdentifier.dom_id(active, :card)}" do
         assert_select "[data-state-chip=registration_open]", text: /Registration open/
-        assert_select "a[href=?]", edit_organizer_tournament_path(active), text: "Edit"
-        assert_select "[aria-disabled=true]", text: "No rounds yet"
+        assert_select "a[href=?]", organizer_tournament_event_participants_path(active, layout: "application"),
+                      text: "Edit"
+        assert_select "a", count: 2 # the name and Edit
       end
       assert_select "##{ActionView::RecordIdentifier.dom_id(past, :card)}", 0
       assert_no_legacy_classes

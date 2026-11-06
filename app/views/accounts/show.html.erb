@@ -68,7 +68,7 @@
         <% end %>
         <div class="<%= field %>">
           <%= f.label :handle %>
-          <%= f.text_field :handle, required: true, pattern: "[a-z0-9-]{3,30}", class: input %>
+          <%= f.text_field :handle, required: true, pattern: "[a-z0-9\\-]{3,30}", class: input %>
           <p class="<%= hint %>"><%= t(".handle_hint") %></p>
         </div>
         <div class="grid sm:grid-cols-2 gap-4">
