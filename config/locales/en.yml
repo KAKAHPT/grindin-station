@@ -1045,7 +1045,7 @@ en:
     circuit_filter_html: "Posts about %{name}."
     all_posts: "All posts"
     see_all: "See all %{count}"
-    lead: "Players and organizers on their events: reports, thanks, congratulations."
+    lead: "Players and organizers on their events. Report your experience."
     about_event: "About the event"
     your_report: "Your report"
     placeholder: "How was it? Decks, tables, the venue, the judges…"

@@ -1045,7 +1045,7 @@ pt:
     circuit_filter_html: "Publicações sobre %{name}."
     all_posts: "Todas as publicações"
     see_all: "Ver todas (%{count})"
-    lead: "Jogadores e organizadores sobre os seus eventos: relatos, agradecimentos, parabéns."
+    lead: "Jogadores e organizadores sobre os seus eventos. Conta como foi."
     about_event: "Sobre o evento"
     your_report: "O teu relato"
     placeholder: "Como foi? Decks, mesas, o espaço, os juízes…"
