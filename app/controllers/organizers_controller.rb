@@ -30,7 +30,7 @@ class OrganizersController < ApplicationController
   private
 
   def listed_organizers
-    scope = EventOrganizer.joins(:user).includes(user: { avatar_attachment: :blob })
+    scope = EventOrganizer.joins(:user).includes(user: { avatar_attachment: :blob, banner_attachment: :blob })
       .where(users: { anonymized_at: nil }).where.not(users: { handle: nil })
       .order(Arel.sql("LOWER(users.name)"))
     scope = scope.where(User.arel_table[:name].matches("%#{ActiveRecord::Base.sanitize_sql_like(@q)}%")) if @q.present?

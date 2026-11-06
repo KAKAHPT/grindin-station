@@ -23,7 +23,9 @@
     <% @organizers.each do |organizer| %>
       <% user = organizer.user %>
       <% next_event = @next_events[organizer.id] %>
-      <li class="card flex items-center gap-3 p-4" data-organizer="<%= user.handle %>">
+      <% banner = user.banner.attached? %>
+      <li class="card org-card flex items-center gap-3 p-4 <%= "org-card-banner" if banner %>" data-organizer="<%= user.handle %>"
+          <% if banner %>style="background-image: url('<%= url_for(user.banner.variant(:card)) %>')" data-organizer-banner<% end %>>
         <% if user.avatar.attached? %>
           <%= image_tag url_for(user.avatar.variant(:thumb)), alt: "", width: 48, height: 48, class: "size-12 shrink-0 rounded-full object-cover border border-line" %>
         <% else %>

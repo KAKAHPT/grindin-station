@@ -114,6 +114,22 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     assert_not_equal "No Spaces", @user.reload.handle
   end
 
+  test "an organizer uploads a banner; a player sees no banner field" do
+    get account_path
+    assert_select "[data-banner-field]", count: 0
+    EventOrganizer.create!(user: @user)
+    get account_path
+    assert_select "input[type=file][name='user[banner]']"
+
+    patch account_path, params: { user: { banner: fixture_file_upload("cover1.jpg", "image/jpeg") } }
+    assert @user.reload.banner.attached?
+
+    get organizers_path
+    assert_select "[data-organizer='#{@user.handle}'][data-organizer-banner][style*='background-image']"
+    get organizer_profile_path(@user.handle)
+    assert_select "[data-organizer-header][data-organizer-banner]"
+  end
+
   test "uploads an avatar" do
     patch account_path, params: { user: { avatar: fixture_file_upload("cover1.jpg", "image/jpeg") } }
 

@@ -201,6 +201,9 @@ en:
             avatar:
               content_type: "must be a JPEG, PNG or WebP image"
               too_big: "must be 2 MB or smaller"
+            banner:
+              content_type: "must be a JPEG, PNG or WebP image"
+              too_big: "must be 4 MB or smaller"
         event:
           attributes:
             circuit:
@@ -249,6 +252,7 @@ en:
         team: "Team"
         visibility: "Profile visibility"
         avatar: "Avatar"
+        banner: "Banner"
         password: "Password"
         password_confirmation: "Password confirmation"
         current_password: "Current password"
@@ -854,6 +858,7 @@ en:
       title: "Your account"
       profile: "Profile"
       avatar_hint: "JPEG, PNG or WebP, up to 2 MB."
+      banner_hint: "Shown behind your card on the Organizers page and on your page. JPEG, PNG or WebP, up to 4 MB; about 4:1 works best."
       email_hint: "To change your e-mail, also type your current password below."
       wizards_email_hint: "Used by organizers to report your results to Wizards EventLink. Leave empty to use your sign-in e-mail."
       handle_hint: "3 to 30 lowercase letters, digits or hyphens. Used in your public profile address."

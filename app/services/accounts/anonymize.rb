@@ -8,7 +8,7 @@ module Accounts
       User.transaction do
         user.identities.destroy_all
         user.sessions.destroy_all
-        user.avatar.purge_later if user.avatar.attached?
+        [user.avatar, user.banner].each { |image| image.purge_later if image.attached? }
         user.update!(removed_attributes)
         user.player&.update!(wizards_email: nil)
       end
