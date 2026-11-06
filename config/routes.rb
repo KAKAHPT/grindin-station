@@ -17,6 +17,8 @@ Rails.application.routes.draw do
   get "/p/:handle", to: "profiles#show", as: :profile, constraints: { handle: /[a-z0-9-]+/ }
   get "/organizers", to: "organizers#index", as: :organizers
   get "/feed", to: "posts#index", as: :feed
+  post "/follows/:handle", to: "follows#create", as: :follow, constraints: { handle: /[a-z0-9-]+/ }
+  delete "/follows/:handle", to: "follows#destroy", constraints: { handle: /[a-z0-9-]+/ }
   resources :posts, only: %i[create destroy], path: "feed/posts", as: :feed_posts do
     post :like, on: :member
     post :report, on: :member

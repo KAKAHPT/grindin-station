@@ -24,9 +24,12 @@
           <%= t("organizers.events_count", count: @events_count) %>
         </p>
       </div>
-      <% if @user.profile_visible_to?(current_user) %>
-        <%= link_to "@#{@user.handle}", profile_path(@user.handle, locale: url_locale), class: button_classes(:secondary, size: :xs), data: { organizer_player: true } %>
-      <% end %>
+      <div class="flex shrink-0 items-center gap-2">
+        <%= render "shared/follow_button", user: @user %>
+        <% if @user.profile_visible_to?(current_user) %>
+          <%= link_to "@#{@user.handle}", profile_path(@user.handle, locale: url_locale), class: button_classes(:secondary, size: :xs), data: { organizer_player: true } %>
+        <% end %>
+      </div>
     </div>
     <% if @organizer.description.present? %>
       <p class="mt-3 max-w-2xl text-[13.5px] text-ink/85" data-organizer-description><%= simple_format(@organizer.description, {}, wrapper_tag: "span") %></p>

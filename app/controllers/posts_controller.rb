@@ -54,9 +54,19 @@ class PostsController < ApplicationController
 
   private
 
-  # Visible posts, of one circuit's events when ?circuit= names one.
+  # "everyone" or "following" (signed-in only): ?scope= wins, else the account's choice.
+  def feed_scope_param
+    return "everyone" unless current_user
+
+    scope = params[:scope].presence || current_user.feed_scope
+    User::FEED_SCOPES.include?(scope) ? scope : "everyone"
+  end
+
+  # Visible posts, of one circuit's events when ?circuit= names one, narrowed to the people followed when asked.
   def feed_scope
-    (@circuit ? Post.in_circuit(@circuit) : Post.all).visible
+    @scope = feed_scope_param
+    scope = (@circuit ? Post.in_circuit(@circuit) : Post.all).visible
+    @scope == "following" ? scope.followed_by(current_user) : scope
   end
 
   def prepare_composer

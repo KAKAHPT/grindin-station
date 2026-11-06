@@ -37,6 +37,16 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
   has_one :event_organizer, dependent: :nullify
   has_many :event_staff, class_name: "EventStaff", dependent: :destroy
   has_many :notifications, dependent: :destroy
+  has_many :follows, foreign_key: :follower_id, dependent: :destroy, inverse_of: :follower
+  has_many :followed_users, through: :follows, source: :followed
+  has_many :followings, class_name: "Follow", foreign_key: :followed_id, dependent: :destroy, inverse_of: :followed
+  has_many :followers, through: :followings, source: :follower
+
+  # What the social feed shows this account by default.
+  FEED_SCOPES = %w[everyone following].freeze
+  validates :feed_scope, inclusion: { in: FEED_SCOPES }
+
+  def following?(user) = follows.exists?(followed_id: user.id)
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
   normalizes :country, with: ->(c) { c.strip.upcase.presence }

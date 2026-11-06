@@ -673,7 +673,8 @@
     position: relative;
   }
 
-  /* Social feed: the landing's card-art mosaic behind, a vignette, and one wide central column. */
+  /* Social feed: the cEDH PT stream's grey card mosaic behind, tilted like the kit's pod scenes, a vignette, and one
+     wide central column. */
   .feed-page {
     position: relative;
     overflow: hidden;
@@ -681,15 +682,24 @@
     padding: 24px 16px 48px;
   }
 
-  .feed-page .lp-mosaic {
-    opacity: 0.28;
+  .feed-mosaic {
+    position: absolute;
+    left: -12%;
+    right: -12%;
+    top: -14%;
+    bottom: -14%;
+    pointer-events: none;
+    background-repeat: repeat;
+    background-size: 1100px auto;
+    transform: rotate(-6deg);
+    opacity: 0.3;
   }
 
   .feed-vig {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(90deg, rgb(17 19 21 / 0.35) 0%, rgb(17 19 21 / 0.96) 18%, rgb(17 19 21 / 0.96) 82%,
+    background: linear-gradient(90deg, rgb(17 19 21 / 0.35) 0%, rgb(17 19 21 / 0.75) 22%, rgb(17 19 21 / 0.75) 78%,
         rgb(17 19 21 / 0.35) 100%);
   }
 
@@ -703,17 +713,34 @@
     gap: 14px;
   }
 
+  /* A lighter grey than the page so the posts stand out over the art. */
   .feed-list {
     border-radius: 12px;
-    border: 1px solid var(--color-line);
-    background: rgb(27 30 34 / 0.72);
-    padding: 4px 18px;
+    border: 1px solid var(--color-line-strong);
+    background: rgb(44 48 55 / 0.8);
+    padding: 2px 18px;
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Each post is its own block: a clear line between posts and a faint lift on hover. */
+  .feed-list article {
+    padding: 18px 6px;
+    border-top: 3px solid rgb(8 9 11 / 0.95);
+    transition: background-color 120ms ease;
+  }
+
+  .feed-list article:first-child {
+    border-top: 0;
+  }
+
+  .feed-list article:hover {
+    background: rgb(255 255 255 / 0.03);
   }
 
   .feed-composer {
     border-radius: 12px;
-    border: 1px solid var(--color-line);
-    background: rgb(27 30 34 / 0.85);
+    border: 1px solid var(--color-line-strong);
+    background: rgb(44 48 55 / 0.94);
   }
 
   .feed-composer-sum {

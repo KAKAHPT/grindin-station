@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_06_170000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_06_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -225,6 +225,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_170000) do
     t.index ["featured"], name: "index_events_on_featured"
     t.index ["location"], name: "index_events_on_location", using: :gist
     t.index ["slug"], name: "index_events_on_slug", unique: true
+  end
+
+  create_table "follows", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.uuid "followed_id", null: false
+    t.uuid "follower_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["followed_id"], name: "index_follows_on_followed_id"
+    t.index ["follower_id", "followed_id"], name: "index_follows_on_follower_id_and_followed_id", unique: true
+    t.index ["follower_id"], name: "index_follows_on_follower_id"
   end
 
   create_table "identities", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -455,6 +465,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_170000) do
     t.string "country", limit: 2
     t.datetime "created_at", null: false
     t.string "email_address", null: false
+    t.string "feed_scope", default: "everyone", null: false
     t.string "handle"
     t.string "name", null: false
     t.string "password_digest", null: false
@@ -491,6 +502,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_170000) do
   add_foreign_key "event_staff", "events"
   add_foreign_key "event_staff", "users"
   add_foreign_key "events", "circuits"
+  add_foreign_key "follows", "users", column: "followed_id"
+  add_foreign_key "follows", "users", column: "follower_id"
   add_foreign_key "identities", "users"
   add_foreign_key "infractions", "events"
   add_foreign_key "infractions", "players"

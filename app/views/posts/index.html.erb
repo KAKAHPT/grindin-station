@@ -1,20 +1,11 @@
-<%# The social feed: the card-art mosaic of the landing on both sides, a wide central column with the composer
-    (about an event, or a thought) and the posts, newest first. %>
+<%# The social feed: the cEDH PT stream's grey card mosaic behind (tilted, like the kit's pod scenes), a wide central
+    column with the composer (about an event, or a thought) and the posts, newest first. %>
 <% content_for :title, t("feed.title") %>
 <% content_for :full_main, "1" %>
 <% url_locale = params[:locale] %>
-<% arts = (1..48).map { |n| image_path("landing/c#{n}.jpg") } %>
 <% mentioned = User.where(handle: @posts.flat_map(&:mentioned_handles).uniq).index_by(&:handle) %>
 <div class="feed-page">
-  <div class="lp-mosaic" aria-hidden="true">
-    <% 2.times do %>
-      <div class="lp-sheet">
-        <% arts.each do |src| %>
-          <img src="<%= src %>" alt="" width="240" height="175" loading="lazy" decoding="async">
-        <% end %>
-      </div>
-    <% end %>
-  </div>
+  <div class="feed-mosaic" style="background-image: url('<%= image_path("feed-mosaic.jpg") %>')" aria-hidden="true"></div>
   <div class="feed-vig" aria-hidden="true"></div>
 
   <div class="feed-col" data-feed>
@@ -23,6 +14,13 @@
         <h1 class="font-display text-2xl font-semibold text-ink"><%= t("feed.title") %></h1>
         <p class="mt-1 text-[13px] text-muted"><%= t("feed.lead") %></p>
       </div>
+      <% if authenticated? %>
+        <span class="seg" data-feed-scope>
+          <% User::FEED_SCOPES.each do |scope| %>
+            <%= link_to t("feed.scopes.#{scope}"), feed_path(scope: scope, circuit: @circuit&.id, locale: url_locale), class: ("seg-on" if scope == @scope), "aria-current": ("page" if scope == @scope) %>
+          <% end %>
+        </span>
+      <% end %>
     </div>
 
     <% if @circuit %>
@@ -77,7 +75,7 @@
         <%= render "posts/post", post: post, liked: @liked_ids.include?(post.id), reported: @reported_ids.include?(post.id), url_locale: url_locale, flat: true, mentioned: mentioned %>
       <% end %>
       <% if @posts.empty? %>
-        <p class="px-4 py-8 text-center text-[13px] text-muted" data-feed-empty><%= t("feed.empty") %></p>
+        <p class="px-4 py-8 text-center text-[13px] text-muted" data-feed-empty><%= t(@scope == "following" ? "feed.empty_following" : "feed.empty") %></p>
       <% end %>
     </div>
     <div><%= paginate @posts %></div>

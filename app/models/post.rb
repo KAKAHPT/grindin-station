@@ -32,6 +32,12 @@ class Post < ApplicationRecord
   scope :recent, -> { order(created_at: :desc) }
   scope :visible, -> { where(hidden: false) }
   scope :in_circuit, ->(circuit) { joins(:event).where(events: { circuit_id: circuit.id }) }
+  # Posts by the people the viewer follows, and about events run by organizers they follow.
+  scope :followed_by, lambda { |viewer|
+    followed = viewer.follows.select(:followed_id)
+    organizers = EventOrganizer.where(user_id: followed).select(:id)
+    where(user_id: followed).or(where(event_id: Event.where(event_organizer_id: organizers).select(:id)))
+  }
 
   def result? = kind == "result"
   def thought? = kind == "thought"
