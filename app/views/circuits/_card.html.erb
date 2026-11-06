@@ -2,7 +2,7 @@
     chip, organizer, number of open events. Locals: circuit, events_count, leagues_count. %>
 <% url_locale = params[:locale] %>
 <% banner = circuit.banner.attached? %>
-<%= link_to circuit_path(circuit, locale: url_locale), class: "card block overflow-clip hover:border-line-strong #{"org-card org-card-banner" if banner}",
+<%= link_to circuit_path(circuit, locale: url_locale), class: "card circuit-card block overflow-clip hover:border-line-strong #{"org-card org-card-banner" if banner}",
             style: ("background-image: url('#{url_for(circuit.banner.variant(:card))}')" if banner), data: { circuit: circuit.id, circuit_banner: banner || nil } do %>
   <h2 class="card-title flex items-center justify-between gap-3 <%= "bg-transparent" if banner %>">
     <span class="truncate"><%= circuit.name %></span>

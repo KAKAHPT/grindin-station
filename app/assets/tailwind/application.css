@@ -801,6 +801,18 @@
     display: none;
   }
 
+  /* Circuit cards (/circuits, organizer page): a wide rectangle, the banner filling it, the text at the bottom. */
+  .circuit-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 12.5rem;
+  }
+
+  .circuit-card.org-card-banner::before {
+    background: linear-gradient(180deg, rgb(17 19 21 / 0.1) 0%, rgb(17 19 21 / 0.45) 50%, rgb(17 19 21 / 0.9) 100%);
+  }
+
   /* Circuit page hero: a tall banner with the text at the bottom over a vertical shade. */
   .circuit-hero {
     position: relative;
