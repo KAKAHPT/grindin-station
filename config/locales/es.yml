@@ -1466,6 +1466,8 @@ es:
         rules: "Un jugador cuenta para el equipo indicado en su cuenta cuando se recalcula la clasificación (cada noche y después de cada evento), así que cambiar de equipo lleva todos sus puntos al nuevo equipo. Los equipos de un solo jugador también aparecen. Los bonus (15 y 30) están en un solo sitio para poder cambiarlos sin tocar el resto."
 
   circuits:
+    filters:
+      search: "Buscar un circuito…"
     sort:
       label: "Ordenar por"
       featured: "Destacados primero"
