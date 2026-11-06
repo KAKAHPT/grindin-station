@@ -53,7 +53,7 @@ module Organizer
     private
 
     def circuit_params
-      params.expect(circuit: %i[name description])
+      params.expect(circuit: %i[name description banner])
     end
   end
 end

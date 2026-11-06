@@ -20,10 +20,18 @@ class PagesController < ApplicationController
     @featured = listed.where(featured: true).order(:start_time).limit(FEATURED_LIMIT).to_a
     @upcoming = listed.excluding(@featured).order(:start_time).limit(UPCOMING_LIMIT).to_a
     @enrolled = ticket_counts(@featured + @upcoming)
-    @waitlist_signup = WaitlistSignup.new
+    load_extras
   end
 
   private
+
+  # Up to three admin-featured circuits (an ECL season, a championship) under the featured tournaments, and the
+  # waiting-list form.
+  def load_extras
+    @featured_circuits = Circuit.featured.with_attached_banner.preload(event_organizer: :user).order(:created_at)
+      .limit(3).to_a
+    @waitlist_signup = WaitlistSignup.new
+  end
 
   # One preload, the latest published rounds and one count for the featured and the upcoming tickets together.
   def ticket_counts(events)

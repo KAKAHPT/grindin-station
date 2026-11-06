@@ -82,11 +82,12 @@ class LayoutTest < ActionDispatch::IntegrationTest
 
   private
 
-  def assert_top_bar
+  def assert_top_bar # rubocop:disable Metrics/MethodLength -- one assertion per link
     assert_select "[data-topbar]", count: 1
     assert_select "[data-topbar] .gslogo[data-rotating]", count: 1
     assert_select "[data-topbar] nav a[href^=?]", events_path, text: "Events"
     assert_select "[data-topbar] nav a[href^=?]", rankings_path, text: "Rankings"
+    assert_select "[data-topbar] nav a[href^=?]", circuits_path, text: "Circuits"
     assert_select "[data-topbar] nav a[href^=?]", organizers_path, text: "Organizers"
     assert_select "[data-topbar] nav a[href$=?]", "#about", count: 0
     assert_select "[data-topbar] [data-lang-switch] button", count: I18n.available_locales.size

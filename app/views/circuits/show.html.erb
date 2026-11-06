@@ -1,7 +1,8 @@
 <%# One circuit: name and organizer, the standings (rank, player, points, events) and its open events as tickets. %>
 <% url_locale = params[:locale] %>
 <% events = @tournaments.to_a + @leagues.to_a %>
-<div class="col-span-full pt-2">
+<% banner = @circuit.banner.attached? %>
+<div class="col-span-full <%= banner ? "card org-card org-card-banner p-5" : "pt-2" %>"<% if banner %> style="background-image: url('<%= url_for(@circuit.banner.variant(:wide)) %>')" data-circuit-banner<% end %>>
   <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
     <%= link_to t("lists.circuits.title"), circuits_path(locale: url_locale), class: "hover:text-ink" %>
   </p>

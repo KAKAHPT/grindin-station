@@ -79,6 +79,9 @@ Rails.application.routes.draw do
       patch :featured, on: :member
       patch :tier, on: :member
     end
+    resources :circuits, only: %i[index] do
+      patch :featured, on: :member
+    end
     get "invitational", to: "invitational#show", as: :invitational
     get "invitational/export.csv", to: "invitational#export", as: :invitational_export, format: false
     # The approve/decline id is the waiting-list signup's, the revoke id the EventOrganizer's.

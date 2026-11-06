@@ -3,6 +3,7 @@ pt:
     events: "Eventos"
     rankings: "Rankings"
     organizers: "Organizadores"
+    circuits: "Circuitos"
     about: "Sobre"
     language: "Idioma"
     sign_in: "Entrar"
@@ -17,6 +18,7 @@ pt:
       audit: "Auditoria"
       errors: "Erros"
       events: "Eventos"
+      circuits: "Circuitos"
       invitational: "Convites"
       organizers: "Organizadores"
     states:
@@ -136,6 +138,17 @@ pt:
       silver: "Prata"
       gold: "Ouro"
       platinum: "Platina"
+    circuits:
+      title: "Circuitos"
+      name: "Circuito"
+      organizer: "Organizador"
+      events: "Eventos"
+      created: "Criado"
+      featured: "Destaque"
+      featured_on: "Em destaque"
+      featured_off: "Sem destaque"
+      featured_saved: "Destaque atualizado."
+      empty: "Ainda não há circuitos."
     invitational:
       title: "Ranking de convites"
       lead: "Pontos de ranking dos eventos com nível vezes o nível (bronze ×1, prata ×1,5, ouro ×2, platina ×3). Só os admins veem esta página."
@@ -201,6 +214,11 @@ pt:
             avatar:
               content_type: "tem de ser uma imagem JPEG, PNG ou WebP"
               too_big: "tem de ter 2 MB ou menos"
+            banner:
+              content_type: "tem de ser uma imagem JPEG, PNG ou WebP"
+              too_big: "tem de ter 4 MB ou menos"
+        circuit:
+          attributes:
             banner:
               content_type: "tem de ser uma imagem JPEG, PNG ou WebP"
               too_big: "tem de ter 4 MB ou menos"
@@ -410,6 +428,7 @@ pt:
       title: "Os meus circuitos"
       new: "Novo circuito"
       empty: "Ainda não há circuitos."
+      banner_hint: "Aparece por trás do cartão do circuito em /circuits e na página dele. JPEG, PNG ou WebP, até 4 MB; cerca de 4:1 fica melhor."
       events:
         one: "1 evento"
         other: "%{count} eventos"
@@ -1063,6 +1082,7 @@ pt:
           text: "O que ainda estiver igual é sorteado com a semente do evento, fixada na ronda 1, por isso nada é escolhido à mão."
     featured:
       title: "Em destaque"
+    featured_circuits: "Circuitos em destaque"
     upcoming:
       title: "Próximos eventos"
       open:
@@ -1121,6 +1141,8 @@ pt:
     circuits:
       title: "Circuitos"
       lead: "Os circuitos somam os pontos que os jogadores ganham nos seus eventos."
+      featured: "Em destaque"
+      one: "Circuito"
       empty: "Ainda não há circuitos."
       standings: "Classificação"
       standings_empty: "Ainda sem classificação."

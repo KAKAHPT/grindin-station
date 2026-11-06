@@ -12,6 +12,11 @@
   <% end %>
 
   <%= f.text_field_with_label :name, placeholder: "A name for this circuit", required: true %>
+  <% if circuit.banner.attached? && circuit.banner.blob.persisted? %>
+    <%= image_tag circuit.banner.variant(:card), alt: "", class: "mb-2 h-24 w-full rounded-lg object-cover border border-line" %>
+  <% end %>
+  <%= f.file_field_with_label :banner, accept: User::AVATAR_TYPES.join(",") %>
+  <p class="form-help -mt-3 mb-4"><%= t("organizer.circuits.banner_hint") %></p>
 
   <% content_for :footer do %>
     <%= f.submit %>
