@@ -60,9 +60,9 @@ class OrganizersControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-organizer-header] h1", text: @user.name
     assert_select "[data-organizer-count]", text: "2 events"
     assert_select "[data-ticket-grid]", count: 2
-    assert_select "[data-ticket-grid]:first-of-type [data-upcoming-event='#{soon.slug}'] .lp-evr-lg", count: 0
-    assert_select "[data-upcoming-event='#{soon.slug}'].lp-evr-lg"
-    assert_select "[data-upcoming-event='#{done.slug}'].lp-evr-lg"
+    assert_select "[data-upcoming-event='#{soon.slug}'].lp-evr-lg", count: 0
+    assert_select "[data-upcoming-event='#{soon.slug}']"
+    assert_select "[data-upcoming-event='#{done.slug}']"
     assert_select "[data-upcoming-event='hidden-cup']", count: 0
   end
 

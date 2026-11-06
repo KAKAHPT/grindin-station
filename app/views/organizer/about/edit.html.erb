@@ -1,0 +1,54 @@
+<%# Organizer mode → About: what /o/:handle shows about the organizer. %>
+<div class="col-span-full flex flex-wrap items-center justify-between gap-3">
+  <div>
+    <h1 class="font-display text-2xl font-semibold text-ink"><%= t("organizer.about.title") %></h1>
+    <p class="mt-1 text-[13px] text-muted"><%= t("organizer.about.lead") %></p>
+  </div>
+  <%= link_to t("organizer.about.view_page"), organizer_profile_path(current_user.handle), class: button_classes(:secondary, size: :xs), target: "_blank", rel: "noopener" %>
+</div>
+
+<section class="col-span-full card max-w-3xl" data-organizer-about>
+  <%= form_with model: @organizer, url: organizer_about_path, method: :patch, multipart: true, class: "p-[18px]", data: { turbo: false } do |f| %>
+    <% if @organizer.errors.present? %>
+      <div class="mb-4 rounded-md border border-danger/40 bg-danger/[0.07] px-3 py-2 text-[12.5px] text-danger" role="alert">
+        <%= safe_join(@organizer.errors.full_messages, tag.br) %>
+      </div>
+    <% end %>
+
+    <h2 class="form-section"><%= t("organizer.about.banner") %></h2>
+    <% if current_user.banner.attached? && current_user.banner.blob.persisted? %>
+      <%= image_tag current_user.banner.variant(:card), alt: "", class: "mb-2 h-28 w-full rounded-lg object-cover border border-line" %>
+    <% end %>
+    <div class="field">
+      <%= label_tag "user_banner", t("organizer.about.banner_file") %>
+      <%= file_field_tag "user[banner]", accept: User::AVATAR_TYPES.join(","), class: "field-input file:me-3 file:rounded file:border-0 file:bg-surface-raised file:px-2 file:py-1 file:text-ink" %>
+      <p class="form-help"><%= t("accounts.show.banner_hint") %></p>
+    </div>
+
+    <h2 class="form-section"><%= t("organizer.about.about") %></h2>
+    <div class="field">
+      <%= f.label :location, t("organizer.about.location") %>
+      <%= f.text_field :location, placeholder: t("organizer.about.location_placeholder"), maxlength: 80, class: "field-input" %>
+    </div>
+    <div class="field">
+      <%= f.label :description, t("organizer.about.description") %>
+      <%= f.text_area :description, rows: 5, placeholder: t("organizer.about.description_placeholder"), maxlength: 2000, class: "field-input" %>
+      <p class="form-help"><%= t("organizer.about.description_help") %></p>
+    </div>
+
+    <h2 class="form-section"><%= t("organizer.about.links") %></h2>
+    <div class="grid grid-cols-1 gap-x-3 sm:grid-cols-2">
+      <% EventOrganizer::LINKS.each do |key| %>
+        <div class="field">
+          <%= label_tag "event_organizer_links_#{key}", t("organizer.about.link_labels.#{key}") %>
+          <%= url_field_tag "event_organizer[links][#{key}]", @organizer.links[key], id: "event_organizer_links_#{key}", placeholder: "https://…", class: "field-input" %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="mt-2 flex flex-wrap justify-end gap-2 border-t border-line pt-4">
+      <%= link_to t("organizer.settings.back"), organizer_root_path, class: button_classes(:ghost, size: :sm) %>
+      <%= f.button t("organizer.about.save"), type: "submit", class: button_classes(:primary, size: :xs) %>
+    </div>
+  <% end %>
+</section>

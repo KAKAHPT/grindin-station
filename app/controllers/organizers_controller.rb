@@ -25,9 +25,19 @@ class OrganizersController < ApplicationController
     @past = past_page
     @events_count = visible_events.count
     @enrolled = enrolled_counts(@upcoming + @past.to_a)
+    load_circuits
   end
 
   private
+
+  # The organizer's circuits with their public event counts, featured first.
+  def load_circuits
+    @circuits = Circuit.where(event_organizer: @organizer).with_attached_banner.preload(event_organizer: :user)
+      .order(featured: :desc, name: :asc).to_a
+    ids = @circuits.map(&:id)
+    @tournament_counts = public_events.where(type: "Tournament", circuit_id: ids).group(:circuit_id).count
+    @league_counts = public_events.where(type: "League", circuit_id: ids).group(:circuit_id).count
+  end
 
   def listed_organizers
     scope = EventOrganizer.joins(:user).includes(user: { avatar_attachment: :blob, banner_attachment: :blob })
