@@ -4,7 +4,7 @@ pt:
     rankings: "Rankings"
     organizers: "Organizadores"
     circuits: "Circuitos"
-    feed: "Feed"
+    feed: "Feed social"
     about: "Sobre"
     language: "Idioma"
     sign_in: "Entrar"
@@ -1006,7 +1006,7 @@ pt:
       judge_call: "Foi chamado um juiz em %{event}."
       result_contested: "Um resultado da tua mesa foi contestado em %{event}. Vem aí um juiz."
   feed:
-    title: "Feed"
+    title: "Feed social"
     report: "Reportar"
     report_confirm: "Reportar esta publicação aos administradores?"
     reported: "Obrigado, os administradores vão ver."

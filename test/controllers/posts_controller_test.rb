@@ -17,7 +17,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
 
     get feed_path
     assert_response :success
-    assert_select "[data-topbar] nav a[href=?]", feed_path, text: "Feed"
+    assert_select "[data-topbar] nav a[href=?]", feed_path, text: "Social feed"
     assert_select "[data-post] [data-post-body]", text: "Thanks everyone!"
     assert_select "[data-feed-signin]"
     assert_select "[data-feed-composer]", count: 0

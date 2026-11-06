@@ -4,7 +4,7 @@ en:
     rankings: "Rankings"
     organizers: "Organizers"
     circuits: "Circuits"
-    feed: "Feed"
+    feed: "Social feed"
     about: "About"
     language: "Language"
     sign_in: "Sign in"
@@ -1006,7 +1006,7 @@ en:
       judge_call: "A judge was called at %{event}."
       result_contested: "A result at your table was contested at %{event}. A judge is on the way."
   feed:
-    title: "Feed"
+    title: "Social feed"
     report: "Report"
     report_confirm: "Report this post to the admins?"
     reported: "Thanks, the admins will look at it."
