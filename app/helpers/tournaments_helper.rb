@@ -98,9 +98,15 @@ module TournamentsHelper # rubocop:disable Metrics/ModuleLength
     Event::MATCH_GAMES.sort.reverse.map { |games| [t("organizer.match_games_options.bo#{games}"), games] }
   end
 
-  # The 1v1 game formats (commander is the pods' own).
-  def game_format_options
-    (Event::GAME_FORMATS - ["commander"]).map { |format| [play_label(format), format] }
+  # The one Format select: Commander / cEDH means pods, any other game format means 1v1. A saved tournament keeps
+  # its side: pods offer only commander, a 1v1 event the 1v1 formats.
+  def tournament_format_options(tournament)
+    formats =
+      if tournament.new_record? then Event::GAME_FORMATS
+      elsif tournament.multiplayer? then ["commander"]
+      else Event::GAME_FORMATS - ["commander"]
+      end
+    formats.map { |format| [play_label(format == "commander" ? "multiplayer" : format), format] }
   end
 
   def pairing_mode_options

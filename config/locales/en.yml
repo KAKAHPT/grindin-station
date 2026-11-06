@@ -256,7 +256,7 @@ en:
       event:
         format: "Format"
         match_games: "Match length"
-        game_format: "Game format"
+        game_format: "Format"
         pairing_mode: "Pairing"
         uneven_field: "Uneven field"
         points_win: "Points for a win"
@@ -558,14 +558,13 @@ en:
       event: "Event"
       pairings: "Pairings"
     formats:
-      multiplayer: "cEDH · pods of four"
+      multiplayer: "Commander / cEDH"
       standard: "Standard"
       pioneer: "Pioneer"
       modern: "Modern"
       legacy: "Legacy"
       vintage: "Vintage"
       pauper: "Pauper"
-      other: "Other 1v1"
     header:
       multiplayer: "cEDH · pods of four"
       live: "live"
@@ -716,6 +715,8 @@ en:
     next_round_created: "Next round created — review pairings and publish."
     tournament_finished: "Tournament finished — final standings are published."
     make_cut: "Make cut"
+    finish_without_cut: "Finish without cut"
+    finish_without_cut_confirm: "Finish the tournament now, without playing the top cut? The swiss standings become the final standings."
     status:
       playing: "Playing"
       pending: "Pending"

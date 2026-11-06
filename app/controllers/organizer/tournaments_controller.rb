@@ -14,12 +14,11 @@ module Organizer
     # Active (not finished/canceled) or, with ?past=1, past tournaments as cards.
     def index
       @past = params[:past].present?
-      scope = Tournament.with_attached_cover.staffed_by(current_user).preload(:rounds)
+      scope = Tournament.with_attached_cover.staffed_by(current_user)
       @tournaments =
         if @past then scope.where(state: PAST_STATES).order(start_time: :desc)
         else scope.where.not(state: PAST_STATES).order(:start_time)
         end
-      @editable_ids = editable_ids(@tournaments)
     end
 
     def show
@@ -44,7 +43,12 @@ module Organizer
     end
 
     def create
-      @tournament = Tournament.new(tournament_params.merge(event_organizer: current_organizer))
+      attributes = tournament_params.merge(event_organizer: current_organizer)
+      # The form has one Format select: Commander / cEDH is the pods, any other game format is 1v1.
+      if attributes[:game_format].present? && attributes[:format].blank?
+        attributes[:format] = attributes[:game_format] == "commander" ? "multiplayer" : "one_v_one"
+      end
+      @tournament = Tournament.new(attributes)
 
       if @tournament.save
         redirect_to [:organizer, @tournament], notice: t("flash.notice.tournament_created")
@@ -102,13 +106,6 @@ module Organizer
       return unless tournament.saved_change_to_featured?
 
       Audit.record(:featured_changed, subject: tournament, event: tournament, featured: tournament.featured)
-    end
-
-    # Tournaments the user may edit: owned, or staffed as an organizer (one query for the staff roles).
-    def editable_ids(tournaments)
-      organizer_id = current_organizer&.id
-      staffed = EventStaff.where(user: current_user, role: "organizer", event_id: tournaments.map(&:id)).pluck(:event_id)
-      tournaments.select { |t| organizer_id && t.event_organizer_id == organizer_id }.map(&:id) + staffed
     end
 
     def tournament_params

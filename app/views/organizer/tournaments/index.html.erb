@@ -13,7 +13,7 @@
 
 <% if @tournaments.present? %>
   <div class="col-span-full grid grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-3">
-    <%= render partial: "tournament_card", collection: @tournaments, as: :tournament, locals: { editable_ids: @editable_ids } %>
+    <%= render partial: "tournament_card", collection: @tournaments, as: :tournament %>
   </div>
 <% else %>
   <p class="col-span-full card px-4 py-8 text-center text-[13px] text-muted">

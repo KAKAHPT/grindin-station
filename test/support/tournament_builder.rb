@@ -11,7 +11,7 @@ module TournamentBuilder
     tournament = Tournament.create!(
       name: "Torneio #{suffix}", event_organizer: organizer, state: :draft,
       start_time: Time.current, end_time: 1.day.from_now, format: format,
-      match_games: match_games, game_format: format == "one_v_one" ? "other" : "commander"
+      match_games: match_games, game_format: format == "one_v_one" ? "standard" : "commander"
     )
     add_players(tournament, players, suffix)
     tournament.update_column(:state, state) # rubocop:disable Rails/SkipsModelValidations

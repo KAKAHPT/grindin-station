@@ -20,7 +20,7 @@ module Play
       assert_response :success
       assert_select ".evhead", count: 1
       assert_select "[data-event-header] h1", text: @tournament.name
-      assert_select ".evhead-eyebrow", text: "Sold out · cEDH · pods of four"
+      assert_select ".evhead-eyebrow", text: "Sold out · Commander / cEDH"
       assert_select ".evhead-line", text: /Lisboa · 4 players/
       assert_select "[data-event-header] nav.seg a.seg-on[aria-current=page]", text: "Event"
       assert_select "[data-about] .markdown strong", text: "Bring sleeves"
@@ -184,7 +184,7 @@ module Play
                                 password: "password123"))
 
       get play_event_path(@tournament.slug)
-      assert_select ".evhead-eyebrow", text: "Sold out · cEDH · pods of four"
+      assert_select ".evhead-eyebrow", text: "Sold out · Commander / cEDH"
       assert_select "[data-registration] .text-warn", text: /waiting list/
       assert_select "[data-registration] button", text: "Join waiting list"
 
@@ -194,7 +194,7 @@ module Play
 
       @tournament.update!(maximum_participants: 8)
       get play_event_path(@tournament.slug, locale: "en")
-      assert_select ".evhead-eyebrow", text: "Registration open · cEDH · pods of four"
+      assert_select ".evhead-eyebrow", text: "Registration open · Commander / cEDH"
       assert_select "[data-registration] button", text: "Register"
     end
 
@@ -206,7 +206,7 @@ module Play
 
       get play_event_path(@tournament.slug)
 
-      assert_select ".evhead-eyebrow", text: "Sold out · cEDH · pods of four"
+      assert_select ".evhead-eyebrow", text: "Sold out · Commander / cEDH"
       assert_select "[data-registration] [data-full]", text: "Registration is full."
       assert_select "[data-registration] [data-counters]", text: "4 players enrolled."
       assert_select "[data-registration] form", count: 0
@@ -218,11 +218,11 @@ module Play
       round = @tournament.rounds.create!(type: SwissRound, number: 1)
       round.update!(published: true)
       get play_event_path(@tournament.slug)
-      assert_select ".evhead-eyebrow", text: "Swiss round 1 · cEDH · pods of four"
+      assert_select ".evhead-eyebrow", text: "Swiss round 1 · Commander / cEDH"
 
       round.update!(started_at: Time.current)
       get play_event_path(@tournament.slug)
-      assert_select ".evhead-eyebrow", text: "Swiss round 1 · cEDH · pods of four · live"
+      assert_select ".evhead-eyebrow", text: "Swiss round 1 · Commander / cEDH · live"
 
       @tournament.update_columns(state: :single_elimination, top_cut_size: 16) # rubocop:disable Rails/SkipsModelValidations
       get play_event_path(@tournament.slug)
@@ -230,7 +230,7 @@ module Play
 
       @tournament.update_column(:state, :finished) # rubocop:disable Rails/SkipsModelValidations
       get play_event_path(@tournament.slug, locale: "pt")
-      assert_select ".evhead-eyebrow", text: /\ATerminado · cEDH · mesas de quatro/
+      assert_select ".evhead-eyebrow", text: %r{\ATerminado · Commander / cEDH}
     end
 
     test "the old event address redirects to the public page" do

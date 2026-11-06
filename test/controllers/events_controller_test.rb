@@ -103,19 +103,19 @@ class EventsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable M
   end
 
   test "the filters combine, the chips show each with a Clear all back to /events" do
-    match = upcoming("Porto Duels", country: "PT", organizer: @other, format: "one_v_one", game_format: "other",
+    match = upcoming("Porto Duels", country: "PT", organizer: @other, format: "one_v_one", game_format: "standard",
                                     start: Time.zone.local(2026, 12, 1))
     upcoming("Porto Pods", country: "PT", organizer: @other, start: Time.zone.local(2026, 12, 2))
 
-    get events_path(country: "PT", organizer: "porto-org", season: "2026", play: "other", q: "porto")
+    get events_path(country: "PT", organizer: "porto-org", season: "2026", play: "standard", q: "porto")
 
     assert_listed match
     assert_select "[data-upcoming-event]", 1
     assert_select "[data-filter-chips] [data-chip]", 5
     assert_select "[data-filter-chips] a[data-clear-all][href=?]", events_path
-    assert_select "a[href*='/events.']", 0 # play, not format: no /events.other links
+    assert_select "a[href*='/events.']", 0 # play, not format: no /events.standard links
     assert_select "[data-chip] a[href=?]",
-                  events_path(organizer: "porto-org", season: "2026", play: "other", q: "porto")
+                  events_path(organizer: "porto-org", season: "2026", play: "standard", q: "porto")
   end
 
   test "the Upcoming / Past switch and the pagination keep the filters" do
@@ -138,9 +138,9 @@ class EventsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable M
     assert_select "select[name=country] option", 2 # All countries + PT
     assert_select "select[name=country] option[value=ES]", 0
     assert_select "select[name=organizer] option[value=porto-org]", text: "Porto Org"
-    assert_select "select[name=play] option", 9 # All formats + the eight plays
+    assert_select "select[name=play] option", 8 # All formats + the seven plays
     assert_select "select[name=play] option[value=legacy]", text: "Legacy"
-    assert_select "select[name=play] option[value=multiplayer]", text: "cEDH · pods of four"
+    assert_select "select[name=play] option[value=multiplayer]", text: "Commander / cEDH"
   end
 
   test "the featured strip lists the featured events above the filter bar, compact tickets below" do

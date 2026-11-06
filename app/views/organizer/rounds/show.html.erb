@@ -47,6 +47,11 @@
             <%= t("rounds.make_cut") %>
             <%= icon("scissors", class: "ms-2") %>
           <% end %>
+          <%= button_to [:organizer, @round.event], method: :patch, params: { tournament: { state: :finished } }, form_class: "w-full sm:w-auto",
+                        data: { turbo_confirm: t("rounds.finish_without_cut_confirm") }, class: button_classes(:secondary, "w-full sm:w-auto", size: :sm) do %>
+            <%= icon("trophy", class: "me-2") %>
+            <%= t("rounds.finish_without_cut") %>
+          <% end %>
         <% end %>
       <% else %>
         <%= button_to [:organizer, @round.event, @round.becomes(Round)], params: {round: {action: :publish}}, form_class: "w-full sm:w-auto", class: button_classes(:primary, "w-full sm:w-auto", size: :sm) do %>

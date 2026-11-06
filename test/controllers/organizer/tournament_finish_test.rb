@@ -4,7 +4,7 @@ require "test_helper"
 
 module Organizer
   # Closing the last round finishes the tournament; Reopen takes it back for a correction.
-  class TournamentFinishTest < ActionDispatch::IntegrationTest
+  class TournamentFinishTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
     setup do
       sign_in_as(users(:organizer_user))
       @t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
@@ -56,6 +56,33 @@ module Organizer
 
       assert_predicate @t.reload, :swiss?
       assert_equal I18n.t("rounds.closed"), flash[:notice]
+    end
+
+    test "the last swiss round offers Finish without cut, which finishes with the swiss order" do
+      @t.update_columns(swiss_rounds_count: 1, top_cut_size: 4) # rubocop:disable Rails/SkipsModelValidations
+      round = @t.rounds.create!(type: SwissRound, number: 1)
+      round.update!(published: true, started_at: Time.current)
+      winner = round.pods.sole.seatings.find_by!(order: 1).event_participant
+      post organizer_tournament_round_pod_results_path(@t, round, round.pods.sole),
+           params: { result: { type: "Win", event_participant_id: winner.id } }
+      patch organizer_tournament_round_path(@t, round), params: { round: { action: :close } }
+
+      get organizer_tournament_round_path(@t, round)
+      assert_select "form[action=?] button", organizer_tournament_path(@t), text: /Finish without cut/
+
+      patch organizer_tournament_path(@t), params: { tournament: { state: :finished } }
+
+      assert_predicate @t.reload, :finished?
+      assert_equal 1, winner.reload.final_position
+    end
+
+    test "/rounds without an id opens the latest round, or the Overview before the first one" do
+      get organizer_tournament_rounds_path(@t)
+      assert_redirected_to organizer_tournament_path(@t)
+
+      final = with_final
+      get organizer_tournament_rounds_path(@t)
+      assert_redirected_to organizer_tournament_round_path(@t, final)
     end
 
     test "reopen takes a finished tournament back to its final, clears the positions, and closing again finishes" do

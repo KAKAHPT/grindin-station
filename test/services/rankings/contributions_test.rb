@@ -78,7 +78,7 @@ module Rankings
 
       assert_equal [[0, 1, BigDecimal("0")], [1, 0, BigDecimal("3")]],
                    rows.map { |r| r.values_at(:wins, :losses, :points) }.sort
-      assert_equal ["other"], rows.pluck(:format).uniq
+      assert_equal ["standard"], rows.pluck(:format).uniq
     end
 
     test "the format column stores the play: multiplayer for pods, the game format for 1v1" do
