@@ -30,7 +30,7 @@ class CircuitsController < ApplicationController
 
   # The circuit's feed: the latest posts about its events.
   def load_posts
-    @posts = Post.in_circuit(@circuit).visible.recent.preload(:event, user: { avatar_attachment: :blob }).limit(5).to_a
+    @posts = Post.in_circuit(@circuit).visible.recent.preload(:event, user: { avatar_attachment: :blob }).limit(3).to_a
     @posts_count = Post.in_circuit(@circuit).visible.count
     @liked_ids =
       if current_user

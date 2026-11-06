@@ -3,7 +3,7 @@
 require "test_helper"
 
 # The feed: who can post about what, likes, removal, the result post at finish, and the circuit filter.
-class PostsControllerTest < ActionDispatch::IntegrationTest
+class PostsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
   setup do
     @organizer = users(:organizer_user)
     @t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer), state: :finished)
@@ -66,6 +66,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
 
     get circuit_path(circuits(:standard_circuit))
     assert_select "[data-circuit-feed] [data-post='#{result.id}']"
+    assert_operator response.body.index("data-ticket-grid"), :<, response.body.index("data-circuit-feed") # events first
     assert_select "[data-circuit-feed] a[data-circuit-feed-all][href=?]",
                   feed_path(circuit: circuits(:standard_circuit).id)
 
@@ -102,6 +103,26 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, target.reports_count
     get feed_path
     assert_select "[data-post='#{target.id}']"
+  end
+
+  test "a thought needs no event; @handle mentions link the profile and notify the person" do
+    other = @t.event_participants.second.player.user
+    other.update!(handle: "rita-grind", password: "password123")
+    sign_in(@player)
+
+    post feed_posts_path, params: { post: { kind: "thought", event_id: @t.id, body: "GG @rita-grind, that final!" } }
+    thought = Post.order(:created_at).last
+    assert_equal ["thought", nil], [thought.kind, thought.event_id]
+    assert_equal 1, other.notifications.where(kind: "mentioned", subject: thought).count
+
+    get feed_path
+    assert_select "[data-post='#{thought.id}'] [data-post-body] a[href=?]", profile_path("rita-grind"),
+                  text: "@rita-grind"
+    assert_select "[data-feed-composers] [data-feed-composer=thought]"
+
+    sign_in(other)
+    get notifications_path
+    assert_select "[data-notification] a[href=?]", feed_path, text: /mentioned you/
   end
 
   private

@@ -673,6 +673,64 @@
     position: relative;
   }
 
+  /* Social feed: the landing's card-art mosaic behind, a vignette, and one wide central column. */
+  .feed-page {
+    position: relative;
+    overflow: hidden;
+    min-height: 70vh;
+    padding: 24px 16px 48px;
+  }
+
+  .feed-page .lp-mosaic {
+    opacity: 0.28;
+  }
+
+  .feed-vig {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(90deg, rgb(17 19 21 / 0.35) 0%, rgb(17 19 21 / 0.96) 18%, rgb(17 19 21 / 0.96) 82%,
+        rgb(17 19 21 / 0.35) 100%);
+  }
+
+  .feed-col {
+    position: relative;
+    z-index: 1;
+    max-width: 880px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .feed-list {
+    border-radius: 12px;
+    border: 1px solid var(--color-line);
+    background: rgb(27 30 34 / 0.72);
+    padding: 4px 18px;
+  }
+
+  .feed-composer {
+    border-radius: 12px;
+    border: 1px solid var(--color-line);
+    background: rgb(27 30 34 / 0.85);
+  }
+
+  .feed-composer-sum {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    list-style: none;
+    padding: 11px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .feed-composer-sum::-webkit-details-marker {
+    display: none;
+  }
+
   /* Circuit page hero: a tall banner with the text at the bottom over a vertical shade. */
   .circuit-hero {
     position: relative;

@@ -1005,8 +1005,12 @@ es:
     kinds:
       judge_call: "Se ha llamado a un juez en %{event}."
       result_contested: "Se ha impugnado un resultado de tu mesa en %{event}. Viene un juez."
+      mentioned: "%{name} te mencionó en el feed social."
   feed:
     title: "Feed social"
+    write_thought: "Publicar un pensamiento"
+    your_thought: "Tu pensamiento"
+    thought_placeholder: "Cualquier cosa de cEDH: un mazo, una duda, un saludo. Menciona a gente con @handle."
     report: "Reportar"
     report_confirm: "¿Reportar esta publicación a los administradores?"
     reported: "Gracias, los administradores la revisarán."

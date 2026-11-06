@@ -1005,8 +1005,12 @@ pt:
     kinds:
       judge_call: "Foi chamado um juiz em %{event}."
       result_contested: "Um resultado da tua mesa foi contestado em %{event}. Vem aí um juiz."
+      mentioned: "%{name} mencionou-te no feed social."
   feed:
     title: "Feed social"
+    write_thought: "Publicar um pensamento"
+    your_thought: "O teu pensamento"
+    thought_placeholder: "Qualquer coisa de cEDH: um deck, uma dúvida, um agradecimento. Marca pessoas com @handle."
     report: "Reportar"
     report_confirm: "Reportar esta publicação aos administradores?"
     reported: "Obrigado, os administradores vão ver."
