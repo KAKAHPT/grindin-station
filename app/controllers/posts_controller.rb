@@ -58,12 +58,16 @@ class PostsController < ApplicationController
   def read_filters
     @circuit = Circuit.find_by(id: params[:circuit]) if params[:circuit].present?
     @play = params[:play].presence if Event::PLAYS.include?(params[:play].to_s)
-    read_event_filters
+    read_country_filter
+    read_event_filter
   end
 
-  def read_event_filters
+  def read_country_filter
     @countries = posted_events.where.not(country: nil).distinct.pluck(:country).sort
     @country = params[:country].presence if @countries.include?(params[:country].to_s)
+  end
+
+  def read_event_filter
     @events = posted_events.order(start_time: :desc).limit(60).to_a
     @event = @events.find { |event| event.id == params[:event] }
   end
