@@ -110,7 +110,7 @@
       <% end %>
     </div>
 
-    <div class="feed-list divide-y divide-line" data-feed-list>
+    <div class="feed-list" data-feed-list>
       <% @posts.each do |post| %>
         <%= render "posts/post", post: post, liked: @liked_ids.include?(post.id), reported: @reported_ids.include?(post.id), url_locale: url_locale, flat: true, mentioned: mentioned %>
       <% end %>
