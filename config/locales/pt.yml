@@ -1150,6 +1150,8 @@ pt:
       register_next: "Inscrever em %{name}"
       next_event: "Próximo: %{name} · %{date}"
       no_upcoming: "Ainda sem próximo evento."
+      show_top: "Mostrar os %{count} primeiros"
+      no_upcoming_events: "Sem próximos eventos neste circuito."
       empty: "Ainda não há circuitos."
       standings: "Classificação"
       standings_empty: "Ainda sem classificação."

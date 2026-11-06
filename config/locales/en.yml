@@ -1150,6 +1150,8 @@ en:
       register_next: "Register for %{name}"
       next_event: "Next: %{name} · %{date}"
       no_upcoming: "No upcoming event yet."
+      show_top: "Show the top %{count}"
+      no_upcoming_events: "No upcoming events in this circuit."
       empty: "No circuits yet."
       standings: "Standings"
       standings_empty: "No standings yet."
