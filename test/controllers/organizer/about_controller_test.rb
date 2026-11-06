@@ -10,7 +10,7 @@ module Organizer
       post session_path, params: { session: { email_address: @user.email_address, password: "password123" } }
     end
 
-    test "the organizer index links to About, the form saves, and the public page shows it" do
+    test "the organizer index links to About, the form saves, and the public page shows it" do # rubocop:disable Metrics/BlockLength
       get organizer_root_path
       assert_select "a[data-organizer-about][href=?]", edit_organizer_about_path, text: "About"
 

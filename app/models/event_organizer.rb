@@ -23,7 +23,11 @@ class EventOrganizer < ApplicationRecord
   validates :description, length: { maximum: 2000 }
   validates :location, length: { maximum: 80 }
   validate :links_are_urls
-  normalizes :links, with: ->(links) { links.to_h.slice(*LINKS).transform_values { |url| url.to_s.strip }.compact_blank }
+  normalizes :links, with: lambda { |links|
+    links.to_h.slice(*LINKS).transform_values { |url|
+      url.to_s.strip
+    }.compact_blank
+  }
 
   # [[key, url]] of the links set, in LINKS order.
   def link_list = LINKS.filter_map { |key| [key, links[key]] if links[key].present? }
