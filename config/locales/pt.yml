@@ -1023,6 +1023,10 @@ pt:
     title: "Feed social"
     format: "Formato"
     all_formats: "Todos os formatos"
+    country: "País"
+    all_countries: "Todos os países"
+    event: "Evento"
+    all_events: "Todos os eventos"
     scopes:
       everyone: "Todos"
       following: "A seguir"

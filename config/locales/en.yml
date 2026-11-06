@@ -1023,6 +1023,10 @@ en:
     title: "Social feed"
     format: "Format"
     all_formats: "All formats"
+    country: "Country"
+    all_countries: "All countries"
+    event: "Event"
+    all_events: "All events"
     scopes:
       everyone: "Everyone"
       following: "Following"

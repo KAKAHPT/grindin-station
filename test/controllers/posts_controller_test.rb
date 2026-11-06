@@ -141,6 +141,18 @@ class PostsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
 
     get feed_path
     assert_select "[data-post]", 3
+
+    @t.update_columns(country: "PT") # rubocop:disable Rails/SkipsModelValidations
+    legacy.update_columns(country: "ES") # rubocop:disable Rails/SkipsModelValidations
+    get feed_path(country: "ES")
+    assert_select "[data-feed-format] select[name=country] option[selected][value=ES]"
+    assert_select "[data-post='#{legacy_post.id}']"
+    assert_select "[data-post='#{pods_post.id}']", count: 0
+
+    get feed_path(event: @t.id)
+    assert_select "[data-feed-format] select[name=event] option[selected][value='#{@t.id}']"
+    assert_select "[data-post='#{pods_post.id}']"
+    assert_select "[data-post='#{legacy_post.id}']", count: 0
   end
 
   private

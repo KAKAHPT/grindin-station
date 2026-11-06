@@ -54,10 +54,23 @@ class PostsController < ApplicationController
 
   private
 
-  # ?circuit= (one circuit's events) and ?play= (one play pool), when they name real ones.
+  # ?circuit= (one circuit's events), ?play= (one play pool), ?country= and ?event=, when they name real ones.
   def read_filters
     @circuit = Circuit.find_by(id: params[:circuit]) if params[:circuit].present?
     @play = params[:play].presence if Event::PLAYS.include?(params[:play].to_s)
+    read_event_filters
+  end
+
+  def read_event_filters
+    @countries = posted_events.where.not(country: nil).distinct.pluck(:country).sort
+    @country = params[:country].presence if @countries.include?(params[:country].to_s)
+    @events = posted_events.order(start_time: :desc).limit(60).to_a
+    @event = @events.find { |event| event.id == params[:event] }
+  end
+
+  # Public events that have posts: the choices of the country and event filters.
+  def posted_events
+    Event.where(id: Post.select(:event_id)).where.not(state: Tournament.states.values_at(*Event::HIDDEN_STATES))
   end
 
   # "everyone" or "following" (signed-in only): ?scope= wins, else the account's choice.
@@ -73,6 +86,8 @@ class PostsController < ApplicationController
     @scope = feed_scope_param
     scope = (@circuit ? Post.in_circuit(@circuit) : Post.all).visible
     scope = scope.about_play(@play) if @play
+    scope = scope.about_country(@country) if @country
+    scope = scope.where(event: @event) if @event
     @scope == "following" ? scope.followed_by(current_user) : scope
   end
 

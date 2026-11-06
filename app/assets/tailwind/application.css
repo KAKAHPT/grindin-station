@@ -964,6 +964,13 @@
     background-color: var(--color-ground);
     color: var(--color-ink);
     font: 13px var(--font-body);
+    color-scheme: dark;
+  }
+
+  /* The native option list of a select follows the site: dark surface, ink text. */
+  select.field-input option {
+    background-color: var(--color-surface);
+    color: var(--color-ink);
   }
 
   textarea.field-input {
