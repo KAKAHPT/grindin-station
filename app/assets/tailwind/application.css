@@ -702,8 +702,7 @@
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    background: linear-gradient(90deg, rgb(17 19 21 / 0.35) 0%, rgb(17 19 21 / 0.75) 22%, rgb(17 19 21 / 0.75) 78%,
-        rgb(17 19 21 / 0.35) 100%);
+    background: rgb(17 19 21 / 0.45);
   }
 
   /* The feed's fixed banner: six card arts in a row, darkened towards the bottom, the title at the bottom-left. */
