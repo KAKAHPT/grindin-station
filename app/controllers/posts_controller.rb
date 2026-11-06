@@ -11,11 +11,16 @@ class PostsController < ApplicationController
     redirect_to feed_path, alert: t("flash.alert.try_again_later")
   }
 
+  before_action :refuse_when_paused, except: :index
+
   def index
     @feed = Posts::Feed.new(params, current_user)
+    @paused = Posts::Feed.paused?
+    return if @paused
+
     @posts = @feed.posts.preload(:event, user: { avatar_attachment: :blob }).page(params[:page]).per(PER_PAGE)
-    @liked_ids = marks(PostLike)
-    @reported_ids = marks(PostReport)
+    @cacheable = @feed.default_for_visitor?(params[:page])
+    load_marks
     prepare_composer
   end
 
@@ -54,6 +59,10 @@ class PostsController < ApplicationController
 
   private
 
+  def refuse_when_paused
+    redirect_to feed_path, alert: t("feed.paused_alert") if Posts::Feed.paused?
+  end
+
   def prepare_composer
     @postable = Post.postable_events_for(current_user).limit(20).to_a
     @post = Post.new
@@ -73,6 +82,11 @@ class PostsController < ApplicationController
   def remove!(post)
     post.destroy!
     Audit.record("post_removed", subject: post.user, event: post.event, post_id: post.id, by: current_user.id)
+  end
+
+  def load_marks
+    @liked_ids = marks(PostLike)
+    @reported_ids = marks(PostReport)
   end
 
   # The ids of the listed posts the viewer has liked or reported.

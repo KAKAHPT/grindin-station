@@ -5,6 +5,7 @@ require "test_helper"
 # The feed: who can post about what, likes, removal, the result post at finish, and the circuit filter.
 class PostsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
   setup do
+    Posts::Feed.resume!
     @organizer = users(:organizer_user)
     @t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer), state: :finished)
     @t.update_columns(circuit_id: circuits(:standard_circuit).id) # rubocop:disable Rails/SkipsModelValidations
@@ -179,6 +180,37 @@ class PostsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     get feed_path(sort: "top")
     assert_select "[data-feed-sort] a.seg-on", text: "Top this week"
     assert_select "[data-feed-list] [data-post]:first-of-type[data-post='#{liked.id}']"
+  end
+
+  test "an admin pauses the feed: readers see the notice, posting is refused, resume brings it back" do
+    Post.create!(user: @organizer, event: @t, kind: "note", body: "Before the pause")
+    @organizer.update_columns(admin: true) # rubocop:disable Rails/SkipsModelValidations
+    sign_in(@organizer)
+    get admin_feed_path
+    assert_select "[data-admin-feed-switch] button", text: "Pause feed"
+
+    patch admin_pause_feed_path
+    assert Posts::Feed.paused?
+    get feed_path
+    assert_select "[data-feed-paused]"
+    assert_select "[data-post]", count: 0
+    post feed_posts_path, params: { post: { event_id: @t.id, body: "During the pause" } }
+    assert_equal 1, Post.count
+
+    patch admin_pause_feed_path
+    assert_not Posts::Feed.paused?
+    get feed_path
+    assert_select "[data-post]", 1
+  ensure
+    Posts::Feed.resume!
+  end
+
+  test "the visitors' default page is served from a 30 s cache" do
+    Post.create!(user: @organizer, event: @t, kind: "note", body: "Cached note")
+    get feed_path
+    assert_select "[data-feed-list][data-feed-cached=true]"
+    get feed_path(play: "multiplayer")
+    assert_select "[data-feed-list][data-feed-cached=false]"
   end
 
   private

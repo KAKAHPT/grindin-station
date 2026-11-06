@@ -3,7 +3,7 @@
 <% content_for :title, t("feed.title") %>
 <% content_for :full_main, "1" %>
 <% url_locale = params[:locale] %>
-<% mentioned = User.where(handle: @posts.flat_map(&:mentioned_handles).uniq).index_by(&:handle) %>
+<% mentioned = @paused ? {} : User.where(handle: @posts.flat_map(&:mentioned_handles).uniq).index_by(&:handle) %>
 <div class="feed-page">
   <div class="feed-mosaic" style="background-image: url('<%= image_path("feed-mosaic.jpg") %>')" aria-hidden="true"></div>
   <div class="feed-vig" aria-hidden="true"></div>
@@ -30,6 +30,12 @@
       </div>
     </section>
 
+    <% if @paused %>
+      <div class="feed-list px-5 py-10 text-center" data-feed-paused>
+        <p class="font-display text-lg font-semibold text-ink"><%= t("feed.paused_title") %></p>
+        <p class="mt-2 text-[13px] text-muted"><%= t("feed.paused_text") %></p>
+      </div>
+    <% else %>
     <% if @feed.circuit %>
       <p class="rounded-lg border border-line bg-surface/80 px-4 py-2.5 text-[13px] text-muted" data-feed-circuit>
         <%= t("feed.circuit_filter_html", name: link_to(@feed.circuit.name, circuit_path(@feed.circuit, locale: url_locale), class: "text-ink underline")) %>
@@ -83,12 +89,12 @@
       <%= form_with url: feed_path, method: :get, local: true, class: "shrink-0 sm:w-56", data: { turbo_frame: "_top", feed_format: true } do %>
         <%= hidden_field_tag :scope, @feed.scope, id: nil %>
         <% if @feed.circuit %><%= hidden_field_tag :circuit, @feed.circuit.id, id: nil %><% end %>
-        <div class="flex flex-col gap-2">
+        <div class="flex h-full flex-col justify-between gap-2">
           <%= select_tag :play, options_for_select([[t("feed.all_formats"), ""]] + Event::PLAYS.map { |play| [play_label(play), play] }, @feed.play),
-                         "aria-label": t("feed.format"), class: "field-input h-9 text-[12.5px]",
+                         "aria-label": t("feed.format"), class: "field-input h-10 text-[12.5px]",
                          data: { controller: "submit-on-change", action: "change->submit-on-change#submit" } %>
           <%= select_tag :organizer, options_for_select([[t("feed.all_organizers"), ""]] + @feed.organizers.map { |organizer| [organizer.name, organizer.user.handle] }, @feed.organizer&.user&.handle),
-                         "aria-label": t("feed.organizer"), class: "field-input h-9 text-[12.5px]",
+                         "aria-label": t("feed.organizer"), class: "field-input h-10 text-[12.5px]",
                          data: { controller: "submit-on-change", action: "change->submit-on-change#submit", feed_organizer: true } %>
           <% if @feed.top? %><%= hidden_field_tag :sort, "top", id: nil %><% end %>
           <% if @feed.mine? %><%= hidden_field_tag :mine, "1", id: nil %><% end %>
@@ -110,15 +116,19 @@
       <% end %>
     </div>
 
-    <div class="feed-list" data-feed-list>
-      <% @posts.each do |post| %>
-        <%= render "posts/post", post: post, liked: @liked_ids.include?(post.id), reported: @reported_ids.include?(post.id), url_locale: url_locale, flat: true, mentioned: mentioned %>
-      <% end %>
-      <% if @posts.empty? %>
-        <p class="px-4 py-8 text-center text-[13px] text-muted" data-feed-empty><%= t(@feed.scope == "following" ? "feed.empty_following" : "feed.empty") %></p>
-      <% end %>
-    </div>
+    <%# Visitors' default page is cached for 30 seconds: during a tournament peak the feed costs one query a minute. %>
+    <%= cache_if @cacheable, ["feed-visitor-page", I18n.locale], expires_in: 30.seconds do %>
+      <div class="feed-list" data-feed-list data-feed-cached="<%= @cacheable %>">
+        <% @posts.each do |post| %>
+          <%= render "posts/post", post: post, liked: @liked_ids.include?(post.id), reported: @reported_ids.include?(post.id), url_locale: url_locale, flat: true, mentioned: mentioned %>
+        <% end %>
+        <% if @posts.empty? %>
+          <p class="px-4 py-8 text-center text-[13px] text-muted" data-feed-empty><%= t(@feed.scope == "following" ? "feed.empty_following" : "feed.empty") %></p>
+        <% end %>
+      </div>
+    <% end %>
     <div><%= paginate @posts %></div>
+    <% end %>
     <details class="rounded-lg border border-line bg-surface/80 px-4 py-3 text-[12.5px] text-muted" data-feed-policy>
       <summary class="cursor-pointer font-semibold text-ink"><%= t("feed.policy.title") %></summary>
       <ul class="mt-2 list-disc space-y-1 ps-5">

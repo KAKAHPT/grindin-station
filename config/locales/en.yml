@@ -153,6 +153,13 @@ en:
       empty: "No circuits yet."
     feed:
       title: "Reported posts"
+      pause: "Pause feed"
+      resume: "Resume feed"
+      paused_notice: "Social feed paused."
+      resumed_notice: "Social feed back on."
+      state_paused: "Paused"
+      state_live: "Live"
+      running_now: "%{count} tournaments running now"
       lead: "A post with %{count} reports is hidden until you keep or remove it."
       post: "Post"
       author: "Author"
@@ -1021,6 +1028,9 @@ en:
     unfollowed: "You no longer follow %{name}."
   feed:
     title: "Social feed"
+    paused_title: "Social feed paused"
+    paused_text: "The feed is paused for a moment, while the tournaments run. Back soon."
+    paused_alert: "The social feed is paused right now."
     format: "Format"
     all_formats: "All formats"
     organizer: "Organizer"

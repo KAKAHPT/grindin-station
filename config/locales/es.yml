@@ -153,6 +153,13 @@ es:
       empty: "Aún no hay circuitos."
     feed:
       title: "Publicaciones reportadas"
+      pause: "Pausar el feed"
+      resume: "Reanudar el feed"
+      paused_notice: "Feed social en pausa."
+      resumed_notice: "Feed social de vuelta."
+      state_paused: "En pausa"
+      state_live: "Activo"
+      running_now: "%{count} torneos en curso ahora"
       lead: "Una publicación con %{count} reportes queda oculta hasta que la mantengas o elimines."
       post: "Publicación"
       author: "Autor"
@@ -1021,6 +1028,9 @@ es:
     unfollowed: "Ya no sigues a %{name}."
   feed:
     title: "Feed social"
+    paused_title: "Feed social en pausa"
+    paused_text: "El feed está en pausa un momento, mientras se juegan los torneos. Vuelve enseguida."
+    paused_alert: "El feed social está en pausa ahora mismo."
     format: "Formato"
     all_formats: "Todos los formatos"
     organizer: "Organizador"

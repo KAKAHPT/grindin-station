@@ -5,7 +5,19 @@ module Posts
   # Filters: scope (everyone | following, signed-in only), circuit, play (a play pool), event, organizer (handle),
   # sort (new | top), mine (events the viewer played or organizes), mentions (posts naming the viewer).
   class Feed
+    PAUSE_KEY = "feed_paused"
+
     attr_reader :viewer, :circuit, :play, :event, :organizer, :sort, :scope
+
+    # The admins' emergency brake: a paused feed shows a notice instead of the list and takes no posts.
+    def self.paused? = SiteSetting.on?(PAUSE_KEY)
+    def self.pause! = SiteSetting.set(PAUSE_KEY, true)
+    def self.resume! = SiteSetting.set(PAUSE_KEY, false)
+
+    # True for the page a visitor gets with no filters: that one is cached for 30 seconds.
+    def default_for_visitor?(page)
+      viewer.nil? && page.blank? && url_params.except(:scope).empty?
+    end
 
     def initialize(params, viewer)
       @params = params

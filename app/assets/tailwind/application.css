@@ -788,9 +788,10 @@
   .feed-composer-sum {
     display: flex;
     align-items: center;
+    height: 40px;
     cursor: pointer;
     list-style: none;
-    padding: 11px 14px;
+    padding: 0 14px;
     font-size: 13px;
     font-weight: 600;
     color: var(--color-ink);
