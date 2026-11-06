@@ -9,12 +9,10 @@
   <div class="feed-vig" aria-hidden="true"></div>
 
   <div class="feed-col" data-feed>
-    <%# Fixed banner: a strip of card art (the landing's set) with the title over it. %>
+    <%# Fixed banner: the Jeweled Lotus art (landing/c37) with the title over it. %>
     <section class="feed-hero" data-feed-hero>
       <div class="feed-hero-art" aria-hidden="true">
-        <% %w[c7 c14 c22 c29 c36 c43].each do |name| %>
-          <img src="<%= image_path("landing/#{name}.jpg") %>" alt="" width="240" height="175" decoding="async">
-        <% end %>
+        <img src="<%= image_path("landing/c37.jpg") %>" alt="" decoding="async">
       </div>
       <div class="feed-hero-shade" aria-hidden="true"></div>
       <div class="feed-hero-in" data-list-header>
