@@ -103,7 +103,7 @@ module Tournaments
     end
 
     def bracket(round)
-      round.pods.includes(:seatings).order(:number).map { |pod| pod.seatings.map(&:event_participant_id) }
+      round.pods.includes(:seatings).order(:number).map { |pod| pod.seatings.sort_by(&:order).map(&:event_participant_id) }
     end
   end
 end
