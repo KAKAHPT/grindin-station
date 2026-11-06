@@ -1230,6 +1230,11 @@ en:
   helpers:
     required: "required"
   events:
+    sort:
+      label: "Sort by"
+      date: "Date"
+      organizer: "Organizer"
+      name: "Name"
     featured: "Featured"
     view:
       label: "View"
@@ -1248,6 +1253,10 @@ en:
       all_formats: "All formats"
       empty: "No events match these filters."
   lists:
+    circuits_count:
+      zero: "No circuits"
+      one: "1 circuit"
+      other: "%{count} circuits"
     upcoming: "Upcoming"
     past: "Past"
     ongoing: "Your events running now"
@@ -1455,3 +1464,10 @@ en:
           one: "Team (1 player)"
           other: "Team (%{count} players)"
         rules: "A player counts for the team named on their account when the standings are recomputed (every night and after each event), so changing team moves all of their points to the new team. Teams with a single player are listed too. The bonuses (15 and 30) live in one place so they can change without touching the rest."
+
+  circuits:
+    sort:
+      label: "Sort by"
+      featured: "Featured first"
+      name: "Name"
+      organizer: "Organizer"

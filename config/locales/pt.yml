@@ -1230,6 +1230,11 @@ pt:
   helpers:
     required: "obrigatório"
   events:
+    sort:
+      label: "Ordenar por"
+      date: "Data"
+      organizer: "Organizador"
+      name: "Nome"
     featured: "Em destaque"
     view:
       label: "Vista"
@@ -1248,6 +1253,10 @@ pt:
       all_formats: "Todos os formatos"
       empty: "Nenhum evento corresponde a estes filtros."
   lists:
+    circuits_count:
+      zero: "Sem circuitos"
+      one: "1 circuito"
+      other: "%{count} circuitos"
     upcoming: "Próximos"
     past: "Passados"
     ongoing: "Os teus eventos a decorrer"
@@ -1455,3 +1464,10 @@ pt:
           one: "Equipa (1 jogador)"
           other: "Equipa (%{count} jogadores)"
         rules: "Um jogador conta para a equipa indicada na sua conta quando a classificação é recalculada (todas as noites e depois de cada evento), por isso, se mudares de equipa, todos os teus pontos passam para a nova equipa. As equipas com um só jogador também aparecem. Os bónus (15 e 30) estão num só sítio para poderem mudar sem mexer no resto."
+
+  circuits:
+    sort:
+      label: "Ordenar por"
+      featured: "Destaques primeiro"
+      name: "Nome"
+      organizer: "Organizador"

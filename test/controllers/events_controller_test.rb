@@ -204,6 +204,22 @@ class EventsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable M
                   events_path(country: "PT", q: "porto", view: "grid"), text: "Grid"
   end
 
+  test "sort=organizer orders the tickets by organizer name, sort=name by event name; the default is the date" do
+    later = upcoming("Zed Cup", organizer: @organizer, from_now: 20.days)
+    theirs = upcoming("Alpha Cup", organizer: @other, from_now: 10.days)
+    sooner = upcoming("Mid Cup", organizer: @organizer, from_now: 5.days)
+
+    get events_path(sort: "organizer")
+    assert_order theirs, sooner, later
+    assert_select "select[name=sort] option[selected][value=organizer]"
+
+    get events_path(sort: "name")
+    assert_order theirs, sooner, later
+
+    get events_path
+    assert_order sooner, theirs, later
+  end
+
   private
 
   # A registration_open tournament of @organizer starting from_now (or at start); attributes: country, format, ...
@@ -217,6 +233,12 @@ class EventsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable M
 
   def assert_listed(*events)
     events.each { |event| assert_select "[data-upcoming-event=?]", event.slug, { count: 1 }, event.name }
+  end
+
+  # These events come in this order on the page (other listed events ignored).
+  def assert_order(*events)
+    listed = css_select("[data-upcoming-event]").pluck("data-upcoming-event")
+    assert_equal events.map(&:slug), listed & events.map(&:slug)
   end
 
   def assert_not_listed(*events)

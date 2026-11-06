@@ -5,6 +5,12 @@
   <p class="mt-1 text-[13px] text-muted"><%= t("lists.circuits.lead") %></p>
 </div>
 
+<div class="col-span-full">
+  <%= render "shared/filter_bar", url: circuits_path, hidden: { locale: url_locale }.compact,
+                                  fields: [[:sort, :select, sort_options(CircuitsController::SORTS, "circuits"), @sort, t("circuits.sort.label")]],
+                                  count: t("lists.circuits_count", count: @circuits.total_count) %>
+</div>
+
 <% if @circuits.any? %>
   <div class="col-span-full grid grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-3">
     <% @circuits.each do |circuit| %>
