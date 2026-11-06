@@ -20,8 +20,7 @@ class PostsController < ApplicationController
   end
 
   def create
-    @post = Post.new(post_params.merge(user: current_user))
-    @post.kind = kind_for(@post.event)
+    @post = build_post
 
     if @post.save
       redirect_to feed_path, notice: t("feed.posted")
@@ -65,9 +64,15 @@ class PostsController < ApplicationController
     @post = Post.new
   end
 
-  # The event's organizer writes notes; everyone else reports.
+  # A thought has no event; about an event, the organizer writes notes and everyone else reports.
+  def build_post
+    post = Post.new(post_params.merge(user: current_user))
+    post.kind = post.event ? kind_for(post.event) : "thought"
+    post
+  end
+
   def kind_for(event)
-    event&.event_organizer&.user_id == current_user.id ? "note" : "report"
+    event.event_organizer&.user_id == current_user.id ? "note" : "report"
   end
 
   def remove!(post)
@@ -82,7 +87,9 @@ class PostsController < ApplicationController
     model.where(user: current_user, post_id: @posts.map(&:id)).pluck(:post_id).to_set
   end
 
+  # A thought carries no event, whatever the form sent.
   def post_params
-    params.expect(post: %i[event_id body])
+    attributes = params.expect(post: %i[event_id body kind])
+    attributes[:kind] == "thought" ? { body: attributes[:body] } : attributes.slice(:event_id, :body)
   end
 end

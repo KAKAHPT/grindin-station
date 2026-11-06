@@ -1005,8 +1005,12 @@ en:
     kinds:
       judge_call: "A judge was called at %{event}."
       result_contested: "A result at your table was contested at %{event}. A judge is on the way."
+      mentioned: "%{name} mentioned you in the social feed."
   feed:
     title: "Social feed"
+    write_thought: "Post a thought"
+    your_thought: "Your thought"
+    thought_placeholder: "Anything cEDH: a deck, a question, a shout-out. Tag people with @handle."
     report: "Report"
     report_confirm: "Report this post to the admins?"
     reported: "Thanks, the admins will look at it."

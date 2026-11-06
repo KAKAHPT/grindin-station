@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_06_161000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_06_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -333,7 +333,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_161000) do
   create_table "posts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.text "body", null: false
     t.datetime "created_at", null: false
-    t.uuid "event_id", null: false
+    t.uuid "event_id"
     t.boolean "hidden", default: false, null: false
     t.string "kind", default: "report", null: false
     t.integer "likes_count", default: 0, null: false

@@ -13,11 +13,16 @@
   <body class="min-h-screen bg-ground text-ink font-body antialiased">
     <%= render "shared/topbar" %>
 
-    <% flash.each do |key, message| %>
-      <p role="alert" data-flash="<%= key %>"
-         class="mx-4 mt-4 p-3 rounded-xl border text-sm <%= key.to_s == "alert" ? "bg-danger/10 text-danger border-danger/40" : "bg-accent/10 text-accent border-accent/40" %>">
-        <%= message %>
-      </p>
+    <%# Flashes as small toasts in the top-right corner: a check for notices, a cross for alerts. %>
+    <% if flash.present? %>
+      <div class="pointer-events-none fixed right-4 top-16 z-40 flex flex-col items-end gap-2" data-toasts>
+        <% flash.each do |key, message| %>
+          <p role="alert" data-flash="<%= key %>"
+             class="pointer-events-auto flex items-center gap-2 rounded-lg border px-3 py-2 text-[12.5px] shadow-card <%= key.to_s == "alert" ? "bg-ground text-danger border-danger/40" : "bg-ground text-accent border-accent/40" %>">
+            <%= icon(key.to_s == "alert" ? "x-circle" : "user-check", class: "text-[14px]") %><%= message %>
+          </p>
+        <% end %>
+      </div>
     <% end %>
 
     <%# A full-width page (the landing) sets content_for(:full_main) and lays out its own columns; a wider one (the
