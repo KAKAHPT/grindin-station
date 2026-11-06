@@ -11,6 +11,7 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   has_many :event_staff, class_name: "EventStaff", dependent: :destroy
   has_many :judge_calls, dependent: :destroy
   has_many :standings_snapshots, dependent: :delete_all
+  has_many :posts, dependent: :destroy
 
   PREFERRED_POD_SIZE = 4
   SMALLER_POD_SIZE = 3
