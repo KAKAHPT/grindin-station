@@ -93,8 +93,11 @@
   <p class="form-help -mt-3 mb-4"><%= t("organizer.settings.check_in_help") %></p>
 
   <h2 class="form-section"><%= t("organizer.settings.standings") %></h2>
-  <%= f.check_box_with_label :show_beaten_in_standings %>
-  <%= f.check_box_with_label :show_unique_in_standings %>
+  <%# Beaten and Unique are pod tiebreakers: 1v1 has none of them. %>
+  <%= tag.div hidden: tournament.one_v_one?, data: { format_fields_target: "standingsExtras" } do %>
+    <%= f.check_box_with_label :show_beaten_in_standings %>
+    <%= f.check_box_with_label :show_unique_in_standings %>
+  <% end %>
   <%= f.check_box_with_label :hide_standings_until_finished %>
   <p class="form-help mb-4"><%= t("organizer.settings.standings_help") %></p>
 

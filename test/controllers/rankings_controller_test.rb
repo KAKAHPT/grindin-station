@@ -114,6 +114,7 @@ class RankingsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     assert_select "select[name=play] option[selected][value=multiplayer]"
     assert_select "[data-chip]", count: 1, text: %r{Format\s+Commander / cEDH}
     assert_select "[data-chip] a[href=?]", rankings_path(tab: "elo")
+    assert_select "a[data-clear-all]", count: 0
     assert_select "[data-summary-players]", text: "4"
   end
 

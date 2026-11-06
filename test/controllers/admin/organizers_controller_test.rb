@@ -131,14 +131,18 @@ module Admin
       assert EventOrganizer.exists?(organizer.id)
     end
 
-    test "revoke destroys an organizer without events and audits it" do
+    test "revoke destroys an organizer without events, audits it, and moves their signup out of Approved" do
       user = users(:player_two)
       organizer = EventOrganizer.create!(user: user)
+      signup = WaitlistSignup.create!(name: user.name, email: user.email_address, approved_at: 1.day.ago)
 
       patch admin_revoke_organizer_path(organizer)
 
       assert_redirected_to admin_organizers_path
       assert_nil EventOrganizer.find_by(id: organizer.id)
+      signup.reload
+      assert_nil signup.approved_at
+      assert_not_nil signup.declined_at
       audit = AuditEvent.recent.first
       assert_equal ["organizer_revoked", user], [audit.action, audit.subject]
     end

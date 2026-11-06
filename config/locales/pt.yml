@@ -1119,7 +1119,7 @@ pt:
       one: "1 liga"
       other: "%{count} ligas"
     circuits:
-      title: "Rankings"
+      title: "Circuitos"
       lead: "Os circuitos somam os pontos que os jogadores ganham nos seus eventos."
       empty: "Ainda não há circuitos."
       standings: "Classificação"

@@ -105,7 +105,7 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   def play = one_v_one? ? game_format : "multiplayer"
 
   # M14: the public standings (page, modal, standings feed) wait for the end when the organizer asks.
-  def standings_hidden? = hide_standings_until_finished && !finished?
+  def standings_hidden? = hide_standings_until_finished && !finished? && state.to_s != "canceled"
 
   def swiss_pairing? = pairing_mode == "swiss"
 

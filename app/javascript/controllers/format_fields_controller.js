@@ -4,7 +4,7 @@ import { Controller } from "@hotwired/stimulus";
 // mode only for multiplayer; switching the format resets the points to that side's defaults (unless the organiser already typed some) and
 // swaps the top cut sizes it allows.
 export default class extends Controller {
-  static targets = ["format", "matchGames", "pairing", "points", "topCut"];
+  static targets = ["format", "matchGames", "pairing", "standingsExtras", "points", "topCut"];
   static values = { points: Object, cutOptions: Object };
 
   // Points that came back from the server off the format's defaults (a failed create) count as typed.
@@ -28,6 +28,7 @@ export default class extends Controller {
     const format = this.format;
     this.matchGamesTarget.hidden = format !== "one_v_one";
     this.pairingTarget.hidden = format === "one_v_one";
+    if (this.hasStandingsExtrasTarget) this.standingsExtrasTarget.hidden = format === "one_v_one";
 
     if (!this.pointsTargets.some((input) => input.dataset.touched)) {
       const defaults = this.pointsValue[format] || {};
