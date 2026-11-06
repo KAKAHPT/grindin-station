@@ -1,5 +1,7 @@
 <%= render "organizer/tournaments/shell", tournament: @tournament %>
-<div class="col-span-full w-full max-w-[720px] space-y-3.5">
+<div class="col-span-full grid gap-4 xl:grid-cols-[minmax(0,720px)_minmax(0,1fr)]"
+     data-controller="live-preview" data-live-preview-url-value="<%= preview_organizer_tournament_path(@tournament) %>">
+<div class="w-full max-w-[720px] space-y-3.5">
   <div class="card" data-settings><%= render "form", tournament: @tournament %></div>
 
   <% if @tournament.available_states.key?("canceled") %>
@@ -13,4 +15,13 @@
       </div>
     </section>
   <% end %>
+</div>
+  <aside class="hidden xl:block sticky top-4 self-start" data-live-preview-pane>
+    <div class="mb-2 flex items-baseline justify-between gap-3">
+      <h2 class="form-section mb-0"><%= t("organizer.preview.title") %></h2>
+      <p class="form-help"><%= t("organizer.preview.help") %></p>
+    </div>
+    <iframe data-live-preview-target="frame" title="<%= t("organizer.preview.title") %>"
+            class="w-full rounded-xl border border-line bg-black" style="height: calc(100vh - 7rem)"></iframe>
+  </aside>
 </div>

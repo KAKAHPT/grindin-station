@@ -110,7 +110,9 @@ Rails.application.routes.draw do
     resource :about, only: %i[edit update], controller: "about"
 
     resources :tournaments do
+      get :preview, on: :collection, to: "previews#new"
       member do
+        get :preview, to: "previews#show"
         patch :reopen
         %w[players melee standings rounds pairings].each do |kind|
           get "export/#{kind}", to: "exports##{kind}", as: "export_#{kind}"

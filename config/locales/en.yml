@@ -351,6 +351,9 @@ en:
         type: "Result"
         event_participant_id: "Player"
   organizer:
+    preview:
+      title: "Live preview"
+      help: "The public page as it will look with what you typed. Saved when you submit the form."
     about:
       title: "About"
       lead: "What players see on your organizer page: banner, where you are, who you are and your links."
