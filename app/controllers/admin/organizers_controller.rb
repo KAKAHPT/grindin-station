@@ -49,7 +49,7 @@ module Admin
 
     private
 
-    # Audits the revocation; the waiting-list signup, if any, leaves Approved so the list reflects who can organize today.
+    # Audits the revocation; the waiting-list signup, if any, leaves Approved (the list shows who can organize today).
     def decline_signup_of(user)
       Audit.record("organizer_revoked", subject: user, email: user&.email_address)
       return unless user
