@@ -1026,7 +1026,6 @@ es:
     headline_html: "El software de torneos <br>con <em>asientos justos</em>."
     lead: "Hecho para cEDH y juegos multijugador, pero abierto a todos los formatos. Emparejamientos, clasificaciones y mesas se actualizan en directo en todos los móviles de la sala."
     cta_events: "Próximos eventos"
-    cta_organise: "Organizar un torneo"
     attribution: "Las ilustraciones de las cartas son Fan Content no oficial, permitido por la Fan Content Policy. No aprobado ni respaldado por Wizards. Partes de los materiales usados son propiedad de Wizards of the Coast. ©Wizards of the Coast LLC."
     waitlist:
       title: "Por ahora, organizar es solo por invitación"

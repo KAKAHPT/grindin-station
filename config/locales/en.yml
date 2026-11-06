@@ -1026,7 +1026,6 @@ en:
     headline_html: "The tournament software <br>with <em>fair seats</em>."
     lead: "Built for cEDH and multiplayer games, but open to every format. Pairings, standings and tables update live on every phone in the room."
     cta_events: "Upcoming events"
-    cta_organise: "Organise a tournament"
     attribution: "Card art is unofficial Fan Content permitted under the Fan Content Policy. Not approved or endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC."
     waitlist:
       title: "Organising is by invitation for now"

@@ -31,7 +31,7 @@ class TournamentManagementTest < ApplicationSystemTestCase # rubocop:disable Met
     visit new_organizer_tournament_path
 
     assert_no_selector "#tournament_match_games"
-    select "1v1", from: "Format"
+    select "Legacy", from: "Format"
 
     assert_equal(%w[3 1 0 3],
                  %w[win draw loss bye].map { |kind| find_field("tournament[points_#{kind}]").value })
@@ -41,10 +41,10 @@ class TournamentManagementTest < ApplicationSystemTestCase # rubocop:disable Met
     assert_not_includes cut_sizes, "Top 10"
 
     fill_in "tournament[points_win]", with: "5"
-    select "Multiplayer pods", from: "Format"
+    select "Commander / cEDH", from: "Format"
     assert_no_selector "#tournament_match_games"
     assert_includes find_by_id("tournament_top_cut_size").all("option").map(&:text), "Top 10"
-    select "1v1", from: "Format"
+    select "Legacy", from: "Format"
 
     assert_field "tournament[points_win]", with: "5"
     assert_field "tournament[points_bye]", with: "3"
@@ -57,7 +57,7 @@ class TournamentManagementTest < ApplicationSystemTestCase # rubocop:disable Met
     fill_in "Name", with: "Duelos"
     fill_in "Start time", with: Time.zone.now.tomorrow.change(sec: 0)
     fill_in "End time", with: Time.zone.now.tomorrow.change(sec: 0)
-    select "1v1", from: "Format"
+    select "Legacy", from: "Format"
     fill_in "tournament[points_win]", with: "5"
     fill_in "tournament[round_minutes]", with: "0"
     execute_script("document.getElementById('tournament_round_minutes').closest('form').noValidate = true")
@@ -66,7 +66,7 @@ class TournamentManagementTest < ApplicationSystemTestCase # rubocop:disable Met
     # The re-rendered page (a fresh format-fields connect()), not the page that was submitted.
     assert_text "must be greater than or equal to 1"
     assert_field "tournament[points_win]", with: "5"
-    select "Multiplayer pods", from: "Format"
+    select "Commander / cEDH", from: "Format"
     assert_field "tournament[points_win]", with: "5"
     assert_field "tournament[points_bye]", with: "3"
   end

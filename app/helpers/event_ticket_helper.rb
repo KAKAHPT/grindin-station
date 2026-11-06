@@ -86,8 +86,12 @@ module EventTicketHelper
 
   # The state as a small outlined tag before the event name ("Sold out", "Registration open", "Swiss round 2");
   # sold out in the warn tone, everything else muted.
+  # No tag while registration is simply open: the Register button already says it. Sold out, closed, running and
+  # finished keep theirs.
   def ticket_state_line(event, sold_out)
     sold = ticket_sold_out?(event, sold_out)
+    return if event.registration_open? && !sold
+
     text = sold ? t("play.events.state.sold_out") : event_state_label(event, event.latest_published_round_number)
     tag.span(text, class: "lp-evr-state",
                    data: { state_line: (sold ? "sold_out" : event.state), tone: ("warn" if sold) })
