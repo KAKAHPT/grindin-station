@@ -44,18 +44,18 @@ module Admin
 
       organizer.destroy!
       decline_signup_of(organizer.user)
-      Audit.record("organizer_revoked", subject: organizer.user, email: organizer.user&.email_address)
       back_with(notice: t("admin.organizers.revoked_notice"))
     end
 
     private
 
-    # A revoked organizer's waiting-list signup leaves Approved, so the list reflects who can organize today.
+    # Audits the revocation; the waiting-list signup, if any, leaves Approved so the list reflects who can organize today.
     def decline_signup_of(user)
+      Audit.record("organizer_revoked", subject: user, email: user&.email_address)
       return unless user
 
       WaitlistSignup.approved.where(email: user.email_address.to_s.downcase)
-                    .update_all(approved_at: nil, declined_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
+        .update_all(approved_at: nil, declined_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
     end
 
     def load_organizers
