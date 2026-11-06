@@ -681,16 +681,27 @@
     padding: 24px 16px 48px;
   }
 
+  /* Bigger card art than the landing (six per row) and more of it showing on the sides. */
   .feed-page .lp-mosaic {
-    opacity: 0.28;
+    opacity: 0.55;
+    filter: blur(2px) saturate(0.9) brightness(0.85);
+  }
+
+  .feed-page .lp-sheet {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+  }
+
+  .feed-page .lp-sheet img:nth-child(odd) {
+    transform: translateY(40px);
   }
 
   .feed-vig {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(90deg, rgb(17 19 21 / 0.35) 0%, rgb(17 19 21 / 0.96) 18%, rgb(17 19 21 / 0.96) 82%,
-        rgb(17 19 21 / 0.35) 100%);
+    background: linear-gradient(90deg, rgb(17 19 21 / 0.1) 0%, rgb(17 19 21 / 0.7) 22%, rgb(17 19 21 / 0.7) 78%,
+        rgb(17 19 21 / 0.1) 100%);
   }
 
   .feed-col {
@@ -703,17 +714,24 @@
     gap: 14px;
   }
 
+  /* A lighter grey than the page so the posts stand out over the art. */
   .feed-list {
     border-radius: 12px;
-    border: 1px solid var(--color-line);
-    background: rgb(27 30 34 / 0.72);
+    border: 1px solid var(--color-line-strong);
+    background: rgb(44 48 55 / 0.94);
     padding: 4px 18px;
+    box-shadow: var(--shadow-card);
+  }
+
+  .feed-list .divide-line > :not(:first-child),
+  .feed-list > :not(:first-child) {
+    border-color: rgb(255 255 255 / 0.08);
   }
 
   .feed-composer {
     border-radius: 12px;
-    border: 1px solid var(--color-line);
-    background: rgb(27 30 34 / 0.85);
+    border: 1px solid var(--color-line-strong);
+    background: rgb(44 48 55 / 0.94);
   }
 
   .feed-composer-sum {
