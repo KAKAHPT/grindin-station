@@ -725,8 +725,8 @@
 
   /* Each post is its own block: a clear line between posts and a faint lift on hover. */
   .feed-list article {
-    padding: 16px 6px;
-    border-top: 1px solid rgb(255 255 255 / 0.14);
+    padding: 18px 6px;
+    border-top: 1px solid rgb(255 255 255 / 0.24);
     transition: background-color 120ms ease;
   }
 
