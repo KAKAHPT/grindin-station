@@ -82,9 +82,9 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
     end
 
     # Fill in result modal form
-    select "Win", from: "Type"
-    select pod.event_participants.first.name, from: "Event participant"
-    click_button "Create Result"
+    select "Win", from: "Result"
+    select pod.event_participants.first.name, from: "Player"
+    click_button "Save result"
 
     assert_text "Result submitted successfully"
 
