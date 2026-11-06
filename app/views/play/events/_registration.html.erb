@@ -24,7 +24,8 @@
                       class: "flex flex-col gap-3" do |f| %>
           <label class="field">
             <%= t("play.events.your_decklist") %>
-            <%= f.text_field :decklist, placeholder: t("play.events.decklist_placeholder"), class: "field-input" %>
+            <%= f.text_field :decklist, class: "field-input",
+                             placeholder: t(event.decklist_required ? "play.events.decklist_placeholder_required" : "play.events.decklist_placeholder") %>
           </label>
           <label class="flex items-start gap-2 text-[13px]">
             <%= f.check_box :accepted_terms, required: true, class: "field-check mt-0.5" %>

@@ -347,6 +347,9 @@ en:
         country: "Country"
       event_participant:
         accepted_terms: "I have read and accepted the rules for this event."
+      result:
+        type: "Result"
+        event_participant_id: "Player"
   organizer:
     about:
       title: "About"
@@ -699,6 +702,7 @@ en:
       enrol: "Register"
       sign_in_to_enrol: "Sign in to register"
       decklist_placeholder: "Decklist or commander (optional)"
+      decklist_placeholder_required: "Decklist link (required)"
       cancel_registration: "Cancel registration"
       cancel_confirm: "Cancel your registration for this event?"
       you_are_enrolled: "You are enrolled"
@@ -766,6 +770,7 @@ en:
     waiting: "Waiting for the next round"
     closed: "Round closed"
   results:
+    save: "Save result"
     timeout_confirm: "Time called: the table is decided by the event's time rule. Continue?"
     timeout_applied:
       highest_seed_advances: "Time called — highest seed advances"
