@@ -83,11 +83,14 @@
       <%= form_with url: feed_path, method: :get, local: true, class: "shrink-0 sm:w-56", data: { turbo_frame: "_top", feed_format: true } do %>
         <% if @scope %><%= hidden_field_tag :scope, @scope, id: nil %><% end %>
         <% if @circuit %><%= hidden_field_tag :circuit, @circuit.id, id: nil %><% end %>
-        <label class="field">
-          <span class="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted"><%= t("feed.format") %></span>
-          <%= select_tag :play, options_for_select([[t("feed.all_formats"), ""]] + Event::PLAYS.map { |play| [play_label(play), play] }, @play),
-                         class: "field-input h-9 text-[12.5px]", data: { controller: "submit-on-change", action: "change->submit-on-change#submit" } %>
-        </label>
+        <div class="flex items-center gap-2">
+          <%= select_tag :play, options_for_select(Event::PLAYS.map { |play| [play_label(play), play] }, @play), prompt: t("feed.format"),
+                         "aria-label": t("feed.format"), class: "field-input h-9 flex-1 text-[12.5px]",
+                         data: { controller: "submit-on-change", action: "change->submit-on-change#submit" } %>
+          <% if @play %>
+            <%= link_to "✕", feed_path(scope: @scope, circuit: @circuit&.id, locale: url_locale), class: "text-muted hover:text-ink", "aria-label": t("feed.all_formats"), data: { feed_format_clear: true } %>
+          <% end %>
+        </div>
       <% end %>
     </div>
 
