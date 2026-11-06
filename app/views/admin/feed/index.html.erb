@@ -1,5 +1,15 @@
 <%= render "admin/nav", active: :feed %>
 
+<section class="col-span-full card" data-admin-feed-switch>
+  <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+    <div class="text-[13px]">
+      <%= @paused ? desk_chip(:warn) { t("admin.feed.state_paused") } : desk_chip(:ok) { t("admin.feed.state_live") } %>
+      <span class="ms-2 text-muted"><%= t("admin.feed.running_now", count: @running) %></span>
+    </div>
+    <%= button_to t(@paused ? "admin.feed.resume" : "admin.feed.pause"), admin_pause_feed_path, method: :patch, class: button_classes(@paused ? :primary : :secondary, size: :sm), data: { feed_pause: true } %>
+  </div>
+</section>
+
 <section class="col-span-full card overflow-clip" data-admin-feed>
   <h2 class="card-title"><%= t("admin.feed.title") %></h2>
   <p class="border-b border-line px-4 py-2.5 text-[12px] text-muted"><%= t("admin.feed.lead", count: Post::REPORTS_TO_HIDE) %></p>

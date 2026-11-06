@@ -5,6 +5,7 @@ require "test_helper"
 # The feed: who can post about what, likes, removal, the result post at finish, and the circuit filter.
 class PostsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
   setup do
+    Posts::Feed.resume!
     @organizer = users(:organizer_user)
     @t = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer), state: :finished)
     @t.update_columns(circuit_id: circuits(:standard_circuit).id) # rubocop:disable Rails/SkipsModelValidations
@@ -123,6 +124,93 @@ class PostsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     sign_in(other)
     get notifications_path
     assert_select "[data-notification] a[href=?]", feed_path, text: /mentioned you/
+  end
+
+  test "the format filter keeps only posts about events of that play pool" do
+    legacy = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer), state: :finished,
+                                     format: "one_v_one")
+    legacy.update_columns(game_format: "legacy") # rubocop:disable Rails/SkipsModelValidations
+    pods_post = Post.create!(user: @organizer, event: @t, kind: "note", body: "Pods note")
+    legacy_post = Post.create!(user: @organizer, event: legacy, kind: "note", body: "Legacy note")
+    thought = Post.create!(user: @organizer, kind: "thought", body: "Just a thought")
+
+    get feed_path(play: "legacy")
+    assert_select "[data-feed-format] select[name=play] option[selected][value=legacy]"
+    assert_select "[data-post='#{legacy_post.id}']"
+    assert_select "[data-post='#{pods_post.id}']", count: 0
+    assert_select "[data-post='#{thought.id}']", count: 0
+
+    get feed_path
+    assert_select "[data-post]", 3
+
+    get feed_path(event: @t.id) # by link, e.g. from an event page; no select for it
+    assert_select "[data-feed-format] select[name=event]", count: 0
+    assert_select "[data-post='#{pods_post.id}']"
+    assert_select "[data-post='#{legacy_post.id}']", count: 0
+  end
+
+  test "organizer filter, My events, Mentions of me, and Top this week" do # rubocop:disable Metrics/BlockLength
+    other_org = User.create!(name: "Other Org", email_address: "oo-#{SecureRandom.hex(3)}@example.com",
+                             password: "password123", organizer: true, handle: "other-org")
+    foreign = TournamentBuilder.build(players: 4, organizer: other_org.event_organizer, state: :finished)
+    @player.update!(handle: "me-grind")
+    mine = Post.create!(user: @organizer, event: @t, kind: "note", body: "Our event")
+    theirs = Post.create!(user: other_org, event: foreign, kind: "note", body: "Their event, hi @me-grind")
+    liked = Post.create!(user: other_org, event: foreign, kind: "note", body: "Popular")
+    3.times do |i|
+      fan = User.create!(name: "L#{i}", email_address: "l#{i}-#{SecureRandom.hex(3)}@example.com",
+                         password: "password123")
+      liked.post_likes.create!(user: fan)
+    end
+    sign_in(@player)
+
+    get feed_path(organizer: "other-org")
+    assert_select "[data-feed-format] select[name=organizer] option[selected][value=other-org]"
+    assert_select "[data-post='#{theirs.id}']"
+    assert_select "[data-post='#{mine.id}']", count: 0
+
+    get feed_path(mine: "1")
+    assert_select "[data-post='#{mine.id}']"
+    assert_select "[data-post='#{theirs.id}']", count: 0
+
+    get feed_path(mentions: "1")
+    assert_select "[data-post]", 1
+    assert_select "[data-post='#{theirs.id}']"
+
+    get feed_path(sort: "top")
+    assert_select "[data-feed-sort] a.seg-on", text: "Top this week"
+    assert_select "[data-feed-list] [data-post]:first-of-type[data-post='#{liked.id}']"
+  end
+
+  test "an admin pauses the feed: readers see the notice, posting is refused, resume brings it back" do
+    Post.create!(user: @organizer, event: @t, kind: "note", body: "Before the pause")
+    @organizer.update_columns(admin: true) # rubocop:disable Rails/SkipsModelValidations
+    sign_in(@organizer)
+    get admin_feed_path
+    assert_select "[data-admin-feed-switch] button", text: "Pause feed"
+
+    patch admin_pause_feed_path
+    assert Posts::Feed.paused?
+    get feed_path
+    assert_select "[data-feed-paused]"
+    assert_select "[data-post]", count: 0
+    post feed_posts_path, params: { post: { event_id: @t.id, body: "During the pause" } }
+    assert_equal 1, Post.count
+
+    patch admin_pause_feed_path
+    assert_not Posts::Feed.paused?
+    get feed_path
+    assert_select "[data-post]", 1
+  ensure
+    Posts::Feed.resume!
+  end
+
+  test "the visitors' default page is served from a 30 s cache" do
+    Post.create!(user: @organizer, event: @t, kind: "note", body: "Cached note")
+    get feed_path
+    assert_select "[data-feed-list][data-feed-cached=true]"
+    get feed_path(play: "multiplayer")
+    assert_select "[data-feed-list][data-feed-cached=false]"
   end
 
   private

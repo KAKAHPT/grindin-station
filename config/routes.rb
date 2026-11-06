@@ -90,6 +90,7 @@ Rails.application.routes.draw do
       patch :featured, on: :member
     end
     get "feed", to: "feed#index", as: :feed
+    patch "feed/pause", to: "feed#pause", as: :pause_feed
     patch "feed/:id/keep", to: "feed#keep", as: :keep_feed
     delete "feed/:id/remove", to: "feed#remove", as: :remove_feed
     get "invitational", to: "invitational#show", as: :invitational

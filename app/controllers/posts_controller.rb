@@ -11,11 +11,16 @@ class PostsController < ApplicationController
     redirect_to feed_path, alert: t("flash.alert.try_again_later")
   }
 
+  before_action :refuse_when_paused, except: :index
+
   def index
-    @circuit = Circuit.find_by(id: params[:circuit]) if params[:circuit].present?
-    @posts = feed_scope.recent.preload(:event, user: { avatar_attachment: :blob }).page(params[:page]).per(PER_PAGE)
-    @liked_ids = marks(PostLike)
-    @reported_ids = marks(PostReport)
+    @feed = Posts::Feed.new(params, current_user)
+    @paused = Posts::Feed.paused?
+    return if @paused
+
+    @posts = @feed.posts.preload(:event, user: { avatar_attachment: :blob }).page(params[:page]).per(PER_PAGE)
+    @cacheable = @feed.default_for_visitor?(params[:page])
+    load_marks
     prepare_composer
   end
 
@@ -54,19 +59,8 @@ class PostsController < ApplicationController
 
   private
 
-  # "everyone" or "following" (signed-in only): ?scope= wins, else the account's choice.
-  def feed_scope_param
-    return "everyone" unless current_user
-
-    scope = params[:scope].presence || current_user.feed_scope
-    User::FEED_SCOPES.include?(scope) ? scope : "everyone"
-  end
-
-  # Visible posts, of one circuit's events when ?circuit= names one, narrowed to the people followed when asked.
-  def feed_scope
-    @scope = feed_scope_param
-    scope = (@circuit ? Post.in_circuit(@circuit) : Post.all).visible
-    @scope == "following" ? scope.followed_by(current_user) : scope
+  def refuse_when_paused
+    redirect_to feed_path, alert: t("feed.paused_alert") if Posts::Feed.paused?
   end
 
   def prepare_composer
@@ -88,6 +82,11 @@ class PostsController < ApplicationController
   def remove!(post)
     post.destroy!
     Audit.record("post_removed", subject: post.user, event: post.event, post_id: post.id, by: current_user.id)
+  end
+
+  def load_marks
+    @liked_ids = marks(PostLike)
+    @reported_ids = marks(PostReport)
   end
 
   # The ids of the listed posts the viewer has liked or reported.

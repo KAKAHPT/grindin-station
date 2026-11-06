@@ -6,6 +6,16 @@ module Admin
     def index
       @posts = Post.where("reports_count > 0 OR hidden").order(reports_count: :desc, created_at: :desc)
         .preload(:event, :user).page(params[:page]).per(50)
+      @paused = Posts::Feed.paused?
+      @running = Tournament.where(state: %i[swiss single_elimination]).count
+    end
+
+    # The emergency brake: pause the whole social feed (reads and posts), or resume it.
+    def pause
+      Posts::Feed.paused? ? Posts::Feed.resume! : Posts::Feed.pause!
+      Audit.record("feed_paused", featured: Posts::Feed.paused?)
+      redirect_to admin_feed_path,
+                  notice: t(Posts::Feed.paused? ? "admin.feed.paused_notice" : "admin.feed.resumed_notice")
     end
 
     def keep
