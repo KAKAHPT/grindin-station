@@ -3,7 +3,7 @@
 <% content_for :title, t("feed.title") %>
 <% content_for :full_main, "1" %>
 <% url_locale = params[:locale] %>
-<% arts = (1..48).map { |n| image_path("landing/c#{n}.jpg") } %>
+<% arts = (1..36).map { |n| image_path("landing/c#{n}.jpg") } %>
 <% mentioned = User.where(handle: @posts.flat_map(&:mentioned_handles).uniq).index_by(&:handle) %>
 <div class="feed-page">
   <div class="lp-mosaic" aria-hidden="true">

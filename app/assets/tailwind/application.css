@@ -683,14 +683,14 @@
 
   /* Bigger card art than the landing (six per row) and more of it showing on the sides. */
   .feed-page .lp-mosaic {
-    opacity: 0.3;
-    filter: blur(2px) saturate(0.8) brightness(0.65);
+    opacity: 0.26;
+    filter: saturate(0.75) brightness(0.6);
   }
 
-  /* Eight per row with tight gaps: more cards, little empty space, kept dark. */
+  /* Seven per row with small gaps: many cards, little empty space, kept dark; no blur (it is costly to draw). */
   .feed-page .lp-sheet {
-    grid-template-columns: repeat(8, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
   }
 
   .feed-page .lp-sheet img:nth-child(odd) {
@@ -727,7 +727,7 @@
   /* Each post is its own block: a clear line between posts and a faint lift on hover. */
   .feed-list article {
     padding: 18px 6px;
-    border-top: 2px solid rgb(10 11 13 / 0.9);
+    border-top: 1px solid rgb(10 11 13 / 0.85);
     transition: background-color 120ms ease;
   }
 
