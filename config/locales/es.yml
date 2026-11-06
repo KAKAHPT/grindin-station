@@ -1021,6 +1021,8 @@ es:
     unfollowed: "Ya no sigues a %{name}."
   feed:
     title: "Feed social"
+    format: "Formato"
+    all_formats: "Todos los formatos"
     scopes:
       everyone: "Todos"
       following: "Siguiendo"

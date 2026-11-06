@@ -12,7 +12,7 @@ class PostsController < ApplicationController
   }
 
   def index
-    @circuit = Circuit.find_by(id: params[:circuit]) if params[:circuit].present?
+    read_filters
     @posts = feed_scope.recent.preload(:event, user: { avatar_attachment: :blob }).page(params[:page]).per(PER_PAGE)
     @liked_ids = marks(PostLike)
     @reported_ids = marks(PostReport)
@@ -54,6 +54,12 @@ class PostsController < ApplicationController
 
   private
 
+  # ?circuit= (one circuit's events) and ?play= (one play pool), when they name real ones.
+  def read_filters
+    @circuit = Circuit.find_by(id: params[:circuit]) if params[:circuit].present?
+    @play = params[:play].presence if Event::PLAYS.include?(params[:play].to_s)
+  end
+
   # "everyone" or "following" (signed-in only): ?scope= wins, else the account's choice.
   def feed_scope_param
     return "everyone" unless current_user
@@ -66,6 +72,7 @@ class PostsController < ApplicationController
   def feed_scope
     @scope = feed_scope_param
     scope = (@circuit ? Post.in_circuit(@circuit) : Post.all).visible
+    scope = scope.about_play(@play) if @play
     @scope == "following" ? scope.followed_by(current_user) : scope
   end
 

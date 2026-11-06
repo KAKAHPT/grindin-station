@@ -37,45 +37,59 @@
       </p>
     <% end %>
 
-    <% if authenticated? %>
-      <div class="grid gap-2 sm:grid-cols-2" data-feed-composers>
-        <% if @postable.any? %>
-          <%= tag.details class: "feed-composer group", data: { feed_composer: "event" } do %>
-            <summary class="feed-composer-sum"><%= icon("trophy", class: "me-2 text-muted") %><%= t("feed.write") %><span class="ms-auto text-muted group-open:hidden"><%= icon("plus") %></span></summary>
-            <%= form_with model: @post, url: feed_posts_path(locale: url_locale), class: "border-t border-line p-4 space-y-3", data: { turbo: false } do |f| %>
-              <div class="field">
-                <%= f.label :event_id, t("feed.about_event") %>
-                <%= f.select :event_id, @postable.map { |event| ["#{event.name} · #{l(event.start_time, format: '%d %b %Y')}", event.id] }, {}, class: "field-input" %>
-              </div>
-              <div class="field">
-                <%= f.label :body, t("feed.your_report") %>
-                <%= f.text_area :body, rows: 3, maxlength: Post::BODY_MAX, placeholder: t("feed.placeholder"), required: true, class: "field-input" %>
-              </div>
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <p class="text-[11.5px] text-muted" data-feed-rules><%= t("feed.rules_html") %></p>
-                <%= f.button t("feed.post"), type: "submit", class: button_classes(:primary, size: :xs) %>
-              </div>
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-start" data-feed-tools>
+      <div class="min-w-0 flex-1">
+        <% if authenticated? %>
+          <div class="flex flex-col gap-2" data-feed-composers>
+            <% if @postable.any? %>
+              <%= tag.details class: "feed-composer group", data: { feed_composer: "event" } do %>
+                <summary class="feed-composer-sum"><%= icon("trophy", class: "me-2 text-muted") %><%= t("feed.write") %><span class="ms-auto text-muted group-open:hidden"><%= icon("plus") %></span></summary>
+                <%= form_with model: @post, url: feed_posts_path(locale: url_locale), class: "border-t border-line p-4 space-y-3", data: { turbo: false } do |f| %>
+                  <div class="field">
+                    <%= f.label :event_id, t("feed.about_event") %>
+                    <%= f.select :event_id, @postable.map { |event| ["#{event.name} · #{l(event.start_time, format: '%d %b %Y')}", event.id] }, {}, class: "field-input" %>
+                  </div>
+                  <div class="field">
+                    <%= f.label :body, t("feed.your_report") %>
+                    <%= f.text_area :body, rows: 3, maxlength: Post::BODY_MAX, placeholder: t("feed.placeholder"), required: true, class: "field-input" %>
+                  </div>
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <p class="text-[11.5px] text-muted" data-feed-rules><%= t("feed.rules_html") %></p>
+                    <%= f.button t("feed.post"), type: "submit", class: button_classes(:primary, size: :xs) %>
+                  </div>
+                <% end %>
+              <% end %>
             <% end %>
-          <% end %>
-        <% end %>
-        <%= tag.details class: "feed-composer group", data: { feed_composer: "thought" } do %>
-          <summary class="feed-composer-sum"><%= icon("pencil", class: "me-2 text-muted") %><%= t("feed.write_thought") %><span class="ms-auto text-muted group-open:hidden"><%= icon("plus") %></span></summary>
-          <%= form_with model: @post, url: feed_posts_path(locale: url_locale), class: "border-t border-line p-4 space-y-3", data: { turbo: false } do |f| %>
-            <%= f.hidden_field :kind, value: "thought" %>
-            <div class="field">
-              <%= f.label :body, t("feed.your_thought") %>
-              <%= f.text_area :body, rows: 3, maxlength: Post::BODY_MAX, placeholder: t("feed.thought_placeholder"), required: true, class: "field-input" %>
-            </div>
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <p class="text-[11.5px] text-muted" data-feed-rules><%= t("feed.rules_html") %></p>
-              <%= f.button t("feed.post"), type: "submit", class: button_classes(:primary, size: :xs) %>
-            </div>
-          <% end %>
+            <%= tag.details class: "feed-composer group", data: { feed_composer: "thought" } do %>
+              <summary class="feed-composer-sum"><%= icon("pencil", class: "me-2 text-muted") %><%= t("feed.write_thought") %><span class="ms-auto text-muted group-open:hidden"><%= icon("plus") %></span></summary>
+              <%= form_with model: @post, url: feed_posts_path(locale: url_locale), class: "border-t border-line p-4 space-y-3", data: { turbo: false } do |f| %>
+                <%= f.hidden_field :kind, value: "thought" %>
+                <div class="field">
+                  <%= f.label :body, t("feed.your_thought") %>
+                  <%= f.text_area :body, rows: 3, maxlength: Post::BODY_MAX, placeholder: t("feed.thought_placeholder"), required: true, class: "field-input" %>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <p class="text-[11.5px] text-muted" data-feed-rules><%= t("feed.rules_html") %></p>
+                  <%= f.button t("feed.post"), type: "submit", class: button_classes(:primary, size: :xs) %>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        <% else %>
+      <p class="rounded-lg border border-line bg-surface/80 px-4 py-3 text-[13px] text-muted" data-feed-signin><%= t("feed.sign_in_html", link: link_to(t("topbar.sign_in"), new_session_path(locale: url_locale), class: "text-ink underline")) %></p>
         <% end %>
       </div>
-    <% else %>
-      <p class="rounded-lg border border-line bg-surface/80 px-4 py-3 text-[13px] text-muted" data-feed-signin><%= t("feed.sign_in_html", link: link_to(t("topbar.sign_in"), new_session_path(locale: url_locale), class: "text-ink underline")) %></p>
-    <% end %>
+      <%# Filter by format: posts about events of that play pool. %>
+      <%= form_with url: feed_path, method: :get, local: true, class: "shrink-0 sm:w-56", data: { turbo_frame: "_top", feed_format: true } do %>
+        <% if @scope %><%= hidden_field_tag :scope, @scope, id: nil %><% end %>
+        <% if @circuit %><%= hidden_field_tag :circuit, @circuit.id, id: nil %><% end %>
+        <label class="field">
+          <span class="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted"><%= t("feed.format") %></span>
+          <%= select_tag :play, options_for_select([[t("feed.all_formats"), ""]] + Event::PLAYS.map { |play| [play_label(play), play] }, @play),
+                         class: "field-input h-9 text-[12.5px]", data: { controller: "submit-on-change", action: "change->submit-on-change#submit" } %>
+        </label>
+      <% end %>
+    </div>
 
     <div class="feed-list divide-y divide-line" data-feed-list>
       <% @posts.each do |post| %>

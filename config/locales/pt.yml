@@ -1021,6 +1021,8 @@ pt:
     unfollowed: "Deixaste de seguir %{name}."
   feed:
     title: "Feed social"
+    format: "Formato"
+    all_formats: "Todos os formatos"
     scopes:
       everyone: "Todos"
       following: "A seguir"

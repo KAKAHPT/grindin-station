@@ -125,6 +125,24 @@ class PostsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     assert_select "[data-notification] a[href=?]", feed_path, text: /mentioned you/
   end
 
+  test "the format filter keeps only posts about events of that play pool" do
+    legacy = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer), state: :finished,
+                                     format: "one_v_one")
+    legacy.update_columns(game_format: "legacy") # rubocop:disable Rails/SkipsModelValidations
+    pods_post = Post.create!(user: @organizer, event: @t, kind: "note", body: "Pods note")
+    legacy_post = Post.create!(user: @organizer, event: legacy, kind: "note", body: "Legacy note")
+    thought = Post.create!(user: @organizer, kind: "thought", body: "Just a thought")
+
+    get feed_path(play: "legacy")
+    assert_select "[data-feed-format] select[name=play] option[selected][value=legacy]"
+    assert_select "[data-post='#{legacy_post.id}']"
+    assert_select "[data-post='#{pods_post.id}']", count: 0
+    assert_select "[data-post='#{thought.id}']", count: 0
+
+    get feed_path
+    assert_select "[data-post]", 3
+  end
+
   private
 
   def sign_in(user)
