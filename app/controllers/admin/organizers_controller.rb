@@ -12,7 +12,7 @@ module Admin
     def index
       signups = search(WaitlistSignup.public_send(@filter), WaitlistSignup.arel_table[:name],
                        WaitlistSignup.arel_table[:email])
-      @signups = signups.order(created_at: :desc).to_a
+      @signups = signups.order(created_at: :desc).page(params[:page]).per(50)
       # One query for every row's account (the e-mails are lower-case on both sides).
       @accounts = User.where(email_address: @signups.map(&:email)).index_by(&:email_address)
       load_organizers
@@ -43,19 +43,30 @@ module Admin
       return back_with(alert: t("admin.organizers.revoke_refused")) if in_use
 
       organizer.destroy!
+      decline_signup_of(organizer.user)
       Audit.record("organizer_revoked", subject: organizer.user, email: organizer.user&.email_address)
       back_with(notice: t("admin.organizers.revoked_notice"))
     end
 
     private
 
+    # A revoked organizer's waiting-list signup leaves Approved, so the list reflects who can organize today.
+    def decline_signup_of(user)
+      return unless user
+
+      WaitlistSignup.approved.where(email: user.email_address.to_s.downcase)
+                    .update_all(approved_at: nil, declined_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
+    end
+
     def load_organizers
       organizers = search(EventOrganizer.joins(:user).includes(:user), User.arel_table[:name],
                           User.arel_table[:email_address])
-      @organizers = organizers.order(created_at: :desc).to_a
-      ids = @organizers.map(&:id)
-      @events_counts = Event.where(event_organizer_id: ids).group(:event_organizer_id).count
-      @circuits_counts = Circuit.where(event_organizer_id: ids).group(:event_organizer_id).count
+      @organizers = organizers.order(created_at: :desc).page(params[:organizers_page]).per(50)
+      @events_counts, @circuits_counts = counts_for(@organizers.map(&:id))
+    end
+
+    def counts_for(ids)
+      [Event, Circuit].map { |model| model.where(event_organizer_id: ids).group(:event_organizer_id).count }
     end
 
     # Someone who already organises keeps their EventOrganizer.

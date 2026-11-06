@@ -17,7 +17,10 @@
 
   <%= render "shared/filter_bar", url: rankings_path, fields: rankings_filter_fields(@board, @tab), count: count,
                                   hidden: { tab: @tab } %>
-  <%= render "shared/filter_chips", chips: rankings_chips(@board), clear_url: rankings_path(tab: @tab) %>
+  <%# The Leaderboard's default pool chip alone has nothing to clear. %>
+  <% chips = rankings_chips(@board) %>
+  <% default_only = @tab == "elo" && chips.one? && chips.first.first == t("rankings.filters.format") && @board.filters[:play] == "multiplayer" %>
+  <%= render "shared/filter_chips", chips: chips, clear_url: (rankings_path(tab: @tab) unless default_only) %>
 
   <section class="card overflow-hidden">
     <div class="rk-strip" data-summary>

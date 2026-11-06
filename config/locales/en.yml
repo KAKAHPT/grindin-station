@@ -1119,7 +1119,7 @@ en:
       one: "1 league"
       other: "%{count} leagues"
     circuits:
-      title: "Rankings"
+      title: "Circuits"
       lead: "Circuits add up the points players earn across their events."
       empty: "No circuits yet."
       standings: "Standings"

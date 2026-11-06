@@ -58,6 +58,7 @@
         <% end %>
       </tbody>
     </table>
+    <div class="px-4 py-2"><%= paginate @signups, param_name: :page %></div>
   </div>
   <% if @signups.empty? %>
     <p class="border-t border-line px-4 py-3 text-[12px] text-muted"><%= t("admin.organizers.signups_empty") %></p>
@@ -96,6 +97,7 @@
         <% end %>
       </tbody>
     </table>
+    <div class="px-4 py-2"><%= paginate @organizers, param_name: :organizers_page %></div>
   </div>
   <% if @organizers.empty? %>
     <p class="border-t border-line px-4 py-3 text-[12px] text-muted"><%= t("admin.organizers.organizers_empty") %></p>

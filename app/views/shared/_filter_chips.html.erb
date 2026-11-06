@@ -1,4 +1,4 @@
-<%# Active filters as chips (M13): chips = [[label, value, url without it]], clear_url: back to no filters. %>
+<%# Active filters as chips (M13): chips = [[label, value, url without it]], clear_url: back to no filters (nil: no Clear all). %>
 <% if chips.any? %>
   <div class="flex flex-wrap items-center gap-1.5 mb-3" data-filter-chips>
     <% chips.each do |label, value, without| %>
@@ -7,6 +7,8 @@
         <%= link_to "✕", without, class: "opacity-70 hover:opacity-100 hover:text-ink", "aria-label": t("filters.remove", label: label) %>
       </span>
     <% end %>
-    <%= link_to t("filters.clear_all"), clear_url, class: "filter-chip bg-transparent hover:text-ink", data: { clear_all: true } %>
+    <% if clear_url %>
+      <%= link_to t("filters.clear_all"), clear_url, class: "filter-chip bg-transparent hover:text-ink", data: { clear_all: true } %>
+    <% end %>
   </div>
 <% end %>
