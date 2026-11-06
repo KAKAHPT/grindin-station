@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Organizer
-  class TournamentsController < OrganizerController # rubocop:disable Metrics/ClassLength -- the permitted list
+  class TournamentsController < OrganizerController
     public_actions :index
     require_organizer only: %i[new create]
     allow_roles :organizer, only: %i[edit update reopen]
@@ -44,9 +44,8 @@ module Organizer
 
     def create
       attributes = tournament_params.merge(event_organizer: current_organizer)
-      # The form has one Format select: Commander / cEDH is the pods, any other game format is 1v1.
       if attributes[:game_format].present? && attributes[:format].blank?
-        attributes[:format] = attributes[:game_format] == "commander" ? "multiplayer" : "one_v_one"
+        attributes[:format] = Tournament.format_for_game(attributes[:game_format])
       end
       @tournament = Tournament.new(attributes)
 
@@ -109,50 +108,7 @@ module Organizer
     end
 
     def tournament_params
-      params.expect(tournament: %i[
-                      name
-                      state
-                      description
-                      start_time
-                      end_time
-                      minimum_participants
-                      maximum_participants
-                      prizes
-                      address
-                      country
-                      schedule
-                      rules
-                      price
-                      currency
-                      cover
-                      format
-                      match_games
-                      game_format
-                      points_win
-                      points_draw
-                      points_loss
-                      points_bye
-                      swiss_rounds_count
-                      top_cut_size
-                      round_minutes
-                      top_cut_round_minutes
-                      pairing_mode
-                      uneven_field
-                      self_report_enabled
-                      result_confirmation
-                      confirmation_timeout_minutes
-                      waitlist_enabled
-                      decklist_required
-                      self_check_in_enabled
-                      check_in_opens_hours_before
-                      show_commanders_in_standings
-                      show_decklists
-                      show_beaten_in_standings
-                      show_unique_in_standings
-                      hide_standings_until_finished
-                      top_cut_timeout_rule
-                      featured
-                    ])
+      params.expect(tournament: Tournament::SETTINGS_ATTRIBUTES)
     end
   end
 end
