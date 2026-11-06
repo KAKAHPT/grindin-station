@@ -148,6 +148,38 @@ class PostsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     assert_select "[data-post='#{legacy_post.id}']", count: 0
   end
 
+  test "organizer filter, My events, Mentions of me, and Top this week" do
+    other_org = User.create!(name: "Other Org", email_address: "oo-#{SecureRandom.hex(3)}@example.com",
+                             password: "password123", organizer: true, handle: "other-org")
+    foreign = TournamentBuilder.build(players: 4, organizer: other_org.event_organizer, state: :finished)
+    @player.update!(handle: "me-grind")
+    mine = Post.create!(user: @organizer, event: @t, kind: "note", body: "Our event")
+    theirs = Post.create!(user: other_org, event: foreign, kind: "note", body: "Their event, hi @me-grind")
+    liked = Post.create!(user: other_org, event: foreign, kind: "note", body: "Popular")
+    3.times do |i|
+      liked.post_likes.create!(user: User.create!(name: "L#{i}", email_address: "l#{i}-#{SecureRandom.hex(3)}@example.com",
+                                                  password: "password123"))
+    end
+    sign_in(@player)
+
+    get feed_path(organizer: "other-org")
+    assert_select "[data-feed-format] select[name=organizer] option[selected][value=other-org]"
+    assert_select "[data-post='#{theirs.id}']"
+    assert_select "[data-post='#{mine.id}']", count: 0
+
+    get feed_path(mine: "1")
+    assert_select "[data-post='#{mine.id}']"
+    assert_select "[data-post='#{theirs.id}']", count: 0
+
+    get feed_path(mentions: "1")
+    assert_select "[data-post]", 1
+    assert_select "[data-post='#{theirs.id}']"
+
+    get feed_path(sort: "top")
+    assert_select "[data-feed-sort] a.seg-on", text: "Top this week"
+    assert_select "[data-feed-list] [data-post]:first-of-type[data-post='#{liked.id}']"
+  end
+
   private
 
   def sign_in(user)

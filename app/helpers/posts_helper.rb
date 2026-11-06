@@ -7,6 +7,11 @@ module PostsHelper
     safe_join(post.body.to_s.split(/(@[a-z0-9-]{3,30})\b/).map { |piece| mention_link(piece, mentioned) })
   end
 
+  # The feed URL with the current filters, changed by the given keys (nil drops one).
+  def feed_url_with(feed, **changes)
+    feed_path(**feed.url_params.merge(locale: params[:locale]).merge(changes).compact)
+  end
+
   private
 
   def mention_link(piece, mentioned)

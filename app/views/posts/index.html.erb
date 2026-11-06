@@ -23,16 +23,16 @@
       <% if authenticated? %>
         <span class="seg" data-feed-scope>
           <% User::FEED_SCOPES.each do |scope| %>
-            <%= link_to t("feed.scopes.#{scope}"), feed_path(scope: scope, circuit: @circuit&.id, locale: url_locale), class: ("seg-on" if scope == @scope), "aria-current": ("page" if scope == @scope) %>
+            <%= link_to t("feed.scopes.#{scope}"), feed_path(scope: scope, circuit: @feed.circuit&.id, locale: url_locale), class: ("seg-on" if scope == @feed.scope), "aria-current": ("page" if scope == @feed.scope) %>
           <% end %>
         </span>
       <% end %>
       </div>
     </section>
 
-    <% if @circuit %>
+    <% if @feed.circuit %>
       <p class="rounded-lg border border-line bg-surface/80 px-4 py-2.5 text-[13px] text-muted" data-feed-circuit>
-        <%= t("feed.circuit_filter_html", name: link_to(@circuit.name, circuit_path(@circuit, locale: url_locale), class: "text-ink underline")) %>
+        <%= t("feed.circuit_filter_html", name: link_to(@feed.circuit.name, circuit_path(@feed.circuit, locale: url_locale), class: "text-ink underline")) %>
         <%= link_to t("feed.all_posts"), feed_path(locale: url_locale), class: "ms-2 text-ink underline" %>
       </p>
     <% end %>
@@ -81,16 +81,35 @@
       </div>
       <%# Filters: posts about events of one play pool and/or one event. %>
       <%= form_with url: feed_path, method: :get, local: true, class: "shrink-0 sm:w-56", data: { turbo_frame: "_top", feed_format: true } do %>
-        <% if @scope %><%= hidden_field_tag :scope, @scope, id: nil %><% end %>
-        <% if @circuit %><%= hidden_field_tag :circuit, @circuit.id, id: nil %><% end %>
+        <%= hidden_field_tag :scope, @feed.scope, id: nil %>
+        <% if @feed.circuit %><%= hidden_field_tag :circuit, @feed.circuit.id, id: nil %><% end %>
         <div class="flex flex-col gap-2">
-          <%= select_tag :play, options_for_select([[t("feed.all_formats"), ""]] + Event::PLAYS.map { |play| [play_label(play), play] }, @play),
+          <%= select_tag :play, options_for_select([[t("feed.all_formats"), ""]] + Event::PLAYS.map { |play| [play_label(play), play] }, @feed.play),
                          "aria-label": t("feed.format"), class: "field-input h-9 text-[12.5px]",
                          data: { controller: "submit-on-change", action: "change->submit-on-change#submit" } %>
-          <%= select_tag :event, options_for_select([[t("feed.all_events"), ""]] + @events.map { |event| ["#{event.name} · #{l(event.start_time, format: '%d %b %Y')}", event.id] }, @event&.id),
+          <%= select_tag :event, options_for_select([[t("feed.all_events"), ""]] + @feed.events.map { |event| ["#{event.name} · #{l(event.start_time, format: '%d %b %Y')}", event.id] }, @feed.event&.id),
                          "aria-label": t("feed.event"), class: "field-input h-9 text-[12.5px]",
                          data: { controller: "submit-on-change", action: "change->submit-on-change#submit", feed_event: true } %>
+          <%= select_tag :organizer, options_for_select([[t("feed.all_organizers"), ""]] + @feed.organizers.map { |organizer| [organizer.name, organizer.user.handle] }, @feed.organizer&.user&.handle),
+                         "aria-label": t("feed.organizer"), class: "field-input h-9 text-[12.5px]",
+                         data: { controller: "submit-on-change", action: "change->submit-on-change#submit", feed_organizer: true } %>
+          <% if @feed.top? %><%= hidden_field_tag :sort, "top", id: nil %><% end %>
+          <% if @feed.mine? %><%= hidden_field_tag :mine, "1", id: nil %><% end %>
+          <% if @feed.mentions? %><%= hidden_field_tag :mentions, "1", id: nil %><% end %>
         </div>
+      <% end %>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-between gap-2 px-1" data-feed-quick>
+      <span class="seg" data-feed-sort>
+        <%= link_to t("feed.sort.new"), feed_url_with(@feed, sort: nil), class: ("seg-on" if @feed.sort == "new"), "aria-current": ("page" if @feed.sort == "new") %>
+        <%= link_to t("feed.sort.top"), feed_url_with(@feed, sort: "top"), class: ("seg-on" if @feed.sort == "top"), "aria-current": ("page" if @feed.sort == "top") %>
+      </span>
+      <% if authenticated? %>
+        <span class="flex flex-wrap gap-1.5" data-feed-toggles>
+          <%= link_to t("feed.mine"), feed_url_with(@feed, mine: (@feed.mine? ? nil : "1")), class: "filter-chip #{"bg-accent/15 text-ink" if @feed.mine?}", "aria-pressed": @feed.mine?.to_s, data: { feed_mine: true } %>
+          <%= link_to t("feed.mentions_me"), feed_url_with(@feed, mentions: (@feed.mentions? ? nil : "1")), class: "filter-chip #{"bg-accent/15 text-ink" if @feed.mentions?}", "aria-pressed": @feed.mentions?.to_s, data: { feed_mentions: true } %>
+        </span>
       <% end %>
     </div>
 
@@ -99,7 +118,7 @@
         <%= render "posts/post", post: post, liked: @liked_ids.include?(post.id), reported: @reported_ids.include?(post.id), url_locale: url_locale, flat: true, mentioned: mentioned %>
       <% end %>
       <% if @posts.empty? %>
-        <p class="px-4 py-8 text-center text-[13px] text-muted" data-feed-empty><%= t(@scope == "following" ? "feed.empty_following" : "feed.empty") %></p>
+        <p class="px-4 py-8 text-center text-[13px] text-muted" data-feed-empty><%= t(@feed.scope == "following" ? "feed.empty_following" : "feed.empty") %></p>
       <% end %>
     </div>
     <div><%= paginate @posts %></div>

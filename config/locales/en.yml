@@ -1025,6 +1025,13 @@ en:
     all_formats: "All formats"
     event: "Event"
     all_events: "All events"
+    organizer: "Organizer"
+    all_organizers: "All organizers"
+    mine: "My events"
+    mentions_me: "Mentions of me"
+    sort:
+      new: "Newest"
+      top: "Top this week"
     scopes:
       everyone: "Everyone"
       following: "Following"

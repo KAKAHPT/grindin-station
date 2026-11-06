@@ -34,6 +34,19 @@ class Post < ApplicationRecord
   scope :in_circuit, ->(circuit) { joins(:event).where(events: { circuit_id: circuit.id }) }
   # Posts about events of one play pool (multiplayer or a 1v1 game format); thoughts have no event and stay out.
   scope :about_play, ->(play) { where(event_id: Event.with_play(play).select(:id)) }
+  scope :about_organizer, ->(organizer) { where(event_id: Event.where(event_organizer_id: organizer.id).select(:id)) }
+  # Posts about events the viewer played in or organizes (any state).
+  scope :about_events_of, lambda { |viewer|
+    played = EventParticipant.joins(:player).where(players: { user_id: viewer.id }).select(:event_id)
+    events = Event.where(id: played)
+    events = events.or(Event.where(event_organizer_id: viewer.event_organizer.id)) if viewer.event_organizer
+    where(event_id: events.select(:id))
+  }
+  # Posts that mention the viewer as @handle (whole handle only).
+  scope :mentioning, lambda { |viewer|
+    where("posts.body ~* ?", "(^|[^a-z0-9-])@#{Regexp.escape(viewer.handle.to_s)}([^a-z0-9-]|$)")
+  }
+  scope :top_this_week, -> { where(created_at: 7.days.ago..).order(likes_count: :desc, created_at: :desc) }
   # Posts by the people the viewer follows, and about events run by organizers they follow.
   scope :followed_by, lambda { |viewer|
     followed = viewer.follows.select(:followed_id)
