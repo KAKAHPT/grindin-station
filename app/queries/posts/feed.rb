@@ -50,6 +50,10 @@ module Posts
     def read_targets
       @circuit = Circuit.find_by(id: @params[:circuit]) if @params[:circuit].present?
       @play = @params[:play].presence if Event::PLAYS.include?(@params[:play].to_s)
+      read_event_and_organizer
+    end
+
+    def read_event_and_organizer
       @event = events.find { |event| event.id == @params[:event] }
       @organizer = organizers.find { |organizer| organizer.user&.handle == @params[:organizer] }
     end
