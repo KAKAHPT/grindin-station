@@ -79,7 +79,7 @@
       <p class="rounded-lg border border-line bg-surface/80 px-4 py-3 text-[13px] text-muted" data-feed-signin><%= t("feed.sign_in_html", link: link_to(t("topbar.sign_in"), new_session_path(locale: url_locale), class: "text-ink underline")) %></p>
         <% end %>
       </div>
-      <%# Filters: posts about events of one play pool and/or one country. %>
+      <%# Filters: posts about events of one play pool and/or one event. %>
       <%= form_with url: feed_path, method: :get, local: true, class: "shrink-0 sm:w-56", data: { turbo_frame: "_top", feed_format: true } do %>
         <% if @scope %><%= hidden_field_tag :scope, @scope, id: nil %><% end %>
         <% if @circuit %><%= hidden_field_tag :circuit, @circuit.id, id: nil %><% end %>
@@ -87,9 +87,6 @@
           <%= select_tag :play, options_for_select([[t("feed.all_formats"), ""]] + Event::PLAYS.map { |play| [play_label(play), play] }, @play),
                          "aria-label": t("feed.format"), class: "field-input h-9 text-[12.5px]",
                          data: { controller: "submit-on-change", action: "change->submit-on-change#submit" } %>
-          <%= select_tag :country, options_for_select([[t("feed.all_countries"), ""]] + @countries.map { |code| [country_name(code), code] }, @country),
-                         "aria-label": t("feed.country"), class: "field-input h-9 text-[12.5px]",
-                         data: { controller: "submit-on-change", action: "change->submit-on-change#submit", feed_country: true } %>
           <%= select_tag :event, options_for_select([[t("feed.all_events"), ""]] + @events.map { |event| ["#{event.name} · #{l(event.start_time, format: '%d %b %Y')}", event.id] }, @event&.id),
                          "aria-label": t("feed.event"), class: "field-input h-9 text-[12.5px]",
                          data: { controller: "submit-on-change", action: "change->submit-on-change#submit", feed_event: true } %>

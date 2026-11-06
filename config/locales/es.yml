@@ -1023,8 +1023,6 @@ es:
     title: "Feed social"
     format: "Formato"
     all_formats: "Todos los formatos"
-    country: "País"
-    all_countries: "Todos los países"
     event: "Evento"
     all_events: "Todos los eventos"
     scopes:

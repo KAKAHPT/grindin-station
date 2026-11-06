@@ -34,7 +34,6 @@ class Post < ApplicationRecord
   scope :in_circuit, ->(circuit) { joins(:event).where(events: { circuit_id: circuit.id }) }
   # Posts about events of one play pool (multiplayer or a 1v1 game format); thoughts have no event and stay out.
   scope :about_play, ->(play) { where(event_id: Event.with_play(play).select(:id)) }
-  scope :about_country, ->(code) { where(event_id: Event.where(country: code).select(:id)) }
   # Posts by the people the viewer follows, and about events run by organizers they follow.
   scope :followed_by, lambda { |viewer|
     followed = viewer.follows.select(:followed_id)
