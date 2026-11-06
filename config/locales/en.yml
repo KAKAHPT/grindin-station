@@ -2,6 +2,7 @@ en:
   topbar:
     events: "Events"
     rankings: "Rankings"
+    organizers: "Organizers"
     about: "About"
     language: "Language"
     sign_in: "Sign in"
@@ -200,6 +201,9 @@ en:
             avatar:
               content_type: "must be a JPEG, PNG or WebP image"
               too_big: "must be 2 MB or smaller"
+            banner:
+              content_type: "must be a JPEG, PNG or WebP image"
+              too_big: "must be 4 MB or smaller"
         event:
           attributes:
             circuit:
@@ -248,6 +252,7 @@ en:
         team: "Team"
         visibility: "Profile visibility"
         avatar: "Avatar"
+        banner: "Banner"
         password: "Password"
         password_confirmation: "Password confirmation"
         current_password: "Current password"
@@ -854,6 +859,7 @@ en:
       title: "Your account"
       profile: "Profile"
       avatar_hint: "JPEG, PNG or WebP, up to 2 MB."
+      banner_hint: "Shown behind your card on the Organizers page and on your page. JPEG, PNG or WebP, up to 4 MB; about 4:1 works best."
       email_hint: "To change your e-mail, also type your current password below."
       wizards_email_hint: "Used by organizers to report your results to Wizards EventLink. Leave empty to use your sign-in e-mail."
       handle_hint: "3 to 30 lowercase letters, digits or hyphens. Used in your public profile address."
@@ -931,6 +937,16 @@ en:
       result_contested: "A result at your table was contested at %{event}. A judge is on the way."
   organizers:
     title: "Organizer"
+    index_title: "Organizers"
+    index_lead: "Who runs events on Grindin Station. Open an organizer to see their events."
+    search: "Search organizers"
+    country: "Country"
+    all_countries: "All countries"
+    count:
+      one: "1 organizer"
+      other: "%{count} organizers"
+    next_event: "Next: %{name} · %{date}"
+    none: "No organizers match."
     lead: "Events organised on Grindin Station"
     upcoming: "Upcoming events"
     past: "Past events"

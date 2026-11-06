@@ -5,6 +5,7 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
   HANDLE_FORMAT = /\A[a-z0-9-]{3,30}\z/
   AVATAR_TYPES = %w[image/jpeg image/png image/webp].freeze
   AVATAR_MAX_SIZE = 2.megabytes
+  BANNER_MAX_SIZE = 4.megabytes
   HANDLE_TRIES = 3
 
   attribute :organizer, :boolean, default: false
@@ -15,6 +16,11 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
   has_one_attached :avatar do |attachable|
     attachable.variant :thumb, resize_to_fill: [96, 96]
     attachable.variant :profile, resize_to_fill: [256, 256]
+  end
+  # Organizers only: the banner behind their card on /organizers and their page header.
+  has_one_attached :banner do |attachable|
+    attachable.variant :card, resize_to_fill: [800, 300]
+    attachable.variant :wide, resize_to_fill: [1600, 400]
   end
 
   before_validation :assign_handle, on: :create, if: -> { handle.blank? }
@@ -47,6 +53,7 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
   validates :bio, length: { maximum: 500 }
   validates :team, length: { maximum: 30 }
   validate :avatar_type_and_size
+  validate :banner_type_and_size
 
   # Teams already in use, for the account form's autocomplete.
   def self.team_suggestions
@@ -188,5 +195,12 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
     errors.add(:avatar, :content_type) unless AVATAR_TYPES.include?(avatar.blob.content_type)
     errors.add(:avatar, :too_big) if avatar.blob.byte_size > AVATAR_MAX_SIZE
+  end
+
+  def banner_type_and_size
+    return unless banner.attached?
+
+    errors.add(:banner, :content_type) unless AVATAR_TYPES.include?(banner.blob.content_type)
+    errors.add(:banner, :too_big) if banner.blob.byte_size > BANNER_MAX_SIZE
   end
 end

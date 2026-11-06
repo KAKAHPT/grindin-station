@@ -650,6 +650,29 @@
     box-shadow: var(--shadow-card);
   }
 
+  /* Organizer card / header: the organizer's banner behind the text, darkened on the left so the text stays readable. */
+  .org-card {
+    position: relative;
+    min-height: 7rem;
+    overflow: hidden;
+  }
+
+  .org-card-banner {
+    background-size: cover;
+    background-position: center;
+  }
+
+  .org-card-banner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgb(17 19 21 / 0.92) 0%, rgb(17 19 21 / 0.7) 55%, rgb(17 19 21 / 0.35) 100%);
+  }
+
+  .org-card > * {
+    position: relative;
+  }
+
   .card-title {
     padding: 12px 16px 10px;
     font: 600 15px var(--font-display);

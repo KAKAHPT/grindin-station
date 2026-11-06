@@ -1,0 +1,52 @@
+<%# Public list of organizers (/organizers): one card each (avatar or initials, name → their page, country, public
+    event count, next event), A–Z, filtered by name and country. %>
+<% content_for :title, t("organizers.index_title") %>
+<% content_for :description, t("organizers.index_lead") %>
+<% url_locale = params[:locale] %>
+
+<div class="col-span-full flex flex-wrap items-end justify-between gap-3 pt-2" data-list-header>
+  <div class="min-w-0">
+    <h1 class="font-display text-2xl font-semibold text-ink"><%= t("organizers.index_title") %></h1>
+    <p class="mt-1 text-[13px] text-muted"><%= t("organizers.index_lead") %></p>
+  </div>
+</div>
+
+<div class="col-span-full">
+  <%= render "shared/filter_bar", url: organizers_path, hidden: { locale: url_locale }.compact,
+             fields: [[:q, :search, t("organizers.search"), @q, nil],
+                      [:country, :select, [[t("organizers.all_countries"), ""]] + @countries.map { |c| [country_name(c), c] }, @country, t("organizers.country")]],
+             count: t("organizers.count", count: @organizers.size) %>
+</div>
+
+<% if @organizers.any? %>
+  <ul class="col-span-full grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-organizers>
+    <% @organizers.each do |organizer| %>
+      <% user = organizer.user %>
+      <% next_event = @next_events[organizer.id] %>
+      <% banner = user.banner.attached? %>
+      <li class="card org-card flex items-center gap-3 p-4 <%= "org-card-banner" if banner %>" data-organizer="<%= user.handle %>"
+          <% if banner %>style="background-image: url('<%= url_for(user.banner.variant(:card)) %>')" data-organizer-banner<% end %>>
+        <% if user.avatar.attached? %>
+          <%= image_tag url_for(user.avatar.variant(:thumb)), alt: "", width: 48, height: 48, class: "size-12 shrink-0 rounded-full object-cover border border-line" %>
+        <% else %>
+          <span aria-hidden="true" class="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-surface-raised border border-line font-display text-base font-semibold text-muted"><%= profile_initials(user) %></span>
+        <% end %>
+        <div class="min-w-0 flex-1">
+          <h2 class="font-display text-[15px] font-semibold truncate">
+            <%= link_to user.display_name, organizer_profile_path(user.handle, locale: url_locale), class: "hover:text-accent hover:underline" %>
+          </h2>
+          <p class="text-[12px] text-muted truncate">
+            <% if user.country %><span data-organizer-country><%= country_name(user.country) %></span> · <% end %><span data-organizer-events><%= t("organizers.events_count", count: @events_counts.fetch(organizer.id, 0)) %></span>
+          </p>
+          <% if next_event %>
+            <p class="mt-1 text-[12px] text-ink truncate" data-organizer-next>
+              <%= t("organizers.next_event", name: link_to(next_event.name, play_event_path(next_event.slug, locale: url_locale), class: "hover:text-accent hover:underline"), date: l(next_event.start_time, format: :short)).html_safe %>
+            </p>
+          <% end %>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="col-span-full card px-4 py-8 text-center text-[13px] text-muted" data-list-empty><%= t("organizers.none") %></p>
+<% end %>
