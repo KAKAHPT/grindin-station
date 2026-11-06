@@ -162,9 +162,11 @@ module Scoring
       league
     end
 
+    # The round's own pods (made by the after_create) go away: the tests seat their pods by hand, and an auto pod
+    # that happened to hold the same players would count their results twice.
     def create_round(league, number: nil, is_play_round: true)
       number ||= (league.rounds.maximum(:number) || 0) + 1
-      Round.create!(
+      round = Round.create!(
         event: league,
         number: number,
         type: "SwissRound",
@@ -173,6 +175,8 @@ module Scoring
         published: true,
         is_play_round: is_play_round
       )
+      round.pods.destroy_all
+      round
     end
 
     def create_finished_pod_with_one_winner(league, winner_index: 0, size: 4, exclude: [])
