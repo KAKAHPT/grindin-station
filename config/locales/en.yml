@@ -4,6 +4,7 @@ en:
     rankings: "Rankings"
     organizers: "Organizers"
     circuits: "Circuits"
+    feed: "Feed"
     about: "About"
     language: "Language"
     sign_in: "Sign in"
@@ -19,6 +20,7 @@ en:
       errors: "Errors"
       events: "Events"
       circuits: "Circuits"
+      feed: "Feed"
       invitational: "Invitational"
       organizers: "Organizers"
     states:
@@ -149,6 +151,22 @@ en:
       featured_off: "Not featured"
       featured_saved: "Featured updated."
       empty: "No circuits yet."
+    feed:
+      title: "Reported posts"
+      lead: "A post with %{count} reports is hidden until you keep or remove it."
+      post: "Post"
+      author: "Author"
+      event: "Event"
+      reports: "Reports"
+      state: "State"
+      actions: "Actions"
+      hidden: "Hidden"
+      visible: "Visible"
+      keep: "Keep"
+      remove: "Remove"
+      kept: "Post kept; reports cleared."
+      removed: "Post removed."
+      empty: "Nothing reported."
     invitational:
       title: "Invitational leaderboard"
       lead: "Ranking points of the tier events times the tier (bronze ×1, silver ×1.5, gold ×2, platinum ×3). Only admins see this page."
@@ -217,6 +235,12 @@ en:
             banner:
               content_type: "must be a JPEG, PNG or WebP image"
               too_big: "must be 4 MB or smaller"
+        post:
+          attributes:
+            body:
+              uncivil: "contains words that are not allowed here"
+            event:
+              not_yours: "is not one you played or organize"
         event_organizer:
           attributes:
             links:
@@ -981,6 +1005,41 @@ en:
     kinds:
       judge_call: "A judge was called at %{event}."
       result_contested: "A result at your table was contested at %{event}. A judge is on the way."
+  feed:
+    title: "Feed"
+    report: "Report"
+    report_confirm: "Report this post to the admins?"
+    reported: "Thanks, the admins will look at it."
+    reported_label: "Reported"
+    rules_html: "No insults, no attacks on people, nothing private. Posts are public and the organizer can remove them."
+    policy:
+      title: "Community rules"
+      rules:
+        - "Talk about the event: the games, the venue, the organisation, the judges."
+        - "No insults, slurs, threats or harassment; respect opponents, judges and organizers."
+        - "Nothing private about other people, no photos of people without their consent."
+        - "No spam, no advertising unrelated to the event."
+        - "Players of the event and its organizer can post; three reports hide a post until the admins review it; the organizer of the event and the admins can remove posts."
+    write: "Post about an event"
+    circuit_filter_html: "Posts about %{name}."
+    all_posts: "All posts"
+    see_all: "See all %{count}"
+    lead: "Players and organizers on their events: reports, thanks, congratulations."
+    about_event: "About the event"
+    your_report: "Your report"
+    placeholder: "How was it? Decks, tables, the venue, the judges…"
+    post: "Post"
+    posted: "Posted."
+    removed: "Post removed."
+    remove: "Remove"
+    remove_confirm: "Remove this post?"
+    empty: "Nothing yet. The first finished tournament opens the feed."
+    sign_in_html: "%{link} to post about the events you played."
+    nothing_to_post: "You can post once you have played or organized a finished event."
+    kinds:
+      note: "Organizer"
+      result: "Result"
+    result_body: "%{winner} won %{event} (%{count} players). Congratulations!"
   organizers:
     title: "Organizer"
     index_title: "Organizers"

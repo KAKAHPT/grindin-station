@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_06_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_06_161000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -310,6 +310,42 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_150000) do
     t.index ["round_id"], name: "index_pods_on_round_id"
   end
 
+  create_table "post_likes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.uuid "post_id", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["post_id", "user_id"], name: "index_post_likes_on_post_id_and_user_id", unique: true
+    t.index ["post_id"], name: "index_post_likes_on_post_id"
+    t.index ["user_id"], name: "index_post_likes_on_user_id"
+  end
+
+  create_table "post_reports", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.uuid "post_id", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["post_id", "user_id"], name: "index_post_reports_on_post_id_and_user_id", unique: true
+    t.index ["post_id"], name: "index_post_reports_on_post_id"
+    t.index ["user_id"], name: "index_post_reports_on_user_id"
+  end
+
+  create_table "posts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.uuid "event_id", null: false
+    t.boolean "hidden", default: false, null: false
+    t.string "kind", default: "report", null: false
+    t.integer "likes_count", default: 0, null: false
+    t.integer "reports_count", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["created_at"], name: "index_posts_on_created_at"
+    t.index ["event_id"], name: "index_posts_on_event_id"
+    t.index ["reports_count"], name: "index_posts_on_reports_count", where: "(reports_count > 0)"
+    t.index ["user_id"], name: "index_posts_on_user_id"
+  end
+
   create_table "ranking_contributions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.integer "byes", default: 0, null: false
     t.string "country", limit: 2
@@ -467,6 +503,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_150000) do
   add_foreign_key "players", "users"
   add_foreign_key "pods", "event_participants", column: "reported_by_participant_id", on_delete: :nullify
   add_foreign_key "pods", "rounds"
+  add_foreign_key "post_likes", "posts"
+  add_foreign_key "post_likes", "users"
+  add_foreign_key "post_reports", "posts"
+  add_foreign_key "post_reports", "users"
+  add_foreign_key "posts", "events"
+  add_foreign_key "posts", "users"
   add_foreign_key "ranking_contributions", "event_organizers", on_delete: :nullify
   add_foreign_key "ranking_contributions", "events", on_delete: :cascade
   add_foreign_key "ranking_contributions", "players", on_delete: :cascade

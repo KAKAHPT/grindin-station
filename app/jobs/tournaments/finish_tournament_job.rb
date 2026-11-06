@@ -4,6 +4,7 @@ module Tournaments
   class FinishTournamentJob < ApplicationJob
     def perform(tournament)
       record_final_positions(tournament)
+      post_result(tournament)
       if tournament.circuit.present?
         Circuits::UpdateStandingsJob.perform_now(tournament.circuit, tournament)
       end
@@ -11,6 +12,18 @@ module Tournaments
     end
 
     private
+
+    # The feed's result post, once per finish: "<winner> won <event> (<n> players)", signed by the organizer.
+    def post_result(tournament)
+      winner = tournament.event_participants.find_by(final_position: 1)
+      author = tournament.event_organizer&.user
+      return unless winner && author
+      return if Post.exists?(event: tournament, kind: "result")
+
+      players = tournament.event_participants.where(waitlisted: false).count
+      Post.create!(user: author, event: tournament, kind: "result",
+                   body: I18n.t("feed.result_body", winner: winner.name, event: tournament.name, count: players))
+    end
 
     # Every non-waitlisted participant gets a unique position 1..N: playing players before dropped ones, each
     # group by rank_score, which puts top-cut advancements first (the cut winner, then the finalists, then
