@@ -95,7 +95,7 @@ class OneVOnePagesTest < ActionDispatch::IntegrationTest # rubocop:disable Metri
   test "event page: the format in the header eyebrow and the About card" do
     get play_event_path(@t.slug)
     assert_select ".evhead-eyebrow", text: /· Standard · Bo3/
-    assert_select "[data-event-format]", text: /\AOther 1v1 · Bo3 · /
+    assert_select "[data-event-format]", text: /\AStandard · Bo3 · /
 
     @t.update_column(:match_games, 1) # rubocop:disable Rails/SkipsModelValidations
     get play_event_path(@t.slug)

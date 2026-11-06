@@ -14,7 +14,7 @@ module Organizer
     # Active (not finished/canceled) or, with ?past=1, past tournaments as cards.
     def index
       @past = params[:past].present?
-      scope = Tournament.with_attached_cover.staffed_by(current_user)
+      scope = Tournament.with_attached_cover.staffed_by(current_user).preload(:rounds)
       @tournaments =
         if @past then scope.where(state: PAST_STATES).order(start_time: :desc)
         else scope.where.not(state: PAST_STATES).order(:start_time)
