@@ -2,6 +2,7 @@ es:
   topbar:
     events: "Eventos"
     rankings: "Rankings"
+    organizers: "Organizadores"
     about: "Acerca de"
     language: "Idioma"
     sign_in: "Iniciar sesión"
@@ -200,6 +201,9 @@ es:
             avatar:
               content_type: "debe ser una imagen JPEG, PNG o WebP"
               too_big: "debe tener 2 MB o menos"
+            banner:
+              content_type: "debe ser una imagen JPEG, PNG o WebP"
+              too_big: "debe tener 4 MB o menos"
         event:
           attributes:
             circuit:
@@ -248,6 +252,7 @@ es:
         team: "Equipo"
         visibility: "Visibilidad del perfil"
         avatar: "Avatar"
+        banner: "Banner"
         password: "Contraseña"
         password_confirmation: "Confirmación de la contraseña"
         current_password: "Contraseña actual"
@@ -853,6 +858,7 @@ es:
       title: "Tu cuenta"
       profile: "Perfil"
       avatar_hint: "JPEG, PNG o WebP, hasta 2 MB."
+      banner_hint: "Se muestra detrás de tu tarjeta en la página Organizadores y en tu página. JPEG, PNG o WebP, hasta 4 MB; alrededor de 4:1 queda mejor."
       email_hint: "Para cambiar el correo electrónico, escribe también tu contraseña actual abajo."
       wizards_email_hint: "Lo usan los organizadores para reportar tus resultados a Wizards EventLink. Déjalo vacío para usar el correo con el que inicias sesión."
       handle_hint: "De 3 a 30 letras minúsculas, cifras o guiones. Se usa en la dirección de tu perfil público."
@@ -930,6 +936,16 @@ es:
       result_contested: "Se ha impugnado un resultado de tu mesa en %{event}. Viene un juez."
   organizers:
     title: "Organizador"
+    index_title: "Organizadores"
+    index_lead: "Quién organiza eventos en Grindin Station. Abre un organizador para ver sus eventos."
+    search: "Buscar organizadores"
+    country: "País"
+    all_countries: "Todos los países"
+    count:
+      one: "1 organizador"
+      other: "%{count} organizadores"
+    next_event: "Próximo: %{name} · %{date}"
+    none: "Ningún organizador coincide."
     lead: "Eventos organizados en Grindin Station"
     upcoming: "Próximos eventos"
     past: "Eventos pasados"

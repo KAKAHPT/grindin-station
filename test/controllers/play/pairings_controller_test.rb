@@ -34,7 +34,7 @@ module Play
           end
         end
       end
-      assert_select "a[href*='/organizer']", count: 0
+      assert_select "a[href*='/organizer/']", count: 0
       assert_select "main button", count: 0
     end
 

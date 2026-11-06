@@ -2,6 +2,7 @@ pt:
   topbar:
     events: "Eventos"
     rankings: "Rankings"
+    organizers: "Organizadores"
     about: "Sobre"
     language: "Idioma"
     sign_in: "Entrar"
@@ -200,6 +201,9 @@ pt:
             avatar:
               content_type: "tem de ser uma imagem JPEG, PNG ou WebP"
               too_big: "tem de ter 2 MB ou menos"
+            banner:
+              content_type: "tem de ser uma imagem JPEG, PNG ou WebP"
+              too_big: "tem de ter 4 MB ou menos"
         event:
           attributes:
             circuit:
@@ -248,6 +252,7 @@ pt:
         team: "Equipa"
         visibility: "Visibilidade do perfil"
         avatar: "Avatar"
+        banner: "Banner"
         password: "Palavra-passe"
         password_confirmation: "Confirmação da palavra-passe"
         current_password: "Palavra-passe atual"
@@ -853,6 +858,7 @@ pt:
       title: "A tua conta"
       profile: "Perfil"
       avatar_hint: "JPEG, PNG ou WebP, até 2 MB."
+      banner_hint: "Aparece por trás do teu cartão na página Organizadores e na tua página. JPEG, PNG ou WebP, até 4 MB; cerca de 4:1 fica melhor."
       email_hint: "Para mudar o e-mail, escreve também a tua palavra-passe atual em baixo."
       wizards_email_hint: "Usado pelos organizadores para reportar os teus resultados ao Wizards EventLink. Deixa vazio para usar o e-mail de início de sessão."
       handle_hint: "3 a 30 letras minúsculas, algarismos ou hífenes. Usado no endereço do teu perfil público."
@@ -930,6 +936,16 @@ pt:
       result_contested: "Um resultado da tua mesa foi contestado em %{event}. Vem aí um juiz."
   organizers:
     title: "Organizador"
+    index_title: "Organizadores"
+    index_lead: "Quem organiza eventos na Grindin Station. Abre um organizador para ver os eventos dele."
+    search: "Procurar organizadores"
+    country: "País"
+    all_countries: "Todos os países"
+    count:
+      one: "1 organizador"
+      other: "%{count} organizadores"
+    next_event: "Próximo: %{name} · %{date}"
+    none: "Nenhum organizador corresponde."
     lead: "Eventos organizados na Grindin Station"
     upcoming: "Próximos eventos"
     past: "Eventos passados"

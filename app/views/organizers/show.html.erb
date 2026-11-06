@@ -4,7 +4,9 @@
 <% content_for :description, t("organizers.lead") %>
 <% url_locale = params[:locale] %>
 
-<section class="card col-span-full" data-organizer-header>
+<% banner = @user.banner.attached? %>
+<section class="card org-card col-span-full <%= "org-card-banner" if banner %>" data-organizer-header
+         <% if banner %>style="background-image: url('<%= url_for(@user.banner.variant(:wide)) %>')" data-organizer-banner<% end %>>
   <div class="flex items-center gap-4 p-5">
     <% if @user.avatar.attached? %>
       <%= image_tag url_for(@user.avatar.variant(:thumb)), alt: "", width: 64, height: 64, class: "size-16 shrink-0 rounded-full object-cover border border-line" %>
