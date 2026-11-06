@@ -13,6 +13,7 @@ class AuditEvent < ApplicationRecord
     admin_granted admin_revoked
     error_resolved data_exported
     organizer_approved organizer_declined organizer_revoked
+    post_removed post_kept
   ].freeze
 
   belongs_to :actor_user, class_name: "User", optional: true

@@ -23,9 +23,23 @@ class CircuitsController < ApplicationController
     @show_all = params[:all].present?
     @past = params[:filter] == "past"
     load_events
+    load_posts
   end
 
   private
+
+  # The circuit's feed: the latest posts about its events.
+  def load_posts
+    @posts = Post.in_circuit(@circuit).visible.recent.preload(:event, user: { avatar_attachment: :blob }).limit(5).to_a
+    @posts_count = Post.in_circuit(@circuit).visible.count
+    @liked_ids =
+      if current_user
+        PostLike.where(user: current_user,
+                       post_id: @posts.map(&:id)).pluck(:post_id).to_set
+      else
+        Set.new
+      end
+  end
 
   def load_events
     @tournaments = circuit_events(@circuit.tournaments)

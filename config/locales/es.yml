@@ -4,6 +4,7 @@ es:
     rankings: "Rankings"
     organizers: "Organizadores"
     circuits: "Circuitos"
+    feed: "Feed social"
     about: "Acerca de"
     language: "Idioma"
     sign_in: "Iniciar sesión"
@@ -19,6 +20,7 @@ es:
       errors: "Errores"
       events: "Eventos"
       circuits: "Circuitos"
+      feed: "Feed"
       invitational: "Invitaciones"
       organizers: "Organizadores"
     states:
@@ -149,6 +151,22 @@ es:
       featured_off: "No destacado"
       featured_saved: "Destacado actualizado."
       empty: "Aún no hay circuitos."
+    feed:
+      title: "Publicaciones reportadas"
+      lead: "Una publicación con %{count} reportes queda oculta hasta que la mantengas o elimines."
+      post: "Publicación"
+      author: "Autor"
+      event: "Evento"
+      reports: "Reportes"
+      state: "Estado"
+      actions: "Acciones"
+      hidden: "Oculta"
+      visible: "Visible"
+      keep: "Mantener"
+      remove: "Eliminar"
+      kept: "Publicación mantenida; reportes borrados."
+      removed: "Publicación eliminada."
+      empty: "Nada reportado."
     invitational:
       title: "Ranking de invitaciones"
       lead: "Puntos de ranking de los eventos con nivel por el nivel (bronce ×1, plata ×1,5, oro ×2, platino ×3). Solo los admins ven esta página."
@@ -217,6 +235,12 @@ es:
             banner:
               content_type: "debe ser una imagen JPEG, PNG o WebP"
               too_big: "debe tener 4 MB o menos"
+        post:
+          attributes:
+            body:
+              uncivil: "contiene palabras que no están permitidas aquí"
+            event:
+              not_yours: "no es un evento que jugaste u organizas"
         event_organizer:
           attributes:
             links:
@@ -981,6 +1005,41 @@ es:
     kinds:
       judge_call: "Se ha llamado a un juez en %{event}."
       result_contested: "Se ha impugnado un resultado de tu mesa en %{event}. Viene un juez."
+  feed:
+    title: "Feed social"
+    report: "Reportar"
+    report_confirm: "¿Reportar esta publicación a los administradores?"
+    reported: "Gracias, los administradores la revisarán."
+    reported_label: "Reportada"
+    rules_html: "Sin insultos, sin ataques a personas, nada privado. Las publicaciones son públicas y el organizador puede eliminarlas."
+    policy:
+      title: "Normas de la comunidad"
+      rules:
+        - "Habla del evento: las partidas, el local, la organización, los jueces."
+        - "Sin insultos, ofensas, amenazas ni acoso; respeto a rivales, jueces y organizadores."
+        - "Nada privado sobre otras personas, ni fotos de personas sin su consentimiento."
+        - "Sin spam ni publicidad ajena al evento."
+        - "Publican los jugadores del evento y su organizador; tres reportes ocultan una publicación hasta que los administradores la revisen; el organizador del evento y los administradores pueden eliminar publicaciones."
+    write: "Publicar sobre un evento"
+    circuit_filter_html: "Publicaciones sobre %{name}."
+    all_posts: "Todas las publicaciones"
+    see_all: "Ver todas (%{count})"
+    lead: "Jugadores y organizadores sobre sus eventos: crónicas, agradecimientos, felicitaciones."
+    about_event: "Sobre el evento"
+    your_report: "Tu crónica"
+    placeholder: "¿Qué tal fue? Mazos, mesas, el local, los jueces…"
+    post: "Publicar"
+    posted: "Publicado."
+    removed: "Publicación eliminada."
+    remove: "Eliminar"
+    remove_confirm: "¿Eliminar esta publicación?"
+    empty: "Nada todavía. El primer torneo terminado abre el feed."
+    sign_in_html: "%{link} para publicar sobre los eventos que jugaste."
+    nothing_to_post: "Puedes publicar después de jugar u organizar un evento terminado."
+    kinds:
+      note: "Organizador"
+      result: "Resultado"
+    result_body: "%{winner} ganó el %{event} (%{count} jugadores). ¡Enhorabuena!"
   organizers:
     title: "Organizador"
     index_title: "Organizadores"

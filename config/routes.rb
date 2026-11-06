@@ -16,6 +16,11 @@ Rails.application.routes.draw do
   delete "/account/identities/:id" => "accounts#unlink_identity", as: :unlink_identity
   get "/p/:handle", to: "profiles#show", as: :profile, constraints: { handle: /[a-z0-9-]+/ }
   get "/organizers", to: "organizers#index", as: :organizers
+  get "/feed", to: "posts#index", as: :feed
+  resources :posts, only: %i[create destroy], path: "feed/posts", as: :feed_posts do
+    post :like, on: :member
+    post :report, on: :member
+  end
   get "/o/:handle", to: "organizers#show", as: :organizer_profile, constraints: { handle: /[a-z0-9-]+/ }
   resources :notifications, only: :index do
     post :mark_all_read, on: :collection
@@ -82,6 +87,9 @@ Rails.application.routes.draw do
     resources :circuits, only: %i[index] do
       patch :featured, on: :member
     end
+    get "feed", to: "feed#index", as: :feed
+    patch "feed/:id/keep", to: "feed#keep", as: :keep_feed
+    delete "feed/:id/remove", to: "feed#remove", as: :remove_feed
     get "invitational", to: "invitational#show", as: :invitational
     get "invitational/export.csv", to: "invitational#export", as: :invitational_export, format: false
     # The approve/decline id is the waiting-list signup's, the revoke id the EventOrganizer's.

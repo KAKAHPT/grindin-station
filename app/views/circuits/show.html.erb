@@ -87,6 +87,20 @@
   <% end %>
 </section>
 
+<% if @posts.any? %>
+  <section class="col-span-full" data-circuit-feed>
+    <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+      <h2 class="font-display text-lg font-semibold text-ink"><%= t("feed.title") %></h2>
+      <%= link_to t("feed.see_all", count: @posts_count), feed_path(circuit: @circuit.id, locale: url_locale), class: button_classes(:secondary, size: :xs), data: { circuit_feed_all: true } %>
+    </div>
+    <div class="grid gap-3 md:grid-cols-2">
+      <% @posts.each do |post| %>
+        <%= render "posts/post", post: post, liked: @liked_ids.include?(post.id), url_locale: url_locale %>
+      <% end %>
+    </div>
+  </section>
+<% end %>
+
 <div class="col-span-full flex flex-wrap items-center justify-between gap-3" data-circuit-events-switch>
   <h2 class="font-display text-lg font-semibold text-ink"><%= t("lists.circuits.events") %></h2>
   <span class="seg">

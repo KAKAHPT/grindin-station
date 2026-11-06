@@ -112,6 +112,10 @@ States can transition to `canceled` from most states. Play mode can be `schedule
 - **Tiers** (admin-only, never public): `events.tier` `none|bronze|silver|gold|platinum` (× 0/1/1.5/2/3 → `invitational_points`), set on `/admin/events`; `/admin/invitational` (season leaderboard + audited CSV)
 - **Events**: `events.country` (ISO 2, Settings, defaults to the organizer's); one entry per player and event (unique partial index + `Registrations::AlreadyEnrolled`); guests get `players.guest_name`, distinct within the event, blank = "Manual player N"
 
+### Feed (2026-11-06)
+
+- `posts` (author `user`, `event`, `kind` report|note|result, `body` ≤ 1000, `likes_count`, `reports_count`, `hidden`), `post_likes` and `post_reports` (one per person each). `/feed` (`PostsController`, public layout; `?circuit=<id>` narrows to one circuit's events) lists visible posts newest first, 20 per page, with a folded composer ("Post about an event": finished events the viewer played or organizes, `Post.postable_events_for`). The event's organizer posts `note`s; `Tournaments::FinishTournamentJob#post_result` writes one `result` post per finish (`feed.result_body`). Likes toggle (`POST /feed/posts/:id/like`); reports (`POST …/report`, never on own posts) hide a post at `Post::REPORTS_TO_HIDE` (3) until an admin keeps or removes it on `/admin/feed` (audited `post_kept` / `post_removed`). Removal: author, the event's organizer, admins. `Post::BLOCKED_WORDS` refuses plain insults (pt/en/es); 5 posts per 10 min per IP. Community rules under `feed.policy` shown on the page. Circuit pages show their last 5 visible posts with "See all".
+
 ### Infraction System (MTG-style)
 
 Infractions have a hierarchical enum structure:

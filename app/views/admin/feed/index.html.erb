@@ -1,0 +1,39 @@
+<%= render "admin/nav", active: :feed %>
+
+<section class="col-span-full card overflow-clip" data-admin-feed>
+  <h2 class="card-title"><%= t("admin.feed.title") %></h2>
+  <p class="border-b border-line px-4 py-2.5 text-[12px] text-muted"><%= t("admin.feed.lead", count: Post::REPORTS_TO_HIDE) %></p>
+  <div class="overflow-x-auto">
+    <table class="ctable">
+      <thead>
+        <tr>
+          <th><%= t("admin.feed.post") %></th>
+          <th><%= t("admin.feed.author") %></th>
+          <th><%= t("admin.feed.event") %></th>
+          <th class="r"><%= t("admin.feed.reports") %></th>
+          <th><%= t("admin.feed.state") %></th>
+          <th class="r"><%= t("admin.feed.actions") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @posts.each do |post| %>
+          <tr data-reported-post="<%= post.id %>">
+            <td class="max-w-md whitespace-pre-line text-ink"><%= truncate(post.body, length: 240) %></td>
+            <td><%= post.user.display_name %></td>
+            <td><%= link_to post.event.name, play_event_path(post.event.slug), class: "hover:underline" %></td>
+            <td class="r tabular"><%= post.reports_count %></td>
+            <td><%= post.hidden ? desk_chip(:warn) { t("admin.feed.hidden") } : desk_chip(:ok) { t("admin.feed.visible") } %></td>
+            <td class="r whitespace-nowrap">
+              <%= button_to t("admin.feed.keep"), admin_keep_feed_path(post), method: :patch, class: button_classes(:light, size: :sm), form: { class: "inline" } %>
+              <%= button_to t("admin.feed.remove"), admin_remove_feed_path(post), method: :delete, class: button_classes(:secondary, size: :sm), form: { class: "inline", data: { turbo_confirm: t("feed.remove_confirm") } } %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <% if @posts.empty? %>
+    <p class="border-t border-line px-4 py-3 text-[12px] text-muted"><%= t("admin.feed.empty") %></p>
+  <% end %>
+  <div class="px-4 py-2"><%= paginate @posts %></div>
+</section>

@@ -1,0 +1,60 @@
+<%# The feed: a composer for signed-in people with a finished event to talk about, then the posts, newest first. %>
+<% content_for :title, t("feed.title") %>
+<% url_locale = params[:locale] %>
+<div class="col-span-full flex flex-wrap items-end justify-between gap-3 pt-2" data-list-header>
+  <div class="min-w-0">
+    <h1 class="font-display text-2xl font-semibold text-ink"><%= t("feed.title") %></h1>
+    <p class="mt-1 text-[13px] text-muted"><%= t("feed.lead") %></p>
+  </div>
+</div>
+
+<div class="col-span-full w-full max-w-5xl space-y-4" data-feed>
+  <% if @circuit %>
+    <p class="card px-4 py-3 text-[13px] text-muted" data-feed-circuit>
+      <%= t("feed.circuit_filter_html", name: link_to(@circuit.name, circuit_path(@circuit, locale: url_locale), class: "text-ink underline")) %>
+      <%= link_to t("feed.all_posts"), feed_path(locale: url_locale), class: "ms-2 text-ink underline" %>
+    </p>
+  <% end %>
+  <% if authenticated? && @postable.any? %>
+    <%= tag.details class: "card group", data: { feed_composer: true } do %>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-[13px] font-semibold text-ink">
+        <span><%= icon("pencil", class: "me-2 text-muted") %><%= t("feed.write") %></span>
+        <span class="text-muted group-open:hidden"><%= icon("plus") %></span>
+      </summary>
+      <%= form_with model: @post, url: feed_posts_path(locale: url_locale), class: "border-t border-line p-4 space-y-3", data: { turbo: false } do |f| %>
+        <div class="field">
+          <%= f.label :event_id, t("feed.about_event") %>
+          <%= f.select :event_id, @postable.map { |event| ["#{event.name} · #{l(event.start_time, format: '%d %b %Y')}", event.id] }, {}, class: "field-input" %>
+        </div>
+        <div class="field">
+          <%= f.label :body, t("feed.your_report") %>
+          <%= f.text_area :body, rows: 3, maxlength: Post::BODY_MAX, placeholder: t("feed.placeholder"), required: true, class: "field-input" %>
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <p class="text-[11.5px] text-muted" data-feed-rules><%= t("feed.rules_html") %></p>
+          <%= f.button t("feed.post"), type: "submit", class: button_classes(:primary, size: :xs) %>
+        </div>
+      <% end %>
+    <% end %>
+  <% elsif !authenticated? %>
+    <p class="card px-4 py-3 text-[13px] text-muted" data-feed-signin><%= t("feed.sign_in_html", link: link_to(t("topbar.sign_in"), new_session_path(locale: url_locale), class: "text-ink underline")) %></p>
+  <% else %>
+    <p class="card px-4 py-3 text-[13px] text-muted" data-feed-nothing><%= t("feed.nothing_to_post") %></p>
+  <% end %>
+
+  <div class="divide-y divide-line" data-feed-list>
+    <% @posts.each do |post| %>
+      <%= render "posts/post", post: post, liked: @liked_ids.include?(post.id), reported: @reported_ids.include?(post.id), url_locale: url_locale, flat: true %>
+    <% end %>
+  </div>
+  <% if @posts.empty? %>
+    <p class="card px-4 py-8 text-center text-[13px] text-muted" data-feed-empty><%= t("feed.empty") %></p>
+  <% end %>
+  <div><%= paginate @posts %></div>
+  <details class="card px-4 py-3 text-[12.5px] text-muted" data-feed-policy>
+    <summary class="cursor-pointer font-semibold text-ink"><%= t("feed.policy.title") %></summary>
+    <ul class="mt-2 list-disc space-y-1 ps-5">
+      <% t("feed.policy.rules").each do |rule| %><li><%= rule %></li><% end %>
+    </ul>
+  </details>
+</div>

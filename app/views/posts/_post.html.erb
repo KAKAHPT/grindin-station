@@ -1,0 +1,37 @@
+<%# One feed post. Locals: post, liked (bool), reported (bool, optional), url_locale, flat (optional: a row of the feed list
+    instead of a card). %>
+<% flat = local_assigns[:flat] %>
+<article class="<%= flat ? "py-5 first:pt-1" : "card p-4" %>" data-post="<%= post.id %>" data-post-kind="<%= post.kind %>">
+  <div class="flex items-start gap-3">
+    <% if post.user.avatar.attached? %>
+      <%= image_tag url_for(post.user.avatar.variant(:thumb)), alt: "", width: 48, height: 48, class: "#{flat ? "size-12" : "size-10"} shrink-0 rounded-full object-cover border border-line" %>
+    <% else %>
+      <span aria-hidden="true" class="inline-flex <%= flat ? "size-12 text-base" : "size-10 text-sm" %> shrink-0 items-center justify-center rounded-full bg-surface-raised border border-line font-display font-semibold text-muted"><%= profile_initials(post.user) %></span>
+    <% end %>
+    <div class="min-w-0 flex-1">
+      <p class="text-[13px]">
+        <span class="font-semibold text-ink"><%= profile_link(post.user) %></span>
+        <% if post.kind == "note" %><%= desk_chip(:info) { t("feed.kinds.note") } %><% elsif post.result? %><%= desk_chip(:ok) { t("feed.kinds.result") } %><% end %>
+        <span class="text-muted"> · <%= link_to post.event.name, play_event_path(post.event.slug, locale: url_locale), class: "hover:text-ink hover:underline" %> · <%= time_ago_in_words(post.created_at) %></span>
+      </p>
+      <p class="mt-1.5 whitespace-pre-line <%= flat ? "text-[15.5px] leading-relaxed" : "text-[14px]" %> text-ink/90" data-post-body><%= post.body %></p>
+      <div class="mt-2.5 flex items-center gap-2">
+        <% if authenticated? %>
+          <%= button_to like_feed_post_path(post, locale: url_locale), method: :post, class: button_classes(liked ? :primary : :secondary, size: :xs), "aria-pressed": liked, data: { post_like: true } do %>
+            <%= icon("handshake", class: "me-1.5") %><%= post.likes_count %>
+          <% end %>
+        <% else %>
+          <span class="<%= button_classes(:secondary, size: :xs) %>" aria-disabled="true"><%= icon("handshake", class: "me-1.5") %><%= post.likes_count %></span>
+        <% end %>
+        <% if post.reportable_by?(current_user) && !local_assigns[:reported] %>
+          <%= button_to t("feed.report"), report_feed_post_path(post, locale: url_locale), method: :post, class: button_classes(:ghost, size: :xs), form: { data: { turbo_confirm: t("feed.report_confirm") } }, data: { post_report: true } %>
+        <% elsif local_assigns[:reported] %>
+          <span class="text-[11px] text-muted" data-post-reported><%= t("feed.reported_label") %></span>
+        <% end %>
+        <% if post.removable_by?(current_user) %>
+          <%= button_to t("feed.remove"), feed_post_path(post, locale: url_locale), method: :delete, class: button_classes(:ghost, size: :xs), form: { data: { turbo_confirm: t("feed.remove_confirm") } }, data: { post_remove: true } %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</article>
