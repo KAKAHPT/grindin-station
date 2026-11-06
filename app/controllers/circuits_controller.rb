@@ -5,13 +5,14 @@ class CircuitsController < ApplicationController
 
   skip_before_action :require_authentication
 
+  # ?sort=: featured (featured first, then newest), name or organizer (by name, then circuit name).
+  SORTS = %w[featured name organizer].freeze
+
   # Draft and canceled events are left out of the lists and the counts.
   def index
-    @circuits = Circuit.preload(event_organizer: :user).with_attached_banner.order(featured: :desc, created_at: :desc)
-      .page(params[:page])
-    ids = @circuits.map(&:id)
-    @tournament_counts = Tournament.visible.where(circuit_id: ids).group(:circuit_id).count
-    @league_counts = League.visible.where(circuit_id: ids).group(:circuit_id).count
+    @sort = params[:sort].to_s.presence_in(SORTS) || "featured"
+    @circuits = sorted_circuits.preload(event_organizer: :user).with_attached_banner.page(params[:page])
+    @tournament_counts, @league_counts = event_counts(@circuits.map(&:id))
   end
 
   STANDINGS_SHOWN = 16
@@ -27,6 +28,19 @@ class CircuitsController < ApplicationController
   end
 
   private
+
+  def event_counts(ids)
+    [Tournament.visible.where(circuit_id: ids).group(:circuit_id).count,
+     League.visible.where(circuit_id: ids).group(:circuit_id).count]
+  end
+
+  def sorted_circuits
+    case @sort
+    when "name" then Circuit.order(name: :asc)
+    when "organizer" then Circuit.joins(event_organizer: :user).order("users.name ASC", name: :asc)
+    else Circuit.order(featured: :desc, created_at: :desc)
+    end
+  end
 
   # The circuit's feed: the latest posts about its events.
   def load_posts

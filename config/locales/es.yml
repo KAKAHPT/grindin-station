@@ -1233,6 +1233,11 @@ es:
   helpers:
     required: "obligatorio"
   events:
+    sort:
+      label: "Ordenar por"
+      date: "Fecha"
+      organizer: "Organizador"
+      name: "Nombre"
     featured: "Destacados"
     view:
       label: "Vista"
@@ -1251,6 +1256,10 @@ es:
       all_formats: "Todos los formatos"
       empty: "Ningún evento coincide con estos filtros."
   lists:
+    circuits_count:
+      zero: "Sin circuitos"
+      one: "1 circuito"
+      other: "%{count} circuitos"
     upcoming: "Próximos"
     past: "Pasados"
     ongoing: "Tus eventos en curso"
@@ -1458,3 +1467,10 @@ es:
           one: "Equipo (1 jugador)"
           other: "Equipo (%{count} jugadores)"
         rules: "Un jugador cuenta para el equipo indicado en su cuenta cuando se recalcula la clasificación (cada noche y después de cada evento), así que cambiar de equipo lleva todos sus puntos al nuevo equipo. Los equipos de un solo jugador también aparecen. Los bonus (15 y 30) están en un solo sitio para poder cambiarlos sin tocar el resto."
+
+  circuits:
+    sort:
+      label: "Ordenar por"
+      featured: "Destacados primero"
+      name: "Nombre"
+      organizer: "Organizador"

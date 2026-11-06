@@ -56,4 +56,30 @@ class CircuitsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "[data-circuit=?] [data-circuit-events]", @circuit.id, text: /\b1 event\b/
   end
+  test "index sorts featured first by default, by name or by organizer on request" do
+    other_user = User.create!(name: "Aveiro Org", handle: "aveiro-org", password: "password123",
+                              email_address: "aveiro-#{SecureRandom.hex(3)}@example.com")
+    other = EventOrganizer.create!(user: other_user)
+    zed = Circuit.create!(name: "Zed Circuit", event_organizer: other, featured: true)
+    alpha = Circuit.create!(name: "Alpha Circuit", event_organizer: event_organizers(:standard_organizer))
+
+    get circuits_path
+    assert_order zed, alpha, @circuit
+    assert_select "select[name=sort] option[selected][value=featured]"
+
+    get circuits_path(sort: "name")
+    assert_order alpha, @circuit, zed
+
+    get circuits_path(sort: "organizer")
+    assert_order zed, alpha, @circuit
+  end
+
+  private
+
+  def circuit_ids_in_page = css_select("[data-circuit]").pluck("data-circuit")
+
+  # These circuits come in this order on the page (other listed circuits ignored).
+  def assert_order(*circuits)
+    assert_equal circuits.map(&:id), circuit_ids_in_page & circuits.map(&:id)
+  end
 end
