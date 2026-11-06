@@ -235,6 +235,10 @@ en:
             banner:
               content_type: "must be a JPEG, PNG or WebP image"
               too_big: "must be 4 MB or smaller"
+        follow:
+          attributes:
+            followed:
+              yourself: "cannot be yourself"
         post:
           attributes:
             body:
@@ -299,6 +303,7 @@ en:
         visibility: "Profile visibility"
         avatar: "Avatar"
         banner: "Banner"
+        feed_scope: "Social feed shows"
         password: "Password"
         password_confirmation: "Password confirmation"
         current_password: "Current password"
@@ -939,6 +944,10 @@ en:
         public: "Public"
         participants: "Only players of my events"
         private: "Private"
+      feed_scope:
+        everyone: "Everyone"
+        following: "Only people and organizers I follow"
+      feed_scope_hint: "You can switch on the feed page at any time."
       password: "Password"
       password_not_set: "You signed up with Google or Discord. Set a password to also sign in with your e-mail."
       new_password: "New password"
@@ -1006,8 +1015,16 @@ en:
       judge_call: "A judge was called at %{event}."
       result_contested: "A result at your table was contested at %{event}. A judge is on the way."
       mentioned: "%{name} mentioned you in the social feed."
+  follows:
+    unfollow: "Unfollow"
+    following: "You now follow %{name}."
+    unfollowed: "You no longer follow %{name}."
   feed:
     title: "Social feed"
+    scopes:
+      everyone: "Everyone"
+      following: "Following"
+    empty_following: "Nothing from the people you follow yet. Follow players and organizers from their pages, or switch to Everyone."
     write_thought: "Post a thought"
     your_thought: "Your thought"
     thought_placeholder: "Anything cEDH: a deck, a question, a shout-out. Tag people with @handle."

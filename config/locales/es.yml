@@ -235,6 +235,10 @@ es:
             banner:
               content_type: "debe ser una imagen JPEG, PNG o WebP"
               too_big: "debe tener 4 MB o menos"
+        follow:
+          attributes:
+            followed:
+              yourself: "no puedes ser tú"
         post:
           attributes:
             body:
@@ -299,6 +303,7 @@ es:
         visibility: "Visibilidad del perfil"
         avatar: "Avatar"
         banner: "Banner"
+        feed_scope: "El feed social muestra"
         password: "Contraseña"
         password_confirmation: "Confirmación de la contraseña"
         current_password: "Contraseña actual"
@@ -939,6 +944,10 @@ es:
         public: "Público"
         participants: "Solo jugadores de mis eventos"
         private: "Privado"
+      feed_scope:
+        everyone: "Todos"
+        following: "Solo personas y organizadores que sigo"
+      feed_scope_hint: "Puedes cambiarlo en la página del feed cuando quieras."
       password: "Contraseña"
       password_not_set: "Te registraste con Google o Discord. Define una contraseña para entrar también con tu correo electrónico."
       new_password: "Nueva contraseña"
@@ -1006,8 +1015,16 @@ es:
       judge_call: "Se ha llamado a un juez en %{event}."
       result_contested: "Se ha impugnado un resultado de tu mesa en %{event}. Viene un juez."
       mentioned: "%{name} te mencionó en el feed social."
+  follows:
+    unfollow: "Dejar de seguir"
+    following: "Ahora sigues a %{name}."
+    unfollowed: "Ya no sigues a %{name}."
   feed:
     title: "Feed social"
+    scopes:
+      everyone: "Todos"
+      following: "Siguiendo"
+    empty_following: "Nada todavía de quienes sigues. Sigue a jugadores y organizadores desde sus páginas, o cambia a Todos."
     write_thought: "Publicar un pensamiento"
     your_thought: "Tu pensamiento"
     thought_placeholder: "Cualquier cosa de cEDH: un mazo, una duda, un saludo. Menciona a gente con @handle."

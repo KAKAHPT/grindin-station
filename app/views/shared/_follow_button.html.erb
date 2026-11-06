@@ -1,0 +1,11 @@
+<%# Follow / Unfollow for the person `user`: nothing for yourself; a sign-in link for visitors. %>
+<% url_locale = params[:locale] %>
+<% if !authenticated? %>
+  <%= link_to t("profiles.follow"), new_session_path(locale: url_locale), class: button_classes(:secondary, size: :xs), data: { follow: "sign_in" } %>
+<% elsif current_user != user %>
+  <% if current_user.following?(user) %>
+    <%= button_to t("follows.unfollow"), follow_path(user.handle, locale: url_locale), method: :delete, class: button_classes(:secondary, size: :xs), "aria-pressed": true, data: { follow: "off" } %>
+  <% else %>
+    <%= button_to t("profiles.follow"), follow_path(user.handle, locale: url_locale), method: :post, class: button_classes(:primary, size: :xs), "aria-pressed": false, data: { follow: "on" } %>
+  <% end %>
+<% end %>

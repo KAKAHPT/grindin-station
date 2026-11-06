@@ -673,36 +673,24 @@
     position: relative;
   }
 
-  /* Social feed: the landing's card-art mosaic behind, a vignette, and one wide central column. */
+  /* Social feed: the stream kit's black-and-white studio photo behind (fixed, covering), a vignette, and one wide
+     central column. */
   .feed-page {
     position: relative;
     overflow: hidden;
     min-height: 70vh;
     padding: 24px 16px 48px;
-  }
-
-  /* Bigger card art than the landing (six per row) and more of it showing on the sides. */
-  .feed-page .lp-mosaic {
-    opacity: 0.26;
-    filter: saturate(0.75) brightness(0.6);
-  }
-
-  /* Seven per row with small gaps: many cards, little empty space, kept dark; no blur (it is costly to draw). */
-  .feed-page .lp-sheet {
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-  }
-
-  .feed-page .lp-sheet img:nth-child(odd) {
-    transform: translateY(30px);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
   }
 
   .feed-vig {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(90deg, rgb(17 19 21 / 0.1) 0%, rgb(17 19 21 / 0.7) 22%, rgb(17 19 21 / 0.7) 78%,
-        rgb(17 19 21 / 0.1) 100%);
+    background: linear-gradient(90deg, rgb(17 19 21 / 0.55) 0%, rgb(17 19 21 / 0.8) 22%, rgb(17 19 21 / 0.8) 78%,
+        rgb(17 19 21 / 0.55) 100%);
   }
 
   .feed-col {

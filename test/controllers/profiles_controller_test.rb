@@ -62,7 +62,7 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     assert_select "[data-profile-country]", text: "Portugal"
     assert_select "[data-profile-bio] p", 2
     assert_select "[data-profile-initials]", text: "RG"
-    assert_select "button[disabled][title=?]", "Coming soon"
+    assert_select "[data-profile-follow] a[data-follow=sign_in]", text: "Follow"
     assert_select "[data-profile-comments]"
     assert_select "tr[data-event]", 1 do
       assert_select "a[href=?]", tournament_path(@event), text: @event.name
@@ -191,7 +191,7 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
 
     assert_response :success
     assert_select "[data-result]", text: "3.º de 4"
-    assert_select "button[disabled][title=?]", "Em breve"
+    assert_select "[data-profile-follow] a[data-follow=sign_in]", text: "Seguir"
   end
 
   test "the decklist shows only when the event shows decklists" do

@@ -21,8 +21,7 @@
           <p data-profile-country class="text-sm text-muted"><%= country_name(@user.country) %></p>
         <% end %>
       </div>
-      <button type="button" disabled title="<%= t("profiles.coming_soon") %>"
-              class="shrink-0 px-3 py-1.5 rounded-lg border border-line text-sm text-muted opacity-60 cursor-not-allowed"><%= t("profiles.follow") %></button>
+      <div class="shrink-0" data-profile-follow><%= render "shared/follow_button", user: @user %></div>
     </div>
     <% if @user.bio.present? %>
       <div data-profile-bio class="mt-4 text-sm text-ink/90 space-y-2 break-words"><%= simple_format(@user.bio) %></div>
