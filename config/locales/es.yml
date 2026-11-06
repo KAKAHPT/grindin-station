@@ -2,6 +2,7 @@ es:
   topbar:
     events: "Eventos"
     rankings: "Rankings"
+    organizers: "Organizadores"
     about: "Acerca de"
     language: "Idioma"
     sign_in: "Iniciar sesión"
@@ -930,6 +931,16 @@ es:
       result_contested: "Se ha impugnado un resultado de tu mesa en %{event}. Viene un juez."
   organizers:
     title: "Organizador"
+    index_title: "Organizadores"
+    index_lead: "Quién organiza eventos en Grindin Station. Abre un organizador para ver sus eventos."
+    search: "Buscar organizadores"
+    country: "País"
+    all_countries: "Todos los países"
+    count:
+      one: "1 organizador"
+      other: "%{count} organizadores"
+    next_event: "Próximo: %{name} · %{date}"
+    none: "Ningún organizador coincide."
     lead: "Eventos organizados en Grindin Station"
     upcoming: "Próximos eventos"
     past: "Eventos pasados"

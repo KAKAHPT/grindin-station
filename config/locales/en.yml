@@ -2,6 +2,7 @@ en:
   topbar:
     events: "Events"
     rankings: "Rankings"
+    organizers: "Organizers"
     about: "About"
     language: "Language"
     sign_in: "Sign in"
@@ -930,6 +931,16 @@ en:
       result_contested: "A result at your table was contested at %{event}. A judge is on the way."
   organizers:
     title: "Organizer"
+    index_title: "Organizers"
+    index_lead: "Who runs events on Grindin Station. Open an organizer to see their events."
+    search: "Search organizers"
+    country: "Country"
+    all_countries: "All countries"
+    count:
+      one: "1 organizer"
+      other: "%{count} organizers"
+    next_event: "Next: %{name} · %{date}"
+    none: "No organizers match."
     lead: "Events organised on Grindin Station"
     upcoming: "Upcoming events"
     past: "Past events"

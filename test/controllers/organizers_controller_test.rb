@@ -9,6 +9,46 @@ class OrganizersControllerTest < ActionDispatch::IntegrationTest
     @organizer = EventOrganizer.create!(user: @user)
   end
 
+  test "/organizers lists every organizer A–Z with their event count and next event, and filters by name and country" do # rubocop:disable Metrics/BlockLength
+    @user.update!(country: "PT")
+    soon = event("Next Cup", starts: 2.days.from_now)
+    event("Done Cup", starts: 30.days.ago, state: :finished)
+    event("Hidden Cup", starts: 3.days.from_now, state: :draft)
+    other = User.create!(name: "Madrid Mana", email_address: "org2-#{SecureRandom.hex(3)}@example.com",
+                         password: "password123", handle: "madrid-mana-org", country: "ES")
+    EventOrganizer.create!(user: other)
+    gone = User.create!(name: "Gone Org", email_address: "org3-#{SecureRandom.hex(3)}@example.com",
+                        password: "password123", handle: "gone-org")
+    EventOrganizer.create!(user: gone)
+    gone.update_columns(anonymized_at: Time.current, handle: nil) # rubocop:disable Rails/SkipsModelValidations
+
+    get organizers_path
+
+    assert_response :success
+    assert_select "[data-topbar] nav a[href=?]", organizers_path, text: "Organizers"
+    assert_select "[data-organizer]", count: EventOrganizer.joins(:user).where(users: { anonymized_at: nil }).count
+    assert_select "[data-organizer='gone-org']", count: 0
+    assert_select "[data-organizer='porto-grinders-org'] a[href=?]", organizer_profile_path("porto-grinders-org"),
+                  text: @user.name
+    assert_select "[data-organizer='porto-grinders-org'] [data-organizer-events]", text: "2 events"
+    assert_select "[data-organizer='porto-grinders-org'] [data-organizer-country]", text: "Portugal"
+    assert_select "[data-organizer='porto-grinders-org'] [data-organizer-next] a[href=?]", play_event_path(soon.slug),
+                  text: "Next Cup"
+    assert_select "[data-organizer='madrid-mana-org'] [data-organizer-events]", text: "0 events"
+    assert_select "[data-organizer='madrid-mana-org'] [data-organizer-next]", count: 0
+
+    get organizers_path(q: "madrid")
+    assert_select "[data-organizer]", count: 1
+    assert_select "[data-organizer='madrid-mana-org']"
+
+    get organizers_path(country: "PT")
+    assert_select "[data-organizer='madrid-mana-org']", count: 0
+    assert_select "[data-organizer='porto-grinders-org']"
+
+    get organizers_path(q: "zzz")
+    assert_select "[data-list-empty]"
+  end
+
   test "an organizer page lists their public events, current first then past" do
     soon = event("Next Cup", starts: 2.days.from_now)
     done = event("Done Cup", starts: 30.days.ago, state: :finished)
