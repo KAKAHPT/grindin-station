@@ -8,12 +8,18 @@ module Accounts
       User.transaction do
         user.identities.destroy_all
         user.sessions.destroy_all
-        [user.avatar, user.banner].each { |image| image.purge_later if image.attached? }
+        purge_images(user)
         user.update!(removed_attributes)
         user.player&.update!(wizards_email: nil)
       end
       user
     end
+
+    def self.purge_images(user)
+      user.avatar.purge_later if user.avatar.attached?
+      user.banner.purge_later if user.banner.attached?
+    end
+    private_class_method :purge_images
 
     def self.removed_attributes
       { name: "Removed player", email_address: "deleted-#{SecureRandom.uuid}@removed.invalid",
