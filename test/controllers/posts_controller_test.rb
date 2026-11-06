@@ -148,7 +148,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     assert_select "[data-post='#{legacy_post.id}']", count: 0
   end
 
-  test "organizer filter, My events, Mentions of me, and Top this week" do
+  test "organizer filter, My events, Mentions of me, and Top this week" do # rubocop:disable Metrics/BlockLength
     other_org = User.create!(name: "Other Org", email_address: "oo-#{SecureRandom.hex(3)}@example.com",
                              password: "password123", organizer: true, handle: "other-org")
     foreign = TournamentBuilder.build(players: 4, organizer: other_org.event_organizer, state: :finished)
