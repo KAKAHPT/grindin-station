@@ -351,6 +351,9 @@ pt:
         type: "Resultado"
         event_participant_id: "Jogador"
   organizer:
+    preview:
+      title: "Pré-visualização"
+      help: "A página pública como vai ficar com o que escreveste. Só fica gravado quando submeteres o formulário."
     about:
       title: "Sobre"
       lead: "O que os jogadores veem na tua página de organizador: banner, onde estás, quem és e os teus links."
