@@ -1,0 +1,100 @@
+<%# The account's Team card: the current team with its members (leave; the owner removes members and invites by
+    handle), or pick an existing team to request a place / create one. Under it, what is pending: requests to
+    accept (owner), invitations received, the player's own request. Locals: user. %>
+<% url_locale = params[:locale] %>
+<% membership = user.team_membership %>
+<% team = membership&.team %>
+<% owner = team&.owned_by?(user) %>
+<section class="card" id="team" data-team-card>
+  <h2 class="card-title"><%= t("teams.title") %></h2>
+  <div class="p-4 space-y-4">
+    <% if team %>
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p class="font-display text-[15px] font-semibold" data-team-name><%= team.name %></p>
+          <p class="form-help"><%= t("teams.members", count: team.members.count, max: Team::MAX_MEMBERS) %><% if owner %> · <%= t("teams.you_own") %><% end %></p>
+        </div>
+        <%= button_to t("teams.leave"), team_membership_path(membership, locale: url_locale), method: :delete,
+                      data: { turbo_confirm: t("teams.leave_confirm", name: team.name) }, class: small_button_classes(:secondary) %>
+      </div>
+      <ul class="divide-y divide-line" data-team-members>
+        <% team.memberships.accepted.includes(:user).order(:created_at).each do |member| %>
+          <li class="flex items-center justify-between gap-3 py-2 text-[13px]">
+            <span><%= link_to member.user.display_name, profile_path(member.user.handle, locale: url_locale), class: "hover:text-accent" %><% if team.owned_by?(member.user) %> <span class="text-muted">· <%= t("teams.owner") %></span><% end %></span>
+            <% if owner && member.user != user %>
+              <%= button_to t("teams.remove"), team_membership_path(member, locale: url_locale), method: :delete,
+                            data: { turbo_confirm: t("teams.remove_confirm", name: member.user.display_name) }, class: button_classes(:ghost, size: :xs) %>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+      <% if owner %>
+        <% if team.full? %>
+          <p class="form-help"><%= t("teams.full", max: Team::MAX_MEMBERS) %></p>
+        <% else %>
+          <%= form_with url: team_memberships_path(locale: url_locale), class: "flex flex-wrap items-end gap-2", data: { team_invite: true } do |f| %>
+            <%= f.hidden_field :team_id, value: team.id %>
+            <label class="field w-full sm:w-64">
+              <%= t("teams.invite_handle") %>
+              <%= f.text_field :handle, placeholder: "@handle", required: true, class: "field-input" %>
+            </label>
+            <%= f.submit t("teams.invite"), class: button_classes(:secondary, size: :sm) %>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% else %>
+      <p class="form-help"><%= t("teams.none_hint") %></p>
+      <% pending_request = user.team_memberships.find_by(status: "requested") %>
+      <% if pending_request %>
+        <p class="flex flex-wrap items-center justify-between gap-3 text-[13px]" data-team-request>
+          <span><%= t("teams.requested", name: pending_request.team.name) %></span>
+          <%= button_to t("teams.cancel_request"), team_membership_path(pending_request, locale: url_locale), method: :delete, class: button_classes(:ghost, size: :xs) %>
+        </p>
+      <% else %>
+        <% teams = Team.order(:name).to_a %>
+        <% if teams.any? %>
+          <%= form_with url: team_memberships_path(locale: url_locale), class: "flex flex-wrap items-end gap-2", data: { team_join: true } do |f| %>
+            <label class="field w-full sm:w-64">
+              <%= t("teams.pick") %>
+              <%= f.select :team_id, teams.map { |t| [t.name, t.id] }, {}, class: "field-input" %>
+            </label>
+            <%= f.submit t("teams.request"), class: button_classes(:secondary, size: :sm) %>
+          <% end %>
+        <% end %>
+        <%= form_with url: teams_path(locale: url_locale), scope: :team, class: "flex flex-wrap items-end gap-2", data: { team_create: true } do |f| %>
+          <label class="field w-full sm:w-64">
+            <%= t("teams.new_name") %>
+            <%= f.text_field :name, maxlength: 30, required: true, class: "field-input" %>
+          </label>
+          <%= f.submit t("teams.create"), class: button_classes(:primary, size: :sm) %>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <% invitations = user.team_memberships.where(status: "invited").includes(:team) %>
+    <% requests = owner ? team.memberships.where(status: "requested").includes(:user) : [] %>
+    <% if invitations.any? || requests.any? %>
+      <div class="border-t border-line pt-3 space-y-2" data-team-pending>
+        <h3 class="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted"><%= t("teams.pending") %></h3>
+        <% invitations.each do |invitation| %>
+          <p class="flex flex-wrap items-center justify-between gap-2 text-[13px]" data-team-invitation>
+            <span><%= t("teams.invited_by", name: invitation.team.name) %></span>
+            <span class="flex gap-1">
+              <%= button_to t("teams.accept"), team_membership_path(invitation, locale: url_locale), method: :patch, class: button_classes(:primary, size: :xs) %>
+              <%= button_to t("teams.decline"), team_membership_path(invitation, locale: url_locale), method: :delete, class: button_classes(:ghost, size: :xs) %>
+            </span>
+          </p>
+        <% end %>
+        <% requests.each do |request| %>
+          <p class="flex flex-wrap items-center justify-between gap-2 text-[13px]" data-team-request-row>
+            <span><%= t("teams.asks_to_join", name: request.user.display_name) %></span>
+            <span class="flex gap-1">
+              <%= button_to t("teams.accept"), team_membership_path(request, locale: url_locale), method: :patch, class: button_classes(:primary, size: :xs) %>
+              <%= button_to t("teams.decline"), team_membership_path(request, locale: url_locale), method: :delete, class: button_classes(:ghost, size: :xs) %>
+            </span>
+          </p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</section>

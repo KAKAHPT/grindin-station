@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_06_190000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_07_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -466,6 +466,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_190000) do
     t.index ["event_participant_id"], name: "index_standings_snapshots_on_event_participant_id"
   end
 
+  create_table "team_memberships", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "status", default: "accepted", null: false
+    t.uuid "team_id", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["team_id", "user_id"], name: "index_team_memberships_on_team_id_and_user_id", unique: true
+    t.index ["team_id"], name: "index_team_memberships_on_team_id"
+    t.index ["user_id"], name: "index_team_memberships_on_user_id"
+  end
+
+  create_table "teams", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.uuid "owner_id"
+    t.datetime "updated_at", null: false
+    t.index "lower((name)::text)", name: "index_teams_on_lower_name", unique: true
+    t.index ["owner_id"], name: "index_teams_on_owner_id"
+  end
+
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.boolean "admin", default: false, null: false
     t.datetime "anonymized_at"
@@ -544,5 +564,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_190000) do
   add_foreign_key "sessions", "users"
   add_foreign_key "standings_snapshots", "event_participants", on_delete: :cascade
   add_foreign_key "standings_snapshots", "events", on_delete: :cascade
+  add_foreign_key "team_memberships", "teams"
+  add_foreign_key "team_memberships", "users"
+  add_foreign_key "teams", "users", column: "owner_id"
   add_foreign_key "waitlist_signups", "users", column: "approved_by_id", on_delete: :nullify
 end
