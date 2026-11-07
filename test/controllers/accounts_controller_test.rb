@@ -144,14 +144,43 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     assert @user.password_set
   end
 
-  test "an e-mail change needs the current password" do
+  test "an e-mail change needs the current password and waits for the link sent to the new address" do
     patch account_path, params: { user: { email_address: "new@example.com", current_password: "wrong" } }
     assert_response :unprocessable_entity
     assert_equal "player1@example.com", @user.reload.email_address
 
-    patch account_path, params: { user: { email_address: "new@example.com", current_password: "password123" } }
+    assert_emails 1 do
+      patch account_path, params: { user: { email_address: "New@Example.com", current_password: "password123" } }
+    end
+    assert_redirected_to account_path
+    assert_equal I18n.t("accounts.flash.email_change_sent", email: "new@example.com"), flash[:notice]
+    assert_equal "player1@example.com", @user.reload.email_address, "not applied yet"
+    assert_equal "new@example.com", @user.unconfirmed_email
+    get account_path
+    assert_select "[data-pending-email]", text: /new@example.com/
+
+    get confirmation_path(@user.generate_token_for(:email_change))
     assert_redirected_to account_path
     assert_equal "new@example.com", @user.reload.email_address
+    assert_nil @user.unconfirmed_email
+    assert_equal 1, AuditEvent.where(action: "email_changed").count
+  end
+
+  test "a pending e-mail change is refused if the address was taken meanwhile, and its link is single-use" do
+    patch account_path, params: { user: { email_address: "taken@example.com", current_password: "password123" } }
+    token = @user.reload.generate_token_for(:email_change)
+    users(:player_two).update!(email_address: "taken@example.com")
+
+    get confirmation_path(token)
+    assert_redirected_to new_session_path
+    assert_equal "player1@example.com", @user.reload.email_address
+
+    @user.update!(unconfirmed_email: "free@example.com")
+    token = @user.generate_token_for(:email_change)
+    get confirmation_path(token)
+    assert_equal "free@example.com", @user.reload.email_address
+    get confirmation_path(token)
+    assert_redirected_to new_confirmation_path, "the payload (the pending address) is gone, so the link is dead"
   end
 
   test "resubmitting the same e-mail needs no password" do
@@ -171,7 +200,9 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
 
     other = @user.sessions.create!(user_agent: "other device")
     patch account_path, params: { user: { email_address: "moved@example.com", current_password: "newpassword1" } }
-    assert_not Session.exists?(other.id)
+    assert Session.exists?(other.id), "a pending change ends nothing yet"
+    get confirmation_path(@user.reload.generate_token_for(:email_change))
+    assert_not Session.exists?(other.id), "applying the change starts over with one session"
     get account_path
     assert_response :success
   end

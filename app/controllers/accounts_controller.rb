@@ -13,7 +13,7 @@ class AccountsController < ApplicationController
       render :show, status: :unprocessable_content
     elsif @user.update(attrs)
       credentials_saved
-      back_to_account notice: t("accounts.flash.updated")
+      back_to_account notice: flash[:notice] || t("accounts.flash.updated")
     else
       render :show, status: :unprocessable_content
     end
@@ -50,31 +50,38 @@ class AccountsController < ApplicationController
   # Permitted attributes; blank password fields keep the password. Nil when a user who chose a password
   # changes it or the e-mail without the right current one (OAuth-created users have none to give).
   def account_attributes
-    attrs = account_params
-    attrs = attrs.except(:password, :password_confirmation) if attrs[:password].blank?
+    attrs = account_params.to_h
+    attrs = attrs.except("password", "password_confirmation") if attrs["password"].blank?
     return if current_password_needed?(attrs) && !@user.authenticate(params.dig(:user, :current_password).to_s)
 
-    attrs[:password].present? ? attrs.merge(password_set: true) : attrs
+    attrs = pend_email_change(attrs)
+    attrs["password"].present? ? attrs.merge("password_set" => true) : attrs
+  end
+
+  # A new e-mail is not applied here: it waits in unconfirmed_email for the link sent to that address.
+  def pend_email_change(attrs)
+    return attrs unless email_changes?(attrs)
+
+    attrs.except("email_address").merge("unconfirmed_email" => User.normalize_value_for(:email_address,
+                                                                                        attrs["email_address"].to_s))
+  end
+
+  def email_changes?(attrs)
+    attrs.key?("email_address") &&
+      User.normalize_value_for(:email_address, attrs["email_address"].to_s) != @user.email_address
   end
 
   def current_password_needed?(attrs)
-    email_changes = attrs.key?(:email_address) &&
-                    User.normalize_value_for(:email_address, attrs[:email_address].to_s) != @user.email_address
-    @user.password_set && (attrs[:password].present? || email_changes)
+    @user.password_set && (attrs["password"].present? || email_changes?(attrs))
   end
 
   def credentials_saved
-    end_other_sessions if @user.saved_change_to_password_digest? || @user.saved_change_to_email_address?
-    audit_credential_changes
-  end
-
-  # Only the fact of a new password; the e-mail change with both addresses.
-  def audit_credential_changes
+    end_other_sessions if @user.saved_change_to_password_digest?
     Audit.record(:password_changed, subject: @user) if @user.saved_change_to_password_digest?
-    return unless @user.saved_change_to_email_address?
+    return unless @user.saved_change_to_unconfirmed_email? && @user.unconfirmed_email.present?
 
-    from, to = @user.saved_change_to_email_address
-    Audit.record(:email_changed, subject: @user, from: from, to: to)
+    ConfirmationsMailer.change(@user).deliver_later
+    flash[:notice] = t("accounts.flash.email_change_sent", email: @user.unconfirmed_email)
   end
 
   # A new password or e-mail signs out every other device.

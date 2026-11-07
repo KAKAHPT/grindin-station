@@ -957,6 +957,7 @@ es:
       welcome_signed_up: "¡Bienvenido! Tu cuenta se ha creado correctamente."
       confirm_email_sent: "Casi: abre el enlace que acabamos de enviar a tu e-mail para confirmar la cuenta."
       email_confirmed: "E-mail confirmado. ¡Bienvenido!"
+      email_changed: "Tu e-mail ha cambiado."
       confirmation_resent: "Si ese e-mail tiene una cuenta sin confirmar, va en camino un nuevo enlace."
       signed_in: "Has iniciado sesión."
       signed_out: "Has cerrado sesión."
@@ -981,6 +982,7 @@ es:
       try_again_later: "Inténtalo de nuevo más tarde."
       confirm_first: "Confirma primero tu e-mail: abre el enlace que te enviamos, o pide uno nuevo abajo."
       confirm_link_invalid: "Ese enlace de confirmación ya no es válido. Pide uno nuevo."
+      email_change_refused: "Ese e-mail ya no está disponible."
       no_player: "Esta cuenta no puede inscribirse en eventos."
       invalid_credentials: "Prueba con otro correo electrónico u otra contraseña."
   event_participants:
@@ -995,6 +997,7 @@ es:
       avatar_hint: "JPEG, PNG o WebP, hasta 2 MB."
       banner_hint: "Se muestra detrás de tu tarjeta en la página Organizadores y en tu página. JPEG, PNG o WebP, hasta 4 MB; alrededor de 4:1 queda mejor."
       email_hint: "Para cambiar el correo electrónico, escribe también tu contraseña actual abajo."
+      email_pending: "Enviamos un enlace de confirmación a %{email}. El cambio se aplica cuando lo abras; hasta entonces entras con tu e-mail actual."
       wizards_email_hint: "Lo usan los organizadores para reportar tus resultados a Wizards EventLink. Déjalo vacío para usar el correo con el que inicias sesión."
       handle_hint: "De 3 a 30 letras minúsculas, cifras o guiones. Se usa en la dirección de tu perfil público."
       team: "Equipo"
@@ -1023,6 +1026,7 @@ es:
       delete_button: "Eliminar mi cuenta"
     flash:
       updated: "Cuenta actualizada."
+      email_change_sent: "Mira %{email}: el cambio se aplica cuando abras el enlace que enviamos allí."
       unlinked: "Cuenta desvinculada."
       unlink_refused: "Necesitas una contraseña u otra cuenta vinculada antes de desvincular esta."
       confirmation_mismatch: "La palabra de confirmación no coincide. Tu cuenta no se ha eliminado."
@@ -1074,6 +1078,12 @@ es:
       intro: "Hola %{name}, falta un paso: confirma tu e-mail para abrir la cuenta."
       link: "Confirmar mi e-mail"
       ignore: "Si no te registraste, ignora este e-mail y no pasará nada."
+    change:
+      subject: "Confirma tu nuevo e-mail"
+      heading: "Confirma tu nuevo e-mail"
+      intro: "Hola %{name}, pediste cambiar el e-mail de Grindin Station a %{email}. Confírmalo para aplicar el cambio."
+      link: "Confirmar mi nuevo e-mail"
+      ignore: "Si no lo pediste, ignora este e-mail y tu e-mail seguirá igual."
   mailer:
     footer: "%{name} · el software de torneos con asientos justos"
   passwords_mailer:
