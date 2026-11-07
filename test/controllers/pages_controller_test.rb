@@ -50,6 +50,31 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     assert_select "h1", text: "Lugares justos, medidos em 200 torneios"
   end
 
+  test "Upcoming filters by format when more than one format is listed" do
+    cedh = upcoming(:registration_open, "Cedh Cup", 1.hour)
+    legacy = upcoming(:registration_open, "Legacy Cup", 2.hours)
+    legacy.update_columns(format: "one_v_one", game_format: "legacy") # rubocop:disable Rails/SkipsModelValidations
+
+    get root_path
+
+    assert_select "[data-upcoming-filter] a[aria-current=page]", text: "All formats"
+    assert_select "[data-upcoming-filter] a", text: "Legacy"
+    assert_select "[data-upcoming-event='#{cedh.slug}']"
+    assert_select "[data-upcoming-event='#{legacy.slug}']"
+
+    get root_path(play: "legacy")
+
+    assert_select "[data-upcoming-filter] a[aria-current=page]", text: "Legacy"
+    assert_select "[data-upcoming-event='#{legacy.slug}']"
+    assert_select "[data-upcoming-event='#{cedh.slug}']", count: 0
+
+    legacy.destroy!
+    get root_path(play: "legacy")
+
+    assert_select "[data-upcoming-filter]", { count: 0 }, "no filter with a single format"
+    assert_select "[data-upcoming-event='#{cedh.slug}']"
+  end
+
   test "upcoming events show Register only while registration is open" do
     open = upcoming(:registration_open, "Soon Open Cup", 1.hour)
     closed = upcoming(:registration_closed, "Soon Closed Cup", 2.hours)

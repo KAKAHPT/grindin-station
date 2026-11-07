@@ -1267,6 +1267,8 @@ en:
       next: "Next"
     upcoming:
       title: "Upcoming events"
+      all_formats: "All formats"
+      format: "Format"
       open:
         one: "1 open for registration"
         other: "%{count} open for registration"

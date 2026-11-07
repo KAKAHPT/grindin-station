@@ -1267,6 +1267,8 @@ pt:
       next: "Seguinte"
     upcoming:
       title: "Próximos eventos"
+      all_formats: "Todos os formatos"
+      format: "Formato"
       open:
         one: "1 com inscrições abertas"
         other: "%{count} com inscrições abertas"

@@ -19,7 +19,7 @@ class PagesController < ApplicationController
     listed = self.class.listed_tournaments
     @open_count = listed.registration_open.count
     @featured = listed.where(featured: true).order(:start_time).limit(FEATURED_LIMIT).to_a
-    @upcoming = listed.excluding(@featured).order(:start_time).limit(UPCOMING_LIMIT).to_a
+    @upcoming = upcoming_scope(listed).excluding(@featured).order(:start_time).limit(UPCOMING_LIMIT).to_a
     @enrolled = ticket_counts(@featured + @upcoming)
     load_extras
   end
@@ -33,6 +33,19 @@ class PagesController < ApplicationController
   end
 
   private
+
+  # The Upcoming list narrowed to the chosen format (?play=) when it is one of the listed ones.
+  def upcoming_scope(listed)
+    @plays = plays_present(listed)
+    @play = params.permit(:play)[:play].presence_in(@plays)
+    @play ? listed.with_play(@play) : listed
+  end
+
+  # The formats (Event::PLAYS) among the listed tournaments, in PLAYS order: the Upcoming filter shows these only.
+  def plays_present(listed)
+    present = listed.distinct.pluck(:format, :game_format)
+    Event::PLAYS & present.map { |format, game| format == "multiplayer" ? format : game }
+  end
 
   def average_fair_rate(seating)
     (@rounds.values.sum { |block| block[seating]["fair_rate"] } / @rounds.size).round(1)
