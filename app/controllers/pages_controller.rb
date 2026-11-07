@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # The landing (/): the fair-seats story, the organisers' waiting list, the featured tournaments (up to nine on a
-# rail, left out of Upcoming) and the next public tournaments.
+# rail, left out of Upcoming) and the next public tournaments. Also /fairness, the public seat-fairness report.
 class PagesController < ApplicationController
   allow_unauthenticated_access
   layout "public"
@@ -24,10 +24,18 @@ class PagesController < ApplicationController
     load_extras
   end
 
+  # /fairness: the simulated seat report (config/seat_fairness.json, regenerated with bin/rails grindin:seat_report),
+  # one block per round count, Grindin's weighted seats against seats drawn at random.
+  def fairness
+    @report = JSON.parse(Rails.root.join("config/seat_fairness.json").read)
+    @rounds = @report["rounds"]
+    @averages = %w[fair random].index_with { |seating| average_fair_rate(seating) }
+  end
+
   private
 
-  # Up to nine admin-featured circuits (an ECL season, a championship) on a rail under the featured tournaments, and
-  # the waiting-list form.
+# The landing (/): the fair-seats story, the organisers' waiting list, the featured tournaments (up to nine on a
+# rail, left out of Upcoming) and the next public tournaments. Also /fairness, the public seat-fairness report.
   def load_extras
     @featured_circuits = Circuit.featured.with_attached_banner.preload(event_organizer: :user).order(:created_at)
       .limit(FEATURED_CIRCUITS_LIMIT).to_a

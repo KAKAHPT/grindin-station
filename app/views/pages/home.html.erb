@@ -125,6 +125,7 @@
         <% end %>
       </ol>
       <p><%= t("landing.why.audit") %></p>
+      <p class="lp-why-cta"><%= link_to t("landing.why.tests"), fairness_path(locale: url_locale), class: button_classes(:secondary, size: :sm), data: { tests: true } %></p>
     </section>
   </div>
 </div>
