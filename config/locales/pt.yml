@@ -227,6 +227,13 @@ pt:
   activerecord:
     errors:
       models:
+        team_membership:
+          attributes:
+            base:
+              already_in_a_team: "já está numa equipa"
+              team_full: "a equipa está cheia (%{count} jogadores)"
+              not_owner: "só o dono da equipa convida jogadores"
+              no_such_handle: "não há jogador com esse handle"
         event_participant:
           attributes:
             base:
@@ -1030,6 +1037,9 @@ pt:
       judge_call: "Foi chamado um juiz em %{event}."
       result_contested: "Um resultado da tua mesa foi contestado em %{event}. Vem aí um juiz."
       mentioned: "%{name} mencionou-te no feed social."
+      team_requested: "%{name} pede para entrar em %{team}."
+      team_invited: "Foste convidado para %{team}."
+      team_accepted: "%{name} está agora em %{team}."
   follows:
     unfollow: "Deixar de seguir"
     following: "Passaste a seguir %{name}."
@@ -1480,3 +1490,34 @@ pt:
       featured: "Destaques primeiro"
       name: "Nome"
       organizer: "Organizador"
+  teams:
+    title: "Equipa"
+    none_hint: "O grupo com quem testas e jogas, mostrado ao lado do teu nome. Pede lugar numa equipa ou cria a tua."
+    members: "%{count} de %{max} jogadores"
+    you_own: "és o dono"
+    owner: "dono"
+    leave: "Sair"
+    leave_confirm: "Sair de %{name}?"
+    remove: "Remover"
+    remove_confirm: "Remover %{name} da equipa?"
+    full: "A equipa está cheia (%{max} jogadores)."
+    invite_handle: "Adicionar um jogador pelo handle"
+    invite: "Convidar"
+    pick: "Entrar numa equipa"
+    request: "Pedir para entrar"
+    requested: "Pediste para entrar em %{name}. O dono da equipa tem de aceitar."
+    cancel_request: "Cancelar"
+    new_name: "Criar uma equipa"
+    create: "Criar"
+    pending: "Pendentes"
+    invited_by: "%{name} convidou-te."
+    asks_to_join: "%{name} pede para entrar."
+    accept: "Aceitar"
+    decline: "Recusar"
+    flash:
+      created: "%{name} criada. És o dono: aceita pedidos e convida jogadores em baixo."
+      requested: "Pedido enviado a %{name}."
+      invited: "Convite enviado."
+      accepted: "Bem-vindo a %{name}."
+      left: "Já não estás em %{name}."
+      already_in_a_team: "Sai primeiro da tua equipa atual."

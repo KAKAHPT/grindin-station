@@ -13,6 +13,8 @@ Rails.application.routes.draw do
   resources :passwords, param: :token
   resources :registrations, only: %i[new create]
   resource :account, only: %i[show update destroy]
+  resources :teams, only: :create
+  resources :team_memberships, only: %i[create update destroy]
   delete "/account/identities/:id" => "accounts#unlink_identity", as: :unlink_identity
   get "/p/:handle", to: "profiles#show", as: :profile, constraints: { handle: /[a-z0-9-]+/ }
   get "/organizers", to: "organizers#index", as: :organizers
