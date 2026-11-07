@@ -598,6 +598,16 @@ pt:
       infraction: "Registar infração"
       add_player: "Adicionar jogador"
       decklist: "Decklist"
+      waitlist:
+        title: "Lista de espera"
+        count:
+          one: "%{count} jogador à espera"
+          other: "%{count} jogadores à espera"
+        player: "Jogador"
+        signed_up: "Inscrito"
+        add: "Adicionar à bracket"
+        remove: "Remover"
+        remove_confirm: "Remover %{name} da lista de espera?"
       no_decklist: "Sem decklist"
       desk:
         checked_in: "Check-in feito"
