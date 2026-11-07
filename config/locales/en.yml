@@ -957,6 +957,7 @@ en:
       welcome_signed_up: "Welcome! You have signed up successfully."
       confirm_email_sent: "Almost there: open the link we just sent to your e-mail to confirm your account."
       email_confirmed: "Your e-mail is confirmed. Welcome!"
+      email_changed: "Your e-mail is changed."
       confirmation_resent: "If that e-mail has an unconfirmed account, a new confirmation link is on its way."
       signed_in: "You have been signed in."
       signed_out: "You have been signed out."
@@ -981,6 +982,7 @@ en:
       try_again_later: "Try again later."
       confirm_first: "Confirm your e-mail first: open the link we sent you, or ask for a new one below."
       confirm_link_invalid: "That confirmation link is not valid any more. Ask for a new one."
+      email_change_refused: "That e-mail is no longer available."
       no_player: "This account cannot register for events."
       invalid_credentials: "Try another email address or password."
   event_participants:
@@ -995,6 +997,7 @@ en:
       avatar_hint: "JPEG, PNG or WebP, up to 2 MB."
       banner_hint: "Shown behind your card on the Organizers page and on your page. JPEG, PNG or WebP, up to 4 MB; about 4:1 works best."
       email_hint: "To change your e-mail, also type your current password below."
+      email_pending: "A confirmation link was sent to %{email}. The change applies when you open it; until then you sign in with your current e-mail."
       wizards_email_hint: "Used by organizers to report your results to Wizards EventLink. Leave empty to use your sign-in e-mail."
       handle_hint: "3 to 30 lowercase letters, digits or hyphens. Used in your public profile address."
       team: "Team"
@@ -1023,6 +1026,7 @@ en:
       delete_button: "Delete my account"
     flash:
       updated: "Account updated."
+      email_change_sent: "Check %{email}: the change applies when you open the link we sent there."
       unlinked: "Sign-in unlinked."
       unlink_refused: "You need a password or another linked sign-in before unlinking this one."
       confirmation_mismatch: "The confirmation word did not match. Your account was not deleted."
@@ -1074,6 +1078,12 @@ en:
       intro: "Hi %{name}, one last step: confirm your e-mail to open your account."
       link: "Confirm my e-mail"
       ignore: "If you did not sign up, ignore this mail and nothing happens."
+    change:
+      subject: "Confirm your new e-mail"
+      heading: "Confirm your new e-mail"
+      intro: "Hi %{name}, you asked to change your Grindin Station e-mail to %{email}. Confirm it to apply the change."
+      link: "Confirm my new e-mail"
+      ignore: "If you did not ask for this, ignore this mail and your e-mail stays the same."
   mailer:
     footer: "%{name} · the tournament software with fair seats"
   passwords_mailer:

@@ -10,6 +10,9 @@ class Player < ApplicationRecord
   normalizes :wizards_email, with: ->(e) { e.strip.downcase.presence }
 
   validates :key, presence: true
+
+  # An opaque random key; guests get "guest-…" and removed accounts "removed-…".
+  def self.new_key = "p-#{SecureRandom.hex(12)}"
   validates :wizards_email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
 
   def name

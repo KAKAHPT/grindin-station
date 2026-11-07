@@ -53,6 +53,9 @@
         <div class="<%= field %>">
           <%= f.label :email_address %>
           <%= f.email_field :email_address, required: true, autocomplete: "username", class: input %>
+          <% if @user.unconfirmed_email.present? %>
+            <p class="<%= hint %> text-accent" data-pending-email><%= t(".email_pending", email: @user.unconfirmed_email) %></p>
+          <% end %>
           <% if @user.password_set %>
             <p class="<%= hint %>"><%= t(".email_hint") %></p>
           <% end %>
