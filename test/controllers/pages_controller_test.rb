@@ -122,7 +122,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
 
     get root_path
 
-    assert_select "section[data-upcoming] + section.lp-feat[data-featured]"
+    assert_select "section.lp-feat[data-featured] ~ section[data-upcoming]"
     assert_select "[data-featured] h2", text: "Featured"
     assert_select "[data-featured-event]", 3
     assert_select "[data-featured-event]:first-child[data-featured-event='#{featured.first.slug}']" do

@@ -1,5 +1,5 @@
 <%# The landing (/): the scrolling card-art mosaic behind the hero (headline, tagline, lead), then the waiting-list
-    card, the next public tournaments, the featured tournaments and circuits (when any) and, last, Anne's seat board
+    card, the featured tournaments and circuits (when any), the next public tournaments and, last, Anne's seat board
     with how seats are weighted. %>
 <% content_for :title, t("landing.title") %>
 <% content_for :description, t("landing.description") %>
@@ -38,28 +38,6 @@
 
   <%= render "pages/waitlist", signup: @waitlist_signup, state: nil %>
 
-
-
-  <section class="lp-upc" id="upcoming" data-upcoming>
-    <div class="lp-upc-hd">
-      <h2><%= t("landing.upcoming.title") %></h2>
-      <span>
-        <% if @open_count.positive? %><%= t("landing.upcoming.open", count: @open_count) %> · <% end %>
-        <%= link_to t("landing.upcoming.see_all"), events_path(locale: url_locale) %>
-      </span>
-    </div>
-    <% if @upcoming.any? %>
-      <div class="lp-evl">
-        <% @upcoming.each do |event| %>
-          <% count = @enrolled.fetch(event.id, 0) %>
-          <%= render "shared/event_ticket", event: event, enrolled: count, sold_out: event.sold_out?(count) %>
-        <% end %>
-      </div>
-    <% else %>
-      <p class="card lp-empty"><%= t("landing.upcoming.empty") %></p>
-    <% end %>
-  </section>
-
   <% if @featured.any? %>
     <section class="lp-feat" data-featured>
       <h2 class="lp-eyebrow"><%= t("landing.featured.title") %></h2>
@@ -87,6 +65,26 @@
       </div>
     </section>
   <% end %>
+
+  <section class="lp-upc" id="upcoming" data-upcoming>
+    <div class="lp-upc-hd">
+      <h2><%= t("landing.upcoming.title") %></h2>
+      <span>
+        <% if @open_count.positive? %><%= t("landing.upcoming.open", count: @open_count) %> · <% end %>
+        <%= link_to t("landing.upcoming.see_all"), events_path(locale: url_locale) %>
+      </span>
+    </div>
+    <% if @upcoming.any? %>
+      <div class="lp-evl">
+        <% @upcoming.each do |event| %>
+          <% count = @enrolled.fetch(event.id, 0) %>
+          <%= render "shared/event_ticket", event: event, enrolled: count, sold_out: event.sold_out?(count) %>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="card lp-empty"><%= t("landing.upcoming.empty") %></p>
+    <% end %>
+  </section>
 
   <div class="lp-fair" id="about">
     <section class="card lp-seatboard lp-tex" data-seat-board>
