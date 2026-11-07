@@ -15,6 +15,10 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
   generates_token_for :email_confirmation, expires_in: 2.days do
     email_address
   end
+  # An e-mail change waits in unconfirmed_email until the link sent to the new address is opened.
+  generates_token_for :email_change, expires_in: 2.days do
+    unconfirmed_email
+  end
   # The public sign-up asks for an unconfirmed account; the column default confirms every other creation (and the
   # fixtures). A plain nil would be dropped by the partial insert, so the column is forced into the INSERT.
   attribute :needs_confirmation, :boolean, default: false
@@ -34,10 +38,6 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   after_create :initialize_player, if: -> { !organizer }
   after_create :initialize_organizer, if: -> { organizer }
-  # An anonymised user keeps its player key so the player stays linked to its event history.
-  after_update :update_key, if: lambda {
-    anonymized_at.nil? && (email_address_previously_changed? || name_previously_changed?)
-  }
 
   has_one :player, dependent: :nullify
   accepts_nested_attributes_for :player, update_only: true
@@ -127,24 +127,20 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
     update_column(:confirmed_at, Time.current) unless confirmed? # rubocop:disable Rails/SkipsModelValidations -- a stamp
   end
 
+  # The confirmed new address replaces the old one (refused if another account took it meanwhile).
+  def apply_email_change!
+    update!(email_address: unconfirmed_email, unconfirmed_email: nil)
+  end
+
   def display_name
     anonymized? ? I18n.t("accounts.removed_player") : name
   end
 
-  # The separator keeps "a@x.com" + "bc" and "a@x.comb" + "c" apart.
-  def compute_key
-    Digest::MD5.hexdigest("#{email_address}\0#{name}")
-  end
-
-  # Adopts an unowned player with this key (one created before the user signed up); a player that
-  # belongs to someone else is never taken over, the new user gets its own.
+  # Every account gets its own player with an opaque random key (never derived from the e-mail or name).
   def initialize_player
     return if player
 
-    key = compute_key
-    unowned = Player.find_by(key: key, user_id: nil)
-    self.player = unowned || Player.new(key: free_key(key))
-    player.save
+    self.player = Player.create!(key: Player.new_key)
   end
 
   def leave_unconfirmed
@@ -154,10 +150,6 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   def initialize_organizer
     EventOrganizer.create!(user: self)
-  end
-
-  def update_key
-    player&.update(key: free_key(compute_key))
   end
 
   def organizer?(event = nil)
@@ -221,9 +213,6 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
   end
 
   # The key, or the key with a random suffix when another player already holds it.
-  def free_key(key)
-    Player.where(key: key).where.not(id: player&.id).exists? ? "#{key}-#{SecureRandom.hex(4)}" : key
-  end
 
   def shares_event_with?(other)
     events_of = ->(user) { EventParticipant.joins(:player).where(players: { user_id: user.id }).select(:event_id) }

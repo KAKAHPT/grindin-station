@@ -86,11 +86,13 @@ class AuditTrailTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics
     assert_no_audit("email_changed")
   end
 
-  test "email_changed from and to" do
+  test "email_changed from and to, written when the link sent to the new address is opened" do
     sign_in(@player)
+    patch account_path, params: { user: { email_address: "renamed@example.com", current_password: "password123" } }
+    assert_no_audit("email_changed")
     audited("email_changed", actor: @player,
                              data: { "from" => "player1@example.com", "to" => "renamed@example.com" }) do
-      patch account_path, params: { user: { email_address: "renamed@example.com", current_password: "password123" } }
+      get confirmation_path(@player.reload.generate_token_for(:email_change))
     end
     assert_no_audit("password_changed")
   end

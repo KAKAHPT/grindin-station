@@ -73,7 +73,7 @@ module Accounts
       assert_equal rank_score, EventParticipant.find(@participant.id).rank_score
     end
 
-    test "update_key is skipped once anonymised" do
+    test "a rename after anonymising keeps the key" do
       Anonymize.call(user: @user)
       key = @user.player.reload.key
 
