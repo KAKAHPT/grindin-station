@@ -2029,8 +2029,14 @@
     color: var(--color-muted);
   }
 
-  .lp-upc-hd a {
+  .lp-upc-hd > span a {
     color: var(--color-accent);
+  }
+
+  .lp-upc-filter {
+    margin: 0 auto 0 4px;
+    max-width: 100%;
+    overflow-x: auto;
   }
 
   .lp-evl {

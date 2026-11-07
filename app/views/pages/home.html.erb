@@ -69,6 +69,15 @@
   <section class="lp-upc" id="upcoming" data-upcoming>
     <div class="lp-upc-hd">
       <h2><%= t("landing.upcoming.title") %></h2>
+      <% if @plays.size > 1 %>
+        <%# Format filter: All, then every format with an upcoming event. %>
+        <nav class="seg lp-upc-filter" aria-label="<%= t("landing.upcoming.format") %>" data-upcoming-filter>
+          <%= link_to t("landing.upcoming.all_formats"), root_path(locale: url_locale, anchor: "upcoming"), class: ("seg-on" if @play.nil?), "aria-current": ("page" if @play.nil?) %>
+          <% @plays.each do |play| %>
+            <%= link_to play_label(play), root_path(locale: url_locale, play: play, anchor: "upcoming"), class: ("seg-on" if play == @play), "aria-current": ("page" if play == @play) %>
+          <% end %>
+        </nav>
+      <% end %>
       <span>
         <% if @open_count.positive? %><%= t("landing.upcoming.open", count: @open_count) %> · <% end %>
         <%= link_to t("landing.upcoming.see_all"), events_path(locale: url_locale) %>
