@@ -598,6 +598,16 @@ en:
       infraction: "Record infraction"
       add_player: "Add player"
       decklist: "Decklist"
+      waitlist:
+        title: "Waiting list"
+        count:
+          one: "%{count} player waiting"
+          other: "%{count} players waiting"
+        player: "Player"
+        signed_up: "Signed up"
+        add: "Add to bracket"
+        remove: "Remove"
+        remove_confirm: "Remove %{name} from the waiting list?"
       no_decklist: "No decklist"
       desk:
         checked_in: "Checked in"

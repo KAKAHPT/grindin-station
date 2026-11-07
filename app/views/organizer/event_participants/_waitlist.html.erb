@@ -1,0 +1,54 @@
+<%# The waiting list under the roster: position, player, signed up, decklist; "Add to bracket" (promote, while
+    registrations are open or closed) and "Remove" (a drop). Locals: waiting (participants in waitlist order),
+    event, can_act (false for scorekeepers). %>
+<section class="col-span-full bg-surface border border-line rounded-xl shadow-card overflow-clip" data-waitlist>
+  <div class="flex flex-wrap items-center gap-2 px-3.5 py-2 border-b border-line">
+    <h2 class="font-display text-[13px] font-semibold text-ink"><%= t("organizer.roster.waitlist.title") %></h2>
+    <span class="text-[12px] text-muted"><%= t("organizer.roster.waitlist.count", count: waiting.size) %></span>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-left rtl:text-right text-ink">
+      <thead class="text-[10.5px] font-semibold tracking-[0.06em] text-muted uppercase bg-surface-raised border-b border-line-strong">
+        <tr>
+          <th scope="col" class="px-2.5 py-2 whitespace-nowrap">#</th>
+          <th scope="col" class="px-2.5 py-2 whitespace-nowrap"><%= t("organizer.roster.waitlist.player") %></th>
+          <th scope="col" class="px-2.5 py-2 whitespace-nowrap"><%= t("organizer.roster.waitlist.signed_up") %></th>
+          <th scope="col" class="px-2.5 py-2 whitespace-nowrap"><%= t("organizer.roster.decklist") %></th>
+          <th scope="col" class="px-2.5 py-2 text-right"><%= t("organizer.roster.actions") %></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-line/60">
+        <% waiting.each do |participant| %>
+          <tr id="<%= dom_id(participant, :waitlist) %>" class="h-[34px] text-[12px] odd:bg-white/[0.015] hover:bg-white/[0.04] transition-colors" data-waitlist-row="<%= participant.id %>">
+            <td class="px-2.5 tabular text-muted"><%= participant.waitlist_position %></td>
+            <th scope="row" class="px-2.5 font-semibold whitespace-nowrap text-ink"><%= truncate(participant.name, length: 26) %></th>
+            <td class="px-2.5 tabular text-muted whitespace-nowrap"><%= l(participant.created_at, format: :short) %></td>
+            <td class="px-2.5 text-muted">
+              <% if participant.decklist.present? %>
+                <%= link_to t("organizer.roster.decklist"), participant.decklist, target: "_blank", rel: "noopener", class: "hover:text-accent underline underline-offset-2" %>
+              <% else %>
+                <%= t("organizer.roster.no_decklist") %>
+              <% end %>
+            </td>
+            <td class="px-2.5">
+              <% if can_act %>
+                <div class="flex justify-end gap-1 whitespace-nowrap">
+                  <% unless event.points_locked? %>
+                    <%= button_to [:promote, :organizer, event, participant], method: :patch, class: button_classes(:primary, size: :xs), data: { waitlist_add: true } do %>
+                      <%= icon("arrow-up", class: "me-1") %><%= t("organizer.roster.waitlist.add") %>
+                    <% end %>
+                  <% end %>
+                  <%= button_to [:drop, :organizer, event, participant], method: :patch, params: { reason: "drop" },
+                                data: { turbo_confirm: t("organizer.roster.waitlist.remove_confirm", name: participant.name), waitlist_remove: true },
+                                class: button_classes(:ghost, size: :xs) do %>
+                    <%= icon("user-minus", class: "me-1") %><%= t("organizer.roster.waitlist.remove") %>
+                  <% end %>
+                </div>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

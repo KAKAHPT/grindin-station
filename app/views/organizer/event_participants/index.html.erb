@@ -33,6 +33,9 @@
 
 <% if @layout_mode == "application" %>
   <% order = registration_order(@event) %>
+  <%# Waitlisted players go to their own table under the roster. %>
+  <% waiting = @event_participants.select { |p| p.playing? && p.waitlisted? }.sort_by { |p| p.waitlist_position.to_i } %>
+  <% listed = @event_participants - waiting %>
   <% filter_link = ->(status) { [:organizer, @event, :event_participants, { layout: "application", status: (status unless params[:status] == status), query: params[:query] }] } %>
   <div class="col-span-full bg-surface border border-line rounded-xl shadow-card overflow-clip" data-controller="row-expander">
     <div class="flex flex-wrap items-center gap-x-[18px] gap-y-2 px-3.5 py-2 border-b border-line text-[12px] text-muted">
@@ -91,9 +94,9 @@
       <% end %>
       </div>
     </div>
-    <% if @event_participants.present? %>
+    <% if listed.present? %>
       <% standings = !@event.state.in?(%w[registration_open registration_closed]) %>
-      <% seat_five = standings && @event.multiplayer? && seat_five?(@event_participants) %>
+      <% seat_five = standings && @event.multiplayer? && seat_five?(listed) %>
       <div class="overflow-x-auto">
         <table class="w-full text-left rtl:text-right text-ink">
           <thead class="sticky top-0 z-10 text-[10.5px] font-semibold tracking-[0.06em] text-muted uppercase bg-surface-raised border-b border-line-strong">
@@ -109,7 +112,7 @@
             </tr>
           </thead>
           <tbody id="<%= dom_id(@event, :event_participants) %>" class="divide-y divide-line/60">
-            <%= render partial: "organizer/event_participants/desk_row", collection: @event_participants.sort_by { |p| order[p.id] }, locals: { order: order, standings: standings, seat_five: seat_five, scorekeeper: scorekeeper } %>
+            <%= render partial: "organizer/event_participants/desk_row", collection: listed.sort_by { |p| order[p.id] }, locals: { order: order, standings: standings, seat_five: seat_five, scorekeeper: scorekeeper } %>
           </tbody>
         </table>
       </div>
@@ -122,10 +125,13 @@
           <span class="inline-flex items-center gap-1"><%= icon(name) %><%= label %></span>
         <% end %>
       </p>
-    <% else %>
+    <% elsif waiting.empty? %>
       <p class="px-4 py-6 text-center text-[12px] text-muted">No players found</p>
     <% end %>
   </div>
+  <% if waiting.any? %>
+    <%= render "organizer/event_participants/waitlist", waiting: waiting, event: @event, can_act: !scorekeeper %>
+  <% end %>
 <% else %>
 <% if @event_participants.present? %>
   <div class="col-span-full">
