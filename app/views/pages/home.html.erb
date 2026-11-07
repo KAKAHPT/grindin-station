@@ -28,7 +28,7 @@
       <div class="lp-mark"><%= render "shared/mark", size: 84, id_suffix: "hero", rotating: true %></div>
       <p class="lp-eyebrow"><%= t("landing.eyebrow") %></p>
       <h1><%= t("landing.headline") %></h1>
-      <p class="lp-sub"><%= t("landing.tagline_html") %></p>
+      <p class="lp-sub"><%= t("landing.tagline_html") %> <%= link_to t("landing.why.tests"), fairness_path(locale: url_locale), class: "lp-sub-a", data: { tests: true } %></p>
       <p class="lp-lead"><%= t("landing.lead") %></p>
       <div class="lp-ctas">
         <%= link_to t("landing.cta_events"), "#upcoming", class: button_classes(:light, size: :sm) %>
@@ -125,6 +125,7 @@
         <% end %>
       </ol>
       <p><%= t("landing.why.audit") %></p>
+      <p class="lp-why-cta"><%= link_to t("landing.why.tests"), fairness_path(locale: url_locale), class: button_classes(:secondary, size: :sm), data: { tests: true } %></p>
     </section>
   </div>
 </div>
