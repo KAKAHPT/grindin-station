@@ -81,7 +81,7 @@ class AccountsController < ApplicationController
     return unless @user.saved_change_to_unconfirmed_email? && @user.unconfirmed_email.present?
 
     ConfirmationsMailer.change(@user).deliver_later
-    flash[:notice] = t("accounts.flash.email_change_sent", email: @user.unconfirmed_email)
+    flash.now[:notice] = t("accounts.flash.email_change_sent", email: @user.unconfirmed_email)
   end
 
   # A new password or e-mail signs out every other device.
