@@ -39,9 +39,9 @@
   <%= render "pages/waitlist", signup: @waitlist_signup, state: nil %>
 
   <% if @featured.any? %>
-    <section class="lp-feat" data-featured>
-      <h2 class="lp-eyebrow"><%= t("landing.featured.title") %></h2>
-      <div class="lp-ftl">
+    <section class="lp-feat" data-featured data-controller="rail">
+      <%= render "pages/rail_header", title: t("landing.featured.title") %>
+      <div class="lp-rail lp-ftl" data-rail-target="track">
         <% @featured.each do |event| %>
           <%= render "shared/featured_ticket", event: event, enrolled: @enrolled.fetch(event.id, 0) %>
         <% end %>
@@ -50,9 +50,9 @@
   <% end %>
 
   <% if @featured_circuits.any? %>
-    <section class="lp-feat" data-featured-circuits>
-      <h2 class="lp-eyebrow"><%= t("landing.featured_circuits") %></h2>
-      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <section class="lp-feat" data-featured-circuits data-controller="rail">
+      <%= render "pages/rail_header", title: t("landing.featured_circuits") %>
+      <div class="lp-rail lp-crl" data-rail-target="track">
         <% @featured_circuits.each do |circuit| %>
           <% banner = circuit.banner.attached? %>
           <%= link_to circuit_path(circuit, locale: url_locale), class: "card org-card block p-4 hover:border-line-strong #{"org-card-banner" if banner}",

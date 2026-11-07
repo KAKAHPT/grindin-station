@@ -1218,6 +1218,9 @@ es:
     featured:
       title: "Destacados"
     featured_circuits: "Circuitos destacados"
+    rail:
+      prev: "Anterior"
+      next: "Siguiente"
     upcoming:
       title: "Próximos eventos"
       open:

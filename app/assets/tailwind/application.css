@@ -1817,14 +1817,60 @@
     margin-bottom: 12px;
   }
 
-  .lp-ftl {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
+  /* Rails: featured events (3 per view) and featured circuits (4 per view) scroll sideways; the header's arrows
+     page them and only show when the rail overflows (data-overflow set by rail_controller). */
+  .lp-rail-hd {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
   }
 
-  .lp-ftl > :first-child:nth-last-child(odd) {
-    grid-column: 1 / -1;
+  .lp-rail-nav {
+    display: none;
+    gap: 2px;
+    margin-bottom: 10px;
+    color: var(--color-muted);
+  }
+
+  [data-overflow] .lp-rail-nav {
+    display: flex;
+  }
+
+  .lp-rail-nav button:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  .lp-rail {
+    --rail-gap: 14px;
+    display: flex;
+    gap: var(--rail-gap);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+
+  .lp-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .lp-rail > * {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  .lp-ftl > * {
+    width: calc((100% - 2 * var(--rail-gap)) / 3);
+  }
+
+  .lp-crl {
+    --rail-gap: 12px;
+  }
+
+  .lp-crl > * {
+    width: calc((100% - 3 * var(--rail-gap)) / 4);
   }
 
   .lp-ft {
@@ -1832,7 +1878,7 @@
     --ft-glow: rgb(45 212 191 / 0.5);
     position: relative;
     display: grid;
-    grid-template-columns: 104px 1fr;
+    grid-template-columns: 84px 1fr;
     min-height: 150px;
     overflow: hidden;
     isolation: isolate;
@@ -1889,7 +1935,7 @@
   }
 
   .lp-ft-stub b {
-    font: 800 40px var(--font-display);
+    font: 800 34px var(--font-display);
     line-height: 1;
     color: var(--ft-tone);
     text-shadow: 0 0 24px var(--ft-glow);
@@ -1924,7 +1970,7 @@
   }
 
   .lp-ft-t {
-    font: 700 18px var(--font-display);
+    font: 700 16px var(--font-display);
     letter-spacing: -0.01em;
     text-shadow: 0 2px 12px #000;
   }
@@ -2231,8 +2277,12 @@
       padding: 0 16px;
     }
 
-    .lp-ftl {
-      grid-template-columns: 1fr;
+    .lp-ftl > * {
+      width: 88%;
+    }
+
+    .lp-crl > * {
+      width: 70%;
     }
 
     .lp-evl,

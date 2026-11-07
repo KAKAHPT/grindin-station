@@ -1218,6 +1218,9 @@ pt:
     featured:
       title: "Em destaque"
     featured_circuits: "Circuitos em destaque"
+    rail:
+      prev: "Anterior"
+      next: "Seguinte"
     upcoming:
       title: "Próximos eventos"
       open:

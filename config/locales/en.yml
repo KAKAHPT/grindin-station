@@ -1218,6 +1218,9 @@ en:
     featured:
       title: "Featured"
     featured_circuits: "Featured circuits"
+    rail:
+      prev: "Previous"
+      next: "Next"
     upcoming:
       title: "Upcoming events"
       open:
