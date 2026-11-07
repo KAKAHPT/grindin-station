@@ -44,6 +44,8 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
   has_many :followed_users, through: :follows, source: :followed
   has_many :followings, class_name: "Follow", foreign_key: :followed_id, dependent: :destroy, inverse_of: :followed
   has_many :followers, through: :followings, source: :follower
+  has_many :team_memberships, dependent: :destroy
+  has_many :owned_teams, class_name: "Team", foreign_key: :owner_id, dependent: :nullify, inverse_of: :owner
 
   # What the social feed shows this account by default.
   FEED_SCOPES = %w[everyone following].freeze
@@ -69,6 +71,11 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
   validate :banner_type_and_size
 
   # Teams already in use, for the account form's autocomplete.
+  # The accepted membership, whose team's name is on users.team.
+  def team_membership
+    team_memberships.accepted.includes(:team).first
+  end
+
   def self.team_suggestions
     where.not(team: nil).distinct.order(:team).limit(50).pluck(:team)
   end
