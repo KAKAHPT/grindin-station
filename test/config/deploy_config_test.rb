@@ -4,7 +4,7 @@ require "test_helper"
 require "erb"
 require "yaml"
 
-class DeployConfigTest < ActiveSupport::TestCase
+class DeployConfigTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLength
   REQUIRED_SECRETS = %w[
     RAILS_MASTER_KEY PRIMARY_DATABASE_URL CACHE_DATABASE_URL QUEUE_DATABASE_URL CABLE_DATABASE_URL
     GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET DISCORD_CLIENT_ID DISCORD_CLIENT_SECRET
