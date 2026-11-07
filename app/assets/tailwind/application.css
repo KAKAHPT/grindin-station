@@ -1629,8 +1629,8 @@
   .lp-fair {
     position: relative;
     z-index: 1;
-    max-width: 640px;
-    margin: 44px auto 0;
+    max-width: 980px;
+    margin: 36px auto 0;
     padding: 0 24px 8px;
   }
 
@@ -1638,11 +1638,11 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: 18px 20px;
+    padding: 20px 24px 22px;
   }
 
   .lp-why h2 {
-    font: 600 17px var(--font-display);
+    font: 600 22px var(--font-display);
     letter-spacing: -0.01em;
   }
 
@@ -1857,10 +1857,18 @@
     color: var(--color-accent);
   }
 
-  .lp-upc-filter {
-    margin: 0 auto 0 4px;
-    max-width: 100%;
-    overflow-x: auto;
+  .lp-upc-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+
+  .lp-upc-select {
+    width: auto;
+    height: 30px;
+    padding: 0 30px 0 10px;
+    font-size: 12px;
   }
 
   .lp-evl {
