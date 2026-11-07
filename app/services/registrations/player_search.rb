@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module Registrations
-  # The Add player dialog's lookup: accounts whose name (mode "name") or e-mail (mode "email") contains the typed
-  # text, up to LIMIT, each with whether that player is already in the event. Name mode shows only the first letter
-  # and the domain of the e-mail, so a roster cannot be used to harvest addresses; e-mail mode shows the address the
-  # organizer is already typing.
+  # The Add player dialog's lookup, up to LIMIT rows, each with whether that player is already in the event.
+  # Mode "email" matches the full, normalised address only (the organizer must know it; substrings would let a
+  # roster harvest the whole directory). Mode "name" matches the name by substring, shows only the first letter and
+  # the domain of the e-mail, and leaves private profiles out unless they are already in the event.
   class PlayerSearch
     LIMIT = 8
     MIN_LENGTH = { "name" => 2, "email" => 3 }.freeze
@@ -25,9 +25,15 @@ module Registrations
     private
 
     def users
-      column = @mode == "email" ? "email_address" : "name"
-      User.where(anonymized_at: nil).joins(:player).includes(:player)
-        .where("users.#{column} ILIKE ?", "%#{User.sanitize_sql_like(@text)}%").order(:name).limit(LIMIT)
+      scope = User.where(anonymized_at: nil).joins(:player).includes(:player)
+      return scope.where(email_address: @text.downcase).limit(1) if @mode == "email"
+
+      scope.where("users.name ILIKE ?", "%#{User.sanitize_sql_like(@text)}%")
+        .where("users.visibility <> 'private' OR players.id IN (?)", in_event_ids).order(:name).limit(LIMIT)
+    end
+
+    def in_event_ids
+      @in_event_ids ||= @event.event_participants.pluck(:player_id)
     end
 
     def row(user, in_event)

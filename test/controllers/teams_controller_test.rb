@@ -3,7 +3,9 @@
 require "test_helper"
 
 # Teams on the account page: create, ask to join, invite, accept, leave; users.team follows the accepted team.
-class TeamsControllerTest < ActionDispatch::IntegrationTest
+class TeamsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
+  include RateLimitStore
+
   setup do
     @owner = users(:player_one)
     @joiner = users(:player_two)
@@ -70,6 +72,16 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Braga Bombers", @joiner.reload.team
   end
 
+  test "an invitation cannot resolve a hidden profile" do
+    team = create_team("Quiet")
+    @joiner.update!(visibility: "private")
+
+    post team_memberships_path, params: { team_id: team.id, handle: @joiner.handle }
+
+    assert_not team.memberships.exists?(user: @joiner)
+    assert_empty @joiner.notifications
+  end
+
   test "a team takes at most five players; only its owner invites" do
     team = create_team("Full House")
     4.times do |i|
@@ -103,6 +115,21 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
     delete team_membership_path(joiner)
     assert_nil @joiner.reload.team
     assert_not Team.exists?(team.id)
+  end
+
+  test "invitations are limited to twenty per ten minutes" do
+    team = create_team("Spam Guard")
+    with_memory_rate_limit_store do
+      20.times do |i|
+        user = User.create!(name: "U#{i}", email_address: "u#{i}-#{SecureRandom.hex(3)}@example.com",
+                            password: "password123", handle: "spam-guard-#{i}")
+        post team_memberships_path, params: { team_id: team.id, handle: user.handle }
+        assert_redirected_to account_path(anchor: "team")
+      end
+      post team_memberships_path, params: { team_id: team.id, handle: @joiner.handle }
+      assert_equal I18n.t("flash.alert.try_again_later"), flash[:alert]
+      assert_not team.memberships.exists?(user: @joiner)
+    end
   end
 
   private

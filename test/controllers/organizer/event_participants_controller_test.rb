@@ -4,6 +4,8 @@ require "test_helper"
 
 module Organizer
   class EventParticipantsControllerTest < ActionDispatch::IntegrationTest
+    include RateLimitStore
+
     setup do
       @tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
                                             state: :registration_open)
@@ -31,9 +33,11 @@ module Organizer
       assert_equal "Manual player 1", @tournament.event_participants.order(:created_at).last.name
     end
 
-    test "the search lists accounts by name with a masked e-mail, by e-mail in full, and flags those in the event" do
+    test "the search masks e-mails in name mode, hides private profiles and matches a full e-mail only" do
       inside = @tournament.event_participants.first.player.user
       outsider = User.create!(name: "Zed Outsider", email_address: "zed@example.org", password: "password123")
+      hidden = User.create!(name: "Zed Hidden", email_address: "hidden@example.org", password: "password123",
+                            visibility: "private")
 
       get search_organizer_tournament_event_participants_path(@tournament, mode: "name", q: inside.name.first(6)),
           as: :json
@@ -42,12 +46,19 @@ module Organizer
       assert row["in_event"]
       assert_match(/\A.…@/, row["email"])
 
+      get search_organizer_tournament_event_participants_path(@tournament, mode: "name", q: "Zed"), as: :json
+      assert_equal [outsider.player.id], response.parsed_body.pluck("player_id"), "private profiles stay out"
+      assert_not_includes response.body, hidden.email_address
+
       get search_organizer_tournament_event_participants_path(@tournament, mode: "email", q: "zed@"), as: :json
+      assert_empty response.parsed_body, "no substring match on e-mails"
+      get search_organizer_tournament_event_participants_path(@tournament, mode: "email", q: "@example"), as: :json
+      assert_empty response.parsed_body
+
+      get search_organizer_tournament_event_participants_path(@tournament, mode: "email", q: "Zed@Example.org"),
+          as: :json
       assert_equal([[outsider.player.id, "zed@example.org", false]],
                    response.parsed_body.map { |r| r.values_at("player_id", "email", "in_event") })
-
-      get search_organizer_tournament_event_participants_path(@tournament, mode: "email", q: "ze"), as: :json
-      assert_empty response.parsed_body
     end
 
     test "a player picked by name is added by player_id; the name tab without a pick re-renders with the error" do
@@ -66,6 +77,17 @@ module Organizer
       assert_response :unprocessable_entity
       assert_match "Pick a player from the list", response.body
       assert_select "[data-add-tabs] [aria-selected=true]", text: "By name"
+    end
+
+    test "the search allows sixty lookups a minute per organizer" do
+      with_memory_rate_limit_store do
+        60.times do
+          get search_organizer_tournament_event_participants_path(@tournament, mode: "name", q: "load"), as: :json
+          assert_response :success
+        end
+        get search_organizer_tournament_event_participants_path(@tournament, mode: "name", q: "load"), as: :json
+        assert_response :too_many_requests
+      end
     end
 
     test "a second guest with the same name re-renders with the error" do

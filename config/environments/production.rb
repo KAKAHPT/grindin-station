@@ -73,7 +73,7 @@ Rails.application.configure do # rubocop:disable Metrics/BlockLength -- one envi
       user_name: ENV["SMTP_USER_NAME"].presence,
       password: ENV["SMTP_PASSWORD"].presence,
       authentication: :plain,
-      enable_starttls_auto: true
+      enable_starttls: true
     }.compact
   else
     # No mail server configured: drop outgoing mail instead of failing jobs against localhost:25.

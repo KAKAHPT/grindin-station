@@ -20,12 +20,18 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  # The request path for error and audit records, with a bearer token in it (the password reset link) hidden.
+  def self.redacted_path(request)
+    token = request.path_parameters[:token].to_s
+    token.empty? ? request.path : request.path.sub(token, "[FILTERED]")
+  end
+
   private
 
   def set_request_context
     Current.ip_address = request.remote_ip
     Current.request_id = request.request_id
-    Current.request_path = request.path
+    Current.request_path = self.class.redacted_path(request)
   end
 
   # Locale: ?locale= (which is also remembered), else the locale cookie, else the browser's Accept-Language,

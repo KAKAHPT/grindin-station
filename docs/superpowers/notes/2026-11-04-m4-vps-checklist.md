@@ -51,7 +51,7 @@ O workflow usa `environment: production`; os segredos podem estar no environment
 | `POSTGRES_PASSWORD` | sim | `openssl rand -hex 32` (só hex). Superutilizador `grindin` do accessory: só o Postgres e o `bin/backup`/`bin/restore` o usam |
 | `POSTGRES_APP_PASSWORD` | sim | `openssl rand -hex 32` (só hex: entra nos URLs da base de dados sem escape; diferente do anterior). Papel `grindin_app` (sem superutilizador, dono das 4 bases), criado pelo `init.sql`; é com ele que a app liga |
 | `SSH_PRIVATE_KEY` | sim | conteúdo de `~/.ssh/grindin_deploy` (privada) |
-| `SSH_KNOWN_HOSTS` | não (recomendado) | saída de `ssh-keyscan -H $GS_VPS_HOST` (corrida uma vez a partir do Mac, depois de confirmar a impressão digital no painel da Hostinger). Sem ele o workflow faz `ssh-keyscan` em cada deploy |
+| `SSH_KNOWN_HOSTS` | sim | saída de `ssh-keyscan -H $GS_VPS_HOST` (corrida uma vez a partir do Mac, depois de confirmar a impressão digital no painel da Hostinger). O deploy pára sem ele: nunca confia numa chave lida na altura do deploy |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | não | OAuth Google; redirect `https://GS_DOMAIN/auth/google_oauth2/callback` |
 | `DISCORD_CLIENT_ID` / `DISCORD_CLIENT_SECRET` | não | OAuth Discord; redirect `https://GS_DOMAIN/auth/discord/callback` |
 | `SMTP_ADDRESS`, `SMTP_PORT`, `SMTP_DOMAIN`, `SMTP_USER_NAME`, `SMTP_PASSWORD` | não | e-mail de saída (reposição de palavra-passe). Sem `SMTP_ADDRESS` os e-mails não são enviados |

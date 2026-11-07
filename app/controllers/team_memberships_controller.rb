@@ -3,6 +3,9 @@
 # Joining a team: a player requests a place (the owner accepts), an owner invites a player by handle (the player
 # accepts); either side declines, a member leaves, an owner removes a member.
 class TeamMembershipsController < ApplicationController
+  rate_limit to: 20, within: 10.minutes, only: :create, by: -> { current_user.id },
+             with: -> { redirect_to account_path(anchor: "team"), alert: t("flash.alert.try_again_later") }
+
   before_action :load_membership, only: %i[update destroy]
 
   def create
@@ -45,7 +48,7 @@ class TeamMembershipsController < ApplicationController
     return refused(:not_owner) unless team.owned_by?(current_user)
 
     user = User.find_by(handle: params[:handle].to_s.strip.delete_prefix("@"))
-    return refused(:no_such_handle) unless user
+    return refused(:no_such_handle) unless user&.profile_visible_to?(current_user)
 
     team.memberships.create(user: user, status: "invited")
   end

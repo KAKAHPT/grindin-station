@@ -128,8 +128,9 @@ class EventParticipant < ApplicationRecord
     text unless text.empty? || text.match?(%r{\A(https?://|www\.|[a-z0-9-]+\.[a-z]{2,}(/|\z))}i)
   end
 
+  # A short handle for staff tooltips: the player id, never the key (an unsalted hash of e-mail and name).
   def obfuscated_key
-    "##{player.key.first(5)}"
+    "##{player.id.to_s.first(5)}"
   end
 
   # Times this participant sat at each position 1..5 in swiss rounds that are finished or published.
