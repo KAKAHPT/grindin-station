@@ -3,7 +3,7 @@
 source "https://rubygems.org"
 
 # Backend
-gem "rails", "~> 8.1.3.1"
+gem "rails", "~> 8.1.4"
 gem "bootsnap", require: false
 gem "jbuilder"
 gem "tzinfo-data", platforms: %i[windows jruby]
@@ -28,7 +28,7 @@ gem "stimulus-rails"
 gem "tailwindcss-rails", "~> 4.6"
 gem "commonmarker"
 gem "image_processing", "~> 1.2"
-gem "reactionview", "~> 0.4.0"
+gem "reactionview", "~> 0.6.0"
 gem "herb", force_ruby_platform: RUBY_PLATFORM.include?("darwin")
 
 # Databases
