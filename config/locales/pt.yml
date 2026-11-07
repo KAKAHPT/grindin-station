@@ -1514,6 +1514,8 @@ pt:
         rules: "Um jogador conta para a equipa indicada na sua conta quando a classificação é recalculada (todas as noites e depois de cada evento), por isso, se mudares de equipa, todos os teus pontos passam para a nova equipa. As equipas com um só jogador também aparecem. Os bónus (15 e 30) estão num só sítio para poderem mudar sem mexer no resto."
 
   circuits:
+    filters:
+      search: "Pesquisar um circuito…"
     sort:
       label: "Ordenar por"
       featured: "Destaques primeiro"
