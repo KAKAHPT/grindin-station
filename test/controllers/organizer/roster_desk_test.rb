@@ -49,7 +49,7 @@ module Organizer
         assert_select "td:first-child", text: "1"
         assert_select "th", text: "Espera Um"
         assert_select "form[action=?]", promote_organizer_tournament_event_participant_path(@tournament, waiting),
-                      count: 0, "no Add to bracket once the swiss started"
+                      { count: 0 }, "no Add to bracket once the swiss started"
         assert_select "form[action=?] button", drop_organizer_tournament_event_participant_path(@tournament, waiting),
                       text: /Remove/
       end
