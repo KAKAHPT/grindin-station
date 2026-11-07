@@ -10,9 +10,11 @@ module EventFiltersHelper
   end
 
   # Fields for shared/_filter_bar.
-  def event_filter_fields(filters, options) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength -- one entry per filter
+  # search: the placeholder; sort: [sorts, locale scope] of the list's Sort by select (events by default).
+  def event_filter_fields(filters, options, search: t("events.filters.search"), sort: [EventTickets::SORTS, "events"]) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength -- one entry per filter
+    sorts, scope = sort
     [
-      [:q, :search, t("events.filters.search"), filters[:q]],
+      [:q, :search, search, filters[:q]],
       [:season, :segment, options[:seasons].map { |year| [year.to_s, year.to_s] } + all_option(:all_seasons),
        filters[:season].to_s, t("events.filters.season")],
       [:country, :select, all_option(:all_countries) + options[:countries].map { |code| [country_name(code), code] },
@@ -21,8 +23,8 @@ module EventFiltersHelper
        filters[:organizer]&.last, t("events.filters.organizer")],
       [:play, :select, all_option(:all_formats) + Event::PLAYS.map { |play| [play_label(play), play] },
        filters[:play], t("events.filters.format")],
-      [:sort, :select, sort_options(EventTickets::SORTS, "events"), params[:sort].presence_in(EventTickets::SORTS),
-       t("events.sort.label")]
+      [:sort, :select, sort_options(sorts, scope), params[:sort].to_s.presence_in(sorts) || sorts.first,
+       t("#{scope}.sort.label")]
     ]
   end
 
@@ -31,13 +33,14 @@ module EventFiltersHelper
     sorts.map { |sort| ["#{t("#{scope}.sort.label")}: #{t("#{scope}.sort.#{sort}")}", sort] }
   end
 
-  # [[label, value, url without it]] for shared/_filter_chips; base: the params every link keeps (filter, locale).
-  def event_filter_chips(filters, base)
+  # [[label, value, url without it]] for shared/_filter_chips; base: the params every link keeps (filter, locale);
+  # path: the list's path helper (events by default).
+  def event_filter_chips(filters, base, path: method(:events_path))
     query = event_filter_query(filters)
     values = event_filter_values(filters)
     %i[season country organizer play q].select { |key| query.key?(key) }.map do |key|
       label = t("events.filters.#{EVENT_FILTER_LABELS.fetch(key, key)}")
-      [label, values[key], events_path(**base, **query.except(key))]
+      [label, values[key], path.call(**base, **query.except(key))]
     end
   end
 
