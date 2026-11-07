@@ -7,16 +7,14 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     @organizer = event_organizers(:standard_organizer)
   end
 
-  test "the landing renders without signing in, with the hero copy and Anne's seat board" do
+  test "the landing renders without signing in, with the hero copy and Why it is fair" do
     get root_path
 
     assert_response :success
     assert_select "h1", text: "The grind never stops."
     assert_select ".lp-sub", text: /\AThe tournament software with fair seats\./
     assert_includes response.body, "Built for cEDH and multiplayer games, but open to every format."
-    assert_select "[data-seat-board] .lp-pod", 4
-    assert_select "[data-seat-board] .lp-pod-p.me", count: 4, text: /Anne/
-    assert_select "[data-seat-board] .lp-pod-lab em", text: "seat 3"
+    assert_select "[data-seat-board]", count: 0
     assert_select "h2", text: "Seats are weighted, not drawn"
     assert_select ".lp-why li", 4
     assert_select ".lp-mosaic img", 96

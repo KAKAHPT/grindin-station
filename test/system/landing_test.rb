@@ -3,12 +3,12 @@
 require "application_system_test_case"
 
 class LandingTest < ApplicationSystemTestCase
-  test "the landing renders with Anne's seat board, joins the waiting list in place and logs no console error" do
+  test "the landing renders with Why it is fair, joins the waiting list in place and logs no console error" do
     page.driver.browser.logs.get(:browser) # drain what earlier tests in this browser logged
     visit root_path
 
     assert_selector "h1", text: "The grind never stops."
-    within("[data-seat-board]") { assert_text "Anne" }
+    within(".lp-why") { assert_text "Seats are weighted, not drawn" }
 
     within("[data-waitlist]") do
       fill_in "waitlist_signup_name", with: "Ana"
