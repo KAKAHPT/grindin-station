@@ -1227,6 +1227,7 @@ es:
       title: "Los asientos se ponderan, no se sortean"
       intro: "Cada ronda se evalúa antes de publicarse, en este orden:"
       audit: "Cada asiento guarda quién lo decidió y con qué coste, abierto a cualquier juez."
+      tests: "Ver nuestras pruebas"
       steps:
         - title: "Primero los puntos."
           text: "Las mesas se hacen a partir de la clasificación, como en cualquier suizo."
@@ -1499,6 +1500,41 @@ es:
       featured: "Destacados primero"
       name: "Nombre"
       organizer: "Organizador"
+  fairness:
+    title: "Nuestras pruebas de asientos"
+    description: "Cuán justos son los asientos de Grindin Station, medidos en torneos simulados frente a asientos sorteados al azar."
+    eyebrow: "Grindin Station · nuestras pruebas"
+    headline: "Asientos justos, medidos en %{count} torneos"
+    lead: "Simulamos %{count} torneos de %{min} a %{max} jugadores (%{per} por cada número de rondas: 3, 5, 6 y 7) con las reglas de emparejamiento y de asignación de asientos de Grindin Station, y repetimos cada torneo con asientos sorteados al azar. Mesa a mesa, la pregunta es simple: ¿cuántas veces se sentó cada jugador en cada asiento?"
+    summary:
+      fair: "jugadores con distribución justa (desvío ≤ 1), media de las 4 configuraciones, con asientos ponderados"
+      random: "lo mismo con asientos sorteados al azar"
+      never_first: "jugadores que nunca tuvieron el asiento 1 en %{rounds} rondas (sorteo: %{random})"
+    how:
+      spread_title: "Desvío"
+      spread: "Diferencia entre el asiento que un jugador más ocupó y el que menos ocupó. Un desvío de 0 o 1 es lo mejor posible cuando las rondas no se dividen entre 4."
+      first_title: "Asiento 1"
+      first: "En cEDH el asiento 1 juega primero. Con 4 o más rondas nadie debería quedarse sin él; con 3 rondas es matemáticamente imposible para 1 de cada 4 jugadores."
+      decide_title: "Cómo se decide"
+      decide: "El asiento 1 va a quien menos veces lo tuvo; empates por puntos y después por un orden sorteado al inicio del evento. Las mesas de 3 (cuando el número no se divide entre 4) solo cuentan hasta el asiento 3."
+    rounds:
+      title: "%{count} rondas"
+      meta: "%{tournaments} torneos · %{players} jugadores · %{min} a %{max} por torneo"
+      note_3: "3 rondas en 4 asientos: cada jugador solo puede ocupar 3 asientos distintos, así que 1 de cada 4 jugadores nunca tendrá el asiento 1 (mínimo matemático ≈ 25 %). Justo aquí significa todos los asientos distintos (desvío ≤ 1)."
+      note_5: "5 rondas en 4 asientos: un asiento se repite una vez, los otros tres salen una vez cada uno. Justo = desvío ≤ 1 y nadie sin el asiento 1."
+      note_6: "6 rondas en 4 asientos: dos asientos se repiten, los otros dos salen una vez. Justo = desvío ≤ 1 y nadie sin el asiento 1."
+      note_7: "7 rondas en 4 asientos: tres asientos salen dos veces, uno sale una vez. Justo = desvío ≤ 1 y nadie sin el asiento 1."
+    columns:
+      grindin: "Grindin (asientos ponderados)"
+      random: "Sorteo aleatorio"
+    rows:
+      fair_rate: "Jugadores con distribución justa (≤ 1)"
+      never_first: "Jugadores que nunca tuvieron el asiento 1"
+      spread: "Desvío 0 / 1 / 2 / 3+ (% de jugadores)"
+      seat_share: "Cuota de cada asiento 1 / 2 / 3 / 4 (% de las sillas)"
+      worst: "Peor jugador visto (veces en los asientos 1·2·3·4)"
+    method: "Simulación en memoria con el mismo asignador de asientos que corre en producción, generada el %{date}, sin base de datos; el 30 % de las mesas empatan, el resto tiene un ganador al azar. El mismo simulador corre en cada cambio del código (2000 torneos por modo de emparejamiento) como barrera de regresión."
+    back: "Volver a los asientos justos"
   teams:
     title: "Equipo"
     none_hint: "El grupo con el que pruebas y juegas, mostrado junto a tu nombre. Pide plaza en un equipo o crea el tuyo."

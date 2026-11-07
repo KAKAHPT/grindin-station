@@ -1227,6 +1227,7 @@ en:
       title: "Seats are weighted, not drawn"
       intro: "Every round is scored before it is published, in this order:"
       audit: "Every seating stores who decided it and at what cost, open to any judge."
+      tests: "See our tests"
       steps:
         - title: "Points first."
           text: "Tables are built from the standings, as in any Swiss."
@@ -1499,6 +1500,41 @@ en:
       featured: "Featured first"
       name: "Name"
       organizer: "Organizer"
+  fairness:
+    title: "Our seat tests"
+    description: "How fair Grindin Station's seats are, measured over simulated tournaments against seats drawn at random."
+    eyebrow: "Grindin Station · our tests"
+    headline: "Fair seats, measured over %{count} tournaments"
+    lead: "We simulated %{count} tournaments of %{min} to %{max} players (%{per} for each round count: 3, 5, 6 and 7) with Grindin Station's own pairing and seating rules, then replayed every one of them with seats drawn at random. Table by table, the question is simple: how many times did each player sit in each seat?"
+    summary:
+      fair: "players with a fair spread (at most 1), average of the four setups, with weighted seats"
+      random: "the same with seats drawn at random"
+      never_first: "players who never had seat 1 in %{rounds} rounds (random draw: %{random})"
+    how:
+      spread_title: "Spread"
+      spread: "The difference between the seat a player had most and the one they had least. A spread of 0 or 1 is the best possible when the rounds do not divide by 4."
+      first_title: "Seat 1"
+      first: "In cEDH seat 1 plays first. With 4 or more rounds nobody should miss it; with 3 rounds it is mathematically impossible for 1 in 4 players."
+      decide_title: "How it is decided"
+      decide: "Seat 1 goes to whoever has had it least; ties by points, then by an order drawn at the start of the event. Tables of 3 (when the field does not divide by 4) only count up to seat 3."
+    rounds:
+      title: "%{count} rounds"
+      meta: "%{tournaments} tournaments · %{players} players · %{min} to %{max} per tournament"
+      note_3: "3 rounds over 4 seats: each player can only take 3 different seats, so 1 in 4 players will never have seat 1 (mathematical floor ≈ 25 %). Fair here means every seat different (spread ≤ 1)."
+      note_5: "5 rounds over 4 seats: one seat repeats once, the other three come once each. Fair = spread ≤ 1 and nobody without seat 1."
+      note_6: "6 rounds over 4 seats: two seats repeat, the other two come once. Fair = spread ≤ 1 and nobody without seat 1."
+      note_7: "7 rounds over 4 seats: three seats come twice, one comes once. Fair = spread ≤ 1 and nobody without seat 1."
+    columns:
+      grindin: "Grindin (weighted seats)"
+      random: "Random draw"
+    rows:
+      fair_rate: "Players with a fair spread (≤ 1)"
+      never_first: "Players who never had seat 1"
+      spread: "Spread 0 / 1 / 2 / 3+ (% of players)"
+      seat_share: "Share of each seat 1 / 2 / 3 / 4 (% of chairs)"
+      worst: "Worst player seen (times in seats 1·2·3·4)"
+    method: "In-memory simulation with the same seat assigner that runs in production, generated on %{date}, no database; 30 % of the tables draw, the rest have one random winner. The same simulator runs on every code change (2000 tournaments per pairing mode) as a regression gate."
+    back: "Back to the fair seats"
   teams:
     title: "Team"
     none_hint: "The group you test and play with, shown next to your name. Ask a team for a place, or create your own."
