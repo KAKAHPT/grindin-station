@@ -1,0 +1,264 @@
+{
+  "generated_on": "2026-11-07",
+  "tournaments_per_rounds": 50,
+  "players": [
+    50,
+    60
+  ],
+  "rounds": {
+    "3": {
+      "fair": {
+        "players": 2722,
+        "fair_rate": 95.4,
+        "never_first": 23.51,
+        "spread": [
+          0.0,
+          95.4,
+          4.6,
+          0.0
+        ],
+        "first_counts": [
+          23.5,
+          75.7,
+          0.8,
+          0.0
+        ],
+        "seat_share": [
+          25.8,
+          25.8,
+          25.8,
+          22.7
+        ],
+        "worst_example": [
+          0,
+          1,
+          0,
+          2
+        ],
+        "tournaments": 50
+      },
+      "random": {
+        "players": 2722,
+        "fair_rate": 36.8,
+        "never_first": 41.62,
+        "spread": [
+          0.0,
+          36.8,
+          56.9,
+          6.3
+        ],
+        "first_counts": [
+          41.6,
+          41.7,
+          14.5,
+          2.2
+        ],
+        "seat_share": [
+          25.8,
+          25.8,
+          25.8,
+          22.7
+        ],
+        "worst_example": [
+          3,
+          0,
+          0,
+          0
+        ],
+        "tournaments": 50
+      }
+    },
+    "5": {
+      "fair": {
+        "players": 2765,
+        "fair_rate": 97.0,
+        "never_first": 0.11,
+        "spread": [
+          0.0,
+          97.0,
+          3.0,
+          0.0
+        ],
+        "first_counts": [
+          0.1,
+          72.1,
+          27.8,
+          0.0,
+          0.0
+        ],
+        "seat_share": [
+          25.5,
+          25.5,
+          25.5,
+          23.4
+        ],
+        "worst_example": [
+          2,
+          0,
+          1,
+          2
+        ],
+        "tournaments": 50
+      },
+      "random": {
+        "players": 2765,
+        "fair_rate": 23.0,
+        "never_first": 22.57,
+        "spread": [
+          0.0,
+          23.0,
+          35.6,
+          41.4
+        ],
+        "first_counts": [
+          22.6,
+          39.7,
+          27.0,
+          9.1,
+          1.6
+        ],
+        "seat_share": [
+          25.5,
+          25.5,
+          25.5,
+          23.4
+        ],
+        "worst_example": [
+          0,
+          5,
+          0,
+          0
+        ],
+        "tournaments": 50
+      }
+    },
+    "6": {
+      "fair": {
+        "players": 2744,
+        "fair_rate": 99.1,
+        "never_first": 0.04,
+        "spread": [
+          0.0,
+          99.1,
+          0.9,
+          0.0
+        ],
+        "first_counts": [
+          0.0,
+          46.3,
+          53.5,
+          0.1,
+          0.0
+        ],
+        "seat_share": [
+          25.6,
+          25.6,
+          25.6,
+          23.1
+        ],
+        "worst_example": [
+          1,
+          3,
+          1,
+          1
+        ],
+        "tournaments": 50
+      },
+      "random": {
+        "players": 2744,
+        "fair_rate": 24.9,
+        "never_first": 16.55,
+        "spread": [
+          0.0,
+          24.9,
+          19.4,
+          55.7
+        ],
+        "first_counts": [
+          16.5,
+          35.8,
+          28.8,
+          15.3,
+          3.2
+        ],
+        "seat_share": [
+          25.6,
+          25.6,
+          25.6,
+          23.1
+        ],
+        "worst_example": [
+          0,
+          0,
+          6,
+          0
+        ],
+        "tournaments": 50
+      }
+    },
+    "7": {
+      "fair": {
+        "players": 2753,
+        "fair_rate": 93.2,
+        "never_first": 0.0,
+        "spread": [
+          0.0,
+          93.2,
+          6.6,
+          0.1
+        ],
+        "first_counts": [
+          0.0,
+          22.4,
+          75.5,
+          2.1,
+          0.0
+        ],
+        "seat_share": [
+          25.7,
+          25.7,
+          25.7,
+          23.0
+        ],
+        "worst_example": [
+          2,
+          2,
+          3,
+          0
+        ],
+        "tournaments": 50
+      },
+      "random": {
+        "players": 2753,
+        "fair_rate": 16.9,
+        "never_first": 13.11,
+        "spread": [
+          0.0,
+          16.9,
+          29.5,
+          53.7
+        ],
+        "first_counts": [
+          13.1,
+          27.8,
+          34.4,
+          17.3,
+          5.8
+        ],
+        "seat_share": [
+          25.7,
+          25.7,
+          25.7,
+          23.0
+        ],
+        "worst_example": [
+          0,
+          0,
+          7,
+          0
+        ],
+        "tournaments": 50
+      }
+    }
+  }
+}
