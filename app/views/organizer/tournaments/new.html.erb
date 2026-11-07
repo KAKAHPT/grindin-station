@@ -1,10 +1,10 @@
-<div class="col-span-full grid gap-4 xl:grid-cols-[minmax(0,720px)_minmax(0,1fr)]"
+<div class="col-span-full grid gap-4 lg:grid-cols-[minmax(0,640px)_minmax(320px,1fr)]"
      data-controller="live-preview" data-live-preview-url-value="<%= preview_organizer_tournaments_path %>">
   <div class="w-full max-w-[720px]">
     <h1 class="mb-3.5 font-display text-2xl font-semibold text-ink"><%= t("organizer.tournaments.new") %></h1>
     <div class="card"><%= render "form", tournament: @tournament %></div>
   </div>
-  <aside class="hidden xl:block sticky top-4 self-start" data-live-preview-pane>
+  <aside class="hidden lg:block sticky top-4 self-start" data-live-preview-pane>
     <div class="mb-2 flex items-baseline justify-between gap-3">
       <h2 class="form-section mb-0"><%= t("organizer.preview.title") %></h2>
       <p class="form-help"><%= t("organizer.preview.help") %></p>
