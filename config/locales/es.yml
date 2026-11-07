@@ -227,6 +227,13 @@ es:
   activerecord:
     errors:
       models:
+        team_membership:
+          attributes:
+            base:
+              already_in_a_team: "ya está en un equipo"
+              team_full: "el equipo está lleno (%{count} jugadores)"
+              not_owner: "solo el dueño del equipo invita jugadores"
+              no_such_handle: "no hay jugador con ese handle"
         event_participant:
           attributes:
             base:
@@ -592,6 +599,16 @@ es:
       infraction: "Registrar infracción"
       add_player: "Añadir jugador"
       decklist: "Decklist"
+      waitlist:
+        title: "Lista de espera"
+        count:
+          one: "%{count} jugador en espera"
+          other: "%{count} jugadores en espera"
+        player: "Jugador"
+        signed_up: "Inscrito"
+        add: "Añadir al bracket"
+        remove: "Quitar"
+        remove_confirm: "¿Quitar a %{name} de la lista de espera?"
       no_decklist: "Sin decklist"
       desk:
         checked_in: "Check-in hecho"
@@ -1031,6 +1048,9 @@ es:
       judge_call: "Se ha llamado a un juez en %{event}."
       result_contested: "Se ha impugnado un resultado de tu mesa en %{event}. Viene un juez."
       mentioned: "%{name} te mencionó en el feed social."
+      team_requested: "%{name} pide entrar en %{team}."
+      team_invited: "Te invitaron a %{team}."
+      team_accepted: "%{name} está ahora en %{team}."
   follows:
     unfollow: "Dejar de seguir"
     following: "Ahora sigues a %{name}."
@@ -1479,3 +1499,34 @@ es:
       featured: "Destacados primero"
       name: "Nombre"
       organizer: "Organizador"
+  teams:
+    title: "Equipo"
+    none_hint: "El grupo con el que pruebas y juegas, mostrado junto a tu nombre. Pide plaza en un equipo o crea el tuyo."
+    members: "%{count} de %{max} jugadores"
+    you_own: "eres el dueño"
+    owner: "dueño"
+    leave: "Salir"
+    leave_confirm: "¿Salir de %{name}?"
+    remove: "Quitar"
+    remove_confirm: "¿Quitar a %{name} del equipo?"
+    full: "El equipo está lleno (%{max} jugadores)."
+    invite_handle: "Añadir un jugador por handle"
+    invite: "Invitar"
+    pick: "Entrar en un equipo"
+    request: "Pedir entrar"
+    requested: "Pediste entrar en %{name}. El dueño del equipo tiene que aceptar."
+    cancel_request: "Cancelar"
+    new_name: "Crear un equipo"
+    create: "Crear"
+    pending: "Pendientes"
+    invited_by: "%{name} te invitó."
+    asks_to_join: "%{name} pide entrar."
+    accept: "Aceptar"
+    decline: "Rechazar"
+    flash:
+      created: "%{name} creado. Eres el dueño: acepta solicitudes e invita jugadores abajo."
+      requested: "Solicitud enviada a %{name}."
+      invited: "Invitación enviada."
+      accepted: "Bienvenido a %{name}."
+      left: "Ya no estás en %{name}."
+      already_in_a_team: "Sal primero de tu equipo actual."

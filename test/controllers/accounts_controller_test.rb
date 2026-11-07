@@ -32,8 +32,8 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
   test "the account page is cards with title bands and Settings-look fields" do
     get account_path
 
-    assert_select "[data-account] section.card", count: 4
-    assert_select "[data-account] section.card > .card-title", count: 4
+    assert_select "[data-account] section.card", count: 5
+    assert_select "[data-account] section.card > .card-title", count: 5
     assert_select "[data-account] .field input.field-input[name='user[name]']"
     assert_no_match(/purple|orange-700|dark:|gray-\d/, css_select("[data-account]").to_html)
   end
@@ -61,31 +61,15 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
                  [@user.name, @user.handle, @user.country, @user.bio, @user.visibility]
   end
 
-  test "saves the team" do
-    patch account_path, params: { user: { team: " Porto Grinders " } }
-
-    assert_redirected_to account_path
-    assert_equal "Porto Grinders", @user.reload.team
-  end
-
-  test "the team field suggests other users' teams" do
-    users(:player_two).update!(team: "Lisbon Lords")
+  test "the account page shows the Team card with create and join forms" do
+    Team.create!(name: "Lisbon Lords", owner: users(:player_two))
 
     get account_path
 
-    assert_select "input[name='user[team]'][list='team-suggestions'][maxlength='30']"
-    assert_select "datalist#team-suggestions option[value=?]", "Lisbon Lords"
+    assert_select "input[name='user[team]']", count: 0
+    assert_select "[data-team-card] [data-team-create] input[name='team[name]']"
+    assert_select "[data-team-card] [data-team-join] option", text: "Lisbon Lords"
   end
-
-  test "an invalid team re-renders the page with the suggestions" do
-    users(:player_two).update!(team: "Lisbon Lords")
-
-    patch account_path, params: { user: { team: "x" * 31 } }
-
-    assert_response :unprocessable_content
-    assert_select "datalist#team-suggestions option[value=?]", "Lisbon Lords"
-  end
-
   test "shows the Wizards e-mail field with its hint" do
     get account_path
 

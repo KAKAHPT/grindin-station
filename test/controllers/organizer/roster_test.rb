@@ -94,8 +94,9 @@ module Organizer
       assert_select "#roster_count_dropped", "1"
 
       get organizer_tournament_event_participants_path(@tournament, layout: "application", status: "waitlisted")
-      assert_select "tbody tr[id^=event_participant_]", 1
-      assert_select "tbody tr##{ActionView::RecordIdentifier.dom_id(participants[2])}"
+      assert_select "tbody tr[id^=event_participant_]", 0
+      assert_select "[data-waitlist] [data-waitlist-row='#{participants[2].id}']"
+      assert_select "[data-waitlist] form", 0, "a scorekeeper neither promotes nor removes"
 
       get organizer_tournament_event_participants_path(@tournament, layout: "application", status: "checked_in")
       assert_select "tbody tr[id^=event_participant_]", 1
