@@ -61,13 +61,14 @@ module ApplicationHelper
     controller_path.start_with?("admin/")
   end
 
+  # The Organizer mode / public toggle: the same route in the other namespace, built from the path parameters
+  # only. The query string is never handed to url_for: keys such as host, protocol or script_name would steer
+  # the link to another origin.
   def organizer_path_builder
-    path =
-      params.dup.tap do |p|
-        p[:controller] = organizer_mode? ? p[:controller].gsub("organizer", "") : "organizer/#{p[:controller]}"
-      end
-
-    url_for(path.permit!)
+    route = request.path_parameters.except(:controller, :action, :format).to_h.symbolize_keys
+    route[:locale] = params[:locale] if params[:locale].present?
+    target = organizer_mode? ? controller_path.delete_prefix("organizer/") : "organizer/#{controller_path}"
+    url_for(route.merge(controller: "/#{target}", action: params[:action], only_path: true))
   rescue ActionController::UrlGenerationError
     url_for(organizer_mode? ? :tournaments : %i[organizer tournaments])
   end

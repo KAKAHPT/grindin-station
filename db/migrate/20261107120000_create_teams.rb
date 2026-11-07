@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 # Teams as records: a name, an owner and memberships (requested by the player, invited by the owner, accepted).
-# users.team keeps the accepted team's name, as the rankings read it. Existing team names become teams owned by
-# their oldest member, everyone who had the name as an accepted member.
+# users.team keeps the accepted team's name, as the rankings read it. The free-text tags that existed before are not
+# turned into teams: a tag proves nothing about who founded a team, so each team is created by whoever claims it.
 class CreateTeams < ActiveRecord::Migration[8.1]
-  def up # rubocop:disable Metrics/MethodLength -- two tables
+  def change # rubocop:disable Metrics/MethodLength -- two tables
     create_table :teams, id: :uuid, default: -> { "gen_random_uuid()" } do |t|
       t.string :name, null: false
       t.references :owner, type: :uuid, null: true, foreign_key: { to_table: :users }
@@ -19,29 +19,5 @@ class CreateTeams < ActiveRecord::Migration[8.1]
       t.timestamps
     end
     add_index :team_memberships, %i[team_id user_id], unique: true
-
-    say_with_time("teams from users.team") { backfill }
-  end
-
-  def down
-    drop_table :team_memberships
-    drop_table :teams
-  end
-
-  private
-
-  def backfill # rubocop:disable Metrics/MethodLength -- two inserts
-    execute <<~SQL.squish
-      INSERT INTO teams (name, owner_id, created_at, updated_at)
-      SELECT DISTINCT ON (lower(team)) team, id, now(), now()
-      FROM users WHERE team IS NOT NULL AND anonymized_at IS NULL
-      ORDER BY lower(team), created_at
-    SQL
-    execute <<~SQL.squish
-      INSERT INTO team_memberships (team_id, user_id, status, created_at, updated_at)
-      SELECT teams.id, users.id, 'accepted', now(), now()
-      FROM users JOIN teams ON lower(teams.name) = lower(users.team)
-      WHERE users.anonymized_at IS NULL
-    SQL
   end
 end

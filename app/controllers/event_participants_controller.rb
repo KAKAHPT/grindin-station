@@ -3,6 +3,9 @@
 class EventParticipantsController < ApplicationController # rubocop:disable Metrics/ClassLength -- the player's own entry
   include PublicEvent
 
+  rate_limit to: 30, within: 10.minutes, only: :create, by: -> { current_user.id },
+             with: -> { redirect_to tournament_path(params[:tournament_id]), alert: t("flash.alert.try_again_later") }
+
   skip_before_action :require_authentication, only: %i[index]
   rescue_from(Registrations::Closed) { redirect_to load_event, alert: t("flash.alert.registration_closed") }
   rescue_from(Registrations::Full) { redirect_to load_event, alert: t("flash.alert.registration_full") }
@@ -36,6 +39,8 @@ class EventParticipantsController < ApplicationController # rubocop:disable Metr
 
   def create
     event = load_event
+    return redirect_to(event, alert: t("flash.alert.no_player")) if current_user.player.nil?
+
     @event_participant = EventParticipant.new(event: event, player: current_user.player)
     @event_participant.attributes = event_participant_params
     return redirect_to(event, alert: registration_errors) unless terms_accepted? && decklist_given?

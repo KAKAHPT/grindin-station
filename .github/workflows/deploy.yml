@@ -42,12 +42,13 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       POSTGRES_APP_PASSWORD: ${{ secrets.POSTGRES_APP_PASSWORD }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
     steps:
       - name: Check required secrets
         id: secrets
         run: |
           missing=()
-          for name in GS_VPS_HOST GS_DOMAIN RAILS_MASTER_KEY POSTGRES_PASSWORD POSTGRES_APP_PASSWORD SSH_PRIVATE_KEY; do
+          for name in GS_VPS_HOST GS_DOMAIN RAILS_MASTER_KEY POSTGRES_PASSWORD POSTGRES_APP_PASSWORD SSH_PRIVATE_KEY SSH_KNOWN_HOSTS; do
             if [ -z "${!name}" ]; then missing+=("$name"); fi
           done
           if [ ${#missing[@]} -gt 0 ]; then
@@ -101,14 +102,12 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      # The host key is pinned in SSH_KNOWN_HOSTS (required by the preflight); never scanned at deploy time, which
+      # would trust whatever host answered and hand it every secret Kamal uploads.
       - name: Trust the VPS host key
         run: |
           mkdir -p ~/.ssh
-          if [ -n "$SSH_KNOWN_HOSTS" ]; then
-            printf '%s\n' "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
-          else
-            ssh-keyscan -H "$GS_VPS_HOST" >> ~/.ssh/known_hosts
-          fi
+          printf '%s\n' "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

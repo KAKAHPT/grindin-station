@@ -11,7 +11,8 @@ module Accounts
         purge_images(user)
         leave_teams(user)
         user.update!(removed_attributes)
-        user.player&.update!(wizards_email: nil)
+        # A fresh random key: the old one was a hash of the e-mail and name being erased.
+        user.player&.update!(wizards_email: nil, key: "removed-#{SecureRandom.hex(12)}")
       end
       user
     end

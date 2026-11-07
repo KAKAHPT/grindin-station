@@ -605,7 +605,7 @@ en:
           name: "By name"
           manual: "Manually"
         help:
-          email: "Type the e-mail: an existing account is listed as you type. If there is none, an account is created with the name below."
+          email: "Type the player's full e-mail: an existing account is listed when it matches. If there is none, an account is created with the name below."
           name: "Type the name and pick the player from the list."
           manual: "A guest with no account, named as you type it. They can claim it later by signing up."
         email: "Player e-mail"
@@ -976,6 +976,7 @@ en:
       password_too_short: "The password needs at least 8 characters."
       password_reset_link_invalid: "Password reset link is invalid or has expired."
       try_again_later: "Try again later."
+      no_player: "This account cannot register for events."
       invalid_credentials: "Try another email address or password."
   event_participants:
     manual_player: "Manual player %{n}"

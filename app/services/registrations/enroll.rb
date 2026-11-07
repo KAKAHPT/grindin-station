@@ -20,7 +20,9 @@ module Registrations
     end
 
     def self.guard!(event, player)
-      raise Closed if event.points_locked?
+      raise ArgumentError, "a player is required" if player.nil?
+      # Self-registration only while the organizer keeps it open (closing registrations must stick).
+      raise Closed unless event.registration_open?
       raise AlreadyEnrolled if event.event_participants.exists?(player: player)
     end
     private_class_method :guard!

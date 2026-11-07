@@ -72,6 +72,16 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     assert_equal "Braga Bombers", @joiner.reload.team
   end
 
+  test "an invitation cannot resolve a hidden profile" do
+    team = create_team("Quiet")
+    @joiner.update!(visibility: "private")
+
+    post team_memberships_path, params: { team_id: team.id, handle: @joiner.handle }
+
+    assert_not team.memberships.exists?(user: @joiner)
+    assert_empty @joiner.notifications
+  end
+
   test "a team takes at most five players; only its owner invites" do
     team = create_team("Full House")
     4.times do |i|

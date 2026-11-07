@@ -48,7 +48,7 @@ class TeamMembershipsController < ApplicationController
     return refused(:not_owner) unless team.owned_by?(current_user)
 
     user = User.find_by(handle: params[:handle].to_s.strip.delete_prefix("@"))
-    return refused(:no_such_handle) unless user
+    return refused(:no_such_handle) unless user&.profile_visible_to?(current_user)
 
     team.memberships.create(user: user, status: "invited")
   end

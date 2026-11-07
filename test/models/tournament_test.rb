@@ -154,9 +154,16 @@ class TournamentTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLe
     assert_not tournament.valid?
     assert_includes tournament.errors[:top_cut_size], I18n.t("errors.messages.inclusion")
     assert_includes tournament.errors[:swiss_rounds_count], I18n.t("errors.messages.greater_than_or_equal_to", count: 1)
+
     assert_includes tournament.errors[:round_minutes], I18n.t("errors.messages.greater_than_or_equal_to", count: 1)
     assert_includes tournament.errors[:top_cut_round_minutes],
                     I18n.t("errors.messages.greater_than_or_equal_to", count: 1)
+
+    tournament.assign_attributes(top_cut_size: 4, swiss_rounds_count: Tournament::MAX_SWISS_ROUNDS + 1,
+                                 round_minutes: 50, top_cut_round_minutes: 50)
+    assert_not tournament.valid?
+    assert_includes tournament.errors[:swiss_rounds_count],
+                    I18n.t("errors.messages.less_than_or_equal_to", count: Tournament::MAX_SWISS_ROUNDS)
   end
 
   test "a cut bigger than the field is allowed while registrations are open" do

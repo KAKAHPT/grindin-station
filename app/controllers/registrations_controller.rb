@@ -26,6 +26,7 @@ class RegistrationsController < ApplicationController
   private
 
   def user_params
-    params.expect(user: [:name, :email_address, :password, :password_confirmation, :organizer])
+    # Organizing is by invitation: the organizer role comes from Admin::OrganizersController#approve, never from here.
+    params.expect(user: [:name, :email_address, :password, :password_confirmation])
   end
 end

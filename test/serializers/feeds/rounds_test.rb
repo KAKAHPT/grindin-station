@@ -47,6 +47,13 @@ module Feeds
       assert_equal [nil, 80 * 60, nil], Feeds::Rounds.call(@t)[:rounds].last.values_at(:start, :clock, :end)
     end
 
+    test "no seeds while the organizer hides the standings until the end" do
+      @t.update_columns(hide_standings_until_finished: true) # rubocop:disable Rails/SkipsModelValidations
+      feed = Feeds::Rounds.call(@t.reload)
+
+      assert(feed[:rounds].flat_map { |r| r[:tables] }.flat_map { |t| t[:players] }.all? { |p| p[:seed].nil? })
+    end
+
     test "players sit in seat order with their current rank as seed, each once per round" do
       feed = Feeds::Rounds.call(@t)
       ranks = Feeds::Standings.call(@t)[:standings].to_h { |row| [row[:name], row[:rank]] }
