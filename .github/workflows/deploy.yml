@@ -86,7 +86,7 @@ jobs:
 
     steps:
       - name: Checkout the commit CI tested
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           # workflow_run: the commit CI tested; workflow_dispatch: the selected ref.
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
