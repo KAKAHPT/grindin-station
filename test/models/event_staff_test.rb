@@ -28,7 +28,7 @@ class EventStaffTest < ActiveSupport::TestCase
 
   test "the role must be one of the staff roles" do
     assert_not EventStaff.new(event: @tournament, user: @judge, role: "player").valid?
-    assert_equal %w[organizer judge scorekeeper], EventStaff::ROLES
+    assert_equal %w[organizer judge scorekeeper caster], EventStaff::ROLES
   end
 
   test "staffed_by covers owned and staffed events only" do

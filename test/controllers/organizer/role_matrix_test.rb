@@ -4,14 +4,14 @@ require "test_helper"
 
 module Organizer
   # What each staff role is refused (and the one write a scorekeeper must have).
-  class RoleMatrixTest < ActionDispatch::IntegrationTest
+  class RoleMatrixTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
     setup do
       @tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
       @round = @tournament.rounds.create!(type: SwissRound, number: 1)
       @pod = @round.pods.order(:number).first
       @participant = @pod.seatings.first.event_participant
       @users =
-        %w[organizer judge scorekeeper].index_with do |role|
+        %w[organizer judge scorekeeper caster].index_with do |role|
           user = User.create!(name: role, email_address: "#{role}-#{SecureRandom.hex(3)}@example.com",
                               password: "password123")
           EventStaff.create!(event: @tournament, user: user, role: role)
@@ -36,30 +36,39 @@ module Organizer
       end
     end
 
-    test "judges and scorekeepers cannot swap seats or roll back a round" do
+    test "a scorekeeper cannot swap seats or roll back a round; a judge can swap" do
       other = @round.pods.order(:number).second.seatings.first
-      %w[judge scorekeeper].each do |role|
-        sign_in_as(role)
-        patch swap_organizer_tournament_round_seatings_path(@tournament, @round),
-              params: { player: @participant.id, pod: @pod.id, with_player: other.event_participant_id,
-                        with_pod: other.pod_id }
-        assert_refused
-        delete organizer_tournament_round_path(@tournament, @round)
-        assert_refused
-      end
+      swap = { player: @participant.id, pod: @pod.id, with_player: other.event_participant_id, with_pod: other.pod_id }
+      sign_in_as("scorekeeper")
+      patch swap_organizer_tournament_round_seatings_path(@tournament, @round), params: swap
+      assert_refused
+      delete organizer_tournament_round_path(@tournament, @round)
+      assert_refused
       assert @tournament.rounds.exists?(@round.id)
       assert_equal @participant.id, @pod.seatings.first.reload.event_participant_id
+
+      sign_in_as("judge")
+      patch swap_organizer_tournament_round_seatings_path(@tournament, @round), params: swap
+      assert_redirected_to organizer_tournament_round_path(@tournament, @round)
+      assert_equal other.event_participant_id, @pod.seatings.order(:order).first.reload.event_participant_id
     end
 
-    test "a judge cannot add players" do
-      sign_in_as("judge")
+    test "a scorekeeper cannot add players; a judge can" do
+      sign_in_as("scorekeeper")
       get new_organizer_tournament_event_participant_path(@tournament)
       assert_refused
       assert_no_difference -> { EventParticipant.count } do
         post organizer_tournament_event_participants_path(@tournament),
-             params: { event_participant: { player_name: "New", player_email: "new@example.com" } }
+             params: { event_participant: { player_name: "New", accepted_terms: "1" } }
       end
       assert_refused
+
+      @tournament.update_column(:state, "registration_open") # rubocop:disable Rails/SkipsModelValidations
+      sign_in_as("judge")
+      assert_difference -> { EventParticipant.count }, 1 do
+        post organizer_tournament_event_participants_path(@tournament),
+             params: { event_participant: { player_name: "New", accepted_terms: "1" } }
+      end
     end
 
     test "only the owner adds or removes staff" do
@@ -83,6 +92,34 @@ module Organizer
              params: { result: { type: "Win", event_participant_id: @participant.id } }
       end
       assert_redirected_to organizer_tournament_round_path(@tournament, @round)
+    end
+
+    test "a caster reads the overview, the roster and the rounds, and nothing else" do
+      sign_in_as("caster")
+      get organizer_tournament_path(@tournament)
+      assert_response :success
+      get organizer_tournament_event_participants_path(@tournament, layout: "application")
+      assert_response :success
+      assert_select "a", text: "Add player", count: 0
+      assert_select "[data-tip]", count: 0
+      get organizer_tournament_round_path(@tournament, @round)
+      assert_response :success
+      assert_select "form button", text: /Start|Close|Publish/, count: 0
+
+      get organizer_tournament_judge_calls_path(@tournament)
+      assert_refused
+      get edit_organizer_tournament_path(@tournament)
+      assert_refused
+      assert_no_difference -> { Result.count + EventParticipant.count } do
+        post organizer_tournament_round_pod_results_path(@tournament, @round, @pod),
+             params: { result: { type: "Win", event_participant_id: @participant.id } }
+        assert_refused
+        patch check_in_organizer_tournament_event_participant_path(@tournament, @participant)
+        assert_refused
+        post organizer_tournament_event_participants_path(@tournament),
+             params: { event_participant: { player_name: "New", accepted_terms: "1" } }
+        assert_refused
+      end
     end
 
     private
