@@ -1216,6 +1216,7 @@ pt:
       title: "Os lugares são pesados, não sorteados"
       intro: "Cada ronda é avaliada antes de ser publicada, por esta ordem:"
       audit: "Cada lugar guarda quem o decidiu e a que custo, aberto a qualquer juiz."
+      tests: "Ver os nossos testes"
       steps:
         - title: "Pontos primeiro."
           text: "As mesas são feitas a partir da classificação, como em qualquer suíço."
@@ -1488,6 +1489,41 @@ pt:
       featured: "Destaques primeiro"
       name: "Nome"
       organizer: "Organizador"
+  fairness:
+    title: "Os nossos testes de lugares"
+    description: "Quão justos são os lugares da Grindin Station, medidos em torneios simulados contra lugares sorteados ao acaso."
+    eyebrow: "Grindin Station · os nossos testes"
+    headline: "Lugares justos, medidos em %{count} torneios"
+    lead: "Simulámos %{count} torneios de %{min} a %{max} jogadores (%{per} por cada número de rondas: 3, 5, 6 e 7) com as regras de emparelhamento e de atribuição de lugares da Grindin Station, e repetimos cada torneio com lugares sorteados ao acaso. Mesa a mesa, a pergunta é simples: quantas vezes cada jogador se sentou em cada lugar?"
+    summary:
+      fair: "jogadores com distribuição justa (desvio ≤ 1), média das 4 configurações, com lugares pesados"
+      random: "o mesmo com lugares sorteados ao acaso"
+      never_first: "jogadores sem nunca ter o lugar 1 em %{rounds} rondas (sorteio: %{random})"
+    how:
+      spread_title: "Desvio"
+      spread: "Diferença entre o lugar que um jogador mais ocupou e o que menos ocupou. Desvio 0 ou 1 é o melhor possível quando as rondas não dividem por 4."
+      first_title: "Lugar 1"
+      first: "Em cEDH o lugar 1 joga primeiro. Com 4 ou mais rondas, ninguém devia ficar sem ele; com 3 rondas é matematicamente impossível para 1 em 4 jogadores."
+      decide_title: "Como se decide"
+      decide: "O lugar 1 vai para quem o teve menos vezes; empates por pontos e depois por uma ordem sorteada no início do evento. Mesas de 3 (quando o número não divide por 4) contam só até ao lugar 3."
+    rounds:
+      title: "%{count} rondas"
+      meta: "%{tournaments} torneios · %{players} jogadores · %{min} a %{max} por torneio"
+      note_3: "3 rondas em 4 lugares: cada jogador só pode ocupar 3 lugares diferentes, logo 1 em cada 4 jogadores nunca terá o lugar 1 (mínimo matemático ≈ 25 %). O justo aqui é: lugares todos diferentes (desvio ≤ 1)."
+      note_5: "5 rondas em 4 lugares: um lugar repete-se uma vez, os outros três saem uma vez cada. Justo = desvio ≤ 1 e ninguém sem o lugar 1."
+      note_6: "6 rondas em 4 lugares: dois lugares repetem-se, os outros dois saem uma vez. Justo = desvio ≤ 1 e ninguém sem o lugar 1."
+      note_7: "7 rondas em 4 lugares: três lugares saem duas vezes, um sai uma vez. Justo = desvio ≤ 1 e ninguém sem o lugar 1."
+    columns:
+      grindin: "Grindin (lugares pesados)"
+      random: "Sorteio aleatório"
+    rows:
+      fair_rate: "Jogadores com distribuição justa (≤ 1)"
+      never_first: "Jogadores que nunca tiveram o lugar 1"
+      spread: "Desvio 0 / 1 / 2 / 3+ (% de jogadores)"
+      seat_share: "Quota de cada lugar 1 / 2 / 3 / 4 (% das cadeiras)"
+      worst: "Pior jogador visto (vezes nos lugares 1·2·3·4)"
+    method: "Simulação em memória com o mesmo atribuidor de lugares que corre em produção, gerada a %{date}, sem base de dados; 30 % das mesas empatam, as restantes têm um vencedor ao acaso. O mesmo simulador corre em cada alteração ao código (2000 torneios por modo de emparelhamento) como barreira de regressão."
+    back: "Voltar aos lugares justos"
   teams:
     title: "Equipa"
     none_hint: "O grupo com quem testas e jogas, mostrado ao lado do teu nome. Pede lugar numa equipa ou cria a tua."
