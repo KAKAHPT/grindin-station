@@ -590,6 +590,26 @@ en:
       legend: "Row actions"
       infraction: "Record infraction"
       add_player: "Add player"
+      add:
+        title: "Add player to %{event}"
+        tabs:
+          email: "By e-mail"
+          name: "By name"
+          manual: "Manually"
+        help:
+          email: "Type the e-mail: an existing account is listed as you type. If there is none, an account is created with the name below."
+          name: "Type the name and pick the player from the list."
+          manual: "A guest with no account, named as you type it. They can claim it later by signing up."
+        email: "Player e-mail"
+        name_for_account: "Name for a new account"
+        search_name: "Player name"
+        guest_name: "Player name"
+        in_event: "In this event"
+        no_results: "No account found"
+        pick_one: "Pick a player from the list, or add them by e-mail or manually."
+        terms: "Player has read and accepted event rules"
+        submit: "Add player"
+        cancel: "Cancel"
       decklist: "Decklist"
       no_decklist: "No decklist"
       desk:
