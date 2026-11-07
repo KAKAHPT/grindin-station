@@ -4,7 +4,7 @@ module Organizer
   class PodsController < OrganizerController
     EXTRA_TIME_STEP = 5
 
-    allow_roles :organizer, :judge, only: :extra_time
+    allow_roles :organizer, :judge, :scorekeeper, only: :extra_time
 
     # +5 minutes for one table; shown on its card (the round timer stays per round).
     def extra_time

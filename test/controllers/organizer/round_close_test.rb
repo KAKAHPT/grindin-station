@@ -108,7 +108,7 @@ module Organizer
       assert_not_includes response.body, I18n.t("rounds.make_cut")
     end
 
-    test "extra time adds five minutes per click, for organizers and judges" do
+    test "extra time adds five minutes per click, for every working role" do
       patch extra_time_organizer_tournament_round_pod_path(@t, @round, @pod1)
       assert_equal 5, @pod1.reload.extra_time
 
@@ -119,7 +119,7 @@ module Organizer
 
       sign_in_as(staff_user("scorekeeper"))
       patch extra_time_organizer_tournament_round_pod_path(@t, @round, @pod1)
-      assert_equal 10, @pod1.reload.extra_time
+      assert_equal 15, @pod1.reload.extra_time
     end
 
     test "a scorekeeper can still enter a result" do
