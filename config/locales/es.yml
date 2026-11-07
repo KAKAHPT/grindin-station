@@ -1176,7 +1176,8 @@ es:
     title: "El software de torneos con asientos justos"
     description: "Software de torneos con asientos justos. Hecho para cEDH y juegos multijugador, abierto a todos los formatos, en directo en todos los móviles de la sala."
     eyebrow: "Grindin Station"
-    headline_html: "El software de torneos <br>con <em>asientos justos</em>."
+    headline: "El grind nunca para."
+    tagline_html: "El software de torneos con <em>asientos justos</em>."
     lead: "Hecho para cEDH y juegos multijugador, pero abierto a todos los formatos. Emparejamientos, clasificaciones y mesas se actualizan en directo en todos los móviles de la sala."
     cta_events: "Próximos eventos"
     attribution: "Las ilustraciones de las cartas son Fan Content no oficial, permitido por la Fan Content Policy. No aprobado ni respaldado por Wizards. Partes de los materiales usados son propiedad de Wizards of the Coast. ©Wizards of the Coast LLC."
@@ -1217,6 +1218,9 @@ es:
     featured:
       title: "Destacados"
     featured_circuits: "Circuitos destacados"
+    rail:
+      prev: "Anterior"
+      next: "Siguiente"
     upcoming:
       title: "Próximos eventos"
       open:

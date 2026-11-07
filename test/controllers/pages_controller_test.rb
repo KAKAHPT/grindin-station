@@ -11,7 +11,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     get root_path
 
     assert_response :success
-    assert_select "h1", text: "The tournament software with fair seats."
+    assert_select "h1", text: "The grind never stops."
+    assert_select ".lp-sub", text: "The tournament software with fair seats."
     assert_includes response.body, "Built for cEDH and multiplayer games, but open to every format."
     assert_select "[data-seat-board] .lp-pod", 4
     assert_select "[data-seat-board] .lp-pod-p.me", count: 4, text: /Anne/
@@ -25,7 +26,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
   test "the landing is translated" do
     get root_path(locale: "pt")
 
-    assert_select "h1", text: "O software de torneios com lugares justos."
+    assert_select "h1", text: "O grind nunca pára."
   end
 
   test "upcoming events show Register only while registration is open" do
@@ -112,8 +113,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     assert_select "[data-featured-event]", count: 0
   end
 
-  test "up to three featured tournaments sit above Upcoming as art tickets and leave the Upcoming list" do
-    featured = Array.new(4) { |index| upcoming(:registration_open, "Star #{index}", (index + 1).minutes) }
+  test "up to nine featured tournaments sit on a rail above Upcoming as art tickets and leave the Upcoming list" do
+    featured = Array.new(10) { |index| upcoming(:registration_open, "Star #{index}", (index + 1).minutes) }
     Tournament.where(id: featured.map(&:id)).update_all(featured: true) # rubocop:disable Rails/SkipsModelValidations
     hidden = upcoming(:draft, "Hidden Star", 1.minute)
     hidden.update_column(:featured, true) # rubocop:disable Rails/SkipsModelValidations
@@ -121,9 +122,11 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
 
     get root_path
 
-    assert_select "section.lp-feat[data-featured] + section[data-upcoming]"
+    assert_select "section.lp-feat[data-featured] ~ section[data-upcoming]"
     assert_select "[data-featured] h2", text: "Featured"
-    assert_select "[data-featured-event]", 3
+    assert_select "[data-featured] [data-rail-target=prev]"
+    assert_select "[data-featured] [data-rail-target=next]"
+    assert_select "[data-featured-event]", 9
     assert_select "[data-featured-event]:first-child[data-featured-event='#{featured.first.slug}']" do
       assert_select ".lp-ft-stub b", text: l_day(featured.first)
       assert_select "a[data-register][href=?]", play_event_path(featured.first.slug), text: "Register"
@@ -132,7 +135,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     assert_select "[data-featured-event='#{featured.last.slug}']", count: 0
     assert_select "[data-featured-event='#{hidden.slug}']", count: 0
     assert_select "[data-upcoming] [data-upcoming-event='#{plain.slug}']"
-    featured.first(3).each { |event| assert_select "[data-upcoming] [data-upcoming-event='#{event.slug}']", count: 0 }
+    featured.first(9).each { |event| assert_select "[data-upcoming] [data-upcoming-event='#{event.slug}']", count: 0 }
     assert_select "[data-upcoming] [data-upcoming-event='#{featured.last.slug}']"
   end
 

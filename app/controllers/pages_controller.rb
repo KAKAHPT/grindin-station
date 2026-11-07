@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
-# The landing (/): the fair-seats story, the organisers' waiting list, the featured tournaments (up to three, left
-# out of Upcoming) and the next public tournaments.
+# The landing (/): the fair-seats story, the organisers' waiting list, the featured tournaments (up to nine on a
+# rail, left out of Upcoming) and the next public tournaments.
 class PagesController < ApplicationController
   allow_unauthenticated_access
   layout "public"
 
   UPCOMING_LIMIT = 6
-  FEATURED_LIMIT = 3
+  FEATURED_LIMIT = 9
+  FEATURED_CIRCUITS_LIMIT = 9
 
   # Not started yet, or running now (a live swiss or cut); finished, draft and canceled ones are left out.
   def self.listed_tournaments
@@ -25,11 +26,11 @@ class PagesController < ApplicationController
 
   private
 
-  # Up to three admin-featured circuits (an ECL season, a championship) under the featured tournaments, and the
-  # waiting-list form.
+  # Up to nine admin-featured circuits (an ECL season, a championship) on a rail under the featured tournaments, and
+  # the waiting-list form.
   def load_extras
     @featured_circuits = Circuit.featured.with_attached_banner.preload(event_organizer: :user).order(:created_at)
-      .limit(3).to_a
+      .limit(FEATURED_CIRCUITS_LIMIT).to_a
     @waitlist_signup = WaitlistSignup.new
   end
 
