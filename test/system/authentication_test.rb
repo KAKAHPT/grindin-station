@@ -29,27 +29,22 @@ class AuthenticationTest < ApplicationSystemTestCase
     assert_text "Logout"
   end
 
-  test "user can sign up successfully as organizer" do
+  test "the sign-up form offers no organizer role: organizing is granted by an admin" do
     visit new_session_path
     click_link "Create an account with any e-mail"
 
+    assert_no_selector "#user_organizer"
     fill_in "user_name", with: "New Organizer"
     fill_in "user_email_address", with: "new_organizer@example.com"
     fill_in "user_password", with: "password123"
     fill_in "user_password_confirmation", with: "password123"
-    check "user_organizer"
 
     click_button "Sign up"
 
     assert_current_path root_path
-    assert_text "Welcome! You have signed up successfully."
-
-    # Verify organizer was created
     user = User.find_by(email_address: "new_organizer@example.com")
-    assert_not_nil user
-    assert_equal "New Organizer", user.name
-    assert_equal true, user.organizer?
-    assert_not_nil user.event_organizer
+    assert_nil user.event_organizer
+    assert_not_nil user.player
   end
 
   test "sign up validates required fields" do

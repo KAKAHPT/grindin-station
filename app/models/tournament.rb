@@ -50,9 +50,13 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
 
   validates :top_cut_size, inclusion: { in: ->(t) { [0] + Tournaments::TopCut.sizes_for(t.format) } }, allow_nil: true
   # 0 swiss rounds (straight single elimination) only makes sense for 1v1
-  validates :swiss_rounds_count, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_nil: true,
+  # Bounded above: rounds_info and the round pages materialise one entry per swiss round.
+  MAX_SWISS_ROUNDS = 20
+  validates :swiss_rounds_count, numericality: { only_integer: true, greater_than_or_equal_to: 1,
+                                                 less_than_or_equal_to: MAX_SWISS_ROUNDS }, allow_nil: true,
                                  unless: :one_v_one?
-  validates :swiss_rounds_count, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true,
+  validates :swiss_rounds_count, numericality: { only_integer: true, greater_than_or_equal_to: 0,
+                                                 less_than_or_equal_to: MAX_SWISS_ROUNDS }, allow_nil: true,
                                  if: :one_v_one?
   validates :round_minutes, :top_cut_round_minutes, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
   STRUCTURE_ATTRIBUTES = %i[swiss_rounds_count top_cut_size round_minutes top_cut_round_minutes pairing_mode

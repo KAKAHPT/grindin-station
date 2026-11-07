@@ -605,7 +605,7 @@ es:
           name: "Por nombre"
           manual: "Manualmente"
         help:
-          email: "Escribe el e-mail: las cuentas existentes aparecen mientras escribes. Si no hay ninguna, se crea una cuenta con el nombre de abajo."
+          email: "Escribe el e-mail completo del jugador: la cuenta existente aparece cuando coincide. Si no hay ninguna, se crea una cuenta con el nombre de abajo."
           name: "Escribe el nombre y elige al jugador en la lista."
           manual: "Un invitado sin cuenta, con el nombre que escribas. Puede reclamarla más tarde al registrarse."
         email: "E-mail del jugador"
@@ -976,6 +976,7 @@ es:
       password_too_short: "La contraseña necesita al menos 8 caracteres."
       password_reset_link_invalid: "El enlace para restablecer la contraseña no es válido o ha caducado."
       try_again_later: "Inténtalo de nuevo más tarde."
+      no_player: "Esta cuenta no puede inscribirse en eventos."
       invalid_credentials: "Prueba con otro correo electrónico u otra contraseña."
   event_participants:
     manual_player: "Jugador manual %{n}"

@@ -108,6 +108,9 @@ class DeployConfigTest < ActiveSupport::TestCase # rubocop:disable Metrics/Class
     preflight = workflow["jobs"]["preflight"]
     assert_match(/workflow_run\.conclusion == 'success'/, preflight["if"])
     assert_equal "Check required secrets", preflight["steps"].first["name"]
+    assert_includes preflight["steps"].first["run"], "SSH_KNOWN_HOSTS"
+    assert_not_includes Rails.root.join(".github/workflows/deploy.yml").read, "ssh-keyscan",
+                        "the host key is pinned, never scanned"
     assert_equal "${{ steps.secrets.outputs.ready }}", preflight.dig("outputs", "ready")
 
     job = workflow["jobs"]["deploy"]

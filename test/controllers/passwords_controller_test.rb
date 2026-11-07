@@ -15,6 +15,17 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     assert user.authenticate("new-pass-123")
   end
 
+  test "a reset also unlinks the Google/Discord sign-ins, which could be someone else's" do
+    user = users(:player_one)
+    user.identities.create!(provider: "google_oauth2", uid: "g-1", name: "p1")
+
+    put password_path(user.password_reset_token),
+        params: { password: "new-pass-123", password_confirmation: "new-pass-123" }
+
+    assert_redirected_to new_session_path
+    assert_empty user.reload.identities
+  end
+
   test "a mismatched confirmation changes nothing" do
     user = users(:player_one)
     user.update!(password_set: false)

@@ -14,10 +14,7 @@ module Feeds
       @event = event
       participants = EventParticipant.standings_for(event)
       @by_id = participants.index_by(&:id)
-      @seeds =
-        Standings.ranked(event, participants).each.with_index(1).to_h do |participant, rank|
-          [participant.id, rank]
-        end
+      @seeds = seeds_for(event, participants)
     end
 
     def to_h(updated)
@@ -29,6 +26,14 @@ module Feeds
     end
 
     private
+
+    # Each participant's current rank; none while the organizer hides the standings, since the ranks would
+    # rebuild the hidden table.
+    def seeds_for(event, participants)
+      return {} if event.standings_hidden?
+
+      Standings.ranked(event, participants).each.with_index(1).to_h { |participant, rank| [participant.id, rank] }
+    end
 
     def round(round)
       { round: Feeds.round_label(round), start: Feeds.epoch(round.started_at), clock: round.duration&.to_i,

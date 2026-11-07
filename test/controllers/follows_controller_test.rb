@@ -20,6 +20,15 @@ class FollowsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@me)
   end
 
+  test "a hidden profile cannot be followed, so Follow does not reveal that the handle exists" do
+    @friend.update!(visibility: "private")
+
+    post follow_path("ana-grind")
+
+    assert_response :not_found
+    assert_not @me.reload.following?(@friend)
+  end
+
   test "Follow/Unfollow on the profile; the Following scope keeps only followed people and organizers" do
     get profile_path("ana-grind")
     assert_select "[data-profile-follow] form button", text: "Follow"

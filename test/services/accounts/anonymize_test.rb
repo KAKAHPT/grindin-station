@@ -27,6 +27,16 @@ module Accounts
       assert_empty @user.sessions
     end
 
+    test "replaces the player key, which was a hash of the e-mail and name" do
+      user = users(:player_one)
+      old_key = user.player.key
+
+      Anonymize.call(user: user)
+
+      assert_not_equal old_key, user.player.reload.key
+      assert_match(/\Aremoved-\h{24}\z/, user.player.key)
+    end
+
     test "clears the team" do
       @user.update!(team: "Porto Grinders")
 
@@ -51,17 +61,15 @@ module Accounts
       assert_not @user.reload.admin?
     end
 
-    test "keeps the player, its key and its event history" do
+    test "keeps the player and its event history" do
       player = @user.player
-      key = player.key
       rank_score = @participant.rank_score
 
       assert_no_difference [-> { Player.count }, -> { EventParticipant.count }, -> { Result.count }] do
         Anonymize.call(user: @user)
       end
 
-      assert_equal key, player.reload.key
-      assert_equal @user, player.user
+      assert_equal @user, player.reload.user
       assert_equal rank_score, EventParticipant.find(@participant.id).rank_score
     end
 

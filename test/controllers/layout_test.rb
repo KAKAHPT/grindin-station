@@ -38,6 +38,16 @@ class LayoutTest < ActionDispatch::IntegrationTest
     assert_select ".evhead", count: 1
   end
 
+  test "the organizer mode chip ignores host, protocol and script_name from the query string" do
+    sign_in users(:organizer_user)
+
+    get "/organizer/tournaments?host=evil.example&protocol=javascript&script_name=https://evil.example&anchor=x"
+
+    assert_response :success
+    href = css_select("[data-topbar] [data-organizer-mode]").first["href"]
+    assert_equal "/tournaments", href
+  end
+
   test "an organizer page has the top bar with the organizer mode chip and the account links" do
     sign_in users(:organizer_user)
 

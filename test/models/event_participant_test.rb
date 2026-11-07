@@ -213,10 +213,10 @@ class EventParticipantTest < ActiveSupport::TestCase # rubocop:disable Metrics/C
     assert dropped_participant.dropped
   end
 
-  test "obfuscated_key returns first 5 characters with hash prefix" do
+  test "obfuscated_key is five characters of the player id, never of the e-mail hash" do
     participant = event_participants(:small_event_participant_one)
-    expected_key = "##{participant.player.key.first(5)}"
-    assert_equal expected_key, participant.obfuscated_key
+    assert_equal "##{participant.player.id.first(5)}", participant.obfuscated_key
+    assert_not_includes participant.obfuscated_key, participant.player.key.first(5)
   end
 
   test "rank_score calculation includes all components" do
