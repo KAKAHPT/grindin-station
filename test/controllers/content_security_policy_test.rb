@@ -5,13 +5,13 @@ require "test_helper"
 class ContentSecurityPolicyTest < ActionDispatch::IntegrationTest
   include RateLimitStore
 
-  HEADER = "Content-Security-Policy-Report-Only"
+  HEADER = "Content-Security-Policy"
 
-  test "pages carry a report-only policy whose nonce is on the importmap scripts" do
+  test "pages carry an enforced policy whose nonce is on the importmap scripts" do
     get root_path
 
     assert_response :success
-    assert_nil response.headers["Content-Security-Policy"]
+    assert_nil response.headers["Content-Security-Policy-Report-Only"], "enforced outside development"
     policy = response.headers[HEADER]
     assert_includes policy, "default-src 'self'"
     assert_includes policy, "object-src 'none'"

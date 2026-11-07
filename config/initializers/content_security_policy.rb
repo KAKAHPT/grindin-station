@@ -28,5 +28,6 @@ Rails.application.configure do
   config.content_security_policy_nonce_generator = ->(_request) { SecureRandom.base64(16) }
   config.content_security_policy_nonce_directives = %w[script-src]
 
-  config.content_security_policy_report_only = true
+  # Enforced in test and production. Development stays report-only: web-console injects inline scripts.
+  config.content_security_policy_report_only = Rails.env.development?
 end

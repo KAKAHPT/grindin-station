@@ -2,6 +2,9 @@
 
 # A player creates a team from the account page and owns it (one accepted team per player).
 class TeamsController < ApplicationController
+  rate_limit to: 5, within: 10.minutes, only: :create, by: -> { current_user.id },
+             with: -> { redirect_to account_path(anchor: "team"), alert: t("flash.alert.try_again_later") }
+
   def create
     return back_to_team alert: t("teams.flash.already_in_a_team") if current_user.team_membership
 
