@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   delete "/account/identities/:id" => "accounts#unlink_identity", as: :unlink_identity
   get "/p/:handle", to: "profiles#show", as: :profile, constraints: { handle: /[a-z0-9-]+/ }
   get "/organizers", to: "organizers#index", as: :organizers
+  get "/fairness", to: "pages#fairness", as: :fairness
   get "/feed", to: "posts#index", as: :feed
   post "/follows/:handle", to: "follows#create", as: :follow, constraints: { handle: /[a-z0-9-]+/ }
   delete "/follows/:handle", to: "follows#destroy", constraints: { handle: /[a-z0-9-]+/ }
