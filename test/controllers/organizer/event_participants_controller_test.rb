@@ -4,6 +4,8 @@ require "test_helper"
 
 module Organizer
   class EventParticipantsControllerTest < ActionDispatch::IntegrationTest
+    include RateLimitStore
+
     setup do
       @tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
                                             state: :registration_open)
@@ -66,6 +68,17 @@ module Organizer
       assert_response :unprocessable_entity
       assert_match "Pick a player from the list", response.body
       assert_select "[data-add-tabs] [aria-selected=true]", text: "By name"
+    end
+
+    test "the search allows sixty lookups a minute per organizer" do
+      with_memory_rate_limit_store do
+        60.times do
+          get search_organizer_tournament_event_participants_path(@tournament, mode: "name", q: "load"), as: :json
+          assert_response :success
+        end
+        get search_organizer_tournament_event_participants_path(@tournament, mode: "name", q: "load"), as: :json
+        assert_response :too_many_requests
+      end
     end
 
     test "a second guest with the same name re-renders with the error" do

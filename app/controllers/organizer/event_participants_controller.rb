@@ -10,6 +10,10 @@ module Organizer
     allow_roles :organizer, :judge, :scorekeeper, only: DESK_ACTIONS
     allow_roles :organizer, :judge, except: [:index, *DESK_ACTIONS]
 
+    # The Add player lookup is for an organizer typing, not for listing accounts.
+    rate_limit to: 60, within: 1.minute, only: :search, by: -> { current_user.id },
+               with: -> { render json: [], status: :too_many_requests }
+
     SCOREKEEPER_ATTRIBUTES = %w[checked_in paid].freeze
     ADD_MODES = %w[email name manual].freeze
 
