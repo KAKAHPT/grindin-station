@@ -1105,6 +1105,12 @@ pt:
       team_invited: "Foste convidado para %{team}."
       team_accepted: "%{name} está agora em %{team}."
   follows:
+    followers_count:
+      one: "%{count} seguidor"
+      other: "%{count} seguidores"
+    following_count:
+      one: "a seguir %{count}"
+      other: "a seguir %{count}"
     unfollow: "Deixar de seguir"
     following: "Passaste a seguir %{name}."
     unfollowed: "Deixaste de seguir %{name}."

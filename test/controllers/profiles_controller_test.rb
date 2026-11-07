@@ -54,6 +54,18 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     assert_select "[data-profile-empty] a[data-find-events][href=?]", events_path, text: "Find an event"
   end
 
+  test "the header counts followers and followed people" do
+    owner = User.find_by!(handle: "rita")
+    fan = users(:player_two)
+    fan.follows.create!(followed: owner)
+    owner.follows.create!(followed: users(:player_three))
+    owner.follows.create!(followed: fan)
+
+    get profile_path("rita")
+
+    assert_select "[data-profile-follow] [data-follow-counts]", text: /1 follower · 2 following/
+  end
+
   test "an unknown handle is a 404" do
     get profile_path("nobody-here")
 

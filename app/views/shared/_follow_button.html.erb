@@ -1,5 +1,7 @@
-<%# Follow / Unfollow for the person `user`: nothing for yourself; a sign-in link for visitors. %>
+<%# Follow / Unfollow for the person `user` (nothing for yourself; a sign-in link for visitors), with how many
+    follow them and how many they follow. %>
 <% url_locale = params[:locale] %>
+<div class="flex flex-col items-end gap-1">
 <% if !authenticated? %>
   <%= link_to t("profiles.follow"), new_session_path(locale: url_locale), class: button_classes(:secondary, size: :xs), data: { follow: "sign_in" } %>
 <% elsif current_user != user %>
@@ -9,3 +11,7 @@
     <%= button_to t("profiles.follow"), follow_path(user.handle, locale: url_locale), method: :post, class: button_classes(:primary, size: :xs), "aria-pressed": false, data: { follow: "on" } %>
   <% end %>
 <% end %>
+<p class="text-[11.5px] text-muted whitespace-nowrap" data-follow-counts>
+  <%= t("follows.followers_count", count: user.followers.count) %> · <%= t("follows.following_count", count: user.followed_users.count) %>
+</p>
+</div>

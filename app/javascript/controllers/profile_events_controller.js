@@ -36,10 +36,11 @@ export default class extends Controller {
   }
 
   year(event) {
-    const button = event.target.closest("[data-year]");
+    // Only the toolbar's year buttons: the event rows carry data-year too, and a click on their "+" must not refilter.
+    const button = event.target.closest("button[data-year]");
     if (!button) return;
     this.yearFilter = button.dataset.year;
-    this.element.querySelectorAll("[data-year]").forEach((b) => {
+    this.element.querySelectorAll("button[data-year]").forEach((b) => {
       const on = b === button;
       b.classList.toggle("seg-on", on);
       b.setAttribute("aria-pressed", String(on));

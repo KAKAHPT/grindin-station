@@ -12,7 +12,7 @@
     <% end %>
     <div class="min-w-0 flex-1">
       <p class="<%= compact ? "text-[12px]" : "text-[13px]" %>">
-        <span class="font-semibold text-ink"><%= profile_link(post.user) %></span>
+        <span class="font-semibold text-ink"><%= profile_link(post.user, organizer_page: post.user.event_organizer.present?) %></span>
         <% if post.kind == "note" %><%= desk_chip(:info) { t("feed.kinds.note") } %><% elsif post.result? %><%= desk_chip(:ok) { t("feed.kinds.result") } %><% end %>
         <span class="text-muted"><% if post.event %> · <%= link_to post.event.name, play_event_path(post.event.slug, locale: url_locale), class: "hover:text-ink hover:underline" %><% end %> · <%= time_ago_in_words(post.created_at) %></span>
       </p>

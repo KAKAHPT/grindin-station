@@ -61,8 +61,8 @@ class CircuitsController < ApplicationController
 
   # The circuit's feed: the latest posts about its events.
   def load_posts
-    @posts = Post.in_circuit(@circuit).visible.recent.preload(:event, user: { avatar_attachment: :blob }).limit(3).to_a
-    @posts_count = Post.in_circuit(@circuit).visible.count
+    @posts = circuit_posts.recent.preload(:event, user: [:event_organizer, { avatar_attachment: :blob }]).limit(3).to_a
+    @posts_count = circuit_posts.count
     @liked_ids =
       if current_user
         PostLike.where(user: current_user,
@@ -70,6 +70,10 @@ class CircuitsController < ApplicationController
       else
         Set.new
       end
+  end
+
+  def circuit_posts
+    Post.in_circuit(@circuit).visible
   end
 
   def load_events
