@@ -189,7 +189,7 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     assert_select "[data-profile-summary]", 0
     assert_select "[data-profile-tools]", 0
     assert_select "[data-profile-events]", 0
-    assert_select "p", text: "No finished events yet."
+    assert_select "[data-profile-empty] p", text: "No events played yet."
   end
 
   test "shows the avatar when there is one" do
