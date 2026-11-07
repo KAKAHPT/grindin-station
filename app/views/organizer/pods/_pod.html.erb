@@ -1,4 +1,4 @@
-<% staff_can_act = pod.round.started? && !pod.round.past? && %w[organizer judge].include?(staff_role) %>
+<% staff_can_act = pod.round.started? && !pod.round.past? && %w[organizer judge scorekeeper].include?(staff_role) %>
 <% show_results = pod.round.started? && !pod.round.past? && pod.report_status != :completed %>
 <%# 1v1: the pick is confirmed by its score ("2-1" sets the hidden result[games] = "2-1-0"); Draw opens its scores. %>
 <% one_v_one = pod.event.one_v_one? %>

@@ -36,30 +36,39 @@ module Organizer
       end
     end
 
-    test "judges and scorekeepers cannot swap seats or roll back a round" do
+    test "a scorekeeper cannot swap seats or roll back a round; a judge can swap" do
       other = @round.pods.order(:number).second.seatings.first
-      %w[judge scorekeeper].each do |role|
-        sign_in_as(role)
-        patch swap_organizer_tournament_round_seatings_path(@tournament, @round),
-              params: { player: @participant.id, pod: @pod.id, with_player: other.event_participant_id,
-                        with_pod: other.pod_id }
-        assert_refused
-        delete organizer_tournament_round_path(@tournament, @round)
-        assert_refused
-      end
+      swap = { player: @participant.id, pod: @pod.id, with_player: other.event_participant_id, with_pod: other.pod_id }
+      sign_in_as("scorekeeper")
+      patch swap_organizer_tournament_round_seatings_path(@tournament, @round), params: swap
+      assert_refused
+      delete organizer_tournament_round_path(@tournament, @round)
+      assert_refused
       assert @tournament.rounds.exists?(@round.id)
       assert_equal @participant.id, @pod.seatings.first.reload.event_participant_id
+
+      sign_in_as("judge")
+      patch swap_organizer_tournament_round_seatings_path(@tournament, @round), params: swap
+      assert_redirected_to organizer_tournament_round_path(@tournament, @round)
+      assert_equal other.event_participant_id, @pod.seatings.order(:order).first.reload.event_participant_id
     end
 
-    test "a judge cannot add players" do
-      sign_in_as("judge")
+    test "a scorekeeper cannot add players; a judge can" do
+      sign_in_as("scorekeeper")
       get new_organizer_tournament_event_participant_path(@tournament)
       assert_refused
       assert_no_difference -> { EventParticipant.count } do
         post organizer_tournament_event_participants_path(@tournament),
-             params: { event_participant: { player_name: "New", player_email: "new@example.com" } }
+             params: { event_participant: { player_name: "New", accepted_terms: "1" } }
       end
       assert_refused
+
+      @tournament.update_column(:state, "registration_open") # rubocop:disable Rails/SkipsModelValidations
+      sign_in_as("judge")
+      assert_difference -> { EventParticipant.count }, 1 do
+        post organizer_tournament_event_participants_path(@tournament),
+             params: { event_participant: { player_name: "New", accepted_terms: "1" } }
+      end
     end
 
     test "only the owner adds or removes staff" do

@@ -108,15 +108,17 @@ module Organizer
       assert_equal (1..4).to_a, @t.event_participants.pluck(:final_position).sort
     end
 
-    test "a finished tournament offers Reopen to the organizer only" do
+    test "a finished tournament offers Reopen to the organizer and the judge, not the scorekeeper" do
       finish_with_final
       get organizer_tournament_path(@t)
       assert_select "form[action=?]", reopen_organizer_tournament_path(@t), count: 1
 
-      judge = User.create!(name: "Judge", email_address: "judge-#{SecureRandom.hex(3)}@example.com",
-                           password: "password123")
-      EventStaff.create!(event: @t, user: judge, role: "judge")
-      sign_in_as(judge)
+      scorekeeper = User.create!(name: "Keeper", email_address: "keeper-#{SecureRandom.hex(3)}@example.com",
+                                 password: "password123")
+      EventStaff.create!(event: @t, user: scorekeeper, role: "scorekeeper")
+      sign_in_as(scorekeeper)
+      get organizer_tournament_path(@t)
+      assert_select "form[action=?]", reopen_organizer_tournament_path(@t), count: 0
       patch reopen_organizer_tournament_path(@t)
       assert_redirected_to organizer_root_url
       assert_predicate @t.reload, :finished?

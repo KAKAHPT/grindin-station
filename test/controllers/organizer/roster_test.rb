@@ -39,19 +39,17 @@ module Organizer
       assert_not @participant.reload.paid?
     end
 
-    test "scorekeepers and judges cannot drop or promote; judges cannot check in" do
-      %w[scorekeeper judge].each do |role|
-        sign_in_as(role)
-        patch drop_organizer_tournament_event_participant_path(@tournament, @participant), params: { reason: "no_show" }
-        assert_refused
-        patch promote_organizer_tournament_event_participant_path(@tournament, @participant)
-        assert_refused
-      end
-      sign_in_as("judge")
-      patch check_in_organizer_tournament_event_participant_path(@tournament, @participant)
+    test "scorekeepers cannot drop or promote; judges can" do
+      sign_in_as("scorekeeper")
+      patch drop_organizer_tournament_event_participant_path(@tournament, @participant), params: { reason: "no_show" }
+      assert_refused
+      patch promote_organizer_tournament_event_participant_path(@tournament, @participant)
       assert_refused
       assert_not @participant.reload.dropped?
-      assert_not @participant.checked_in?
+
+      sign_in_as("judge")
+      patch drop_organizer_tournament_event_participant_path(@tournament, @participant), params: { reason: "no_show" }
+      assert @participant.reload.dropped?
     end
 
     test "an organizer records a no-show and promotes from the waitlist before the swiss" do

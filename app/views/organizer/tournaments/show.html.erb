@@ -84,6 +84,6 @@
 </div>
 
 <%# The downloads are for the roles allowed to export (Organizer::ExportsController). %>
-<% if %w[organizer scorekeeper].include?(staff_role(@tournament)) %>
+<% if %w[organizer judge scorekeeper].include?(staff_role(@tournament)) %>
   <%= render "organizer/tournaments/export_card", tournament: @tournament %>
 <% end %>

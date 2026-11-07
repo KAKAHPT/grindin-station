@@ -3,7 +3,8 @@
 module Organizer
   class RoundsController < OrganizerController
     allow_roles :organizer, :judge, :scorekeeper, :caster, only: %i[index show print slips]
-    allow_roles :organizer, except: %i[index show print slips]
+    allow_roles :organizer, :judge, :scorekeeper, only: :update
+    allow_roles :organizer, :judge, except: %i[index show print slips update]
 
     layout "print", only: %i[print slips]
 

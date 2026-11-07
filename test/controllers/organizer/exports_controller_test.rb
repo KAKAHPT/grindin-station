@@ -36,8 +36,11 @@ module Organizer
       end
     end
 
-    test "judges and users with no role on the event are refused" do
-      [@users.fetch("judge"), users(:player_one)].each do |user|
+    test "casters and users with no role on the event are refused" do
+      caster = User.create!(name: "Caster", email_address: "caster-#{SecureRandom.hex(3)}@example.com",
+                            password: "password123")
+      EventStaff.create!(event: @tournament, user: caster, role: "caster")
+      [caster, users(:player_one)].each do |user|
         sign_in_as(user)
         (KINDS + ["sheet"]).each do |kind|
           get export_path(kind)

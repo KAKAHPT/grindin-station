@@ -2,7 +2,7 @@
 
 module Organizer
   class SeatingsController < OrganizerController
-    allow_roles :organizer
+    allow_roles :organizer, :judge
 
     def swap
       tournament = load_tournament
