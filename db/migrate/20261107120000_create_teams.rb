@@ -4,7 +4,7 @@
 # users.team keeps the accepted team's name, as the rankings read it. Existing team names become teams owned by
 # their oldest member, everyone who had the name as an accepted member.
 class CreateTeams < ActiveRecord::Migration[8.1]
-  def up
+  def up # rubocop:disable Metrics/MethodLength -- two tables
     create_table :teams, id: :uuid, default: -> { "gen_random_uuid()" } do |t|
       t.string :name, null: false
       t.references :owner, type: :uuid, null: true, foreign_key: { to_table: :users }
@@ -30,18 +30,18 @@ class CreateTeams < ActiveRecord::Migration[8.1]
 
   private
 
-  def backfill
+  def backfill # rubocop:disable Metrics/MethodLength -- two inserts
     execute <<~SQL.squish
-        INSERT INTO teams (name, owner_id, created_at, updated_at)
-        SELECT DISTINCT ON (lower(team)) team, id, now(), now()
-        FROM users WHERE team IS NOT NULL AND anonymized_at IS NULL
-        ORDER BY lower(team), created_at
+      INSERT INTO teams (name, owner_id, created_at, updated_at)
+      SELECT DISTINCT ON (lower(team)) team, id, now(), now()
+      FROM users WHERE team IS NOT NULL AND anonymized_at IS NULL
+      ORDER BY lower(team), created_at
     SQL
     execute <<~SQL.squish
-        INSERT INTO team_memberships (team_id, user_id, status, created_at, updated_at)
-        SELECT teams.id, users.id, 'accepted', now(), now()
-        FROM users JOIN teams ON lower(teams.name) = lower(users.team)
-        WHERE users.anonymized_at IS NULL
+      INSERT INTO team_memberships (team_id, user_id, status, created_at, updated_at)
+      SELECT teams.id, users.id, 'accepted', now(), now()
+      FROM users JOIN teams ON lower(teams.name) = lower(users.team)
+      WHERE users.anonymized_at IS NULL
     SQL
   end
 end
