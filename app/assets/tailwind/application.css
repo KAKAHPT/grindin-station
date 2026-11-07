@@ -981,6 +981,55 @@
   }
 
   /* The native option list of a select follows the site: dark surface, ink text. */
+  /* Add player dialog: the account list under the e-mail or name field. */
+  .ap-results {
+    position: absolute;
+    top: calc(100% - 12px);
+    left: 0;
+    right: 0;
+    z-index: 20;
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 8px;
+    background: var(--color-surface);
+    box-shadow: 0 12px 28px -12px #000;
+  }
+
+  .ap-results button,
+  .ap-empty {
+    display: flex;
+    width: 100%;
+    align-items: baseline;
+    gap: 8px;
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 12.5px;
+    color: var(--color-ink);
+  }
+
+  .ap-results button:hover:not(:disabled) {
+    background: rgb(255 255 255 / 0.05);
+  }
+
+  .ap-results button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .ap-results button span,
+  .ap-empty {
+    color: var(--color-muted);
+  }
+
+  .ap-results button em {
+    margin-left: auto;
+    font: 600 10.5px var(--font-body);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-warn);
+  }
+
   select.field-input option {
     background-color: var(--color-surface);
     color: var(--color-ink);
