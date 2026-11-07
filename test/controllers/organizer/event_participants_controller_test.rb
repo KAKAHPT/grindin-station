@@ -31,6 +31,43 @@ module Organizer
       assert_equal "Manual player 1", @tournament.event_participants.order(:created_at).last.name
     end
 
+    test "the search lists accounts by name with a masked e-mail, by e-mail in full, and flags those in the event" do
+      inside = @tournament.event_participants.first.player.user
+      outsider = User.create!(name: "Zed Outsider", email_address: "zed@example.org", password: "password123")
+
+      get search_organizer_tournament_event_participants_path(@tournament, mode: "name", q: inside.name.first(6)),
+          as: :json
+      assert_response :success
+      row = response.parsed_body.find { |r| r["player_id"] == inside.player.id }
+      assert row["in_event"]
+      assert_match(/\A.…@/, row["email"])
+
+      get search_organizer_tournament_event_participants_path(@tournament, mode: "email", q: "zed@"), as: :json
+      assert_equal([[outsider.player.id, "zed@example.org", false]],
+                   response.parsed_body.map { |r| r.values_at("player_id", "email", "in_event") })
+
+      get search_organizer_tournament_event_participants_path(@tournament, mode: "email", q: "ze"), as: :json
+      assert_empty response.parsed_body
+    end
+
+    test "a player picked by name is added by player_id; the name tab without a pick re-renders with the error" do
+      outsider = User.create!(name: "Zed Outsider", email_address: "zed@example.org", password: "password123")
+
+      assert_difference -> { @tournament.event_participants.count }, 1 do
+        post organizer_tournament_event_participants_path(@tournament),
+             params: { mode: "name", event_participant: { player_id: outsider.player.id, accepted_terms: "1" } }
+      end
+      assert_equal outsider.player.id, @tournament.event_participants.order(:created_at).last.player_id
+
+      assert_no_difference -> { @tournament.event_participants.count } do
+        post organizer_tournament_event_participants_path(@tournament),
+             params: { mode: "name", event_participant: { accepted_terms: "1" } }
+      end
+      assert_response :unprocessable_entity
+      assert_match "Pick a player from the list", response.body
+      assert_select "[data-add-tabs] [aria-selected=true]", text: "By name"
+    end
+
     test "a second guest with the same name re-renders with the error" do
       2.times do
         post organizer_tournament_event_participants_path(@tournament),

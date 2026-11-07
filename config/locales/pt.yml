@@ -597,6 +597,26 @@ pt:
       legend: "Ações da linha"
       infraction: "Registar infração"
       add_player: "Adicionar jogador"
+      add:
+        title: "Adicionar jogador a %{event}"
+        tabs:
+          email: "Por e-mail"
+          name: "Por nome"
+          manual: "Manualmente"
+        help:
+          email: "Escreve o e-mail: as contas existentes aparecem à medida que escreves. Se não houver nenhuma, é criada uma conta com o nome em baixo."
+          name: "Escreve o nome e escolhe o jogador na lista."
+          manual: "Um convidado sem conta, com o nome que escreveres. Pode reclamá-la mais tarde ao registar-se."
+        email: "E-mail do jogador"
+        name_for_account: "Nome para uma conta nova"
+        search_name: "Nome do jogador"
+        guest_name: "Nome do jogador"
+        in_event: "Já no evento"
+        no_results: "Nenhuma conta encontrada"
+        pick_one: "Escolhe um jogador na lista, ou adiciona-o por e-mail ou manualmente."
+        terms: "O jogador leu e aceitou as regras do evento"
+        submit: "Adicionar jogador"
+        cancel: "Cancelar"
       decklist: "Decklist"
       waitlist:
         title: "Lista de espera"
