@@ -955,6 +955,9 @@ en:
       password_reset_sent: "Password a reset instructions sent (if user with that email address exists)."
       password_reset: "Password has been reset."
       welcome_signed_up: "Welcome! You have signed up successfully."
+      confirm_email_sent: "Almost there: open the link we just sent to your e-mail to confirm your account."
+      email_confirmed: "Your e-mail is confirmed. Welcome!"
+      confirmation_resent: "If that e-mail has an unconfirmed account, a new confirmation link is on its way."
       signed_in: "You have been signed in."
       signed_out: "You have been signed out."
     alert:
@@ -976,6 +979,8 @@ en:
       password_too_short: "The password needs at least 8 characters."
       password_reset_link_invalid: "Password reset link is invalid or has expired."
       try_again_later: "Try again later."
+      confirm_first: "Confirm your e-mail first: open the link we sent you, or ask for a new one below."
+      confirm_link_invalid: "That confirmation link is not valid any more. Ask for a new one."
       no_player: "This account cannot register for events."
       invalid_credentials: "Try another email address or password."
   event_participants:
@@ -1023,6 +1028,9 @@ en:
       confirmation_mismatch: "The confirmation word did not match. Your account was not deleted."
       deleted: "Your account was deleted."
   auth:
+    resend_confirmation: "Resend the confirmation e-mail"
+    resend_confirmation_help: "Signed up but no mail arrived? Type your e-mail and we send the confirmation link again."
+    email: "E-mail"
     continue_with_google: "Continue with Google"
     continue_with_discord: "Continue with Discord"
     email_unverified: "%{provider} did not verify your e-mail. Sign in with your password and link %{provider} in your account."
@@ -1058,6 +1066,12 @@ en:
       greeting: "Hi %{name},"
       body: "Your request was approved: you can now create and run events on Grindin Station."
       link: "Open the organizer area"
+  confirmations_mailer:
+    confirm:
+      subject: "Confirm your Grindin Station account"
+      intro: "Hi %{name}, one last step: confirm your e-mail to open your account. The link works for two days."
+      link: "Confirm my e-mail"
+      ignore: "If you did not sign up, ignore this mail and nothing happens."
   passwords_mailer:
     reset:
       subject: "Reset your password"

@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   get "/auth/failure", to: "omniauth_callbacks#failure", as: :omniauth_failure
   resources :passwords, param: :token
   resources :registrations, only: %i[new create]
+  resources :confirmations, only: %i[new create show], param: :token
   resource :account, only: %i[show update destroy]
   resources :teams, only: :create
   resources :team_memberships, only: %i[create update destroy]

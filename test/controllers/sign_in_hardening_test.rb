@@ -85,7 +85,7 @@ class SignInHardeningTest < ActionDispatch::IntegrationTest
   test "sign-ups allow 30 per address" do
     with_memory_rate_limit_store do
       30.times { |i| sign_up("p#{i}@example.com") }
-      assert_equal I18n.t("flash.notice.welcome_signed_up"), flash[:notice]
+      assert_equal I18n.t("flash.notice.confirm_email_sent"), flash[:notice]
 
       sign_up("extra@example.com")
       assert_equal I18n.t("flash.alert.try_again_later"), flash[:alert]

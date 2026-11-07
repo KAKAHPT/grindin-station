@@ -11,6 +11,15 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
   attribute :organizer, :boolean, default: false
 
   has_secure_password
+  # The public sign-up's confirmation link; the e-mail in the payload voids the token if the address changes.
+  generates_token_for :email_confirmation, expires_in: 2.days do
+    email_address
+  end
+  # The public sign-up asks for an unconfirmed account; the column default confirms every other creation (and the
+  # fixtures). A plain nil would be dropped by the partial insert, so the column is forced into the INSERT.
+  attribute :needs_confirmation, :boolean, default: false
+  before_validation :assign_handle, on: :create, if: -> { handle.blank? }
+  before_create :leave_unconfirmed, if: :needs_confirmation
   has_many :sessions, dependent: :destroy
   has_many :identities, dependent: :destroy
   has_one_attached :avatar do |attachable|
@@ -22,8 +31,6 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
     attachable.variant :card, resize_to_fill: [800, 300]
     attachable.variant :wide, resize_to_fill: [1600, 400]
   end
-
-  before_validation :assign_handle, on: :create, if: -> { handle.blank? }
 
   after_create :initialize_player, if: -> { !organizer }
   after_create :initialize_organizer, if: -> { organizer }
@@ -112,6 +119,14 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
     notifications.unread.count
   end
 
+  # Confirmed by default (OAuth with a verified e-mail, organizer-added, existing accounts); only the public
+  # sign-up creates an unconfirmed account, which cannot sign in with a password until its link is opened.
+  def confirmed? = confirmed_at.present?
+
+  def confirm!
+    update_column(:confirmed_at, Time.current) unless confirmed? # rubocop:disable Rails/SkipsModelValidations -- a stamp
+  end
+
   def display_name
     anonymized? ? I18n.t("accounts.removed_player") : name
   end
@@ -130,6 +145,11 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
     unowned = Player.find_by(key: key, user_id: nil)
     self.player = unowned || Player.new(key: free_key(key))
     player.save
+  end
+
+  def leave_unconfirmed
+    self.confirmed_at = nil
+    confirmed_at_will_change!
   end
 
   def initialize_organizer
