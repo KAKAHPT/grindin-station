@@ -25,10 +25,42 @@ permissions:
   packages: write
 
 jobs:
-  deploy:
+  # Until the VPS secrets exist, a push to main must not fail this workflow: the preflight says whether a deploy is
+  # possible and the deploy job is skipped (not failed) when it is not.
+  preflight:
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      ready: ${{ steps.secrets.outputs.ready }}
+    env:
+      GS_VPS_HOST: ${{ secrets.GS_VPS_HOST }}
+      GS_DOMAIN: ${{ secrets.GS_DOMAIN }}
+      RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_APP_PASSWORD: ${{ secrets.POSTGRES_APP_PASSWORD }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+    steps:
+      - name: Check required secrets
+        id: secrets
+        run: |
+          missing=()
+          for name in GS_VPS_HOST GS_DOMAIN RAILS_MASTER_KEY POSTGRES_PASSWORD POSTGRES_APP_PASSWORD SSH_PRIVATE_KEY; do
+            if [ -z "${!name}" ]; then missing+=("$name"); fi
+          done
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::warning::No deploy: missing repository secrets ${missing[*]} (see docs/superpowers/notes/2026-11-04-m4-vps-checklist.md)"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "All required secrets are set."
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy:
+    needs: preflight
+    if: needs.preflight.outputs.ready == 'true'
     runs-on: ubuntu-24.04
     environment: production
     timeout-minutes: 30
@@ -52,18 +84,6 @@ jobs:
       SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
 
     steps:
-      - name: Check required secrets
-        run: |
-          missing=()
-          for name in GS_VPS_HOST GS_DOMAIN RAILS_MASTER_KEY POSTGRES_PASSWORD POSTGRES_APP_PASSWORD SSH_PRIVATE_KEY; do
-            if [ -z "${!name}" ]; then missing+=("$name"); fi
-          done
-          if [ ${#missing[@]} -gt 0 ]; then
-            echo "::error::Missing repository secrets: ${missing[*]} (see docs/superpowers/notes/2026-11-04-m4-vps-checklist.md)"
-            exit 1
-          fi
-          echo "All required secrets are set."
-
       - name: Checkout the commit CI tested
         uses: actions/checkout@v4
         with:
