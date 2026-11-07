@@ -11,6 +11,7 @@ module Organizer
     allow_roles :organizer, :judge, except: [:index, *DESK_ACTIONS]
 
     SCOREKEEPER_ATTRIBUTES = %w[checked_in paid].freeze
+    ADD_MODES = %w[email name manual].freeze
 
     def index
       @event = load_tournament
@@ -41,17 +42,25 @@ module Organizer
 
     def new
       @event_participant = EventParticipant.new(event: load_tournament)
+      @mode = "email"
+    end
+
+    # The Add player dialog's lookup (JSON): accounts by name or e-mail, flagged when already in the event.
+    def search
+      rows = Registrations::PlayerSearch.new(load_tournament, mode: params[:mode], text: params[:q]).call
+      render json: rows
     end
 
     def create
       @event_participant = EventParticipant.new(event: load_tournament)
+      @mode = params[:mode].presence_in(ADD_MODES) || "email"
       if @event_participant.event.points_locked?
         return redirect_to roster_path(@event_participant.event), alert: t("flash.alert.registration_closed")
       end
 
       @event_participant.attributes = event_participant_params
 
-      if @event_participant.save
+      if picked_by_name? && @event_participant.save
         redirect_to [:organizer, @event_participant.event, :event_participants, { layout: "application" }],
                     notice: "#{@event_participant.name} added!"
       else
@@ -94,6 +103,14 @@ module Organizer
     def destroy; end
 
     private
+
+    # The "by name" tab adds only a player picked from the list; a typed name alone would be a guest.
+    def picked_by_name?
+      return true unless @mode == "name" && @event_participant.player_id.blank?
+
+      @event_participant.errors.add(:base, t("organizer.roster.add.pick_one"))
+      false
+    end
 
     def desk_update(attributes)
       @event = load_tournament
@@ -151,6 +168,7 @@ module Organizer
                       dropped
                       checked_in
                       paid
+                      player_id
                       player_email
                       player_name
                       decklist
