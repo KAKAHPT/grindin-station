@@ -6,7 +6,7 @@ module Organizer
     DESK_ACTIONS = %i[update check_in undo_check_in mark_paid mark_unpaid].freeze
     STATUSES = %w[enrolled checked_in waitlisted dropped].freeze
 
-    allow_roles :organizer, :judge, :scorekeeper, only: :index
+    allow_roles :organizer, :judge, :scorekeeper, :caster, only: :index
     allow_roles :organizer, :scorekeeper, only: DESK_ACTIONS
     allow_roles :organizer, except: [:index, *DESK_ACTIONS]
 

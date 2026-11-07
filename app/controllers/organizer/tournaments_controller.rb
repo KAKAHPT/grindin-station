@@ -5,7 +5,7 @@ module Organizer
     public_actions :index
     require_organizer only: %i[new create]
     allow_roles :organizer, only: %i[edit update reopen]
-    allow_roles :organizer, :judge, :scorekeeper, only: :show
+    allow_roles :organizer, :judge, :scorekeeper, :caster, only: :show
     # New and Settings are full pages (the tournament page's Settings tab), never the modal.
     layout "application"
 

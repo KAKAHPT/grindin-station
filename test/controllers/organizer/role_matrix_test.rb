@@ -4,14 +4,14 @@ require "test_helper"
 
 module Organizer
   # What each staff role is refused (and the one write a scorekeeper must have).
-  class RoleMatrixTest < ActionDispatch::IntegrationTest
+  class RoleMatrixTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
     setup do
       @tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer))
       @round = @tournament.rounds.create!(type: SwissRound, number: 1)
       @pod = @round.pods.order(:number).first
       @participant = @pod.seatings.first.event_participant
       @users =
-        %w[organizer judge scorekeeper].index_with do |role|
+        %w[organizer judge scorekeeper caster].index_with do |role|
           user = User.create!(name: role, email_address: "#{role}-#{SecureRandom.hex(3)}@example.com",
                               password: "password123")
           EventStaff.create!(event: @tournament, user: user, role: role)
@@ -83,6 +83,34 @@ module Organizer
              params: { result: { type: "Win", event_participant_id: @participant.id } }
       end
       assert_redirected_to organizer_tournament_round_path(@tournament, @round)
+    end
+
+    test "a caster reads the overview, the roster and the rounds, and nothing else" do
+      sign_in_as("caster")
+      get organizer_tournament_path(@tournament)
+      assert_response :success
+      get organizer_tournament_event_participants_path(@tournament, layout: "application")
+      assert_response :success
+      assert_select "a", text: "Add player", count: 0
+      assert_select "[data-tip]", count: 0
+      get organizer_tournament_round_path(@tournament, @round)
+      assert_response :success
+      assert_select "form button", text: /Start|Close|Publish/, count: 0
+
+      get organizer_tournament_judge_calls_path(@tournament)
+      assert_refused
+      get edit_organizer_tournament_path(@tournament)
+      assert_refused
+      assert_no_difference -> { Result.count + EventParticipant.count } do
+        post organizer_tournament_round_pod_results_path(@tournament, @round, @pod),
+             params: { result: { type: "Win", event_participant_id: @participant.id } }
+        assert_refused
+        patch check_in_organizer_tournament_event_participant_path(@tournament, @participant)
+        assert_refused
+        post organizer_tournament_event_participants_path(@tournament),
+             params: { event_participant: { player_name: "New", accepted_terms: "1" } }
+        assert_refused
+      end
     end
 
     private

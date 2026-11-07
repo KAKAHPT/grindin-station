@@ -3,6 +3,7 @@
 <% turbo_refreshes_with method: :morph, scroll: :preserve %>
 <%= turbo_stream_from LiveBroadcasts.round_stream(@round.id) %>
 <%= render "organizer/tournaments/shell", tournament: @round.event %>
+<% manager = staff_role(@round.event) == "organizer" %>
 <%= content_for :sub_navigation do %>
   <ul class="<%= PaletteHelper::SEGMENT_TRACK %> mb-3">
     <%= render partial: "round", collection: @round.event.rounds.sort_by(&:number) %>
@@ -30,19 +31,19 @@
             data-round-timer-finished-at-value="<%= @round.finished_at&.iso8601 %>"
             data-round-timer-finished-label-value="<%= t("rounds.finished_in", time: "%{time}") %>"
           ><% if @round.finished_at %><%= render "rounds/finished_clock", round: @round %><% else %><%= clock_text(@round.started_at, @round.duration&.to_i) %><% end %></span>
-          <% unless @round.past? %>
+          <% if manager && !@round.past? %>
             <%= button_to [:organizer, @round.event, @round.becomes(Round)], method: :patch, params: {round: {action: :close}}, form_class: "w-full sm:w-auto", class: button_classes(:primary, "w-full sm:w-auto", size: :sm) do %>
               <%= t("rounds.close") %>
               <%= icon("arrow-right", class: "ms-2") %>
             <% end %>
           <% end %>
-        <% else %>
+        <% elsif manager %>
           <%= button_to [:organizer, @round.event, @round.becomes(Round)], params: {round: {action: :start}}, form_class: "w-full sm:w-auto", class: button_classes(:primary, "w-full sm:w-auto", size: :sm) do %>
             <%= icon("play", class: "me-2") %>
             Start
           <% end %>
         <% end %>
-        <% if @round.past? && @round.is_a?(SwissRound) && @round.last_swiss_round? && @round.event.swiss? && @round.event.rounds_info[:top] %>
+        <% if manager && @round.past? && @round.is_a?(SwissRound) && @round.last_swiss_round? && @round.event.swiss? && @round.event.rounds_info[:top] %>
           <%= button_to [:organizer, @round.event], method: :patch, params: { tournament: { state: :single_elimination } }, form_class: "w-full sm:w-auto", class: button_classes(:primary, "w-full sm:w-auto", size: :sm) do %>
             <%= t("rounds.make_cut") %>
             <%= icon("scissors", class: "ms-2") %>
@@ -53,14 +54,14 @@
             <%= t("rounds.finish_without_cut") %>
           <% end %>
         <% end %>
-      <% else %>
+      <% elsif manager %>
         <%= button_to [:organizer, @round.event, @round.becomes(Round)], params: {round: {action: :publish}}, form_class: "w-full sm:w-auto", class: button_classes(:primary, "w-full sm:w-auto", size: :sm) do %>
           <%= icon("megaphone", class: "me-2") %>
           Publish
         <% end %>
       <% end %>
 
-      <% if !@round.past? && @round.number > 1 %>
+      <% if manager && !@round.past? && @round.number > 1 %>
         <%= button_to [:organizer, @round.event, @round.becomes(Round)], method: :delete, data: {turbo_confirm: t("rounds.undo_confirm")}, form_class: "w-full sm:w-auto", class: button_classes(:danger, "w-full sm:w-auto", size: :sm) do %>
           <%= icon("arrow-counter-clockwise", class: "me-2") %>
           <%= t("rounds.undo") %>

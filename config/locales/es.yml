@@ -562,6 +562,7 @@ es:
         organizer: "Organizador"
         judge: "Juez"
         scorekeeper: "Scorekeeper"
+        caster: "Caster"
     judge_calls:
       player: "Jugador"
       reason: "Motivo"

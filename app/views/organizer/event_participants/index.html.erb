@@ -1,4 +1,6 @@
-<% scorekeeper = current_user.staff_role_for(@event) == "scorekeeper" %>
+<% role = current_user.staff_role_for(@event) %>
+<% scorekeeper = role == "scorekeeper" %>
+<% read_only = role == "caster" %>
 <% content_for :title do %>
   <%= @event.name %>
   Participants
@@ -83,7 +85,7 @@
         <%= text_field_tag :query, params[:query], placeholder: "Search for players", class: "block h-8 ps-9 text-[12px] text-ink border border-line rounded-md w-full sm:w-64 bg-surface placeholder:text-muted focus:ring-accent focus:border-accent" %>
       <% end %>
       </div>
-      <% unless scorekeeper %>
+      <% unless scorekeeper || read_only %>
         <%= link_to [:new, :organizer, @event, :event_participant], data: { turbo_frame: "modal" }, class: button_classes(:primary, size: :xs) do %>
           <%= icon("plus") %>
           <%= t("organizer.roster.add_player") %>
@@ -109,7 +111,7 @@
             </tr>
           </thead>
           <tbody id="<%= dom_id(@event, :event_participants) %>" class="divide-y divide-line/60">
-            <%= render partial: "organizer/event_participants/desk_row", collection: @event_participants.sort_by { |p| order[p.id] }, locals: { order: order, standings: standings, seat_five: seat_five, scorekeeper: scorekeeper } %>
+            <%= render partial: "organizer/event_participants/desk_row", collection: @event_participants.sort_by { |p| order[p.id] }, locals: { order: order, standings: standings, seat_five: seat_five, scorekeeper: scorekeeper, read_only: read_only } %>
           </tbody>
         </table>
       </div>
