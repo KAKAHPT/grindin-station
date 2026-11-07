@@ -180,13 +180,16 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     assert_select "[data-team]", text: "Porto Grinders"
   end
 
-  test "a user without finished events: the empty card, no band and no toolbar" do
+  test "a user without finished events: the band at zero, the empty card and no toolbar" do
     @stranger.update!(handle: "outra")
 
     get profile_path("outra")
 
     assert_response :success
-    assert_select "[data-profile-summary]", 0
+    assert_select "[data-profile-summary] [data-stat=events]", text: "0"
+    assert_select "[data-profile-summary] [data-stat=win_rate]", text: "–"
+    assert_select "[data-profile-summary] [data-ach=wins]", text: "0"
+    assert_select "[data-profile-summary] [data-commanders] li", text: "–"
     assert_select "[data-profile-tools]", 0
     assert_select "[data-profile-events]", 0
     assert_select "[data-profile-empty] p", text: "No events played yet."

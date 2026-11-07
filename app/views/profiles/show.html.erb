@@ -27,7 +27,8 @@
       <div data-profile-bio class="mt-4 text-sm text-ink/90 space-y-2 break-words"><%= simple_format(@user.bio) %></div>
     <% end %>
   </div>
-  <%= render "profiles/summary", summary: @summary if @history.any? %>
+  <%# The band shows from day one, with zeros and dashes, so a new player sees what will fill in. %>
+  <%= render "profiles/summary", summary: @summary %>
 </section>
 
 <% if @history.any? %>
