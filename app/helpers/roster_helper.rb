@@ -7,6 +7,7 @@ module RosterHelper
     warn: "text-warn bg-warn/[0.07]",
     bad: "text-danger bg-danger/[0.07]",
     info: "text-info bg-info/[0.07]",
+    neutral: "text-muted bg-white/[0.05]",
     missing: "text-[#a3adb8] bg-[#a3adb8]/10 border border-dashed border-[#a3adb8]/45"
   }.freeze
 

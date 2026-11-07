@@ -4,7 +4,7 @@ module Organizer
   # Downloads for official reporting (EventLink invite list, Melee, TopDeck, records) and the printable results
   # sheet. Every download writes a data_exported audit row.
   class ExportsController < OrganizerController
-    allow_roles :organizer, :scorekeeper, only: %i[players melee standings rounds pairings sheet]
+    allow_roles :organizer, :judge, :scorekeeper, only: %i[players melee standings rounds pairings sheet]
 
     layout "print", only: :sheet
 

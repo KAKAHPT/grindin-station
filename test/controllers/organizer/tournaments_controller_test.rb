@@ -25,7 +25,7 @@ module Organizer
       assert_select "form[action='#{organizer_tournaments_path}']"
     end
 
-    test "a staff organizer can move the tournament to swiss, a judge cannot" do
+    test "a judge moves the tournament to swiss but cannot open Settings; a staff organizer can" do
       tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer),
                                            state: :registration_closed)
       co_organizer, judge =
@@ -37,15 +37,16 @@ module Organizer
         end
 
       sign_in(judge)
-      patch organizer_tournament_path(tournament), params: { tournament: { state: "swiss" } }
+      get edit_organizer_tournament_path(tournament)
       assert_redirected_to organizer_root_path
-      assert tournament.reload.registration_closed?
+      patch organizer_tournament_path(tournament), params: { tournament: { state: "swiss" } }
+      assert tournament.reload.swiss?
 
       sign_in(co_organizer)
       get edit_organizer_tournament_path(tournament)
       assert_response :success
-      patch organizer_tournament_path(tournament), params: { tournament: { state: "swiss" } }
-      assert tournament.reload.swiss?
+      patch organizer_tournament_path(tournament), params: { tournament: { name: "Renamed by staff" } }
+      assert_equal "Renamed by staff", tournament.reload.name
       assert_equal 1, tournament.rounds.count
     end
 
@@ -230,10 +231,11 @@ module Organizer
       EventStaff.create!(event: tournament, user: judge, role: "judge")
 
       sign_in(judge)
-      patch organizer_tournament_path(tournament), params: { tournament: { featured: "1" } }
+      patch organizer_tournament_path(tournament), params: { tournament: { featured: "1", name: "Renamed" } }
 
-      assert_redirected_to organizer_root_path
+      assert_redirected_to organizer_tournament_path(tournament)
       assert_not tournament.reload.featured?
+      assert_not_equal "Renamed", tournament.name
     end
 
     test "a tampered update cannot switch the format" do
@@ -516,7 +518,7 @@ module Organizer
       assert_select "[data-tabs] .tab", 4
       assert_select "[data-tabs] .tab", text: /Overview|Roster|Rounds|Judge Center/, count: 4
       assert_select "[data-tabs] .tab", text: /Staff|Settings/, count: 0
-      assert_select "[data-overview-export]", 0
+      assert_select "[data-overview-export]", 1
     end
 
     test "a tournament with no rounds shows the Rounds tab disabled" do
