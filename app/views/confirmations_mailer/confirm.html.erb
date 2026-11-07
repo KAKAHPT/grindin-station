@@ -1,3 +1,12 @@
-<p><%= t("confirmations_mailer.confirm.intro", name: @user.name) %></p>
-<p><%= link_to t("confirmations_mailer.confirm.link"), confirmation_url(@user.generate_token_for(:email_confirmation)) %></p>
-<p><%= t("confirmations_mailer.confirm.ignore") %></p>
+<% content_for :heading, t("confirmations_mailer.confirm.heading") %>
+<p style="margin:0 0 20px; color:#c9d1d9;"><%= t("confirmations_mailer.confirm.intro", name: @user.name) %></p>
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 22px;">
+  <tr>
+    <td style="background:#2dd4bf; border-radius:10px;">
+      <%= link_to t("confirmations_mailer.confirm.link"), confirmation_url(@user.generate_token_for(:email_confirmation)),
+                  style: "display:inline-block; padding:12px 22px; font:700 14px/1 Helvetica, Arial, sans-serif; color:#0d0f11; text-decoration:none;" %>
+    </td>
+  </tr>
+</table>
+<p style="margin:0 0 6px; font-size:13px; color:#8b949e;"><%= t("confirmations_mailer.confirm.expires") %></p>
+<p style="margin:0; font-size:13px; color:#8b949e;"><%= t("confirmations_mailer.confirm.ignore") %></p>
