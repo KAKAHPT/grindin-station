@@ -27,6 +27,16 @@ module Play
       assert_select "nav[data-play-nav]"
     end
 
+    test "the table shows the round clock while the round runs" do
+      sign_in(@me)
+      get play_me_path(@tournament.slug)
+      assert_select "#my_table [data-time-left] [data-controller=round-timer][data-round-timer-started-at-value]"
+
+      @round.update!(started_at: nil)
+      get play_me_path(@tournament.slug)
+      assert_select "#my_table [data-time-left]", count: 0
+    end
+
     test "the header links the player's own name to a public profile only" do
       user = @me.player.user
       sign_in(@me)
