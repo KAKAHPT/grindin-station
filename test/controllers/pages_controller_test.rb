@@ -12,7 +12,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
 
     assert_response :success
     assert_select "h1", text: "The grind never stops."
-    assert_select ".lp-sub", text: "The tournament software with fair seats."
+    assert_select ".lp-sub", text: /\AThe tournament software with fair seats\./
     assert_includes response.body, "Built for cEDH and multiplayer games, but open to every format."
     assert_select "[data-seat-board] .lp-pod", 4
     assert_select "[data-seat-board] .lp-pod-p.me", count: 4, text: /Anne/
@@ -27,6 +27,29 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     get root_path(locale: "pt")
 
     assert_select "h1", text: "O grind nunca pára."
+  end
+
+  test "the landing links to the seat tests" do
+    get root_path
+
+    assert_select ".lp-sub a[data-tests][href=?]", fairness_path, text: "See our tests"
+    assert_select ".lp-why a[data-tests][href=?]", fairness_path, text: "See our tests"
+  end
+
+  test "the seat tests page renders config/seat_fairness.json: four round counts, both seatings, translated" do
+    get fairness_path
+
+    assert_response :success
+    assert_select "h1", text: "Fair seats, measured over 200 tournaments"
+    assert_select "[data-rounds]", 4
+    assert_select "[data-rounds='3'] .fr-bar[data-seating=fair][data-row=fair_rate] b", text: "95.4 %"
+    assert_select "[data-rounds='7'] .fr-bar[data-seating=random][data-row=never_first] b", text: "13.11 %"
+    assert_select "[data-rounds='5'] .fr-mono", text: "25.5 / 25.5 / 25.5 / 23.4"
+    assert_select "a[href=?]", root_path(anchor: "about"), text: "Back to the fair seats"
+
+    get fairness_path(locale: "pt")
+
+    assert_select "h1", text: "Lugares justos, medidos em 200 torneios"
   end
 
   test "upcoming events show Register only while registration is open" do
