@@ -5,10 +5,13 @@
   <p class="mt-1 text-[13px] text-muted"><%= t("lists.circuits.lead") %></p>
 </div>
 
+<% base = { locale: url_locale, sort: params[:sort].to_s.presence_in(CircuitsController::SORTS) }.compact %>
 <div class="col-span-full">
-  <%= render "shared/filter_bar", url: circuits_path, hidden: { locale: url_locale }.compact,
-                                  fields: [[:sort, :select, sort_options(CircuitsController::SORTS, "circuits"), @sort, t("circuits.sort.label")]],
-                                  count: t("lists.circuits_count", count: @circuits.total_count) %>
+  <%= render "shared/filter_bar", url: circuits_path, hidden: base, count: t("lists.circuits_count", count: @circuits.total_count),
+                                  fields: event_filter_fields(@filters, @filter_options, search: t("circuits.filters.search"),
+                                                              sort: [CircuitsController::SORTS, "circuits"]) %>
+  <%= render "shared/filter_chips", chips: event_filter_chips(@filters, base, path: method(:circuits_path)),
+                                    clear_url: circuits_path(**base) %>
 </div>
 
 <% if @circuits.any? %>
@@ -20,5 +23,5 @@
   </div>
   <div class="col-span-full"><%= paginate @circuits %></div>
 <% else %>
-  <p class="col-span-full card px-4 py-8 text-center text-[13px] text-muted"><%= t("lists.circuits.empty") %></p>
+  <p class="col-span-full card px-4 py-8 text-center text-[13px] text-muted" data-list-empty><%= @filters.any? ? t("events.filters.empty") : t("lists.circuits.empty") %></p>
 <% end %>
