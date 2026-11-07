@@ -104,10 +104,16 @@ class DeployConfigTest < ActiveSupport::TestCase
 
     assert_equal %w[deploy setup], trigger.dig("workflow_dispatch", "inputs", "command", "options")
 
+    # The secrets are checked in a preflight job; the deploy job is skipped (not failed) while they are missing.
+    preflight = workflow["jobs"]["preflight"]
+    assert_match(/workflow_run\.conclusion == 'success'/, preflight["if"])
+    assert_equal "Check required secrets", preflight["steps"].first["name"]
+    assert_equal "${{ steps.secrets.outputs.ready }}", preflight.dig("outputs", "ready")
+
     job = workflow["jobs"]["deploy"]
-    assert_match(/workflow_run\.conclusion == 'success'/, job["if"])
-    names = job["steps"].pluck("name")
-    assert_operator names.index("Check required secrets"), :<, names.index("Deploy with Kamal")
+    assert_equal "preflight", job["needs"]
+    assert_equal "needs.preflight.outputs.ready == 'true'", job["if"]
+    assert_equal "production", job["environment"]
     deploy = job["steps"].find { |step| step["name"] == "Deploy with Kamal" }
     assert_equal "${{ inputs.command || 'deploy' }}", deploy.dig("env", "KAMAL_COMMAND")
   end
