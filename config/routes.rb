@@ -134,6 +134,7 @@ Rails.application.routes.draw do
         member do
           %i[check_in undo_check_in mark_paid mark_unpaid drop promote].each { |action| patch action }
         end
+        get :search, on: :collection
         resources :infractions, only: %i[index destroy]
       end
       resources :rounds do
