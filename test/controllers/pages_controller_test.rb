@@ -57,14 +57,14 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
 
     get root_path
 
-    assert_select "[data-upcoming-filter] a[aria-current=page]", text: "All formats"
-    assert_select "[data-upcoming-filter] a", text: "Legacy"
+    assert_select "[data-upcoming-filter] select[name=play] option[selected]", text: "All formats"
+    assert_select "[data-upcoming-filter] option", text: "Legacy"
     assert_select "[data-upcoming-event='#{cedh.slug}']"
     assert_select "[data-upcoming-event='#{legacy.slug}']"
 
     get root_path(play: "legacy")
 
-    assert_select "[data-upcoming-filter] a[aria-current=page]", text: "Legacy"
+    assert_select "[data-upcoming-filter] select[name=play] option[selected]", text: "Legacy"
     assert_select "[data-upcoming-event='#{legacy.slug}']"
     assert_select "[data-upcoming-event='#{cedh.slug}']", count: 0
 
