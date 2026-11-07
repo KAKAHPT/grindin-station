@@ -7,7 +7,7 @@ class LandingTest < ApplicationSystemTestCase
     page.driver.browser.logs.get(:browser) # drain what earlier tests in this browser logged
     visit root_path
 
-    assert_selector "h1", text: /The tournament software\s+with fair seats\./
+    assert_selector "h1", text: "The grind never stops."
     within("[data-seat-board]") { assert_text "Anne" }
 
     within("[data-waitlist]") do
