@@ -27,7 +27,9 @@ class PasswordsController < ApplicationController
 
   def update
     if reset_password
-      # Every other way in goes too: sessions and the linked Google/Discord identities, which could be someone else's.
+      # The reset mail proved the mailbox, so this also confirms a sign-up. Every other way in goes: sessions and
+      # the linked Google/Discord identities, which could be someone else's.
+      @user.confirm!
       @user.sessions.destroy_all
       @user.identities.destroy_all
       Audit.record(:password_reset, actor: @user, subject: @user)

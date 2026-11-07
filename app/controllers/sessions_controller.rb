@@ -14,8 +14,10 @@ class SessionsController < ApplicationController
 
   def create
     credentials = params.expect(session: [:email_address, :password])
-    if (user = User.authenticate_by(email_address: credentials[:email_address].to_s,
-                                    password: credentials[:password].to_s))
+    user = User.authenticate_by(email_address: credentials[:email_address].to_s, password: credentials[:password].to_s)
+    if user && !user.confirmed?
+      redirect_to new_session_path, alert: t("flash.alert.confirm_first")
+    elsif user
       start_new_session_for user
       Audit.record(:sign_in, actor: user, subject: user)
       redirect_to root_path, notice: t("flash.notice.signed_in")

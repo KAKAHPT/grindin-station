@@ -955,6 +955,9 @@ pt:
       password_reset_sent: "Enviámos as instruções para repor a palavra-passe (se existir um utilizador com esse e-mail)."
       password_reset: "A palavra-passe foi reposta."
       welcome_signed_up: "Bem-vindo! A tua conta foi criada com sucesso."
+      confirm_email_sent: "Quase: abre o link que acabámos de enviar para o teu e-mail para confirmar a conta."
+      email_confirmed: "E-mail confirmado. Bem-vindo!"
+      confirmation_resent: "Se esse e-mail tiver uma conta por confirmar, segue um novo link de confirmação."
       signed_in: "Iniciaste sessão."
       signed_out: "Terminaste a sessão."
     alert:
@@ -976,6 +979,8 @@ pt:
       password_too_short: "A palavra-passe precisa de pelo menos 8 caracteres."
       password_reset_link_invalid: "A ligação para repor a palavra-passe é inválida ou expirou."
       try_again_later: "Tenta novamente mais tarde."
+      confirm_first: "Confirma primeiro o teu e-mail: abre o link que te enviámos, ou pede um novo em baixo."
+      confirm_link_invalid: "Esse link de confirmação já não é válido. Pede um novo."
       no_player: "Esta conta não pode inscrever-se em eventos."
       invalid_credentials: "Tenta outro e-mail ou outra palavra-passe."
   event_participants:
@@ -1023,6 +1028,9 @@ pt:
       confirmation_mismatch: "A palavra de confirmação não coincide. A tua conta não foi eliminada."
       deleted: "A tua conta foi eliminada."
   auth:
+    resend_confirmation: "Reenviar o e-mail de confirmação"
+    resend_confirmation_help: "Registaste-te e não chegou nada? Escreve o teu e-mail e enviamos o link outra vez."
+    email: "E-mail"
     continue_with_google: "Continuar com Google"
     continue_with_discord: "Continuar com Discord"
     email_unverified: "O %{provider} não verificou o teu e-mail. Entra com a tua palavra-passe e liga o %{provider} na tua conta."
@@ -1058,6 +1066,12 @@ pt:
       greeting: "Olá %{name},"
       body: "O teu pedido foi aprovado: já podes criar e gerir eventos no Grindin Station."
       link: "Abrir a área de organizador"
+  confirmations_mailer:
+    confirm:
+      subject: "Confirma a tua conta Grindin Station"
+      intro: "Olá %{name}, falta um passo: confirma o teu e-mail para abrir a conta. O link vale dois dias."
+      link: "Confirmar o meu e-mail"
+      ignore: "Se não te registaste, ignora este e-mail e nada acontece."
   passwords_mailer:
     reset:
       subject: "Repõe a tua palavra-passe"

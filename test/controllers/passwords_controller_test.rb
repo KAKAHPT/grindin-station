@@ -15,6 +15,16 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     assert user.authenticate("new-pass-123")
   end
 
+  test "a reset confirms an unconfirmed sign-up, since the mail proved the mailbox" do
+    user = users(:player_one)
+    user.update_column(:confirmed_at, nil) # rubocop:disable Rails/SkipsModelValidations
+
+    put password_path(user.password_reset_token),
+        params: { password: "new-pass-123", password_confirmation: "new-pass-123" }
+
+    assert user.reload.confirmed?
+  end
+
   test "a reset also unlinks the Google/Discord sign-ins, which could be someone else's" do
     user = users(:player_one)
     user.identities.create!(provider: "google_oauth2", uid: "g-1", name: "p1")

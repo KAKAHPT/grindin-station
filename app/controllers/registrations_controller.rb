@@ -12,12 +12,13 @@ class RegistrationsController < ApplicationController
   end
 
   def create
-    @user = User.new(user_params)
+    @user = User.new(user_params.merge(needs_confirmation: true))
 
     if @user.save
-      start_new_session_for @user
+      # No session yet: the account opens when the confirmation link in the mail is clicked.
+      ConfirmationsMailer.confirm(@user).deliver_later
       Audit.record(:sign_up, actor: @user, subject: @user)
-      redirect_to root_path, notice: t("flash.notice.welcome_signed_up")
+      redirect_to new_session_path, notice: t("flash.notice.confirm_email_sent")
     else
       render :new, status: :unprocessable_entity
     end

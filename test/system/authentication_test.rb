@@ -17,15 +17,20 @@ class AuthenticationTest < ApplicationSystemTestCase
 
     click_button "Sign up"
 
-    assert_current_path root_path
-    assert_text "Welcome! You have signed up successfully."
+    assert_current_path new_session_path
+    assert_text "open the link we just sent"
 
-    # Verify user was created and is signed in
+    # The account exists, unconfirmed and signed out, until the mail's link is opened.
     user = User.find_by(email_address: "newuser@example.com")
     assert_not_nil user
     assert_equal "New Test User", user.name
-    assert_equal false, user.organizer?
+    assert_not user.confirmed?
     assert_not_nil user.player
+    assert_no_text "Logout"
+
+    visit confirmation_path(user.generate_token_for(:email_confirmation))
+    assert_current_path root_path
+    assert_text "Your e-mail is confirmed"
     assert_text "Logout"
   end
 
@@ -41,7 +46,7 @@ class AuthenticationTest < ApplicationSystemTestCase
 
     click_button "Sign up"
 
-    assert_current_path root_path
+    assert_current_path new_session_path
     user = User.find_by(email_address: "new_organizer@example.com")
     assert_nil user.event_organizer
     assert_not_nil user.player
@@ -176,7 +181,7 @@ class AuthenticationTest < ApplicationSystemTestCase
     assert_text "Logout"
   end
 
-  test "successful sign up logs in user and refreshes page" do
+  test "sign up from the events page asks for the e-mail confirmation and keeps the visitor signed out" do
     visit events_path
 
     find("[data-topbar] a", text: "Sign in").click
@@ -188,8 +193,7 @@ class AuthenticationTest < ApplicationSystemTestCase
     fill_in "user_password_confirmation", with: "password123"
     click_button "Sign up"
 
-    assert_text "Welcome! You have signed up successfully."
-    assert_no_selector "[data-topbar] a", text: "Sign in"
-    assert_text "Logout"
+    assert_text "open the link we just sent"
+    assert_no_text "Logout"
   end
 end

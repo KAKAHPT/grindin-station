@@ -15,9 +15,14 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "an eight-character password signs up" do
-    assert_difference("User.count", 1) { sign_up("eightch8") }
-    assert_redirected_to root_path
+  test "an eight-character password signs up: no session yet, a confirmation mail" do
+    assert_emails 1 do
+      assert_difference("User.count", 1) { sign_up("eightch8") }
+    end
+    assert_redirected_to new_session_path
+    user = User.find_by!(email_address: "new-player@example.com")
+    assert_not user.confirmed?
+    assert_empty user.sessions
   end
 
   test "the organizer flag on sign-up is ignored: organizing is granted by an admin, and every account gets a player" do

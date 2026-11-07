@@ -1,0 +1,15 @@
+<%# Resend the confirmation e-mail of a public sign-up (auth layout, one card). %>
+<% content_for :title, t("auth.resend_confirmation") %>
+
+<%= form_with url: confirmations_path, data: { turbo: false }, class: "space-y-4" do |f| %>
+  <p class="text-[13px] text-muted"><%= t("auth.resend_confirmation_help") %></p>
+  <div class="field">
+    <%= f.label :email_address, t("auth.email"), class: "inline-flex items-center gap-2 text-[12px] text-muted" %>
+    <%= f.email_field :email_address, required: true, autocomplete: "username", class: "field-input" %>
+  </div>
+  <%= f.submit t("auth.resend_confirmation"), class: button_classes(:primary, "w-full") %>
+<% end %>
+
+<p class="mt-4 text-[13px] text-muted">
+  <%= link_to t("auth.cancel"), new_session_path, class: "hover:text-ink" %>
+</p>

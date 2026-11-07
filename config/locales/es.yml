@@ -955,6 +955,9 @@ es:
       password_reset_sent: "Hemos enviado las instrucciones para restablecer la contraseña (si existe un usuario con ese correo electrónico)."
       password_reset: "La contraseña se ha restablecido."
       welcome_signed_up: "¡Bienvenido! Tu cuenta se ha creado correctamente."
+      confirm_email_sent: "Casi: abre el enlace que acabamos de enviar a tu e-mail para confirmar la cuenta."
+      email_confirmed: "E-mail confirmado. ¡Bienvenido!"
+      confirmation_resent: "Si ese e-mail tiene una cuenta sin confirmar, va en camino un nuevo enlace."
       signed_in: "Has iniciado sesión."
       signed_out: "Has cerrado sesión."
     alert:
@@ -976,6 +979,8 @@ es:
       password_too_short: "La contraseña necesita al menos 8 caracteres."
       password_reset_link_invalid: "El enlace para restablecer la contraseña no es válido o ha caducado."
       try_again_later: "Inténtalo de nuevo más tarde."
+      confirm_first: "Confirma primero tu e-mail: abre el enlace que te enviamos, o pide uno nuevo abajo."
+      confirm_link_invalid: "Ese enlace de confirmación ya no es válido. Pide uno nuevo."
       no_player: "Esta cuenta no puede inscribirse en eventos."
       invalid_credentials: "Prueba con otro correo electrónico u otra contraseña."
   event_participants:
@@ -1023,6 +1028,9 @@ es:
       confirmation_mismatch: "La palabra de confirmación no coincide. Tu cuenta no se ha eliminado."
       deleted: "Tu cuenta se ha eliminado."
   auth:
+    resend_confirmation: "Reenviar el e-mail de confirmación"
+    resend_confirmation_help: "¿Te registraste y no llegó nada? Escribe tu e-mail y enviamos el enlace de nuevo."
+    email: "E-mail"
     continue_with_google: "Continuar con Google"
     continue_with_discord: "Continuar con Discord"
     email_unverified: "%{provider} no ha verificado tu correo electrónico. Entra con tu contraseña y vincula %{provider} en tu cuenta."
@@ -1058,6 +1066,12 @@ es:
       greeting: "Hola %{name},"
       body: "Tu solicitud fue aprobada: ya puedes crear y gestionar eventos en Grindin Station."
       link: "Abrir el área de organizador"
+  confirmations_mailer:
+    confirm:
+      subject: "Confirma tu cuenta de Grindin Station"
+      intro: "Hola %{name}, falta un paso: confirma tu e-mail para abrir la cuenta. El enlace vale dos días."
+      link: "Confirmar mi e-mail"
+      ignore: "Si no te registraste, ignora este e-mail y no pasará nada."
   passwords_mailer:
     reset:
       subject: "Restablece tu contraseña"

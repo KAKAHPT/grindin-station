@@ -1,0 +1,5 @@
+<%= t("confirmations_mailer.confirm.intro", name: @user.name) %>
+
+<%= confirmation_url(@user.generate_token_for(:email_confirmation)) %>
+
+<%= t("confirmations_mailer.confirm.ignore") %>
