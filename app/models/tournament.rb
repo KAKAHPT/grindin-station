@@ -1,6 +1,21 @@
 # frozen_string_literal: true
 
 class Tournament < Event # rubocop:disable Metrics/ClassLength
+  # The settings the organizer form edits (New tournament, Settings, the live preview).
+  SETTINGS_ATTRIBUTES = %i[
+    name state description start_time end_time minimum_participants maximum_participants prizes address country
+    schedule rules price currency cover format match_games game_format points_win points_draw points_loss points_bye
+    swiss_rounds_count top_cut_size round_minutes top_cut_round_minutes pairing_mode uneven_field self_report_enabled
+    result_confirmation confirmation_timeout_minutes waitlist_enabled decklist_required self_check_in_enabled
+    check_in_opens_hours_before show_commanders_in_standings show_decklists show_beaten_in_standings
+    show_unique_in_standings hide_standings_until_finished top_cut_timeout_rule featured
+  ].freeze
+
+  # The form has one Format select: Commander / cEDH is the pods, any other game format is 1v1.
+  def self.format_for_game(game_format)
+    game_format == "commander" ? "multiplayer" : "one_v_one"
+  end
+
   paginates_per 20
 
   scope :ongoing, -> { where(state: %i[swiss single_elimination]) }

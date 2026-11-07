@@ -351,6 +351,9 @@ pt:
         type: "Resultado"
         event_participant_id: "Jogador"
   organizer:
+    preview:
+      title: "Pré-visualização"
+      help: "A página pública como vai ficar com o que escreveste. Só fica gravado quando submeteres o formulário."
     about:
       title: "Sobre"
       lead: "O que os jogadores veem na tua página de organizador: banner, onde estás, quem és e os teus links."
@@ -1173,7 +1176,8 @@ pt:
     title: "O software de torneios com lugares justos"
     description: "Software de torneios com lugares justos. Feito para cEDH e jogos multiplayer, aberto a todos os formatos, ao vivo em todos os telemóveis da sala."
     eyebrow: "Grindin Station"
-    headline_html: "O software de torneios <br>com <em>lugares justos</em>."
+    headline: "O grind nunca pára."
+    tagline_html: "O software de torneios com <em>lugares justos</em>."
     lead: "Feito para cEDH e jogos multiplayer, mas aberto a todos os formatos. Emparelhamentos, classificações e mesas atualizam ao vivo em todos os telemóveis da sala."
     cta_events: "Próximos eventos"
     attribution: "As ilustrações das cartas são Fan Content não oficial, permitido pela Fan Content Policy. Não aprovado nem apoiado pela Wizards. Partes dos materiais usados são propriedade da Wizards of the Coast. ©Wizards of the Coast LLC."
@@ -1214,6 +1218,9 @@ pt:
     featured:
       title: "Em destaque"
     featured_circuits: "Circuitos em destaque"
+    rail:
+      prev: "Anterior"
+      next: "Seguinte"
     upcoming:
       title: "Próximos eventos"
       open:

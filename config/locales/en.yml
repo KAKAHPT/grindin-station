@@ -351,6 +351,9 @@ en:
         type: "Result"
         event_participant_id: "Player"
   organizer:
+    preview:
+      title: "Live preview"
+      help: "The public page as it will look with what you typed. Saved when you submit the form."
     about:
       title: "About"
       lead: "What players see on your organizer page: banner, where you are, who you are and your links."
@@ -1173,7 +1176,8 @@ en:
     title: "The tournament software with fair seats"
     description: "Tournament software with fair seats. Built for cEDH and multiplayer games, open to every format, live on every phone in the room."
     eyebrow: "Grindin Station"
-    headline_html: "The tournament software <br>with <em>fair seats</em>."
+    headline: "The grind never stops."
+    tagline_html: "The tournament software with <em>fair seats</em>."
     lead: "Built for cEDH and multiplayer games, but open to every format. Pairings, standings and tables update live on every phone in the room."
     cta_events: "Upcoming events"
     attribution: "Card art is unofficial Fan Content permitted under the Fan Content Policy. Not approved or endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC."
@@ -1214,6 +1218,9 @@ en:
     featured:
       title: "Featured"
     featured_circuits: "Featured circuits"
+    rail:
+      prev: "Previous"
+      next: "Next"
     upcoming:
       title: "Upcoming events"
       open:

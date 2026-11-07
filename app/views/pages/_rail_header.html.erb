@@ -1,0 +1,12 @@
+<%# Header of a landing rail: the eyebrow title and the two arrows (shown only when the rail overflows). %>
+<div class="lp-rail-hd">
+  <h2 class="lp-eyebrow"><%= title %></h2>
+  <div class="lp-rail-nav">
+    <button type="button" class="<%= icon_button_classes(size: :sm) %>" data-rail-target="prev" data-action="rail#prev" title="<%= t("landing.rail.prev") %>">
+      <%= icon("caret-left") %><span class="sr-only"><%= t("landing.rail.prev") %></span>
+    </button>
+    <button type="button" class="<%= icon_button_classes(size: :sm) %>" data-rail-target="next" data-action="rail#next" title="<%= t("landing.rail.next") %>">
+      <%= icon("caret-right") %><span class="sr-only"><%= t("landing.rail.next") %></span>
+    </button>
+  </div>
+</div>
