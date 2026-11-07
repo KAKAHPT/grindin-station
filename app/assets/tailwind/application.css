@@ -1233,6 +1233,31 @@
     color: var(--color-ink);
   }
 
+  /* A tab and, when active, its ⓘ "How is it calculated?" button. */
+  .rk-tab {
+    display: flex;
+    align-items: center;
+  }
+
+  .rk-tab-info {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    margin-left: -6px;
+    margin-bottom: 2px;
+    border-radius: 999px;
+    font-size: 16px;
+    color: var(--color-muted);
+    cursor: pointer;
+  }
+
+  .rk-tab-info:hover {
+    color: var(--color-ink);
+    background: color-mix(in oklab, var(--color-ink) 8%, transparent);
+  }
+
   .rk-tabs a.on {
     border-bottom-color: var(--color-ink);
   }
