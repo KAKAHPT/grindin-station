@@ -1,5 +1,6 @@
-<%# The landing (/), mock F: the scrolling card-art mosaic behind the hero, the waiting-list card, Anne's seat
-    board, how seats are weighted, the featured tournaments (when any) and the next public tournaments. %>
+<%# The landing (/): the scrolling card-art mosaic behind the hero (headline, tagline, lead), then the waiting-list
+    card, the featured tournaments and circuits (when any), the next public tournaments and, last, Anne's seat board
+    with how seats are weighted. %>
 <% content_for :title, t("landing.title") %>
 <% content_for :description, t("landing.description") %>
 <% content_for :full_main, "1" %>
@@ -26,13 +27,63 @@
     <div class="lp-hero-in">
       <div class="lp-mark"><%= render "shared/mark", size: 84, id_suffix: "hero", rotating: true %></div>
       <p class="lp-eyebrow"><%= t("landing.eyebrow") %></p>
-      <h1><%= t("landing.headline_html") %></h1>
+      <h1><%= t("landing.headline") %></h1>
+      <p class="lp-sub"><%= t("landing.tagline_html") %></p>
       <p class="lp-lead"><%= t("landing.lead") %></p>
       <div class="lp-ctas">
         <%= link_to t("landing.cta_events"), "#upcoming", class: button_classes(:light, size: :sm) %>
       </div>
-      <%= render "pages/waitlist", signup: @waitlist_signup, state: nil %>
     </div>
+  </section>
+
+  <%= render "pages/waitlist", signup: @waitlist_signup, state: nil %>
+
+  <% if @featured.any? %>
+    <section class="lp-feat" data-featured data-controller="rail">
+      <%= render "pages/rail_header", title: t("landing.featured.title") %>
+      <div class="lp-rail lp-ftl" data-rail-target="track">
+        <% @featured.each do |event| %>
+          <%= render "shared/featured_ticket", event: event, enrolled: @enrolled.fetch(event.id, 0) %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <% if @featured_circuits.any? %>
+    <section class="lp-feat" data-featured-circuits data-controller="rail">
+      <%= render "pages/rail_header", title: t("landing.featured_circuits") %>
+      <div class="lp-rail lp-crl" data-rail-target="track">
+        <% @featured_circuits.each do |circuit| %>
+          <% banner = circuit.banner.attached? %>
+          <%= link_to circuit_path(circuit, locale: url_locale), class: "card org-card block p-4 hover:border-line-strong #{"org-card-banner" if banner}",
+                      style: ("background-image: url('#{url_for(circuit.banner.variant(:card))}')" if banner), data: { featured_circuit: circuit.id } do %>
+            <p class="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted"><%= t("lists.circuits.one") %></p>
+            <h3 class="mt-1 font-display text-[15px] font-semibold text-ink"><%= circuit.name %></h3>
+            <% if circuit.event_organizer %><p class="mt-0.5 text-[12px] text-muted"><%= t("lists.organized_by_html", name: circuit.event_organizer.name) %></p><% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <section class="lp-upc" id="upcoming" data-upcoming>
+    <div class="lp-upc-hd">
+      <h2><%= t("landing.upcoming.title") %></h2>
+      <span>
+        <% if @open_count.positive? %><%= t("landing.upcoming.open", count: @open_count) %> · <% end %>
+        <%= link_to t("landing.upcoming.see_all"), events_path(locale: url_locale) %>
+      </span>
+    </div>
+    <% if @upcoming.any? %>
+      <div class="lp-evl">
+        <% @upcoming.each do |event| %>
+          <% count = @enrolled.fetch(event.id, 0) %>
+          <%= render "shared/event_ticket", event: event, enrolled: count, sold_out: event.sold_out?(count) %>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="card lp-empty"><%= t("landing.upcoming.empty") %></p>
+    <% end %>
   </section>
 
   <div class="lp-fair" id="about">
@@ -76,52 +127,4 @@
       <p><%= t("landing.why.audit") %></p>
     </section>
   </div>
-
-  <% if @featured.any? %>
-    <section class="lp-feat" data-featured>
-      <h2 class="lp-eyebrow"><%= t("landing.featured.title") %></h2>
-      <div class="lp-ftl">
-        <% @featured.each do |event| %>
-          <%= render "shared/featured_ticket", event: event, enrolled: @enrolled.fetch(event.id, 0) %>
-        <% end %>
-      </div>
-    </section>
-  <% end %>
-
-  <% if @featured_circuits.any? %>
-    <section class="lp-feat" data-featured-circuits>
-      <h2 class="lp-eyebrow"><%= t("landing.featured_circuits") %></h2>
-      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <% @featured_circuits.each do |circuit| %>
-          <% banner = circuit.banner.attached? %>
-          <%= link_to circuit_path(circuit, locale: url_locale), class: "card org-card block p-4 hover:border-line-strong #{"org-card-banner" if banner}",
-                      style: ("background-image: url('#{url_for(circuit.banner.variant(:card))}')" if banner), data: { featured_circuit: circuit.id } do %>
-            <p class="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted"><%= t("lists.circuits.one") %></p>
-            <h3 class="mt-1 font-display text-[15px] font-semibold text-ink"><%= circuit.name %></h3>
-            <% if circuit.event_organizer %><p class="mt-0.5 text-[12px] text-muted"><%= t("lists.organized_by_html", name: circuit.event_organizer.name) %></p><% end %>
-          <% end %>
-        <% end %>
-      </div>
-    </section>
-  <% end %>
-
-  <section class="lp-upc" id="upcoming" data-upcoming>
-    <div class="lp-upc-hd">
-      <h2><%= t("landing.upcoming.title") %></h2>
-      <span>
-        <% if @open_count.positive? %><%= t("landing.upcoming.open", count: @open_count) %> · <% end %>
-        <%= link_to t("landing.upcoming.see_all"), events_path(locale: url_locale) %>
-      </span>
-    </div>
-    <% if @upcoming.any? %>
-      <div class="lp-evl">
-        <% @upcoming.each do |event| %>
-          <% count = @enrolled.fetch(event.id, 0) %>
-          <%= render "shared/event_ticket", event: event, enrolled: count, sold_out: event.sold_out?(count) %>
-        <% end %>
-      </div>
-    <% else %>
-      <p class="card lp-empty"><%= t("landing.upcoming.empty") %></p>
-    <% end %>
-  </section>
 </div>
