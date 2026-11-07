@@ -102,11 +102,11 @@ class TournamentManagementTest < ApplicationSystemTestCase # rubocop:disable Met
     # Add participant manually via modal form
     click_link "Add player"
 
-    fill_in "Player email", with: "tiago@king.com"
-    fill_in "Player name", with: "Tiago Rei"
+    fill_in "Player e-mail", with: "tiago@king.com"
+    fill_in "Name for a new account", with: "Tiago Rei"
     fill_in "Decklist", with: "https://moxfield.com/rog-si"
     check "Player has read and accepted event rules"
-    click_button "Create Event participant"
+    click_button "Add player"
 
     # Verify redirect happened - notice appears and participant is shown
     assert_text "added!"
