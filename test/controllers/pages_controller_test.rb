@@ -12,7 +12,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
 
     assert_response :success
     assert_select "h1", text: "The grind never stops."
-    assert_select ".lp-sub", text: "The tournament software with fair seats."
+    assert_select ".lp-sub", text: /\AThe tournament software with fair seats\./
     assert_includes response.body, "Built for cEDH and multiplayer games, but open to every format."
     assert_select "[data-seat-board] .lp-pod", 4
     assert_select "[data-seat-board] .lp-pod-p.me", count: 4, text: /Anne/
@@ -32,6 +32,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
   test "the landing links to the seat tests" do
     get root_path
 
+    assert_select ".lp-sub a[data-tests][href=?]", fairness_path, text: "See our tests"
     assert_select ".lp-why a[data-tests][href=?]", fairness_path, text: "See our tests"
   end
 

@@ -34,8 +34,12 @@ class PagesController < ApplicationController
 
   private
 
-# The landing (/): the fair-seats story, the organisers' waiting list, the featured tournaments (up to nine on a
-# rail, left out of Upcoming) and the next public tournaments. Also /fairness, the public seat-fairness report.
+  def average_fair_rate(seating)
+    (@rounds.values.sum { |block| block[seating]["fair_rate"] } / @rounds.size).round(1)
+  end
+
+  # Up to nine admin-featured circuits (an ECL season, a championship) on a rail under the featured tournaments, and
+  # the waiting-list form.
   def load_extras
     @featured_circuits = Circuit.featured.with_attached_banner.preload(event_organizer: :user).order(:created_at)
       .limit(FEATURED_CIRCUITS_LIMIT).to_a
