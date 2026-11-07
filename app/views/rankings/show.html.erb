@@ -3,15 +3,22 @@
 <% content_for :title, t("rankings.title") %>
 <% count = @tab == "teams" ? t("rankings.count_teams", count: @rows.size) : t("rankings.count_players", count: @rows.size) %>
 <% shown = @all || @tab == "teams" ? @rows : @rows.first(RankingsController::LIMIT) %>
-<div class="col-span-full w-full max-w-5xl mx-auto pt-2 pb-10">
+<div class="col-span-full w-full max-w-5xl mx-auto pt-2 pb-10" data-controller="dialog">
   <h1 class="font-display text-2xl font-semibold text-ink"><%= t("rankings.title") %></h1>
   <p class="mt-1 text-[13px] text-muted"><%= t("rankings.lead") %></p>
 
   <nav class="rk-tabs" data-rankings-tabs aria-label="<%= t("rankings.title") %>">
+    <%# The active tab carries the ⓘ that opens its "How is it calculated?" dialog (rendered at the bottom). %>
     <% RankingsController::TABS.each do |tab| %>
-      <%= link_to rankings_url(tab: tab, all: nil, sort: nil), class: ("on" if tab == @tab), "aria-current": ("page" if tab == @tab) do %>
-        <%= t("rankings.tabs.#{tab}") %><small><%= t("rankings.tabs.#{tab}_sub") %></small>
-      <% end %>
+      <div class="rk-tab">
+        <%= link_to rankings_url(tab: tab, all: nil, sort: nil), class: ("on" if tab == @tab), "aria-current": ("page" if tab == @tab) do %>
+          <%= t("rankings.tabs.#{tab}") %><small><%= t("rankings.tabs.#{tab}_sub") %></small>
+        <% end %>
+        <% if tab == @tab %>
+          <button type="button" class="rk-tab-info" data-action="dialog#open" data-how-open="<%= tab %>"
+                  aria-label="<%= t("rankings.how.#{tab}.open") %>" title="<%= t("rankings.how.#{tab}.open") %>"><%= icon("info") %></button>
+        <% end %>
+      </div>
     <% end %>
   </nav>
 
