@@ -227,6 +227,13 @@ en:
   activerecord:
     errors:
       models:
+        team_membership:
+          attributes:
+            base:
+              already_in_a_team: "is already in a team"
+              team_full: "the team is full (%{count} players)"
+              not_owner: "only the team's owner invites players"
+              no_such_handle: "no player with that handle"
         event_participant:
           attributes:
             base:
@@ -1030,6 +1037,9 @@ en:
       judge_call: "A judge was called at %{event}."
       result_contested: "A result at your table was contested at %{event}. A judge is on the way."
       mentioned: "%{name} mentioned you in the social feed."
+      team_requested: "%{name} asks to join %{team}."
+      team_invited: "You were invited to join %{team}."
+      team_accepted: "%{name} is now in %{team}."
   follows:
     unfollow: "Unfollow"
     following: "You now follow %{name}."
@@ -1514,3 +1524,34 @@ en:
       worst: "Worst player seen (times in seats 1·2·3·4)"
     method: "In-memory simulation with the same seat assigner that runs in production, generated on %{date}, no database; 30 % of the tables draw, the rest have one random winner. The same simulator runs on every code change (2000 tournaments per pairing mode) as a regression gate."
     back: "Back to the fair seats"
+  teams:
+    title: "Team"
+    none_hint: "The group you test and play with, shown next to your name. Ask a team for a place, or create your own."
+    members: "%{count} of %{max} players"
+    you_own: "you own it"
+    owner: "owner"
+    leave: "Leave"
+    leave_confirm: "Leave %{name}?"
+    remove: "Remove"
+    remove_confirm: "Remove %{name} from the team?"
+    full: "The team is full (%{max} players)."
+    invite_handle: "Add a player by handle"
+    invite: "Invite"
+    pick: "Join a team"
+    request: "Ask to join"
+    requested: "You asked to join %{name}. The team's owner has to accept."
+    cancel_request: "Cancel"
+    new_name: "Create a team"
+    create: "Create"
+    pending: "Pending"
+    invited_by: "%{name} invited you."
+    asks_to_join: "%{name} asks to join."
+    accept: "Accept"
+    decline: "Decline"
+    flash:
+      created: "%{name} created. You own it: accept requests and invite players below."
+      requested: "Request sent to %{name}."
+      invited: "Invitation sent."
+      accepted: "Welcome to %{name}."
+      left: "No longer in %{name}."
+      already_in_a_team: "Leave your current team first."
