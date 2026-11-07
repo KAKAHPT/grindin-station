@@ -1,6 +1,7 @@
-<%# The tab's note with its "How is it calculated?" button and the <dialog> it opens (dialog controller): the short
-    version box, then the detailed version yielded by the caller. Locals: kind: (points | elo | teams). %>
-<div data-controller="dialog">
+<%# The tab's note with its "How is it calculated?" button and the <dialog> it opens (the page's dialog controller,
+    also opened by the ⓘ on the tab): the short version box, then the detailed version yielded by the caller.
+    Locals: kind: (points | elo | teams). %>
+<div>
   <p class="mt-3 text-xs leading-relaxed text-muted" data-note="<%= kind %>">
     <%= t("rankings.how.#{kind}.note_html") %>
     <button type="button" class="text-ink underline underline-offset-[3px] cursor-pointer" data-action="dialog#open"><%= t("rankings.how.#{kind}.open") %></button>
