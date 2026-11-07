@@ -1069,12 +1069,20 @@ es:
   confirmations_mailer:
     confirm:
       subject: "Confirma tu cuenta de Grindin Station"
-      intro: "Hola %{name}, falta un paso: confirma tu e-mail para abrir la cuenta. El enlace vale dos días."
+      heading: "Confirma tu e-mail"
+      expires: "El enlace vale dos días."
+      intro: "Hola %{name}, falta un paso: confirma tu e-mail para abrir la cuenta."
       link: "Confirmar mi e-mail"
       ignore: "Si no te registraste, ignora este e-mail y no pasará nada."
+  mailer:
+    footer: "%{name} · el software de torneos con asientos justos"
   passwords_mailer:
     reset:
       subject: "Restablece tu contraseña"
+      heading: "Restablece tu contraseña"
+      intro: "Pediste una contraseña nueva. El enlace de abajo vale durante los próximos 15 minutos."
+      link: "Elegir una contraseña nueva"
+      ignore: "Si no lo pediste, ignora este e-mail y tu contraseña seguirá igual."
   notifications:
     title: "Notificaciones"
     mark_all_read: "Marcar todas como leídas"

@@ -1,12 +1,39 @@
+<%# Every HTML mail: the site's dark look as a centred card, inline styles only (mail clients ignore stylesheets).
+    The view fills content_for(:eyebrow) (optional), (:heading) and the body; a button comes from the view. %>
 <!DOCTYPE html>
-
-<html>
+<html lang="<%= I18n.locale %>">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <style>
-      /* Email styles need to be inline */
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= content_for(:heading) || t("app.name") %></title>
   </head>
-
-  <body><%= yield %></body>
+  <body style="margin:0; padding:0; background:#111315; -webkit-font-smoothing:antialiased;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#111315;">
+      <tr>
+        <td align="center" style="padding:32px 16px;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:520px;">
+            <tr>
+              <td align="center" style="padding:0 0 18px;">
+                <img src="<%= root_url %>icon.png" width="48" height="48" alt="" style="display:block; width:48px; height:48px; border:0;">
+                <div style="margin-top:10px; font:600 10.5px/1.4 Helvetica, Arial, sans-serif; letter-spacing:0.12em; text-transform:uppercase; color:#2dd4bf;"><%= t("app.name") %></div>
+              </td>
+            </tr>
+            <tr>
+              <td style="background:#1b1e22; border:1px solid #2a2f36; border-radius:16px; padding:28px 28px 24px; font:15px/1.55 Helvetica, Arial, sans-serif; color:#eef0f2;">
+                <% if content_for?(:heading) %>
+                  <h1 style="margin:0 0 12px; font:700 22px/1.25 Helvetica, Arial, sans-serif; letter-spacing:-0.01em; color:#ffffff;"><%= yield :heading %></h1>
+                <% end %>
+                <%= yield %>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding:18px 8px 0; font:12px/1.5 Helvetica, Arial, sans-serif; color:#8b949e;">
+                <%= t("mailer.footer", name: t("app.name")) %>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
 </html>

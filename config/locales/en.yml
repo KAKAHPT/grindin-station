@@ -1069,12 +1069,20 @@ en:
   confirmations_mailer:
     confirm:
       subject: "Confirm your Grindin Station account"
-      intro: "Hi %{name}, one last step: confirm your e-mail to open your account. The link works for two days."
+      heading: "Confirm your e-mail"
+      expires: "The link works for two days."
+      intro: "Hi %{name}, one last step: confirm your e-mail to open your account."
       link: "Confirm my e-mail"
       ignore: "If you did not sign up, ignore this mail and nothing happens."
+  mailer:
+    footer: "%{name} · the tournament software with fair seats"
   passwords_mailer:
     reset:
       subject: "Reset your password"
+      heading: "Reset your password"
+      intro: "You asked for a new password. The link below works for the next 15 minutes."
+      link: "Choose a new password"
+      ignore: "If you did not ask for this, ignore this mail and your password stays the same."
   notifications:
     title: "Notifications"
     mark_all_read: "Mark all as read"

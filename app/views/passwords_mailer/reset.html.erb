@@ -1,5 +1,11 @@
-<p>
-  You can reset your password within the next 15 minutes on
-  <%= link_to "this password reset page", edit_password_url(@user.password_reset_token) %>
-  .
-</p>
+<% content_for :heading, t("passwords_mailer.reset.heading") %>
+<p style="margin:0 0 20px; color:#c9d1d9;"><%= t("passwords_mailer.reset.intro") %></p>
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 22px;">
+  <tr>
+    <td style="background:#2dd4bf; border-radius:10px;">
+      <%= link_to t("passwords_mailer.reset.link"), edit_password_url(@user.password_reset_token),
+                  style: "display:inline-block; padding:12px 22px; font:700 14px/1 Helvetica, Arial, sans-serif; color:#0d0f11; text-decoration:none;" %>
+    </td>
+  </tr>
+</table>
+<p style="margin:0; font-size:13px; color:#8b949e;"><%= t("passwords_mailer.reset.ignore") %></p>
