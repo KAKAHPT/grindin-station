@@ -1267,6 +1267,8 @@ es:
       next: "Siguiente"
     upcoming:
       title: "Próximos eventos"
+      all_formats: "Todos los formatos"
+      format: "Formato"
       open:
         one: "1 con inscripción abierta"
         other: "%{count} con inscripción abierta"
