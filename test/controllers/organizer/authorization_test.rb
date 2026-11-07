@@ -24,15 +24,15 @@ module Organizer
       assert_matrix(expected) { get organizer_tournament_round_path(@tournament, @round) }
     end
 
-    test "publishing, starting and finishing a round is for the organizer only" do
+    test "publishing, starting and closing a round is open to every working role" do
       ROLES.each do |role|
+        @round.update!(published: false)
         sign_in_as(role)
         patch organizer_tournament_round_path(@tournament, @round), params: { round: { action: "publish" } }
 
-        expected = role == "organizer" ? organizer_tournament_round_path(@tournament, @round) : organizer_root_path
-        assert_redirected_to expected, role
+        assert_redirected_to organizer_tournament_round_path(@tournament, @round), role
+        assert @round.reload.published?, role
       end
-      assert @round.reload.published?
     end
 
     test "editing the tournament is for the organizer only" do
@@ -40,15 +40,14 @@ module Organizer
       assert_matrix(expected) { get edit_organizer_tournament_path(@tournament) }
     end
 
-    test "check-in is open to the organizer and the scorekeeper, not the judge" do
+    test "check-in is open to every working role" do
       ROLES.each do |role|
         @participant.update!(checked_in: false)
         sign_in_as(role)
         patch organizer_tournament_event_participant_path(@participant.event, @participant),
               params: { event_participant: { checked_in: true } }
 
-        assert_equal role != "judge", @participant.reload.checked_in?, role
-        assert_redirected_to organizer_root_path if role == "judge"
+        assert @participant.reload.checked_in?, role
       end
     end
 

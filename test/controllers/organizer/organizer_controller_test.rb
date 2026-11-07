@@ -18,7 +18,7 @@ module Organizer
                             password: "password123", organizer: true)
       @owned_by_judge = TournamentBuilder.build(players: 4, organizer: @judge.event_organizer,
                                                 state: :registration_open)
-      EventStaff.create!(event: @judged, user: @judge, role: "judge")
+      EventStaff.create!(event: @judged, user: @judge, role: "scorekeeper")
       sign_in
     end
 

@@ -4,8 +4,9 @@ module Organizer
   class TournamentsController < OrganizerController
     public_actions :index
     require_organizer only: %i[new create]
-    allow_roles :organizer, only: %i[edit update reopen]
-    allow_roles :organizer, :judge, :scorekeeper, only: :show
+    allow_roles :organizer, only: :edit
+    allow_roles :organizer, :judge, only: %i[update reopen]
+    allow_roles :organizer, :judge, :scorekeeper, :caster, only: :show
     # New and Settings are full pages (the tournament page's Settings tab), never the modal.
     layout "application"
 
@@ -58,8 +59,11 @@ module Organizer
 
     def update
       @tournament = Tournament.staffed_by(current_user).with_attached_cover.find params[:id]
-      # The format is chosen at creation only (the model refuses a change too).
-      @tournament.attributes = tournament_params.except(:format)
+      # The format is chosen at creation only (the model refuses a change too). A judge moves the state along
+      # (close registrations, start the swiss, cut, finish) and changes nothing else.
+      attributes = tournament_params.except(:format)
+      attributes = attributes.slice(:state) if staff_role(@tournament) != "organizer"
+      @tournament.attributes = attributes
 
       if @tournament.save
         audit_settings(@tournament)
