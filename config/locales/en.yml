@@ -1153,7 +1153,9 @@ en:
     sign_in: "Sign in"
     follow: "Follow"
     coming_soon: "Coming soon"
-    no_events: "No finished events yet."
+    no_events: "No events played yet."
+    no_events_hint: "Stats, achievements and most played commanders appear here after the first tournament."
+    find_events: "Find an event"
     rank: "%{ordinal}"
     of_total: "of %{total}"
     stats:

@@ -38,6 +38,22 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     assert_no_match(/secret-wiz@example\.com/, response.body)
   end
 
+  test "a profile with no events explains what will appear, and offers the owner the events list" do
+    newcomer = User.create!(name: "Newcomer", email_address: "new-#{SecureRandom.hex(3)}@example.com",
+                            password: "password123", handle: "newcomer")
+
+    get profile_path("newcomer")
+
+    assert_response :success
+    assert_select "[data-profile-empty]", text: /No events played yet.*after the first tournament/m
+    assert_select "[data-profile-empty] a[data-find-events]", count: 0
+
+    post session_path, params: { session: { email_address: newcomer.email_address, password: "password123" } }
+    get profile_path("newcomer")
+
+    assert_select "[data-profile-empty] a[data-find-events][href=?]", events_path, text: "Find an event"
+  end
+
   test "an unknown handle is a 404" do
     get profile_path("nobody-here")
 
@@ -173,7 +189,7 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     assert_select "[data-profile-summary]", 0
     assert_select "[data-profile-tools]", 0
     assert_select "[data-profile-events]", 0
-    assert_select "p", text: "No finished events yet."
+    assert_select "[data-profile-empty] p", text: "No events played yet."
   end
 
   test "shows the avatar when there is one" do

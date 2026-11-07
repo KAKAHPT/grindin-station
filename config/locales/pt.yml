@@ -1153,7 +1153,9 @@ pt:
     sign_in: "Entrar"
     follow: "Seguir"
     coming_soon: "Em breve"
-    no_events: "Ainda sem eventos terminados."
+    no_events: "Ainda sem eventos jogados."
+    no_events_hint: "As estatísticas, conquistas e comandantes mais jogados aparecem aqui depois do primeiro torneio."
+    find_events: "Procurar um evento"
     rank: "%{position}.º"
     of_total: "de %{total}"
     stats:

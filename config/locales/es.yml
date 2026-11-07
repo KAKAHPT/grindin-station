@@ -1153,7 +1153,9 @@ es:
     sign_in: "Iniciar sesión"
     follow: "Seguir"
     coming_soon: "Próximamente"
-    no_events: "Aún no hay eventos terminados."
+    no_events: "Aún sin eventos jugados."
+    no_events_hint: "Las estadísticas, logros y comandantes más jugados aparecen aquí después del primer torneo."
+    find_events: "Buscar un evento"
     rank: "%{position}.º"
     of_total: "de %{total}"
     stats:
