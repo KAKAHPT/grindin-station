@@ -1,26 +1,65 @@
-<%= modal_form_for [:organizer, @event_participant.event, @event_participant], html: { data: { turbo: false } } do |f| %>
+<%# The Add player dialog: three tabs. By e-mail (an existing account, or a new one with the name given), by name
+    (an existing account picked from the list) or manually (a guest with no account). add_player_controller looks
+    accounts up as the organizer types and submits only the active tab's fields. Locals: event_participant, mode. %>
+<% event = event_participant.event %>
+<%= modal_form_for [:organizer, event, event_participant],
+                   html: { data: { turbo: false, controller: "add-player",
+                                   add_player_url_value: search_organizer_tournament_event_participants_path(event),
+                                   add_player_mode_value: mode, add_player_in_event_value: t("organizer.roster.add.in_event"),
+                                   add_player_empty_value: t("organizer.roster.add.no_results") } } do |f| %>
   <% content_for :title do %>
-    Add Player to
-    <%= @event_participant.event.name %>
+    <%= t("organizer.roster.add.title", event: event.name) %>
   <% end %>
 
-  <% if @event_participant.errors.present? %>
-    <%= safe_join(@event_participant.errors.full_messages, tag.br) %>
+  <% if event_participant.errors.present? %>
+    <p class="mb-3 text-[12.5px] text-danger" data-errors><%= safe_join(event_participant.errors.full_messages, tag.br) %></p>
   <% end %>
 
-  <p class="form-help my-2">
-    A new account will be created if the Player doesn't have one yet.
-  </p>
+  <%= hidden_field_tag :mode, mode, data: { add_player_target: "mode" } %>
+  <%= f.hidden_field :player_id, data: { add_player_target: "playerId" } %>
 
-  <%= f.email_field_with_label :player_email, placeholder: "player@grindin-station.test" %>
-  <%= f.text_field_with_label :player_name, placeholder: "John Smith" %>
+  <div class="<%= PaletteHelper::SEGMENT_TRACK %> mb-4" role="tablist" data-add-tabs>
+    <% %w[email name manual].each do |tab| %>
+      <button type="button" role="tab" aria-selected="<%= tab == mode %>" data-add-player-target="tab" data-mode="<%= tab %>"
+              data-action="add-player#show" class="<%= segment_classes(tab == mode) %>"><%= t("organizer.roster.add.tabs.#{tab}") %></button>
+    <% end %>
+  </div>
+
+  <%= tag.div data: { add_player_target: "panel", mode: "email" }, hidden: mode != "email" do %>
+    <p class="form-help mb-3"><%= t("organizer.roster.add.help.email") %></p>
+    <div class="relative">
+      <%= f.email_field_with_label :player_email, placeholder: "player@example.com", autocomplete: "off",
+                                   label: { text: t("organizer.roster.add.email") },
+                                   data: { add_player_target: "input", action: "input->add-player#search" } %>
+      <ul class="ap-results" data-add-player-target="results" hidden></ul>
+    </div>
+    <%= f.text_field_with_label :player_name, placeholder: "John Smith", label: { text: t("organizer.roster.add.name_for_account") } %>
+  <% end %>
+
+  <%= tag.div data: { add_player_target: "panel", mode: "name" }, hidden: mode != "name" do %>
+    <p class="form-help mb-3"><%= t("organizer.roster.add.help.name") %></p>
+    <div class="relative">
+      <div class="field mb-4">
+        <label for="player_search" class="<%= ModalFormBuilder::LABEL_CLASSES %>"><%= t("organizer.roster.add.search_name") %></label>
+        <input type="text" id="player_search" autocomplete="off" placeholder="John Smith" class="field-input"
+               data-add-player-target="input" data-action="input->add-player#search">
+      </div>
+      <ul class="ap-results" data-add-player-target="results" hidden></ul>
+    </div>
+    <p class="form-help -mt-2 mb-4 text-ink" data-add-player-target="chosen" hidden></p>
+  <% end %>
+
+  <%= tag.div data: { add_player_target: "panel", mode: "manual" }, hidden: mode != "manual" do %>
+    <p class="form-help mb-3"><%= t("organizer.roster.add.help.manual") %></p>
+    <%= f.text_field_with_label :player_name, placeholder: "John Smith", id: "guest_name",
+                                label: { for: "guest_name", text: t("organizer.roster.add.guest_name") } %>
+  <% end %>
+
   <%= f.text_field_with_label :decklist, placeholder: "https://moxfield.com/xyz" %>
-  <%= f.check_box_with_label :accepted_terms, label: {text: "Player has read and accepted event rules"} %>
+  <%= f.check_box_with_label :accepted_terms, label: { text: t("organizer.roster.add.terms") } %>
 
   <% content_for :footer do %>
-    <%= f.submit %>
-    <%= link_to [:organizer, @event_participant.event], class: "ms-3 #{small_button_classes(:ghost)}" do %>
-      Cancel
-    <% end %>
+    <%= f.submit t("organizer.roster.add.submit") %>
+    <%= link_to t("organizer.roster.add.cancel"), [:organizer, event], class: "ms-3 #{small_button_classes(:ghost)}" %>
   <% end %>
 <% end %>
