@@ -55,12 +55,12 @@ class RankingsTest < ApplicationSystemTestCase
       visit rankings_path(tab: kind)
       dialog = "dialog[data-how=#{kind}][open]"
 
-      click_button I18n.t("rankings.how.#{kind}.open")
+      click_button I18n.t("rankings.how.#{kind}.open"), match: :first
       within(dialog) { assert_text I18n.t("rankings.how.#{kind}.title") }
       find("#{dialog} button[aria-label=Close]").click
       assert_no_selector "dialog[open]"
 
-      click_button I18n.t("rankings.how.#{kind}.open")
+      click_button I18n.t("rankings.how.#{kind}.open"), match: :first
       find("#{dialog} button[aria-label=Close]").send_keys(:escape)
       assert_no_selector "dialog[open]"
     end

@@ -174,6 +174,7 @@ class RankingsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
       get rankings_path(tab: tab)
 
       assert_select "[data-controller=dialog] button[data-action='dialog#open']"
+      assert_select "nav[data-rankings-tabs] .rk-tab-info[data-how-open=#{tab}][data-action='dialog#open']", 1
       assert_select "dialog[data-how=#{tab}]" do
         assert_select "[data-short]"
         assert_select "[data-detailed]"
