@@ -1,0 +1,70 @@
+<%# The public seat-fairness report (/fairness): config/seat_fairness.json rendered as the summary cards, the three
+    definitions and one block per round count (Grindin's weighted seats against seats drawn at random). %>
+<% content_for :title, t("fairness.title") %>
+<% content_for :description, t("fairness.description") %>
+<% content_for :full_main, "1" %>
+<% total = @rounds.size * @report["tournaments_per_rounds"] %>
+<% min, max = @report["players"] %>
+<% pct = ->(value, digits = 1) { "#{number_with_precision(value, precision: digits)} %" } %>
+<% seatings = %w[fair random] %>
+
+<div class="fr-wrap" data-fairness>
+  <p class="lp-eyebrow"><%= t("fairness.eyebrow") %></p>
+  <h1><%= t("fairness.headline", count: total) %></h1>
+  <p class="fr-lead"><%= t("fairness.lead", count: total, min: min, max: max, per: @report["tournaments_per_rounds"]) %></p>
+
+  <div class="fr-sum">
+    <div class="card"><b><%= pct.call(@averages["fair"]) %></b><%= t("fairness.summary.fair") %></div>
+    <div class="card"><b><%= pct.call(@averages["random"]) %></b><%= t("fairness.summary.random") %></div>
+    <% %w[5 7].each do |rounds| %>
+      <% block = @rounds[rounds] %>
+      <div class="card"><b><%= pct.call(block["fair"]["never_first"], 2) %></b><%= t("fairness.summary.never_first", rounds: rounds, random: pct.call(block["random"]["never_first"], 2)) %></div>
+    <% end %>
+  </div>
+
+  <div class="fr-how">
+    <% %w[spread first decide].each do |key| %>
+      <div class="card"><b><%= t("fairness.how.#{key}_title") %></b><%= t("fairness.how.#{key}") %></div>
+    <% end %>
+  </div>
+
+  <% @rounds.each do |rounds, block| %>
+    <section class="card fr-block" data-rounds="<%= rounds %>">
+      <h2><%= t("fairness.rounds.title", count: rounds.to_i) %><small>· <%= t("fairness.rounds.meta", tournaments: block["fair"]["tournaments"], players: block["fair"]["players"], min: min, max: max) %></small></h2>
+      <p class="fr-note"><%= t("fairness.rounds.note_#{rounds}") %></p>
+      <table class="fr-table">
+        <thead>
+          <tr><th></th><th><%= t("fairness.columns.grindin") %></th><th><%= t("fairness.columns.random") %></th></tr>
+        </thead>
+        <tbody>
+          <% [["fair_rate", 1], ["never_first", 2]].each do |key, digits| %>
+            <tr>
+              <td><%= t("fairness.rows.#{key}") %></td>
+              <% seatings.each do |seating| %>
+                <% value = block[seating][key] %>
+                <td><div class="fr-bar" data-seating="<%= seating %>" data-row="<%= key %>"><i style="width: <%= value %>%"></i><b><%= pct.call(value, digits) %></b></div></td>
+              <% end %>
+            </tr>
+          <% end %>
+          <% %w[spread seat_share].each do |key| %>
+            <tr>
+              <td><%= t("fairness.rows.#{key}") %></td>
+              <% seatings.each do |seating| %>
+                <td class="fr-mono"><%= block[seating][key].map { |value| number_with_precision(value, precision: 1) }.join(" / ") %></td>
+              <% end %>
+            </tr>
+          <% end %>
+          <tr>
+            <td><%= t("fairness.rows.worst") %></td>
+            <% seatings.each do |seating| %>
+              <td class="fr-mono"><%= block[seating]["worst_example"].join("·") %></td>
+            <% end %>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  <% end %>
+
+  <p class="fr-note fr-method"><%= t("fairness.method", date: l(Date.parse(@report["generated_on"]), format: :long)) %></p>
+  <p class="mt-4"><%= link_to t("fairness.back"), root_path(locale: params[:locale], anchor: "about"), class: button_classes(:secondary, size: :sm) %></p>
+</div>
