@@ -74,6 +74,36 @@ class CircuitsControllerTest < ActionDispatch::IntegrationTest
     assert_order zed, alpha, @circuit
   end
 
+  test "index filters by circuit name, organizer, and season / country / format through the circuit's events" do
+    other_user = User.create!(name: "Aveiro Org", handle: "aveiro-org", password: "password123",
+                              email_address: "aveiro-#{SecureRandom.hex(3)}@example.com")
+    other = Circuit.create!(name: "Legacy League", event_organizer: EventOrganizer.create!(user: other_user))
+    Tournament.create!(name: "Legacy Open", event_organizer: other.event_organizer, circuit: other, country: "ES",
+                       format: "one_v_one", game_format: "legacy", state: :registration_open,
+                       start_time: Time.zone.local(2025, 3, 1, 10), end_time: Time.zone.local(2025, 3, 1, 20))
+
+    get circuits_path(q: "legacy")
+    assert_order other
+    assert_select "[data-circuit=?]", @circuit.id, count: 0
+    assert_select "[data-chip]", text: /Legacy|legacy/
+
+    get circuits_path(organizer: "aveiro-org")
+    assert_select "[data-circuit=?]", @circuit.id, count: 0
+    assert_select "[data-circuit=?]", other.id
+
+    get circuits_path(play: "legacy")
+    assert_select "[data-circuit=?]", @circuit.id, count: 0
+    assert_select "[data-circuit=?]", other.id
+
+    get circuits_path(season: 2025, country: "ES")
+    assert_select "[data-circuit=?]", @circuit.id, count: 0
+    assert_select "[data-circuit=?]", other.id
+    assert_select "[data-clear-all]"
+
+    get circuits_path(q: "nothing like this")
+    assert_select "[data-list-empty]"
+  end
+
   private
 
   def circuit_ids_in_page = css_select("[data-circuit]").pluck("data-circuit")
