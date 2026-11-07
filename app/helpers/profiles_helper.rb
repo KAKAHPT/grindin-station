@@ -5,10 +5,20 @@ module ProfilesHelper
                 "text-[10px] font-semibold tracking-[0.06em] leading-4"
 
   # The name linked to the profile when an anonymous visitor could open it (public), else plain text.
-  def profile_link(user, label = user&.display_name)
+  # A person's name linked to their player profile, or to their organizer page when organizer_page is true (the
+  # caller decides, with the organizer preloaded, so lists of players never look it up row by row).
+  def profile_link(user, label = user&.display_name, organizer_page: false)
     return label unless user&.handle.present? && user.profile_visible_to?(nil)
 
-    link_to label, profile_path(user.handle, locale: params[:locale]), class: "hover:text-accent hover:underline"
+    path =
+      if organizer_page
+        organizer_profile_path(user.handle,
+                               locale: params[:locale])
+      else
+        profile_path(user.handle,
+                     locale: params[:locale])
+      end
+    link_to label, path, class: "hover:text-accent hover:underline"
   end
 
   # "Portugal" for "PT"; the code itself for countries without a name here.

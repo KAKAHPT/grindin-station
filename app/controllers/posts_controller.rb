@@ -18,7 +18,9 @@ class PostsController < ApplicationController
     @paused = Posts::Feed.paused?
     return if @paused
 
-    @posts = @feed.posts.preload(:event, user: { avatar_attachment: :blob }).page(params[:page]).per(PER_PAGE)
+    @posts = @feed.posts.preload(:event,
+                                 user: [:event_organizer,
+                                        { avatar_attachment: :blob }]).page(params[:page]).per(PER_PAGE)
     @cacheable = @feed.default_for_visitor?(params[:page])
     load_marks
     prepare_composer

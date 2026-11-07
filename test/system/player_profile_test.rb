@@ -21,6 +21,20 @@ class PlayerProfileTest < ApplicationSystemTestCase
     ].each { |name, date, commander, circuit, position| finished_event(name, date, commander, circuit, position) }
   end
 
+  test "the detail row opens with + and closes with the same button" do
+    visit profile_path("rita")
+    button = first("tr[data-event] button[aria-controls]")
+    detail = find("##{button['aria-controls']}", visible: :all)
+
+    button.click
+    assert detail.visible?
+    assert_equal "true", button["aria-expanded"]
+
+    button.click
+    assert_not detail.visible?
+    assert_equal "false", button["aria-expanded"]
+  end
+
   test "six rows, show all, search, year, season, details and an empty filter" do
     visit profile_path("rita")
 

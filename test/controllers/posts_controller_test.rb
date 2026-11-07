@@ -43,6 +43,18 @@ class PostsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     assert_nil Post.find_by(id: created.id)
   end
 
+  test "an organizer's post links to the organizer page, a player's to the player profile" do
+    organizer = users(:organizer_user)
+    player = @t.event_participants.first.player.user
+    Post.create!(user: organizer, event: @t, kind: "note", body: "From the organizer")
+    Post.create!(user: player, event: @t, body: "From a player")
+
+    get feed_path
+
+    assert_select "[data-post] a[href=?]", organizer_profile_path(organizer.handle), text: organizer.name
+    assert_select "[data-post] a[href=?]", profile_path(player.handle), text: player.name
+  end
+
   test "outsiders cannot post about the event; the organizer posts a note and can remove others' posts" do
     outsider = User.create!(name: "Outsider", email_address: "out-#{SecureRandom.hex(3)}@example.com",
                             password: "password123")

@@ -1095,6 +1095,12 @@ en:
       team_invited: "You were invited to join %{team}."
       team_accepted: "%{name} is now in %{team}."
   follows:
+    followers_count:
+      one: "%{count} follower"
+      other: "%{count} followers"
+    following_count:
+      one: "%{count} following"
+      other: "%{count} following"
     unfollow: "Unfollow"
     following: "You now follow %{name}."
     unfollowed: "You no longer follow %{name}."
