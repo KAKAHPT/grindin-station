@@ -1,6 +1,6 @@
 <%# The landing (/): the scrolling card-art mosaic behind the hero (headline, tagline, lead), then the waiting-list
-    card, the featured tournaments and circuits (when any), the next public tournaments and, last, Anne's seat board
-    with how seats are weighted. %>
+    card, the featured tournaments and circuits (when any), the next public tournaments and, last, how seats are
+    weighted (Why it is fair). %>
 <% content_for :title, t("landing.title") %>
 <% content_for :description, t("landing.description") %>
 <% content_for :full_main, "1" %>
@@ -9,8 +9,6 @@
 <% end %>
 <% url_locale = params[:locale] %>
 <% arts = (1..48).map { |n| image_path("landing/c#{n}.jpg") } %>
-<% seat_rows = [%w[Anne Mike Chris Sarah], %w[Tom Anne Emma Jake], %w[Lucy Ben Anne Alex], %w[Sam Kate Dan Anne]] %>
-<% seat_tables = [3, 1, 2, 1] %>
 
 <div class="landing">
   <section class="lp-hero">
@@ -87,34 +85,6 @@
   </section>
 
   <div class="lp-fair" id="about">
-    <section class="card lp-seatboard lp-tex" data-seat-board>
-      <div class="lp-sb-hd">
-        <h2><%= t("landing.seats.title") %></h2>
-        <span><%= t("landing.seats.subtitle") %></span>
-      </div>
-      <div class="lp-pods">
-        <% seat_rows.each_with_index do |names, index| %>
-          <% mine = names.index("Anne") + 1 %>
-          <div class="lp-pod" role="group" aria-label="<%= t("landing.seats.pod", round: index + 1, table: seat_tables[index]) %>">
-            <div class="lp-pod-lab">
-              <span><%= t("landing.seats.pod", round: index + 1, table: seat_tables[index]) %></span>
-              <em><%= t("landing.seats.seat_k", number: mine) %></em>
-            </div>
-            <div class="lp-pod-seats">
-              <% names.each_with_index do |name, seat| %>
-                <span class="lp-pod-p<%= " me" if name == "Anne" %>"><i><%= seat + 1 %></i><%= name %></span>
-              <% end %>
-            </div>
-          </div>
-        <% end %>
-      </div>
-      <div class="lp-sb-sum">
-        <span><%= t("landing.seats.summary") %></span>
-        <span class="lp-fairchip"><%= t("landing.seats.fair") %></span>
-      </div>
-      <p class="lp-sb-note"><%= t("landing.seats.note") %></p>
-    </section>
-
     <section class="card lp-why lp-tex">
       <p class="lp-eyebrow"><%= t("landing.why.eyebrow") %></p>
       <h2><%= t("landing.why.title") %></h2>
