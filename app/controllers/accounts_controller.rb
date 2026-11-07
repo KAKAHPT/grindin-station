@@ -3,7 +3,6 @@
 # The signed-in user's own account: profile, password, linked sign-ins and deletion (anonymisation).
 class AccountsController < ApplicationController
   before_action :set_user
-  before_action :set_team_suggestions, only: %i[show update]
 
   def show; end
 
@@ -42,10 +41,6 @@ class AccountsController < ApplicationController
 
   def set_user
     @user = current_user
-  end
-
-  def set_team_suggestions
-    @team_suggestions = User.team_suggestions
   end
 
   def back_to_account(**flash)
@@ -88,7 +83,7 @@ class AccountsController < ApplicationController
   end
 
   def account_params
-    params.expect(user: [:name, :email_address, :handle, :country, :team, :bio, :visibility, :feed_scope, :avatar,
+    params.expect(user: [:name, :email_address, :handle, :country, :bio, :visibility, :feed_scope, :avatar,
                          :banner, :password, :password_confirmation, { player_attributes: [:wizards_email] }])
   end
 

@@ -9,11 +9,19 @@ module Accounts
         user.identities.destroy_all
         user.sessions.destroy_all
         purge_images(user)
+        leave_teams(user)
         user.update!(removed_attributes)
         user.player&.update!(wizards_email: nil)
       end
       user
     end
+
+    # Owned teams pass to their oldest member (or go with their last one); memberships go with the user.
+    def self.leave_teams(user)
+      user.owned_teams.find_each(&:hand_over!)
+      user.team_memberships.destroy_all
+    end
+    private_class_method :leave_teams
 
     def self.purge_images(user)
       user.avatar.purge_later if user.avatar.attached?
