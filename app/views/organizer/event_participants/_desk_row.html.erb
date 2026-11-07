@@ -28,6 +28,7 @@
     </button>
   </td>
     <td class="px-2.5">
+      <% unless local_assigns[:read_only] %>
       <div class="flex justify-end gap-1 whitespace-nowrap">
         <% unless scorekeeper %>
           <%= link_to [:new, :organizer, @event, :infraction, { player_id: participant.player_id }], data: { turbo_frame: "modal", tip: t("organizer.roster.infraction") }, title: t("organizer.roster.infraction"), class: icon_button_classes(danger: true, size: :xs) do %>
@@ -73,6 +74,7 @@
           <% end %>
         <% end %>
       </div>
+      <% end %>
     </td>
 </tr>
 <tr id="<%= stats_id %>" hidden class="h-8 bg-surface-raised text-[12px] text-muted">
