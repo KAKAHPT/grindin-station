@@ -57,7 +57,14 @@
     <% end %>
   </section>
 <% else %>
-  <p class="mt-6 p-4 card text-sm text-muted"><%= t("profiles.no_events") %></p>
+  <%# A profile with no events yet: say what will appear here, and point the owner at the events list. %>
+  <div class="mt-6 p-4 card text-sm text-muted" data-profile-empty>
+    <p class="text-ink"><%= t("profiles.no_events") %></p>
+    <p class="mt-1"><%= t("profiles.no_events_hint") %></p>
+    <% if current_user == @user %>
+      <p class="mt-3"><%= link_to t("profiles.find_events"), events_path(locale: params[:locale]), class: button_classes(:secondary, size: :sm), data: { find_events: true } %></p>
+    <% end %>
+  </div>
 <% end %>
 </div>
 
