@@ -42,10 +42,22 @@ module Organizer
       assert_equal %w[1 2 3 4], ranks.first(4)
       assert_select "##{ActionView::RecordIdentifier.dom_id(waiting)} th:first-child", text: "Waitlist #1"
 
+      get organizer_tournament_event_participants_path(@tournament, layout: "application")
+
+      assert_select "tbody tr[id^=event_participant_]", 4, "the waitlist leaves the roster table"
+      assert_select "[data-waitlist] [data-waitlist-row='#{waiting.id}']" do
+        assert_select "td:first-child", text: "1"
+        assert_select "th", text: "Espera Um"
+        assert_select "form[action=?]", promote_organizer_tournament_event_participant_path(@tournament, waiting),
+                      { count: 0 }, "no Add to bracket once the swiss started"
+        assert_select "form[action=?] button", drop_organizer_tournament_event_participant_path(@tournament, waiting),
+                      text: /Remove/
+      end
+
       get organizer_tournament_event_participants_path(@tournament, layout: "application", status: "waitlisted")
 
-      assert_select "tbody tr[id^=event_participant_]", 1
-      assert_select "##{ActionView::RecordIdentifier.dom_id(waiting)} td", text: "–", minimum: 3
+      assert_select "tbody tr[id^=event_participant_]", 0
+      assert_select "[data-waitlist] [data-waitlist-row]", 1
       assert_select "#roster_count_waitlisted", "1"
     end
   end
