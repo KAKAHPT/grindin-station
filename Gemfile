@@ -3,7 +3,7 @@
 source "https://rubygems.org"
 
 # Backend
-gem "rails", "~> 8.1.3.1"
+gem "rails", "~> 8.1.4.1"
 gem "bootsnap", require: false
 gem "jbuilder"
 gem "tzinfo-data", platforms: %i[windows jruby]
