@@ -20,8 +20,15 @@ module EventFiltersHelper
       [:organizer, :select, all_option(:all_organizers) + options[:organizers].map { |_, name, handle| [name, handle] },
        filters[:organizer]&.last, t("events.filters.organizer")],
       [:play, :select, all_option(:all_formats) + Event::PLAYS.map { |play| [play_label(play), play] },
-       filters[:play], t("events.filters.format")]
+       filters[:play], t("events.filters.format")],
+      [:sort, :select, sort_options(EventTickets::SORTS, "events"), params[:sort].presence_in(EventTickets::SORTS),
+       t("events.sort.label")]
     ]
+  end
+
+  # [[label, value]] of a list's sort select, each option read as "Sort by: …" so it is not taken for a filter.
+  def sort_options(sorts, scope)
+    sorts.map { |sort| ["#{t("#{scope}.sort.label")}: #{t("#{scope}.sort.#{sort}")}", sort] }
   end
 
   # [[label, value, url without it]] for shared/_filter_chips; base: the params every link keeps (filter, locale).

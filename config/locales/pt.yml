@@ -1176,7 +1176,8 @@ pt:
     title: "O software de torneios com lugares justos"
     description: "Software de torneios com lugares justos. Feito para cEDH e jogos multiplayer, aberto a todos os formatos, ao vivo em todos os telemóveis da sala."
     eyebrow: "Grindin Station"
-    headline_html: "O software de torneios <br>com <em>lugares justos</em>."
+    headline: "O grind nunca pára."
+    tagline_html: "O software de torneios com <em>lugares justos</em>."
     lead: "Feito para cEDH e jogos multiplayer, mas aberto a todos os formatos. Emparelhamentos, classificações e mesas atualizam ao vivo em todos os telemóveis da sala."
     cta_events: "Próximos eventos"
     attribution: "As ilustrações das cartas são Fan Content não oficial, permitido pela Fan Content Policy. Não aprovado nem apoiado pela Wizards. Partes dos materiais usados são propriedade da Wizards of the Coast. ©Wizards of the Coast LLC."
@@ -1217,6 +1218,9 @@ pt:
     featured:
       title: "Em destaque"
     featured_circuits: "Circuitos em destaque"
+    rail:
+      prev: "Anterior"
+      next: "Seguinte"
     upcoming:
       title: "Próximos eventos"
       open:
@@ -1233,6 +1237,11 @@ pt:
   helpers:
     required: "obrigatório"
   events:
+    sort:
+      label: "Ordenar por"
+      date: "Data"
+      organizer: "Organizador"
+      name: "Nome"
     featured: "Em destaque"
     view:
       label: "Vista"
@@ -1251,6 +1260,10 @@ pt:
       all_formats: "Todos os formatos"
       empty: "Nenhum evento corresponde a estes filtros."
   lists:
+    circuits_count:
+      zero: "Sem circuitos"
+      one: "1 circuito"
+      other: "%{count} circuitos"
     upcoming: "Próximos"
     past: "Passados"
     ongoing: "Os teus eventos a decorrer"
@@ -1458,3 +1471,10 @@ pt:
           one: "Equipa (1 jogador)"
           other: "Equipa (%{count} jogadores)"
         rules: "Um jogador conta para a equipa indicada na sua conta quando a classificação é recalculada (todas as noites e depois de cada evento), por isso, se mudares de equipa, todos os teus pontos passam para a nova equipa. As equipas com um só jogador também aparecem. Os bónus (15 e 30) estão num só sítio para poderem mudar sem mexer no resto."
+
+  circuits:
+    sort:
+      label: "Ordenar por"
+      featured: "Destaques primeiro"
+      name: "Nome"
+      organizer: "Organizador"

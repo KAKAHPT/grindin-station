@@ -6,6 +6,8 @@ module EventTickets
   extend ActiveSupport::Concern
 
   FILTER_KEYS = %i[q season country organizer play].freeze
+  # ?sort=: date (upcoming soonest first, past latest first), organizer (by name, then date) or name.
+  SORTS = %w[date organizer name].freeze
   SEASON_SQL = "EXTRACT(YEAR FROM events.start_time)::integer"
 
   private
@@ -14,8 +16,19 @@ module EventTickets
   # except: events already shown elsewhere on the page (the viewer's running now); filters: from ticket_filters.
   def ticket_scope(klass, past:, except: [], filters: {})
     scope = filter_tickets(klass.visible.where.not(id: except.map(&:id)), filters)
-    ticket_preload(past ? scope.past.order(start_time: :desc) : scope.upcoming.order(:start_time))
-      .page(params[:page]).load
+    scope = past ? scope.past : scope.upcoming
+    ticket_preload(sort_tickets(scope, past: past)).page(params[:page]).load
+  end
+
+  def ticket_sort = params[:sort].to_s.presence_in(SORTS) || "date"
+
+  def sort_tickets(scope, past:)
+    by_date = past ? { start_time: :desc } : { start_time: :asc }
+    case ticket_sort
+    when "organizer" then scope.joins(event_organizer: :user).order("users.name ASC").order(by_date)
+    when "name" then scope.order(name: :asc).order(by_date)
+    else scope.order(by_date)
+    end
   end
 
   # The /events filters from the URL (spec M13 D13), unknown values dropped: q, season (Integer), country,
