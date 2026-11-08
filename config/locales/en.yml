@@ -769,6 +769,11 @@ en:
         one: "Down 1 place since the last round"
         other: "Down %{count} places since the last round"
       moved_none: "Same place as the last round"
+    bracket:
+      stages: "Stages"
+      running: "In progress"
+      finished: "Finished"
+      upcoming: "Upcoming"
     pairings:
       search: "Search a player"
       your_table: "Your table"

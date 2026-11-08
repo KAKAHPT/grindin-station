@@ -1,12 +1,13 @@
 <%# Role-free public card of one table: number, status, seats in order, the winner (grey trophy). No staff links
     or buttons. 1v1: two names, no seat squares, the winner's score. Locals me (the viewer's participant or nil)
-    and my_pod: the viewer's own table gets "Your table", a teal border and the "You" row. %>
+    and my_pod: the viewer's own table gets "Your table", a teal border and the "You" row. bracket: true marks the
+    card for the top-cut bracket's wires. %>
 <% one_v_one = event.one_v_one? %>
 <% mine = local_assigns[:my_pod] && pod.id == my_pod.id %>
 <% results = pod.current_results.index_by(&:event_participant_id) %>
 <% status = pod.report_status %>
 <% drawn = status == :completed && results.values.all? { |result| result.is_a?(Draw) } %>
-<%= tag.article id: dom_id(pod), data: { pod_number: pod.number, pairing_table: true, my_table: (true if mine) },
+<%= tag.article id: dom_id(pod), data: { pod_number: pod.number, pairing_table: true, my_table: (true if mine), bracket_card: (true if local_assigns[:bracket]) },
                 class: ["card flex flex-col overflow-clip", ("border-accent/55 ring-1 ring-accent/20" if mine)] do %>
   <div class="band flex items-center justify-between gap-2 px-4 py-2.5">
     <h3 class="flex items-center gap-2 font-display text-[15px] font-semibold leading-none tracking-tight text-ink">

@@ -3,7 +3,7 @@
 module Play
   # Public pairings of one event (/t/:slug/pairings): the tables of the latest published round, or of any
   # published round with ?round=N. Read-only; it follows the event's pairings stream (morph refresh).
-  # A signed-in participant's own table comes first.
+  # A signed-in participant's own table comes first. A top-cut round shows the whole cut as a bracket.
   class PairingsController < BaseController
     public_actions :show
 
@@ -14,6 +14,7 @@ module Play
 
       load_pods
       @byes = @round.byes.preload(event_participant: { player: :user }).sort_by { |bye| bye.event_participant.name }
+      @stages = Tournaments::Bracket.stages_for(current_event) if @round.is_a?(SingleEliminationRound)
     end
 
     private

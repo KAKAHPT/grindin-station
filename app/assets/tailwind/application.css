@@ -631,6 +631,26 @@
   }
 }
 
+/* Public top-cut bracket (play/pairings/bracket): fixed-width cards from 640 px so long names truncate inside
+   them; under 640 px one stage shows at a time (bracket_controller sets data-open) and cards take the width. */
+@layer components {
+  .bracket-cards > * {
+    width: 100%;
+  }
+
+  @media (min-width: 640px) {
+    .bracket-cards > * {
+      width: 240px;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .bracket-stage:not([data-open="true"]) {
+      display: none;
+    }
+  }
+}
+
 /* ---- M7 organizer pages ---- */
 @layer components {
   .tab-off {

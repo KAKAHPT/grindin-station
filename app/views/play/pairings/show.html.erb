@@ -1,6 +1,7 @@
 <% content_for :wide_main, "1" %>
 <%= render "play/shared/header", section: :pairings %>
-<%# Live: any change to the event's pods morph-refreshes this page, on whichever round it shows. %>
+<%# Live: any change to the event's pods morph-refreshes this page, on whichever round it shows.
+    A top-cut round shows the whole cut as a bracket (play/pairings/bracket) instead of the grid. %>
 <% turbo_refreshes_with method: :morph, scroll: :preserve %>
 <%= turbo_stream_from LiveBroadcasts.pairings_stream(current_event.id) %>
 <% url_locale = params[:locale] %>
@@ -39,13 +40,17 @@
       </label>
     </div>
 
-    <div data-pairings class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 content-start">
-      <%= render partial: "play/pairings/table", collection: @pods, as: :pod,
-                 locals: { event: current_event, me: current_participant, my_pod: @my_pod } %>
-    </div>
+    <% if @stages %>
+      <%= render "play/pairings/bracket", stages: @stages, round: @round, my_pod: @my_pod %>
+    <% else %>
+      <div data-pairings class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 content-start">
+        <%= render partial: "play/pairings/table", collection: @pods, as: :pod,
+                   locals: { event: current_event, me: current_participant, my_pod: @my_pod } %>
+      </div>
+    <% end %>
   </div>
 
-  <% if @byes.any? %>
+  <% if @byes.any? && !@stages %>
     <section data-byes class="card mt-4 overflow-clip">
       <h3 class="band px-4 py-2.5 font-display text-[15px] font-semibold text-ink"><%= t("play.pairings.byes") %></h3>
       <ul class="flex flex-col divide-y divide-line/60">
