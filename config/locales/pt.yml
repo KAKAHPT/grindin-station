@@ -769,6 +769,11 @@ pt:
         one: "Desceu 1 lugar desde a última ronda"
         other: "Desceu %{count} lugares desde a última ronda"
       moved_none: "Mesmo lugar da última ronda"
+    bracket:
+      stages: "Fases"
+      running: "A decorrer"
+      finished: "Terminada"
+      upcoming: "Por jogar"
     pairings:
       search: "Procurar um jogador"
       your_table: "A tua mesa"

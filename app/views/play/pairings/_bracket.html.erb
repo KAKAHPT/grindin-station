@@ -1,0 +1,68 @@
+<%# The top cut as a vertical bracket: one row of table cards per stage, the final at the bottom, wired by
+    bracket_controller. A stage still to come shows its tables empty. Under 640 px the tabs show one stage at a
+    time, the round the page is on by default. Cards keep a fixed width so long names truncate inside them. %>
+<% one_v_one = current_event.one_v_one? %>
+<div data-bracket data-controller="bracket" data-bracket-open-value="<%= round.number %>" class="relative">
+  <nav data-bracket-target="tabs" aria-label="<%= t("play.bracket.stages") %>" class="seg mb-3 max-w-full overflow-x-auto sm:hidden">
+    <% stages.each do |stage| %>
+      <button type="button" data-bracket-target="tab" data-action="bracket#open" data-bracket-number-param="<%= stage.number %>"
+              class="whitespace-nowrap"><%= stage.name %></button>
+    <% end %>
+  </nav>
+  <svg data-bracket-target="wires" aria-hidden="true" class="pointer-events-none absolute inset-0 size-full max-sm:hidden"><path d="" fill="none" stroke="var(--color-line-strong)" stroke-width="2"></path></svg>
+
+  <% stages.each do |stage| %>
+    <section data-bracket-stage="<%= stage.number %>" data-bracket-target="stage" class="bracket-stage relative pb-14 last:pb-0">
+      <div class="mb-3 flex items-center gap-3">
+        <h2 class="font-display text-[13px] font-semibold uppercase tracking-[0.08em] <%= stage.running? ? "text-accent" : "text-muted" %>"><%= stage.name %></h2>
+        <% if stage.running? %>
+          <%= status_chip(:ink, data: { stage_status: "running" }) { t("play.bracket.running") } %>
+        <% elsif stage.finished? %>
+          <%= status_chip(:accent, data: { stage_status: "finished" }) { t("play.bracket.finished") } %>
+        <% else %>
+          <%= status_chip(:muted, data: { stage_status: "upcoming" }) { t("play.bracket.upcoming") } %>
+        <% end %>
+        <span aria-hidden="true" class="h-px flex-1 bg-line"></span>
+      </div>
+
+      <div data-bracket-cards class="bracket-cards flex flex-wrap items-start justify-center gap-3">
+        <% if stage.byes.any? %>
+          <section data-byes data-bracket-card class="card flex flex-col overflow-clip">
+            <h3 class="band px-4 py-2.5 font-display text-[15px] font-semibold text-ink"><%= t("play.pairings.byes") %></h3>
+            <ul class="flex flex-col divide-y divide-line/60">
+              <% stage.byes.each do |bye| %>
+                <li data-participant-id="<%= bye.event_participant_id %>" class="px-4 py-2 text-[13px] min-w-0 truncate">
+                  <%= t("play.pairings.bye", name: bye.event_participant.name) %>
+                  <% if current_participant && bye.event_participant_id == current_participant.id %>
+                    <span data-me class="ms-1.5"><%= desk_chip(:ok) { t("play.tables.you") } %></span>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </section>
+        <% end %>
+        <% stage.pods.each do |pod| %>
+          <%= render "play/pairings/table", pod: pod, event: current_event, me: current_participant, my_pod: my_pod, bracket: true %>
+        <% end %>
+        <% if stage.upcoming? %>
+          <% stage.pod_count.times do |index| %>
+            <article data-placeholder-table data-bracket-card class="card flex flex-col overflow-clip">
+              <div class="band flex items-center justify-between gap-2 px-4 py-2.5">
+                <h3 class="font-display text-[15px] font-semibold leading-none tracking-tight text-ink"><%= t("play.tables.table") %> <%= index + 1 %></h3>
+                <%= status_chip(:muted) { t("play.bracket.upcoming") } %>
+              </div>
+              <ol class="flex flex-col divide-y divide-line/60">
+                <% stage.pod_size.times do |seat| %>
+                  <li class="flex items-center gap-2.5 px-4 py-1.5 min-h-9">
+                    <% unless one_v_one %><span class="<%= PaletteHelper::SEAT_SQUARE_SM %> text-muted"><%= seat + 1 %></span><% end %>
+                    <span aria-hidden="true" class="h-px w-10 bg-line-strong"></span>
+                  </li>
+                <% end %>
+              </ol>
+            </article>
+          <% end %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+</div>
