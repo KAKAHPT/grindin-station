@@ -17,7 +17,8 @@
     <%# Pages give their own event header (play/shared/header, with the segmented nav from 640 px up); a page
         without one gets the plain card with the name and keeps the bottom nav on every width. %>
     <% own_header = content_for?(:event_header) %>
-    <div class="<%= content_for?(:wide_main) ? "max-w-6xl" : "max-w-md" %> mx-auto px-4 pt-5">
+    <% main_width = { "1" => "max-w-6xl", "full" => "max-w-[2000px]" }.fetch(content_for(:wide_main).to_s, "max-w-md") %>
+    <div class="<%= main_width %> mx-auto px-4 pt-5">
       <%= own_header ? yield(:event_header) : render("shared/event_header", event: current_event) %>
     </div>
 
@@ -28,8 +29,9 @@
       </p>
     <% end %>
 
-    <%# A page with a card grid (pairings) asks for a wider column with content_for(:wide_main). %>
-    <main class="<%= content_for?(:wide_main) ? "max-w-6xl" : "max-w-md" %> mx-auto px-4 pt-4 pb-24 <%= "sm:pb-10" if own_header %>">
+    <%# A page with a card grid (pairings) asks for a wider column with content_for(:wide_main, "1"); the top-cut
+        bracket asks for the full width with "full". %>
+    <main class="<%= main_width %> mx-auto px-4 pt-4 pb-24 <%= "sm:pb-10" if own_header %>">
       <%= yield %>
     </main>
 

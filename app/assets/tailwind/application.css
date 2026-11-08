@@ -631,8 +631,9 @@
   }
 }
 
-/* Public top-cut bracket (play/pairings/bracket): fixed-width cards from 640 px so long names truncate inside
-   them; under 640 px one stage shows at a time (bracket_controller sets data-open) and cards take the width. */
+/* Public top-cut bracket (play/pairings/bracket): from 640 px the cards keep between 190 and 240 px, so long
+   names truncate inside them and a Top 40 row fits a wide monitor; under 640 px one stage shows at a time
+   (bracket_controller sets data-open) and cards take the width. */
 @layer components {
   .bracket-cards > * {
     width: 100%;
@@ -640,7 +641,9 @@
 
   @media (min-width: 640px) {
     .bracket-cards > * {
-      width: 240px;
+      flex: 1 1 190px;
+      min-width: 190px;
+      max-width: 240px;
     }
   }
 
