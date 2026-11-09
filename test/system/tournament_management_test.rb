@@ -35,7 +35,7 @@ class TournamentManagementTest < ApplicationSystemTestCase # rubocop:disable Met
 
     assert_equal(%w[3 1 0 3],
                  %w[win draw loss bye].map { |kind| find_field("tournament[points_#{kind}]").value })
-    assert_selector "#tournament_match_games", visible: true
+    assert_selector "#tournament_match_games", visible: :visible
     cut_sizes = find_by_id("tournament_top_cut_size").all("option").map(&:text)
     assert_includes cut_sizes, "Top 8"
     assert_not_includes cut_sizes, "Top 10"

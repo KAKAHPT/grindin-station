@@ -19,8 +19,8 @@ class PlayEventPhoneTest < ApplicationSystemTestCase
 
     assert_selector ".evhead", count: 1
     assert_selector "[data-event-header] h1", text: @tournament.name
-    assert_no_selector "[data-play-header-nav]", visible: true
-    assert_selector "nav[data-play-nav]", visible: true
+    assert_no_selector "[data-play-header-nav]", visible: :visible
+    assert_selector "nav[data-play-nav]", visible: :visible
     assert_no_selector "[data-enrolled], [data-waitlist]"
     others = @tournament.event_participants.where.not(id: @me.id).map(&:name)
     others.each { |name| assert_no_text name }

@@ -92,8 +92,8 @@ class PlayerProfileTest < ApplicationSystemTestCase
 
   # The "+" on the event's row opens its detail row (record, seat per round) and shows "–".
   def assert_opens_details(name)
-    find("tr[data-event]", text: name).find("button[aria-controls]").click
-    within("tr[data-event-detail]", visible: true) do
+    within("tr[data-event]", text: name) { find("button[aria-controls]").click }
+    within("tr[data-event-detail]", visible: :visible) do
       assert_text(/record/i) # uppercased by CSS
       assert_text "R1 · seat"
     end

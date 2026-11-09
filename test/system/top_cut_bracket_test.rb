@@ -22,11 +22,11 @@ class TopCutBracketTest < ApplicationSystemTestCase
   test "on a desktop every stage shows, wired to the next, and a long name stays inside its card" do
     visit play_pairings_path(@tournament.slug)
 
-    assert_selector "[data-bracket-stage]", count: 3, visible: true
+    assert_selector "[data-bracket-stage]", count: 3, visible: :visible
     assert_selector "[data-bracket-stage='2'] article[data-pairing-table]", count: 8
     assert_selector "[data-bracket-stage='3'] [data-placeholder-table]", count: 4
     assert_selector "[data-bracket-stage='4'] [data-placeholder-table]", count: 1
-    assert_no_selector "[data-bracket-target=tabs]", visible: true
+    assert_no_selector "[data-bracket-target=tabs]", visible: :visible
     assert_selector "[data-name='#{LONG_NAME}']"
 
     wires = page.evaluate_script("document.querySelector('[data-bracket-target=wires] path').getAttribute('d')")
@@ -42,15 +42,15 @@ class TopCutBracketTest < ApplicationSystemTestCase
 
     visit play_pairings_path(@tournament.slug)
 
-    assert_selector "[data-bracket-stage='2']", visible: true
-    assert_no_selector "[data-bracket-stage='3']", visible: true
-    assert_no_selector "[data-bracket-target=wires]", visible: true
+    assert_selector "[data-bracket-stage='2']", visible: :visible
+    assert_no_selector "[data-bracket-stage='3']", visible: :visible
+    assert_no_selector "[data-bracket-target=wires]", visible: :visible
     assert overflowing_names.empty?, "names leave their card: #{overflowing_names.inspect}"
 
     within("[data-bracket-target=tabs]") { click_button "Finals" }
 
-    assert_selector "[data-bracket-stage='4'] [data-placeholder-table]", count: 1, visible: true
-    assert_no_selector "[data-bracket-stage='2']", visible: true
+    assert_selector "[data-bracket-stage='4'] [data-placeholder-table]", count: 1, visible: :visible
+    assert_no_selector "[data-bracket-stage='2']", visible: :visible
     assert_selector "[data-bracket-target=tab][aria-current=true]", text: "Finals"
     assert_operator page.evaluate_script("document.documentElement.scrollWidth"), :<=, 375
   end

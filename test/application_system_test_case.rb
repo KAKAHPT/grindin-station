@@ -2,6 +2,10 @@
 
 require "test_helper"
 
+# Every worker drives its own headless Chrome. One per processor starves them (clicks race the page and tests fail
+# at random, on a laptop and on the CI runner alike); two are stable and no slower. PARALLEL_WORKERS overrides.
+ActiveSupport::TestCase.parallelize(workers: 2)
+
 # chromedriver 156 reports an element replaced by a Turbo render as UnknownError ("Node with given id does not
 # belong to the document"), not StaleElementReferenceError: retry only those; any other UnknownError raises at once.
 module RetryDetachedNodes
