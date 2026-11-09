@@ -47,6 +47,16 @@ class QueryBudgetTest < ActionDispatch::IntegrationTest
     assert_queries_under(60, "public pairings, closed round") { get play_pairings_path(@t.slug, round: 1) }
   end
 
+  test "the top-cut bracket (16 players, final still to come) runs under 60 queries" do
+    @t.update_columns(swiss_rounds_count: 1) # rubocop:disable Rails/SkipsModelValidations
+    @t.rounds.create!(type: SingleEliminationRound, number: 2).update!(published: true)
+    delete session_path
+
+    assert_queries_under(60, "top-cut bracket (visitor)") { get play_pairings_path(@t.slug) }
+    assert_select "[data-bracket-stage]", count: 2
+    assert_select "[data-bracket-card]", count: 5
+  end
+
   test "pairings and standings for a signed-in enrolled player run under 60 queries" do
     @t.rounds.create!(type: SwissRound, number: 2).update!(published: true)
     player = @t.rounds.find_by!(number: 2).seatings.first.event_participant.player.user
