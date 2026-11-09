@@ -34,7 +34,7 @@ class RankingsTest < ApplicationSystemTestCase
     assert_selector "tr[data-player]", count: 2
     assert_selector "[data-chip]", text: /Country\s+Portugal/
 
-    find("input[name=q]").send_keys("carv", :enter)
+    find_field(name: "q").send_keys("carv", :enter)
     assert_current_path(/q=carv/)
     assert_selector "tr[data-player]", count: 1, text: "Ana Carvalho"
     assert_selector "[data-chip]", count: 2

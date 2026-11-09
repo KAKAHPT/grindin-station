@@ -22,12 +22,14 @@ gem "omniauth-rails_csrf_protection", "~> 2.0"
 # Frontend
 gem "propshaft"
 gem "importmap-rails"
-gem "rqrcode", "~> 2.2"
+gem "rqrcode", "~> 3.2"
 gem "turbo-rails"
 gem "stimulus-rails"
-gem "tailwindcss-rails", "~> 4.6"
+gem "tailwindcss-rails", "~> 4.7"
 gem "commonmarker"
-gem "image_processing", "~> 1.2"
+gem "image_processing", "~> 2.2"
+# image_processing 2 no longer pulls in a processor: Active Storage variants (avatars, banners) use libvips.
+gem "ruby-vips", "~> 2.2"
 gem "reactionview", "~> 0.6.0"
 gem "herb", force_ruby_platform: RUBY_PLATFORM.include?("darwin")
 

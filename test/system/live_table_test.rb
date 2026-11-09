@@ -81,8 +81,8 @@ class LiveTableTest < ApplicationSystemTestCase
 
   # A broadcast sent before the page's cable subscriptions are confirmed is lost; wait for every one of them.
   def assert_streams_connected
-    assert_selector "turbo-cable-stream-source[connected]", visible: false
-    assert_no_selector "turbo-cable-stream-source:not([connected])", visible: false
+    assert_selector "turbo-cable-stream-source[connected]", visible: :all
+    assert_no_selector "turbo-cable-stream-source:not([connected])", visible: :all
   end
 
   def in_player_session
