@@ -22,7 +22,7 @@ gem "omniauth-rails_csrf_protection", "~> 2.0"
 # Frontend
 gem "propshaft"
 gem "importmap-rails"
-gem "rqrcode", "~> 2.2"
+gem "rqrcode", "~> 3.2"
 gem "turbo-rails"
 gem "stimulus-rails"
 gem "tailwindcss-rails", "~> 4.6"
