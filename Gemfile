@@ -29,7 +29,8 @@ gem "tailwindcss-rails", "~> 4.7"
 gem "commonmarker"
 gem "image_processing", "~> 2.2"
 # image_processing 2 no longer pulls in a processor: Active Storage variants (avatars, banners) use libvips.
-gem "ruby-vips", "~> 2.2"
+# Loaded only when an image is processed, so booting the app does not need libvips installed.
+gem "ruby-vips", "~> 2.2", require: false
 gem "reactionview", "~> 0.6.0"
 gem "herb", force_ruby_platform: RUBY_PLATFORM.include?("darwin")
 
