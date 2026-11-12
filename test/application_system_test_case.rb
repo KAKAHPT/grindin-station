@@ -31,6 +31,13 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     options.add_option("goog:loggingPrefs", { browser: "ALL" }) # console messages, read by the CSP test
   end
 
+  # No test may leave an uncaught JavaScript error in the browser console (reading the log also empties it, so the
+  # next test starts clean).
+  teardown do
+    uncaught = page.driver.browser.logs.get(:browser).map(&:message).grep(/Uncaught/)
+    assert_empty uncaught, "JavaScript errors in the browser console"
+  end
+
   # Phone emulation stays on the browser between tests, so every session that used it is put back.
   teardown do
     (@phone_sessions || []).uniq.each do |name|

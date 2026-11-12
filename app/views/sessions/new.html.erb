@@ -21,6 +21,6 @@
   ·
   <%= link_to t("auth.resend_confirmation"), new_confirmation_path, data: modal_nav_data, class: "hover:text-ink" %>
   <% if turbo_frame_request_id == "modal" %>
-    <%= link_to t("auth.cancel"), root_path, data: modal_nav_data, class: "hover:text-ink" %>
+    <%= button_tag t("auth.cancel"), type: "button", data: { controller: "modal-close", action: "modal-close#close" }, class: "hover:text-ink" %>
   <% end %>
 </div>

@@ -20,5 +20,17 @@ module Organizer
       assert_redirected_to organizer_league_path(league)
       assert_equal "ES", league.reload.country
     end
+
+    test "the league form offers only the organizer's own circuits" do
+      mine = Circuit.create!(name: "My circuit", event_organizer: event_organizers(:standard_organizer))
+      rival = User.create!(name: "Rival", email_address: "rival-#{SecureRandom.hex(3)}@example.com",
+                           password: "password123")
+      theirs = Circuit.create!(name: "Their circuit", event_organizer: EventOrganizer.create!(user: rival))
+
+      get edit_organizer_league_path(leagues(:standard_league))
+
+      assert_select "select[name='league[circuit_id]'] option[value=?]", mine.id
+      assert_select "select[name='league[circuit_id]'] option[value=?]", theirs.id, count: 0
+    end
   end
 end

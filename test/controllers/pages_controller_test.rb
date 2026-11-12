@@ -35,19 +35,38 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
   end
 
   test "the seat tests page renders config/seat_fairness.json: four round counts, both seatings, translated" do
+    report = JSON.parse(Rails.root.join("config/seat_fairness.json").read)
+    value = ->(rounds, seating, key) { report.dig("rounds", rounds, seating, key) }
+
     get fairness_path
 
     assert_response :success
-    assert_select "h1", text: "Fair seats, measured over 200 tournaments"
+    assert_equal 2000, report["rounds"].size * report["tournaments_per_rounds"]
+    assert_select "h1", text: "Fair seats, measured over 2000 tournaments"
     assert_select "[data-rounds]", 4
-    assert_select "[data-rounds='3'] .fr-bar[data-seating=fair][data-row=fair_rate] b", text: "95.4 %"
-    assert_select "[data-rounds='7'] .fr-bar[data-seating=random][data-row=never_first] b", text: "13.11 %"
-    assert_select "[data-rounds='5'] .fr-mono", text: "25.5 / 25.5 / 25.5 / 23.4"
+    assert_select "[data-rounds='3'] .fr-bar[data-seating=fair][data-row=fair_rate] b",
+                  text: format("%.1f %%", value.call("3", "fair", "fair_rate"))
+    assert_select "[data-rounds='7'] .fr-bar[data-seating=random][data-row=never_first] b",
+                  text: format("%.2f %%", value.call("7", "random", "never_first"))
+    assert_select "[data-rounds='5'] .fr-mono",
+                  text: value.call("5", "fair", "seat_share").map { |share| format("%.1f", share) }.join(" / ")
     assert_select "a[href=?]", root_path(anchor: "about"), text: "Back to the fair seats"
 
     get fairness_path(locale: "pt")
 
-    assert_select "h1", text: "Lugares justos, medidos em 200 torneios"
+    assert_select "h1", text: "Lugares justos, medidos em 2000 torneios"
+  end
+
+  test "the published seat report keeps what the page promises about the weighted seats" do
+    rounds = JSON.parse(Rails.root.join("config/seat_fairness.json").read)["rounds"]
+
+    rounds.each do |count, block|
+      fair, random = block.values_at("fair", "random")
+
+      assert_operator fair["fair_rate"], :>=, 90, "#{count} rounds: under 90 % of players with a fair spread"
+      assert_operator fair["fair_rate"], :>, random["fair_rate"] + 50
+      assert_operator fair["never_first"], :<=, (count == "3" ? 26 : 1), "#{count} rounds: players without seat 1"
+    end
   end
 
   test "Upcoming filters by format when more than one format is listed" do

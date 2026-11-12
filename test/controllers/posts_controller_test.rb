@@ -118,6 +118,19 @@ class PostsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     assert_select "[data-post='#{target.id}']"
   end
 
+  test "an admin removes a post from /admin/feed and the removal is audited" do
+    target = Post.create!(user: @player, event: @t, body: "To be removed")
+    @organizer.update_columns(admin: true) # rubocop:disable Rails/SkipsModelValidations
+    sign_in(@organizer)
+
+    assert_difference -> { AuditEvent.where(action: "post_removed").count }, 1 do
+      delete admin_remove_feed_path(target)
+    end
+
+    assert_redirected_to admin_feed_path
+    assert_not Post.exists?(target.id)
+  end
+
   test "a thought needs no event; @handle mentions link the profile and notify the person" do
     other = @t.event_participants.second.player.user
     other.update!(handle: "rita-grind", password: "password123")

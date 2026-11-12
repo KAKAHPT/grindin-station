@@ -24,7 +24,8 @@ class PagesController < ApplicationController
     load_extras
   end
 
-  # /fairness: the simulated seat report (config/seat_fairness.json, regenerated with bin/rails grindin:seat_report),
+  # /fairness: the seat report of real test tournaments (config/seat_fairness.json, regenerated with
+  # RAILS_ENV=test bin/rails grindin:seat_report),
   # one block per round count, Grindin's weighted seats against seats drawn at random.
   def fairness
     @report = JSON.parse(Rails.root.join("config/seat_fairness.json").read)
