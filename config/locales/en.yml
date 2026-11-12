@@ -971,6 +971,7 @@ en:
       result_failed: "The result could not be saved. Try again, or ask the organiser to check the table."
       decklist_locked: "Decklists are locked once the tournament starts: ask the staff to change it."
       check_in_closed: "Check-in is not open."
+      not_registered: "You are not registered for this event."
       decklist_required: "This event requires a decklist."
       registration_closed: "Registration closed: the tournament has started."
       registration_full: "Registration full."
@@ -1572,10 +1573,10 @@ en:
       organizer: "Organizer"
   fairness:
     title: "Our seat tests"
-    description: "How fair Grindin Station's seats are, measured over simulated tournaments against seats drawn at random."
+    description: "How fair Grindin Station's seats are, measured over test tournaments run on the real pairing engine against seats drawn at random."
     eyebrow: "Grindin Station · our tests"
     headline: "Fair seats, measured over %{count} tournaments"
-    lead: "We simulated %{count} tournaments of %{min} to %{max} players (%{per} for each round count: 3, 5, 6 and 7) with Grindin Station's own pairing and seating rules, then replayed every one of them with seats drawn at random. Table by table, the question is simple: how many times did each player sit in each seat?"
+    lead: "We ran %{count} test tournaments of %{min} to %{max} players (%{per} for each round count: 3, 5, 6 and 7) through Grindin Station's real pairing and seating engine, then drew the seats of every one of those tables at random. Table by table, the question is simple: how many times did each player sit in each seat?"
     summary:
       fair: "players with a fair spread (at most 1), average of the four setups, with weighted seats"
       random: "the same with seats drawn at random"
@@ -1584,7 +1585,7 @@ en:
       spread_title: "Spread"
       spread: "The difference between the seat a player had most and the one they had least. A spread of 0 or 1 is the best possible when the rounds do not divide by 4."
       first_title: "Seat 1"
-      first: "In cEDH seat 1 plays first. With 4 or more rounds nobody should miss it; with 3 rounds it is mathematically impossible for 1 in 4 players."
+      first: "In cEDH seat 1 plays first. From 5 rounds on almost nobody misses it (under 1 % of players with 5 rounds, nobody with 6 or 7 in these tests); with 3 rounds it is mathematically impossible for 1 in 4 players."
       decide_title: "How it is decided"
       decide: "Seat 1 goes to whoever has had it least; ties by points, then by an order drawn at the start of the event. Tables of 3 (when the field does not divide by 4) only count up to seat 3."
     rounds:
@@ -1603,7 +1604,7 @@ en:
       spread: "Spread 0 / 1 / 2 / 3+ (% of players)"
       seat_share: "Share of each seat 1 / 2 / 3 / 4 (% of chairs)"
       worst: "Worst player seen (times in seats 1·2·3·4)"
-    method: "In-memory simulation with the same seat assigner that runs in production, generated on %{date}, no database; 30 % of the tables draw, the rest have one random winner. The same simulator runs on every code change (2000 tournaments per pairing mode) as a regression gate."
+    method: "Test tournaments run through the same code that pairs real events (points, rematch repair, tables of three, seats by history), with a database, generated on %{date}; 30 % of the tables draw, the rest have one random winner. A lighter in-memory simulator runs on every code change (2000 tournaments per pairing mode) as a regression gate."
     back: "Back to the fair seats"
   teams:
     title: "Team"

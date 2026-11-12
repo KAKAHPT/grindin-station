@@ -72,7 +72,7 @@
 <% if @league.state.in?(%w[play finals]) || @league.finished? %>
   <section class="col-span-full card overflow-clip">
     <h2 class="card-title">Quick Standings</h2>
-    <% standings = @league.event_participants.playing.order(league_score: :desc).limit(5) %>
+    <% standings = @league.event_participants.playing.includes(:results, player: :user).order(league_score: :desc).limit(5) %>
     <% if standings.any? %>
       <table class="ctable">
         <thead>

@@ -18,6 +18,9 @@ export default class extends Controller {
   }
 
   filter() {
+    // A morph that removes this controller's element fires turbo:morph before Stimulus disconnects it.
+    if (!this.hasInputTarget) return;
+
     const q = this.inputTarget.value.trim().toLowerCase();
     document.querySelectorAll(this.cardsValue).forEach((card) => {
       const names = [...card.querySelectorAll("[data-name]")].map((el) => el.dataset.name.toLowerCase());

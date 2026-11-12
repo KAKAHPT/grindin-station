@@ -53,6 +53,13 @@ class ConfirmationsControllerTest < ActionDispatch::IntegrationTest
     assert_not @user.reload.confirmed?
   end
 
+  test "the resend page shows the e-mail form" do
+    get new_confirmation_path
+
+    assert_response :success
+    assert_select "form[action=?] input[type=email]", confirmations_path
+  end
+
   test "the confirmation mail can be sent again, with the same answer for unknown addresses" do
     assert_emails 1 do
       post confirmations_path, params: { email_address: "Fresh@Example.com" }

@@ -167,6 +167,12 @@ class AuthenticationTest < ApplicationSystemTestCase
     assert_no_field "session_email_address"
     assert_no_button "Sign in"
     assert_no_text "Forgot password?"
+    assert_no_selector ".turbo-frame-error", visible: :all
+    assert_current_path events_path
+
+    find("[data-topbar] a", text: "Sign in").click # the modal opens again after a cancel
+
+    assert_field "session_email_address"
   end
 
   test "successful sign in closes modal and refreshes page" do

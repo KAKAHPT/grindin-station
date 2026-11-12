@@ -110,7 +110,7 @@ jobs:
         env:
           RAILS_ENV: test
           DATABASE_URL: postgis://postgres:postgres@localhost:5432
-        run: bin/rails "grindin:simulate[500]"
+        run: bin/rails "grindin:simulate[2000]"
 
       - name: Keep screenshots from failed system tests
         uses: actions/upload-artifact@v7

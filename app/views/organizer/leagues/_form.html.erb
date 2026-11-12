@@ -36,7 +36,9 @@
   <%= f.number_field_with_label :wager_percentage, placeholder: "Wager % (e.g. 10)", min: 0, max: 100 %>
 
   <div class="flex gap-2">
-    <%= f.collection_select_with_label :circuit_id, Circuit.all, :id, :name, { include_hidden: false, include_blank: true } %>
+    <%# Only the league owner's circuits: Event refuses a circuit of another organizer. %>
+    <% circuits = (league.event_organizer || current_user.event_organizer).circuits.order(:name) %>
+    <%= f.collection_select_with_label :circuit_id, circuits, :id, :name, { include_hidden: false, include_blank: true } %>
   </div>
 
   <%= f.text_area_with_label :description, rows: 4, placeholder: "Additional info about the league." %>

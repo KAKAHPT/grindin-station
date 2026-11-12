@@ -43,6 +43,7 @@ jobs:
       POSTGRES_APP_PASSWORD: ${{ secrets.POSTGRES_APP_PASSWORD }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+      SMTP_ADDRESS: ${{ secrets.SMTP_ADDRESS }}
     steps:
       - name: Check required secrets
         id: secrets
@@ -57,6 +58,11 @@ jobs:
           else
             echo "All required secrets are set."
             echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+          # Not a blocker (Google/Discord sign-in still works), but without mail nobody who signs up with an
+          # e-mail and password can confirm the account, and password resets never arrive.
+          if [ -z "$SMTP_ADDRESS" ]; then
+            echo "::warning::SMTP_ADDRESS is not set: sign-up confirmation and password reset e-mails will not be sent"
           fi
 
   deploy:

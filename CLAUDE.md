@@ -13,7 +13,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Testing**: 
   - `bin/rails test` (for unit tests)
   - `bin/rails test:system` (for system tests)
-- **Seat fairness simulation**: `bin/rails "grindin:simulate[2000]"` (fails if seat fairness regresses; CI runs it with 500)
+- **Seat fairness simulation**: `bin/rails "grindin:simulate[2000]"` (fails if seat fairness regresses; CI runs the same 2000)
+- **Public seat report**: `RAILS_ENV=test bin/rails grindin:seat_report` regenerates `config/seat_fairness.json` (the `/fairness` page) from 2000 real tournaments run through `CreatePodsJob` and rolled back (several minutes, forks one worker per processor)
 - **Code quality**:
   - `bin/rubocop` (Ruby linting with Rails Omakase configuration)
   - `bin/brakeman` (security analysis)

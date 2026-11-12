@@ -971,6 +971,7 @@ pt:
       result_failed: "Não foi possível gravar o resultado. Tenta de novo, ou pede ao organizador para ver a mesa."
       decklist_locked: "As decklists ficam fechadas quando o torneio começa: pede ao staff para a mudar."
       check_in_closed: "O check-in não está aberto."
+      not_registered: "Não estás inscrito neste evento."
       decklist_required: "Este evento exige uma decklist."
       registration_closed: "Inscrições fechadas: o torneio já começou."
       registration_full: "Inscrições esgotadas."
@@ -1572,10 +1573,10 @@ pt:
       organizer: "Organizador"
   fairness:
     title: "Os nossos testes de lugares"
-    description: "Quão justos são os lugares da Grindin Station, medidos em torneios simulados contra lugares sorteados ao acaso."
+    description: "Quão justos são os lugares da Grindin Station, medidos em torneios de teste corridos no motor real de emparelhamento contra lugares sorteados ao acaso."
     eyebrow: "Grindin Station · os nossos testes"
     headline: "Lugares justos, medidos em %{count} torneios"
-    lead: "Simulámos %{count} torneios de %{min} a %{max} jogadores (%{per} por cada número de rondas: 3, 5, 6 e 7) com as regras de emparelhamento e de atribuição de lugares da Grindin Station, e repetimos cada torneio com lugares sorteados ao acaso. Mesa a mesa, a pergunta é simples: quantas vezes cada jogador se sentou em cada lugar?"
+    lead: "Corremos %{count} torneios de teste de %{min} a %{max} jogadores (%{per} por cada número de rondas: 3, 5, 6 e 7) no motor real de emparelhamento e de atribuição de lugares da Grindin Station, e sorteámos ao acaso os lugares de cada uma dessas mesas. Mesa a mesa, a pergunta é simples: quantas vezes cada jogador se sentou em cada lugar?"
     summary:
       fair: "jogadores com distribuição justa (desvio ≤ 1), média das 4 configurações, com lugares pesados"
       random: "o mesmo com lugares sorteados ao acaso"
@@ -1584,7 +1585,7 @@ pt:
       spread_title: "Desvio"
       spread: "Diferença entre o lugar que um jogador mais ocupou e o que menos ocupou. Desvio 0 ou 1 é o melhor possível quando as rondas não dividem por 4."
       first_title: "Lugar 1"
-      first: "Em cEDH o lugar 1 joga primeiro. Com 4 ou mais rondas, ninguém devia ficar sem ele; com 3 rondas é matematicamente impossível para 1 em 4 jogadores."
+      first: "Em cEDH o lugar 1 joga primeiro. A partir de 5 rondas quase ninguém fica sem ele (menos de 1 % dos jogadores com 5 rondas, ninguém com 6 ou 7 nestes testes); com 3 rondas é matematicamente impossível para 1 em 4 jogadores."
       decide_title: "Como se decide"
       decide: "O lugar 1 vai para quem o teve menos vezes; empates por pontos e depois por uma ordem sorteada no início do evento. Mesas de 3 (quando o número não divide por 4) contam só até ao lugar 3."
     rounds:
@@ -1603,7 +1604,7 @@ pt:
       spread: "Desvio 0 / 1 / 2 / 3+ (% de jogadores)"
       seat_share: "Quota de cada lugar 1 / 2 / 3 / 4 (% das cadeiras)"
       worst: "Pior jogador visto (vezes nos lugares 1·2·3·4)"
-    method: "Simulação em memória com o mesmo atribuidor de lugares que corre em produção, gerada a %{date}, sem base de dados; 30 % das mesas empatam, as restantes têm um vencedor ao acaso. O mesmo simulador corre em cada alteração ao código (2000 torneios por modo de emparelhamento) como barreira de regressão."
+    method: "Torneios de teste corridos pelo mesmo código que emparelha os eventos reais (pontos, reparação de repetições, mesas de três, lugares pelo histórico), com base de dados, gerados a %{date}; 30 % das mesas empatam, as restantes têm um vencedor ao acaso. Um simulador mais leve, em memória, corre em cada alteração ao código (2000 torneios por modo de emparelhamento) como barreira de regressão."
     back: "Voltar aos lugares justos"
   teams:
     title: "Equipa"

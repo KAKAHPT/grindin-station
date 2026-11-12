@@ -35,6 +35,7 @@ class EventParticipantsController < ApplicationController # rubocop:disable Metr
     return decklist_locked if decklist_locked?
 
     @event_participant = load_participant(@event)
+    not_registered if @event_participant.nil?
   end
 
   def create
@@ -53,9 +54,8 @@ class EventParticipantsController < ApplicationController # rubocop:disable Metr
     return decklist_locked if decklist_locked?
 
     @event_participant = load_participant(@event)
-    if @event.decklist_required && event_participant_params[:decklist].blank?
-      return redirect_to @event, alert: t("flash.alert.decklist_required")
-    end
+    return not_registered if @event_participant.nil?
+    return redirect_to(@event, alert: t("flash.alert.decklist_required")) if decklist_missing?
 
     @event_participant.update(event_participant_params)
 
@@ -77,6 +77,8 @@ class EventParticipantsController < ApplicationController # rubocop:disable Metr
   def destroy
     @event = load_event
     @destroyed_participant = load_participant(@event)
+    return not_registered if @destroyed_participant.nil?
+
     cancel_registration(@destroyed_participant)
     @event_participant = EventParticipant.new
 
@@ -111,6 +113,13 @@ class EventParticipantsController < ApplicationController # rubocop:disable Metr
 
   def decklist_locked
     redirect_to @event, alert: t("flash.alert.decklist_locked")
+  end
+
+  def decklist_missing? = @event.decklist_required && event_participant_params[:decklist].blank?
+
+  # A second click on "cancel", or a page left open after canceling: there is no registration to act on.
+  def not_registered
+    redirect_to @event, alert: t("flash.alert.not_registered")
   end
 
   def terms_accepted?
