@@ -1072,7 +1072,7 @@
   .field-input:focus {
     outline: none;
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 1px var(--color-accent);
+    box-shadow: 0 0 0 2px var(--color-accent);
   }
 
   .field-input:disabled {

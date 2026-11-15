@@ -1,0 +1,53 @@
+<%# The privacy notice (/privacy): what the site keeps, why, who receives it, how long, and the visitor's rights.
+    Every text is in privacy.* (en/pt/es); keep it true to the code when the data the app keeps changes. %>
+<% content_for :title, t("privacy.title") %>
+<% content_for :description, t("privacy.description") %>
+<% content_for :wide_main, "1" %>
+<% heading = "mt-8 mb-2 font-display text-lg font-semibold text-ink" %>
+<% list = "list-disc ps-5 space-y-1.5" %>
+
+<article class="text-[14px] leading-relaxed text-muted" data-privacy>
+  <p class="lp-eyebrow"><%= t("privacy.eyebrow") %></p>
+  <h1 class="mt-1.5 font-display text-3xl font-semibold text-ink"><%= t("privacy.title") %></h1>
+  <p class="mt-1 text-[12px]"><%= t("privacy.updated") %></p>
+  <p class="mt-4"><%= t("privacy.lead") %></p>
+
+  <h2 class="<%= heading %>"><%= t("privacy.controller_title") %></h2>
+  <p><%= t("privacy.controller") %></p>
+
+  <h2 class="<%= heading %>"><%= t("privacy.data_title") %></h2>
+  <% %w[account oauth events social waitlist security logs venues].each do |key| %>
+    <h3 class="mt-4 mb-1 font-semibold text-ink"><%= t("privacy.data.#{key}_title") %></h3>
+    <p><%= t("privacy.data.#{key}") %></p>
+  <% end %>
+
+  <h2 class="<%= heading %>"><%= t("privacy.emails_title") %></h2>
+  <p><%= t("privacy.emails") %></p>
+
+  <h2 class="<%= heading %>"><%= t("privacy.cookies_title") %></h2>
+  <p><%= t("privacy.cookies") %></p>
+
+  <h2 class="<%= heading %>"><%= t("privacy.recipients_title") %></h2>
+  <ul class="<%= list %>">
+    <% %w[hosting email oauth fonts nominatim backups organisers].each do |key| %>
+      <li><%= t("privacy.recipients.#{key}") %></li>
+    <% end %>
+  </ul>
+  <p class="mt-2"><%= t("privacy.transfers") %></p>
+
+  <h2 class="<%= heading %>"><%= t("privacy.retention_title") %></h2>
+  <ul class="<%= list %>">
+    <% %w[account sessions audit errors rate uploads backups logs waitlist].each do |key| %>
+      <li><%= t("privacy.retention.#{key}") %></li>
+    <% end %>
+  </ul>
+
+  <h2 class="<%= heading %>"><%= t("privacy.rights_title") %></h2>
+  <p><%= t("privacy.rights") %></p>
+  <p class="mt-2"><%= t("privacy.self_service_html", account: link_to(t("privacy.account_link"), account_path(locale: params[:locale]), class: "text-accent underline")) %></p>
+  <p class="mt-2"><%= t("privacy.deletion") %></p>
+  <p class="mt-2"><%= t("privacy.contact") %></p>
+  <p class="mt-2"><%= t("privacy.complaint_html", cnpd: link_to("www.cnpd.pt", "https://www.cnpd.pt", class: "text-accent underline", rel: "noopener", target: "_blank")) %></p>
+
+  <p class="mt-8 text-[12px]"><%= t("privacy.changes") %></p>
+</article>

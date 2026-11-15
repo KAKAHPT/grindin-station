@@ -62,6 +62,8 @@
             <%= t("app.name") %> is open-source software. Contribute here:
             <%= icon("github-logo") %>
             <%= link_to 'Github', 'https://github.com/KAKAHPT/grindin-station', class: 'underline', target: '_blank' %>
+            <span aria-hidden="true">·</span>
+            <%= link_to t("privacy.link"), privacy_path(locale: params[:locale]), class: "underline", data: { privacy_link: true } %>
           </div>
         </footer>
       </div>

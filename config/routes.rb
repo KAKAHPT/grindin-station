@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  # No direct uploads: every upload goes through a signed-in form that validates the file, while Active Storage's
+  # own routes would let anyone write blobs to disk without an account. The app's routes are matched before the
+  # engine's, so these two answer 404; the GET routes that serve blobs and variants stay Active Storage's.
+  scope ActiveStorage.routes_prefix do
+    not_found = ->(_env) { [404, { "content-type" => "text/plain" }, ["Not Found"]] }
+    match "direct_uploads", to: not_found, via: :all
+    put "disk/:encoded_token", to: not_found
+  end
+
   # kamal-proxy health check: 200 when the app boots, 500 otherwise.
   get "up" => "rails/health#show", as: :rails_health_check
   # Content security policy violation reports (see config/initializers/content_security_policy.rb).
@@ -20,6 +29,7 @@ Rails.application.routes.draw do
   get "/p/:handle", to: "profiles#show", as: :profile, constraints: { handle: /[a-z0-9-]+/ }
   get "/organizers", to: "organizers#index", as: :organizers
   get "/fairness", to: "pages#fairness", as: :fairness
+  get "/privacy", to: "pages#privacy", as: :privacy
   get "/feed", to: "posts#index", as: :feed
   post "/follows/:handle", to: "follows#create", as: :follow, constraints: { handle: /[a-z0-9-]+/ }
   delete "/follows/:handle", to: "follows#destroy", constraints: { handle: /[a-z0-9-]+/ }
