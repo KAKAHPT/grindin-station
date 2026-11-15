@@ -21,5 +21,8 @@
                                 autocomplete: "email", class: "field-input", "aria-invalid": signup.errors.include?(:email) %>
       <%= f.submit t("landing.waitlist.join"), name: nil, class: button_classes(:light, size: :sm) %>
     <% end %>
+    <p class="lp-wl-m col-span-full" data-privacy-notice>
+      <%= t("privacy.agree_waitlist_html", privacy: link_to(t("privacy.link"), privacy_path(locale: params[:locale]), class: "underline")) %>
+    </p>
   <% end %>
 </div>

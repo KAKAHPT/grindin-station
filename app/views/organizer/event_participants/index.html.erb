@@ -85,7 +85,7 @@
           </svg>
         </div>
 
-        <%= text_field_tag :query, params[:query], placeholder: "Search for players", class: "block h-8 ps-9 text-[12px] text-ink border border-line rounded-md w-full sm:w-64 bg-surface placeholder:text-muted focus:ring-accent focus:border-accent" %>
+        <%= text_field_tag :query, params[:query], placeholder: t("rounds.search_players"), "aria-label": t("rounds.search_players"), class: "block h-8 ps-9 text-[12px] text-ink border border-line rounded-md w-full sm:w-64 bg-surface placeholder:text-muted focus:ring-accent focus:border-accent" %>
       <% end %>
       </div>
       <% unless scorekeeper || read_only %>

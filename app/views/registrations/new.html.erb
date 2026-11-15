@@ -12,6 +12,9 @@
   <%= f.password_field_with_label :password, required: true, autocomplete: "new-password", placeholder: t("auth.placeholders.new_password"), minlength: 8, maxlength: 72 %>
   <%= f.password_field_with_label :password_confirmation, required: true, autocomplete: "new-password", placeholder: t("auth.placeholders.repeat_password"), minlength: 8, maxlength: 72 %>
   <%= f.submit t("auth.sign_up"), class: button_classes(:primary, "w-full") %>
+  <p class="mt-3 text-center text-[12px] text-muted" data-privacy-notice>
+    <%= t("privacy.agree_signup_html", privacy: link_to(t("privacy.link"), privacy_path(locale: params[:locale]), class: "text-accent underline", data: { turbo_frame: "_top" })) %>
+  </p>
 <% end %>
 
 <%= render "auth/oauth" %>

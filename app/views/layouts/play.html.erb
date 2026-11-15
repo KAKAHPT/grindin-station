@@ -31,9 +31,14 @@
 
     <%# A page with a card grid (pairings) asks for a wider column with content_for(:wide_main, "1"); the top-cut
         bracket asks for the full width with "full". %>
-    <main class="<%= main_width %> mx-auto px-4 pt-4 pb-24 <%= "sm:pb-10" if own_header %>">
+    <main class="<%= main_width %> mx-auto px-4 pt-4 pb-6">
       <%= yield %>
     </main>
+
+    <%# The bottom padding (moved here from main) keeps the link clear of the fixed bottom nav. %>
+    <footer class="<%= main_width %> mx-auto px-4 pb-24 <%= "sm:pb-10" if own_header %> text-xs text-muted">
+      <%= link_to t("privacy.link"), privacy_path(locale: params[:locale]), class: "hover:text-ink", data: { privacy_link: true } %>
+    </footer>
 
     <nav data-play-nav aria-label="<%= current_event.name %>" class="fixed bottom-0 inset-x-0 z-20 border-t border-line bg-surface/95 backdrop-blur <%= "sm:hidden" if own_header %>">
       <% nav = [[t("play.nav.event"), play_event_path(current_event.slug, locale: params[:locale])]]

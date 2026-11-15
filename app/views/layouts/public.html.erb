@@ -38,6 +38,8 @@
       <% else %>
         <%= link_to t("profiles.sign_in"), new_session_path(locale: params[:locale]), class: "hover:text-ink" %>
       <% end %>
+      <span aria-hidden="true">·</span>
+      <%= link_to t("privacy.link"), privacy_path(locale: params[:locale]), class: "hover:text-ink", data: { privacy_link: true } %>
     </footer>
   </body>
 </html>

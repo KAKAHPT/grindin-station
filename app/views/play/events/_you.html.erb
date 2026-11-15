@@ -38,7 +38,7 @@
       <% else %>
         <%= form_with model: participant, url: tournament_event_participant_path(event, participant, locale: params[:locale]),
                       method: :patch, data: { decklist_form: true }, class: "flex gap-2" do |f| %>
-          <%= f.text_field :decklist, placeholder: "https://moxfield.com/decks/…", class: "field-input flex-1 min-w-0" %>
+          <%= f.text_field :decklist, placeholder: t("play.events.decklist_placeholder"), class: "field-input flex-1 min-w-0" %>
           <%= f.button t("play.events.save"), class: button_classes(:primary, size: :sm) %>
         <% end %>
         <p class="mt-2 text-[11.5px] text-muted"><%= t("play.events.decklist_help") %></p>

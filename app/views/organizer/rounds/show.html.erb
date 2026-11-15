@@ -20,19 +20,21 @@
     <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
       <% if @round.published? %>
         <% if @round.started? %>
-          <span
+          <button
+            type="button"
             data-action="click->round-timer#toggleFullscreen"
             class="
               cursor-zoom-in font-display text-xl font-semibold tabular text-ink
               inline-flex items-center justify-center px-3 h-9 rounded-md
               bg-surface-raised border border-line shadow-card
+              focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent
             "
             data-controller="round-timer"
             data-round-timer-round-time-value="<%= @round.duration %>"
             data-round-timer-started-at-value="<%= @round.started_at.iso8601 %>"
             data-round-timer-finished-at-value="<%= @round.finished_at&.iso8601 %>"
             data-round-timer-finished-label-value="<%= t("rounds.finished_in", time: "%{time}") %>"
-          ><% if @round.finished_at %><%= render "rounds/finished_clock", round: @round %><% else %><%= clock_text(@round.started_at, @round.duration&.to_i) %><% end %></span>
+          ><% if @round.finished_at %><%= render "rounds/finished_clock", round: @round %><% else %><%= clock_text(@round.started_at, @round.duration&.to_i) %><% end %></button>
           <% if keeper && !@round.past? %>
             <%= button_to [:organizer, @round.event, @round.becomes(Round)], method: :patch, params: {round: {action: :close}}, form_class: "w-full sm:w-auto", class: button_classes(:primary, "w-full sm:w-auto", size: :sm) do %>
               <%= t("rounds.close") %>
@@ -104,7 +106,7 @@
             />
           </svg>
         </div>
-        <%= text_field_tag :query, nil, id: "table-search", type: "search", autocomplete: "off", placeholder: "Search for players", data: { action: "input->pod-filter#filter", pod_filter_target: "input" }, class: "block h-10 ps-10 text-sm text-ink border border-line rounded-md w-full sm:w-80 bg-surface placeholder:text-muted focus:ring-accent focus:border-accent" %>
+        <%= text_field_tag :query, nil, id: "table-search", type: "search", autocomplete: "off", placeholder: t("rounds.search_players"), "aria-label": t("rounds.search_players"), data: { action: "input->pod-filter#filter", pod_filter_target: "input" }, class: "block h-10 ps-10 text-sm text-ink border border-line rounded-md w-full sm:w-80 bg-surface placeholder:text-muted focus:ring-accent focus:border-accent" %>
       </div>
     </div>
   </div>
