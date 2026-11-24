@@ -457,6 +457,8 @@ module Organizer
         assert_select "input[name='tournament[state]'][value=canceled]", 0
       end
       assert_tabs active: "Overview", open_calls: 1
+      assert_select "[data-tabs] a[data-open-clock][data-controller=popup][href=?]", play_screen_path(tournament.slug),
+                    text: /Open clock/
       assert_select "[data-overview-counters] .card", 4
       assert_select "[data-overview-format]", text: /Swiss rounds/
       assert_select "[data-overview-lately]", text: /Judge called/

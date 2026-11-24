@@ -665,6 +665,44 @@
     color: var(--color-muted);
   }
 
+  /* TV screen (play/timers/screen): a result animates in when it is new to the page; pager dots. */
+  .screen-pop {
+    animation: screen-pop 900ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  }
+
+  .screen-in {
+    animation: screen-in 500ms ease-out both;
+  }
+
+  .screen-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 9999px;
+    background: var(--color-line-strong);
+  }
+
+  .screen-dot[data-on] {
+    background: var(--color-accent);
+  }
+
+  @keyframes screen-pop {
+    0% { opacity: 0; transform: scale(0.85); box-shadow: 0 0 0 0 rgb(45 212 191 / 0.55); }
+    60% { opacity: 1; transform: scale(1.03); box-shadow: 0 0 0 18px rgb(45 212 191 / 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgb(45 212 191 / 0); }
+  }
+
+  @keyframes screen-in {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .screen-pop,
+    .screen-in {
+      animation: none;
+    }
+  }
+
   /* Card: surface, line border, 12 px radius; .card-title is its dark title band. */
   .card {
     background: var(--color-surface);

@@ -1,0 +1,82 @@
+<%# The TV screen: clock and results summary on the left, the round's tables in blocks on the right.
+    Live: any change to the event's pods morph-refreshes it (same stream as the public pairings). %>
+<% content_for :head do %><% turbo_refreshes_with method: :morph, scroll: :preserve %><%= yield :head %><% end %>
+<%= turbo_stream_from LiveBroadcasts.pairings_stream(@event.id) %>
+<% total = @pods.size %>
+<% finished = @pods.select(&:finished?).sort_by { |pod| pod.current_results.filter_map(&:created_at).max || Time.zone.at(0) }.reverse %>
+<% running = @round&.started_at && @round.finished_at.nil? %>
+<% round_name = @round && (@round.is_a?(SingleEliminationRound) ? @round.display_name : t("play.tables.round", number: @round.number)) %>
+<% outcome = lambda do |pod|
+     won = pod.current_results.find { |result| result.class.in?([Win, Advance]) }
+     won && pod.seatings.find { |seating| seating.event_participant_id == won.event_participant_id }&.event_participant&.name
+   end %>
+<% pages = total.zero? ? [] : @pods.each_slice((total.to_f / (total / 12.0).ceil).ceil).to_a %>
+
+<div class="h-full grid grid-cols-[minmax(0,5fr)_minmax(0,8fr)] gap-6 p-8" data-screen>
+  <aside class="card flex flex-col gap-6 p-10 min-h-0">
+    <div class="flex items-center gap-3 min-w-0">
+      <%= render "shared/mark", size: 44, rotating: true, id_suffix: "screen" %>
+      <div class="min-w-0">
+        <p class="truncate font-display text-2xl font-semibold tracking-tight text-ink"><%= @event.name %></p>
+        <p class="text-[13px] font-semibold uppercase tracking-[0.08em] text-muted" data-screen-round><%= round_name %><% if @round.is_a?(SwissRound) %> / <%= @event.number_of_swiss_rounds %><% end %></p>
+      </div>
+    </div>
+
+    <div>
+      <p class="font-display font-bold tabular text-ink leading-none text-[min(11vw,210px)] -ms-1" data-screen-clock>
+        <% if running && @round.duration %>
+          <span data-controller="big-timer" data-big-timer-started-at-value="<%= @round.started_at.iso8601(3) %>" data-big-timer-minutes-value="<%= @minutes %>"><%= clock_text(@round.started_at, @minutes * 60) %></span>
+        <% elsif running %>
+          <span data-controller="round-timer" data-round-timer-round-time-value="0" data-round-timer-started-at-value="<%= @round.started_at.iso8601 %>"><%= clock_text(@round.started_at, nil) %></span>
+        <% else %>
+          <span class="block text-[min(4.2vw,80px)] leading-tight"><%= @round&.finished_at ? t("timer.closed") : t("timer.waiting") %></span>
+        <% end %>
+      </p>
+      <% if running %><p class="mt-2 text-base font-semibold uppercase tracking-[0.08em] text-muted"><%= @round.duration ? t("screen.time_left") : t("screen.time_played") %></p><% end %>
+    </div>
+
+    <%# Results as they come in: the latest one large (it animates in when it changes), then the ones before it. %>
+    <div class="grow min-h-0 flex flex-col gap-3 overflow-hidden" data-screen-results>
+      <% if finished.any? %>
+        <p class="text-[13px] font-semibold uppercase tracking-[0.08em] text-muted"><%= t("screen.latest") %></p>
+        <% latest = finished.first %>
+        <% name = outcome.call(latest) %>
+        <div id="screen_latest_<%= latest.id %>" class="screen-pop rounded-xl border border-accent/55 bg-accent/[0.08] px-5 py-4" data-screen-latest>
+          <p class="text-sm font-semibold uppercase tracking-[0.08em] text-accent"><%= t("play.tables.table") %> <%= latest.number %></p>
+          <p class="mt-1 flex items-center gap-3 font-display text-4xl font-semibold tracking-tight text-ink">
+            <% if name %><%= icon("trophy", class: "text-accent shrink-0") %><span class="truncate"><%= name %></span><% else %><%= t("play.draw") %><% end %>
+          </p>
+        </div>
+        <ol class="flex flex-col divide-y divide-line/60">
+          <% finished.drop(1).first(5).each do |pod| %>
+            <% name = outcome.call(pod) %>
+            <li id="screen_result_<%= pod.id %>" class="screen-in flex items-center gap-3 py-2 text-lg">
+              <span class="w-24 shrink-0 font-display font-semibold text-muted"><%= t("play.tables.table") %> <%= pod.number %></span>
+              <span class="min-w-0 truncate <%= name ? "text-ink" : "text-muted" %>"><% if name %><%= icon("trophy", class: "text-[16px] text-muted me-1.5") %><%= name %><% else %><%= t("play.draw") %><% end %></span>
+            </li>
+          <% end %>
+        </ol>
+      <% end %>
+    </div>
+
+    <div data-screen-progress>
+      <div class="h-2 rounded-full bg-surface-raised overflow-hidden"><div class="h-full rounded-full bg-accent transition-[width] duration-700" style="width: <%= total.zero? ? 0 : (finished.size * 100 / total) %>%"></div></div>
+      <p class="mt-2 text-sm font-semibold uppercase tracking-[0.08em] text-muted"><%= t("screen.tables_finished_html", done: tag.b(finished.size, class: "text-ink font-display text-lg"), total: total) %></p>
+    </div>
+  </aside>
+
+  <section class="flex flex-col gap-4 min-h-0" data-controller="screen-pages" data-screen-pages-seconds-value="<%= params[:seconds].to_i.clamp(1, 120).then { |s| params[:seconds].present? ? s : 12 } %>">
+    <% pages.each_with_index do |page, index| %>
+      <%= tag.div class: "grid grid-cols-3 gap-4 content-start", hidden: !index.zero?,
+                  data: { screen_pages_target: "page", label: t("screen.tables_range", from: page.first.number, to: page.last.number) } do %>
+        <% page.each do |pod| %><%= render "play/pairings/table", pod: pod, event: @event %><% end %>
+      <% end %>
+    <% end %>
+    <% if pages.size > 1 %>
+      <div class="mt-auto flex items-center justify-end gap-3 text-sm font-semibold uppercase tracking-[0.08em] text-muted" data-screen-pager>
+        <span data-screen-pages-target="label"><%= t("screen.tables_range", from: pages.first.first.number, to: pages.first.last.number) %></span>
+        <span class="flex gap-1.5"><% pages.each_index do |index| %><%= tag.span class: "screen-dot", data: { screen_pages_target: "dot", on: (true if index.zero?) } %><% end %></span>
+      </div>
+    <% end %>
+  </section>
+</div>

@@ -442,6 +442,7 @@ pt:
         one: "1 ronda suíça"
         other: "%{count} rondas suíças"
       view_public: "Ver página pública"
+      open_clock: "Abrir relógio"
       confirm_state: "Tem a certeza?"
       confirm_start_no_shows: "%{count} sem check-in ficam de fora e não são emparelhados: %{names}. Começar mesmo assim?"
       reopen: "Reabrir"
@@ -866,6 +867,12 @@ pt:
       confirmed: "Resultado confirmado."
       contested: "Resultado contestado. Foi chamado um juiz."
       judge_called: "Foi chamado um juiz."
+  screen:
+    time_left: "Tempo restante"
+    time_played: "Tempo de jogo"
+    latest: "Último resultado"
+    tables_finished_html: "%{done} / %{total} mesas terminadas"
+    tables_range: "Mesas %{from}–%{to}"
   timer:
     waiting: "À espera da próxima ronda"
     closed: "Ronda fechada"

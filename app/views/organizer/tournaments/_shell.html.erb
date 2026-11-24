@@ -24,5 +24,14 @@
                  }
                end
              } %>
-  <%= render "shared/tabs", tabs: tournament_tabs(tournament, role: role, active: tournament_active_tab, open_calls: open_calls) %>
+  <%# Open clock: the TV screen (clock, results, tables) in its own window, to drag to a second monitor. %>
+  <% open_clock = capture do %>
+    <% unless tournament.state.in?(Event::HIDDEN_STATES) %>
+      <%= link_to play_screen_path(tournament.slug), target: "grindin_clock", rel: "noopener", class: button_classes(:secondary, size: :xs),
+                  data: { controller: "popup", action: "popup#open", open_clock: true } do %>
+        <%= icon("clock", class: "me-1.5") %><%= t("organizer.shell.open_clock") %>
+      <% end %>
+    <% end %>
+  <% end %>
+  <%= render "shared/tabs", tabs: tournament_tabs(tournament, role: role, active: tournament_active_tab, open_calls: open_calls), trailing: open_clock %>
 <% end %>
