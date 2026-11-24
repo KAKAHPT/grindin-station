@@ -17,6 +17,7 @@ class Round < ApplicationRecord
 
   after_create :create_pods
   after_update :round_finished
+  after_update_commit :notify_players, if: -> { saved_change_to_published?(to: true) }
   after_update_commit :broadcast_live, if: -> { saved_changes.keys.intersect?(%w[published started_at finished_at]) }
 
   def finished?
@@ -74,6 +75,9 @@ class Round < ApplicationRecord
     tables = saved_change_to_published?(to: true) || saved_change_to_finished_at?(to: nil)
     Live::BroadcastRoundJob.perform_later(self, tables: tables, request_id: Turbo.current_request_id)
   end
+
+  # The pairings are out: each player with an account gets a notification that leads to their table.
+  def notify_players = Notify.round(self, kind: "round_published")
 
   def round_finished
     return unless finished_at.present? && finished_at_previously_changed?

@@ -1221,6 +1221,7 @@ en:
     kinds:
       judge_call: "A judge was called at %{event}."
       result_contested: "A result at your table was contested at %{event}. A judge is on the way."
+      round_published: "%{round} of %{event} is out. See your table."
       mentioned: "%{name} mentioned you in the social feed."
       team_requested: "%{name} asks to join %{team}."
       team_invited: "You were invited to join %{team}."

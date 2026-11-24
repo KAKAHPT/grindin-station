@@ -1221,6 +1221,7 @@ pt:
     kinds:
       judge_call: "Foi chamado um juiz em %{event}."
       result_contested: "Um resultado da tua mesa foi contestado em %{event}. Vem aí um juiz."
+      round_published: "%{round} de %{event} já saiu. Vê a tua mesa."
       mentioned: "%{name} mencionou-te no feed social."
       team_requested: "%{name} pede para entrar em %{team}."
       team_invited: "Foste convidado para %{team}."
