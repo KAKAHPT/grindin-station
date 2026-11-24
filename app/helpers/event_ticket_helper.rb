@@ -50,9 +50,9 @@ module EventTicketHelper
     end
   end
 
-  # The organizer's name, linked to /o/:handle when they have one.
+  # The organizer's name, linked to /o/:handle when they have one (and organizer pages are on).
   def ticket_organizer_name(user)
-    return user.name unless user.handle
+    return user.name unless user.handle && Features.on?(:organizers)
 
     link_to user.name, organizer_profile_path(user.handle, locale: params[:locale])
   end

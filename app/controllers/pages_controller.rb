@@ -41,7 +41,7 @@ class PagesController < ApplicationController
 
   # The Upcoming list narrowed to the chosen format (?play=) when it is one of the listed ones.
   def upcoming_scope(listed)
-    @plays = plays_present(listed)
+    @plays = Features.on?(:one_v_one) ? plays_present(listed) : []
     @play = params.permit(:play)[:play].presence_in(@plays)
     @play ? listed.with_play(@play) : listed
   end
@@ -59,9 +59,13 @@ class PagesController < ApplicationController
   # Up to nine admin-featured circuits (an ECL season, a championship) on a rail under the featured tournaments, and
   # the waiting-list form.
   def load_extras
-    @featured_circuits = Circuit.featured.with_attached_banner.preload(event_organizer: :user).order(:created_at)
-      .limit(FEATURED_CIRCUITS_LIMIT).to_a
+    @featured_circuits = Features.on?(:circuits) ? featured_circuits : []
     @waitlist_signup = WaitlistSignup.new
+  end
+
+  def featured_circuits
+    Circuit.featured.with_attached_banner.preload(event_organizer: :user).order(:created_at)
+      .limit(FEATURED_CIRCUITS_LIMIT).to_a
   end
 
   # One preload, the latest published rounds and one count for the featured and the upcoming tickets together.

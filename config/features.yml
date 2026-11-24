@@ -1,0 +1,25 @@
+# One switch per module (see app/models/features.rb). A module that is off leaves the menus and its addresses
+# answer "not found"; its code, tables and data stay as they are. To bring one back: set it to true and deploy.
+#
+# Launch phase 1 (2026-11-24): only the cEDH tournament is public. Players' profiles stay on.
+shared:
+  feed: false          # /feed, posts, likes, Follow buttons and follower counts
+  leagues: false       # /leagues and the organizer's leagues
+  circuits: false      # /circuits, the organizer's circuits, featured circuits on the landing
+  rankings: false      # /rankings and the admin's invitational table
+  teams: false         # teams on the account page and the team tag on profiles
+  one_v_one: false     # 1v1 tournaments (Standard, Modern, …): new tournaments are Commander / cEDH
+  fairness: false      # /fairness, the public seat report
+  organizers: false    # /organizers, the organizer pages /o/:handle and their editor
+
+# The tests run with everything on, so a paused module cannot rot; test/integration/launch_phase_test.rb
+# switches to the set above.
+test:
+  feed: true
+  leagues: true
+  circuits: true
+  rankings: true
+  teams: true
+  one_v_one: true
+  fairness: true
+  organizers: true

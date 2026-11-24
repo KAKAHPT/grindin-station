@@ -18,10 +18,13 @@ module NotificationsHelper
   def notification_path_for(notification, event)
     locale = params[:locale]
     case notification.kind
-    when "mentioned" then feed_path(locale: locale)
+    when "mentioned" then mention_path(locale)
     when /\Ateam_/ then account_path(locale: locale, anchor: "team")
     when "judge_call" then event && organizer_tournament_judge_calls_path(event, locale: locale)
     when "result_contested" then event && play_me_path(event.slug, locale: locale)
     end
   end
+
+  # The feed, or nothing while it is paused (config/features.yml).
+  def mention_path(locale) = (feed_path(locale: locale) if Features.on?(:feed))
 end

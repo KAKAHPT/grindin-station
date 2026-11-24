@@ -75,6 +75,10 @@ Event (abstract base)
 - **1v1 pages/feeds**: no seat squares anywhere; scores next to the winner; standings columns Pts / OMW% / GW% / OGW% / Win % / W-L-D; feeds add `format`, `matchGames`, `games` per table and `omw/gw/ogw` per row (no `seats`). Multiplayer keys unchanged.
 - Research and spec: `docs/superpowers/notes/2026-11-04-1v1-formats-research.md`, `docs/superpowers/specs/2026-11-04-1v1-format-design.md`.
 
+### Launch phases (feature switches)
+
+- **Phase 1 (2026-11-24)**: only the cEDH tournament is public. `config/features.yml` holds one boolean per module (`feed leagues circuits rankings teams one_v_one fairness organizers`): `shared` is what development and production run (all off in phase 1), `test` turns everything on. `Features.on?(:name)` (`app/models/features.rb`, an unknown name raises) hides links and controls; `constraints(Features.constraint(:name))` in `config/routes.rb` makes a paused module's addresses answer 404 for everyone (path helpers still exist). With `one_v_one` off the Format select offers Commander / cEDH only and `Organizer::TournamentsController#create` forces it. A new route of a pausable module goes inside its `constraints` block; a new link to one is wrapped in `Features.on?`. `test/integration/launch_phase_test.rb` runs the launch set (every paused route 404, tournament pages link to nothing paused). Bring a module back by setting its line to `true` and deploying. Spec `docs/superpowers/specs/2026-11-24-launch-phase-1.md`
+
 ### Tournament State Machine
 
 ```
