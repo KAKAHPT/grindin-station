@@ -6,10 +6,10 @@ require "application_system_test_case"
 class BrandNameTest < ApplicationSystemTestCase
   test "the name shows beside the mark, links home and fits a phone" do
     visit events_path
-    assert_selector ".topbar-brand [data-brand-name]", text: I18n.t("app.name"), visible: true
+    assert_selector ".topbar-brand [data-brand-name]", text: I18n.t("app.name"), visible: :visible
 
     page.driver.browser.manage.window.resize_to(375, 800)
-    assert_selector ".topbar-brand [data-brand-name]", visible: true
+    assert_selector ".topbar-brand [data-brand-name]", visible: :visible
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")
 
     find(".topbar-brand").click
