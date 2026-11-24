@@ -37,6 +37,14 @@ module Accounts
       assert_match(/\Aremoved-\h{24}\z/, user.player.key)
     end
 
+    test "clears a pending new e-mail address" do
+      @user.update!(unconfirmed_email: "new-address@example.com")
+
+      Anonymize.call(user: @user)
+
+      assert_nil @user.reload.unconfirmed_email
+    end
+
     test "clears the team" do
       @user.update!(team: "Porto Grinders")
 

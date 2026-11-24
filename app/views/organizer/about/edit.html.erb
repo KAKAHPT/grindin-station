@@ -41,7 +41,7 @@
       <% EventOrganizer::LINKS.each do |key| %>
         <div class="field">
           <%= label_tag "event_organizer_links_#{key}", t("organizer.about.link_labels.#{key}") %>
-          <%= url_field_tag "event_organizer[links][#{key}]", @organizer.links[key], id: "event_organizer_links_#{key}", placeholder: "https://…", class: "field-input" %>
+          <%= url_field_tag "event_organizer[links][#{key}]", @organizer.links[key], id: "event_organizer_links_#{key}", placeholder: t("organizer.about.link_placeholder"), class: "field-input" %>
         </div>
       <% end %>
     </div>

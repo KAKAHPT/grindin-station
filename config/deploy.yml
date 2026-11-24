@@ -24,6 +24,12 @@ proxy:
     path: /up
     interval: 3
     timeout: 5
+  # Refuse a request body over 10 MB at the proxy, before it reaches Puma (the app's size checks only run once the
+  # whole upload has arrived). The largest real request is the account form: a 2 MB avatar plus a 4 MB banner.
+  buffering:
+    requests: true
+    responses: true
+    max_request_body: 10_000_000
 
 registry:
   server: ghcr.io

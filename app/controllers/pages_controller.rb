@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 # The landing (/): the fair-seats story, the organisers' waiting list, the featured tournaments (up to nine on a
-# rail, left out of Upcoming) and the next public tournaments. Also /fairness, the public seat-fairness report.
+# rail, left out of Upcoming) and the next public tournaments. Also /fairness, the public seat-fairness report, and
+# /privacy, the privacy notice.
 class PagesController < ApplicationController
   allow_unauthenticated_access
   layout "public"
@@ -32,6 +33,9 @@ class PagesController < ApplicationController
     @rounds = @report["rounds"]
     @averages = %w[fair random].index_with { |seating| average_fair_rate(seating) }
   end
+
+  # /privacy: what personal data the site keeps, why, for how long and the visitor's rights (texts in privacy.*).
+  def privacy; end
 
   private
 
