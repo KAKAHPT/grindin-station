@@ -13,11 +13,16 @@
       <div class="flex flex-wrap items-center gap-2 min-w-0">
         <% if @rounds.size > 1 %>
           <nav data-round-selector aria-label="<%= t("play.pairings.rounds") %>" class="seg max-w-full overflow-x-auto">
+            <%# "Round 1 2 3 4 5 | Top 16 | Finals": swiss rounds by number after one label, cut rounds by name. %>
+            <% if @rounds.any?(SwissRound) %>
+              <span data-round-word class="self-center ps-2.5 pe-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted"><%= t("play.pairings.round_word") %></span>
+            <% end %>
             <% @rounds.each do |round| %>
               <% active = round == @round %>
-              <%= link_to round.number, play_pairings_path(current_event.slug, round: round.number, locale: url_locale),
-                          "aria-current": ("page" if active), "aria-label": t("play.tables.round", number: round.number),
-                          class: ["tabular", ("seg-on" if active)] %>
+              <% cut = round.is_a?(SingleEliminationRound) %>
+              <%= link_to (cut ? round.display_name : round.number), play_pairings_path(current_event.slug, round: round.number, locale: url_locale),
+                          "aria-current": ("page" if active), "aria-label": (cut ? round.display_name : t("play.tables.round", number: round.number)),
+                          data: { cut_round: (true if cut) }, class: ["tabular whitespace-nowrap", ("seg-on" if active)] %>
             <% end %>
           </nav>
         <% end %>
