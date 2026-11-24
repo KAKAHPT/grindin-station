@@ -68,7 +68,7 @@ module Organizer
         redirect_to [:organizer, @event_participant.event, :event_participants, { layout: "application" }],
                     notice: "#{@event_participant.name} added!"
       else
-        render :new, status: :unprocessable_entity
+        render :new, status: :unprocessable_entity, layout: modal_layout
       end
     end
 

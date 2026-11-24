@@ -30,7 +30,7 @@ module Organizer
         redirect_to [:organizer, @infraction.event, :event_participants, { layout: "application" }],
                     notice: t("flash.notice.infraction_added")
       else
-        render :new, status: :unprocessable_entity
+        render :new, status: :unprocessable_entity, layout: modal_layout
       end
     end
 
