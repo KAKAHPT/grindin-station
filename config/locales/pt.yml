@@ -225,6 +225,8 @@ pt:
     name: "Grindin Station"
     description: "Emparelhamentos, classificações e resultados de eventos de cEDH, ao vivo no telemóvel."
   activerecord:
+    models:
+      tournament: "torneio"
     errors:
       models:
         team_membership:
@@ -352,6 +354,19 @@ pt:
         check_in_opens_hours_before: "O check-in abre (horas antes do início)"
         top_cut_timeout_rule: "Se um jogo do corte esgotar o tempo"
         country: "País"
+        name: "Nome"
+        start_time: "Início"
+        end_time: "Fim"
+        address: "Morada"
+        price: "Preço"
+        currency: "Moeda"
+        minimum_participants: "Mínimo de jogadores"
+        maximum_participants: "Máximo de jogadores"
+        cover: "Capa"
+        prizes: "Prémios"
+        schedule: "Horário"
+        rules: "Regras"
+        description: "Descrição"
       event_participant:
         accepted_terms: "Li e aceito as regras deste evento."
       result:
