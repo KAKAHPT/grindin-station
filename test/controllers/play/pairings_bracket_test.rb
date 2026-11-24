@@ -14,6 +14,16 @@ module Play
       @cut.update!(published: true)
     end
 
+    test "a small cut keeps the column of the other event pages; only a wide one takes the full width" do
+      get play_pairings_path(@tournament.slug)
+      assert_select "main.max-w-6xl"
+      assert_select "main[class*='max-w-[2000px]']", 0
+
+      @tournament.update_columns(top_cut_size: 40) # rubocop:disable Rails/SkipsModelValidations
+      get play_pairings_path(@tournament.slug)
+      assert_select "main[class*='max-w-[2000px]']"
+    end
+
     test "the round selector reads Round 1, then the cut rounds by name" do
       get play_pairings_path(@tournament.slug)
 
