@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # The organizer tournament page shell: state chip, event header (eyebrow, info line, state action), route tabs.
-module OrganizerShellHelper
+module OrganizerShellHelper # rubocop:disable Metrics/ModuleLength
   # "Registration open", "Swiss round 2", "Top 4", ... as a flat chip; swiss uses the latest round number.
   def organizer_state_chip(tournament)
     tone = EventsHelper::EVENT_STATE_TONES.fetch(tournament.state)
@@ -16,9 +16,15 @@ module OrganizerShellHelper
       # The counter cache, not a count query: the label shows on every card of the list.
       suggested = Tournaments::Structure.suggested(tournament.event_participants_count, format: tournament.format)
       size = tournament.top_cut_size || suggested[:top_cut_size]
-      t("play.events.state.single_elimination", size: size)
+      cut_round_name(tournament) || t("play.events.state.single_elimination", size: size)
     else t("play.events.state.#{tournament.state}")
     end
+  end
+
+  # The cut round being played ("Top 16", "Finals"), nil before the first one exists.
+  def cut_round_name(tournament)
+    latest = tournament.rounds.max_by(&:number)
+    latest.display_name if latest.is_a?(SingleEliminationRound)
   end
 
   # "Tournament · Registration open · Legacy · Bo3" (the game format for 1v1)
@@ -76,6 +82,15 @@ module OrganizerShellHelper
 
   # The one state change offered in the header before the swiss (the round page moves the swiss on;
   # Cancel event lives in Settings).
+  # Starting the event names the enrolled players without check-in: they are left out (Tournament#no_show_participants).
+  def state_confirm(tournament, next_state)
+    starting = tournament.registration_closed? && %w[swiss single_elimination].include?(next_state.to_s)
+    left_out = starting ? tournament.no_show_participants : []
+    return t("organizer.shell.confirm_state") if left_out.empty?
+
+    t("organizer.shell.confirm_start_no_shows", count: left_out.size, names: left_out.map(&:name).sort.to_sentence)
+  end
+
   def tournament_next_state(tournament)
     return unless tournament.state_for_database < Tournament.states[:swiss]
 

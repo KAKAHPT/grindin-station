@@ -25,6 +25,36 @@ module Organizer
       assert_select "form[action='#{organizer_tournaments_path}']"
     end
 
+    test "starting leaves out the enrolled players without check-in, after naming them in the confirmation" do
+      tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_closed)
+      absent = tournament.event_participants.order(:id).first(2)
+      tournament.event_participants.where.not(id: absent.map(&:id)).find_each { |p| p.update!(checked_in: true) }
+
+      get organizer_tournament_path(tournament)
+      assert_select "form button[data-turbo-confirm*='2 without check-in']"
+      absent.each { |p| assert_select "form button[data-turbo-confirm*=?]", p.name }
+
+      patch organizer_tournament_path(tournament), params: { tournament: { state: "swiss" } }
+
+      assert tournament.reload.swiss?
+      assert_equal(%w[no_show no_show], absent.map { |p| p.reload.drop_reason })
+      seated = tournament.rounds.first.pods.flat_map { |pod| pod.seatings.map(&:event_participant_id) }
+      assert_equal 6, seated.size
+      assert_empty seated & absent.map(&:id)
+    end
+
+    test "an event that never used check-in starts with everyone, with the plain confirmation" do
+      tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_closed)
+
+      get organizer_tournament_path(tournament)
+      assert_select "form button[data-turbo-confirm='Are you sure?']"
+      patch organizer_tournament_path(tournament), params: { tournament: { state: "swiss" } }
+
+      assert_equal 8, tournament.reload.event_participants.count(&:enrolled?)
+    end
+
     test "a judge moves the tournament to swiss but cannot open Settings; a staff organizer can" do
       tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer),
                                            state: :registration_closed)

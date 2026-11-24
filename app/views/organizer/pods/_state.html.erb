@@ -67,18 +67,20 @@
         <% unless pod.event.one_v_one? %>
           <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= won ? "text-accent" : "text-muted" %>"><%= seats[player.id] %></span>
         <% end %>
-        <span class="flex-1 min-w-0 truncate text-[13px]"><%= result_indicator(pod:, player:) %><% if score.present? %><span class="ms-1 font-display font-semibold text-muted">· <%= score %></span><% end %></span>
+        <span class="min-w-0 truncate text-[13px]"><%= result_indicator(pod:, player:) %><% if score.present? %><span class="ms-1 font-display font-semibold text-muted">· <%= score %></span><% end %></span>
+        <%# Staff chips sit right after the name; the far right of the row is the winner pick. %>
         <% unless pod.round.published? %>
-          <%= link_to [:swap, :organizer, pod.event, pod.round.becomes(Round), :seatings], data: {action: 'click->swap#selectPlayer', 'swap-player-param' => player.id, 'swap-pod-param' => pod.id, 'turbo-method': 'patch'}, class: "hidden group-hover:inline-flex items-center text-muted border border-line hover:text-ink hover:border-muted rounded-[4px] text-xs px-1 py-0.5" do %>
+          <%= link_to [:swap, :organizer, pod.event, pod.round.becomes(Round), :seatings], data: {action: 'click->swap#selectPlayer', 'swap-player-param' => player.id, 'swap-pod-param' => pod.id, 'turbo-method': 'patch'}, class: "hidden group-hover:inline-flex shrink-0 items-center text-muted border border-line hover:text-ink hover:border-muted rounded-[4px] text-xs px-1 py-0.5" do %>
             <%= icon("swap", class: "me-1") %>
             <span class="text-[0.5rem] leading-[0.5rem]">SWAP</span>
           <% end %>
         <% else %>
-          <%= link_to [:new, :organizer, pod.event, pod.round.becomes(Round), pod, :infraction, { player_id: player.player_id }], data: {turbo_frame: "modal"}, class: "hidden group-hover:inline-flex items-center text-danger border border-danger/40 hover:bg-danger/10 rounded-[4px] text-xs px-1 py-0.5" do %>
+          <%= link_to [:new, :organizer, pod.event, pod.round.becomes(Round), pod, :infraction, { player_id: player.player_id }], data: {turbo_frame: "modal"}, class: "hidden group-hover:inline-flex shrink-0 items-center text-danger border border-danger/40 hover:bg-danger/10 rounded-[4px] text-xs px-1 py-0.5" do %>
             <%= icon("gavel", class: "me-1") %>
             <span class="text-[0.5rem] leading-[0.5rem]">PENALTY</span>
           <% end %>
         <% end %>
+        <span class="flex-1" aria-hidden="true"></span>
         <% if show_results %>
           <%= icon("trophy", class: "text-[14px] text-muted") %>
         <% end %>

@@ -90,6 +90,15 @@
         <%= text_field_tag :query, params[:query], placeholder: t("rounds.search_players"), "aria-label": t("rounds.search_players"), class: "block h-8 ps-9 text-[12px] text-ink border border-line rounded-md w-full sm:w-64 bg-surface placeholder:text-muted focus:ring-accent focus:border-accent" %>
       <% end %>
       </div>
+      <% pending_check_in = @event.event_participants.count { |p| p.enrolled? && !p.checked_in? } %>
+      <% if !read_only && pending_check_in.positive? %>
+        <%= button_to [:check_in_all, :organizer, @event, :event_participants], method: :patch,
+                      data: { turbo_action: "replace", turbo_confirm: t("organizer.roster.confirm_check_in_all", count: pending_check_in) },
+                      class: button_classes(:secondary, size: :xs) do %>
+          <%= icon("user-check") %>
+          <%= t("organizer.roster.check_in_all") %>
+        <% end %>
+      <% end %>
       <% unless scorekeeper || read_only %>
         <%= link_to [:new, :organizer, @event, :event_participant], data: { turbo_frame: "modal" }, class: button_classes(:primary, size: :xs) do %>
           <%= icon("plus") %>

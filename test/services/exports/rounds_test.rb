@@ -49,7 +49,7 @@ module Exports
 
       rows = parse_export(Exports::Rounds.call(t.reload)).reject { |row| row[0].match?(/\A\d+\z/) }.drop(1)
 
-      assert_equal [t.single_elimination_round_name(3)], rows.map(&:first).uniq
+      assert_equal ["Top 4"], rows.map(&:first).uniq
       assert_equal %w[advance eliminated], rows.pluck(5).uniq.sort
     end
   end

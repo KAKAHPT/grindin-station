@@ -256,15 +256,23 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     assert_operator count, :<=, 12
   end
 
-  test "standings link the name only for public profiles" do
+  test "final standings open the player's path, which links the profile only when it is public" do
     @mate.update!(visibility: "private")
+    entry = ->(user) { @event.event_participants.find_by!(player: user.player) }
 
     get play_standings_path(@event.slug)
 
     assert_response :success
-    assert_select "a[href=?]", profile_path("rita"), text: "Rita Grind"
+    assert_select "a[data-player-path][href=?]", play_standing_player_path(@event.slug, entry.call(@owner)),
+                  text: "Rita Grind"
+    assert_select "a[href=?]", profile_path("rita"), count: 0
+
+    get play_standing_player_path(@event.slug, entry.call(@owner))
+    assert_select "a[href=?]", profile_path("rita"), text: "View profile"
+
+    get play_standing_player_path(@event.slug, entry.call(@mate))
+    assert_select "h3", text: "Duarte Mesa"
     assert_select "a[href=?]", profile_path(@mate.handle), count: 0
-    assert_select "th", text: "Duarte Mesa"
   end
 
   test "organizer form saves show_decklists" do

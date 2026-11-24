@@ -14,7 +14,7 @@
                if next_state
                  concat button_to(transition_for(state: next_state), organizer_tournament_path(tournament),
                                   method: :patch, params: { tournament: { state: next_state } },
-                                  data: { turbo_confirm: t("organizer.shell.confirm_state") },
+                                  data: { turbo_confirm: state_confirm(tournament, next_state) },
                                   class: button_classes(:primary, size: :xs))
                elsif manager && tournament.finished? && tournament.rounds.any?
                  concat button_to(reopen_organizer_tournament_path(tournament), method: :patch,

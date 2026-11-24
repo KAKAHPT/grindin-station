@@ -78,6 +78,7 @@ Rails.application.routes.draw do
     get "timer", to: "timers#show"
     get "pairings", to: "pairings#show"
     get "standings", to: "standings#show"
+    get "standings/:participant_id", to: "standings#player", as: :standing_player
     resources :pods, only: [] do
       get "report/new", to: "reports#new"
       post "report", to: "reports#create"
@@ -161,6 +162,7 @@ Rails.application.routes.draw do
           %i[check_in undo_check_in mark_paid mark_unpaid drop promote].each { |action| patch action }
         end
         get :search, on: :collection
+        patch :check_in_all, on: :collection
         resources :infractions, only: %i[index destroy]
       end
       resources :rounds do

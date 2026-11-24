@@ -12,10 +12,16 @@ module EventsHelper
     desk_chip(EVENT_STATE_TONES.fetch(event.state)) { event_state_label(event, round_number) }
   end
 
+  # The cut round being played ("Top 16", "Finals"); "Top <cut size>" before its first round exists.
+  def cut_state_label(event, round_number)
+    name = event.single_elimination_round_name(round_number) if round_number.to_i > event.number_of_swiss_rounds
+    name || t("play.events.state.single_elimination", size: event.top_cut_size)
+  end
+
   def event_state_label(event, round_number)
     case event.state
     when "swiss" then t("play.events.state.swiss", number: round_number || 1)
-    when "single_elimination" then t("play.events.state.single_elimination", size: event.top_cut_size)
+    when "single_elimination" then cut_state_label(event, round_number)
     else t("play.events.state.#{event.state}")
     end
   end

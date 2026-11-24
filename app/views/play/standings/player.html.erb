@@ -1,0 +1,39 @@
+<%# One player's path through a finished event, inside the final standings' dialog. @player, @steps (PlayPlayerPath). %>
+<%= turbo_frame_tag "player_path" do %>
+  <div class="px-[18px] py-4" data-player-path="<%= @player.id %>">
+    <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <h3 class="font-display text-lg font-semibold tracking-tight text-ink"><%= @player.name %></h3>
+      <% profile = profile_link(@player.player.user, t("play.path.profile")) %>
+      <% if profile != t("play.path.profile") %><span class="text-xs text-muted underline underline-offset-[3px]" data-turbo-frame="_top"><%= profile %></span><% end %>
+    </div>
+    <p class="mt-1 text-[13px] text-muted">
+      <% if @player.final_position %><b class="text-accent font-semibold"><%= t("play.path.position", position: @player.final_position) %></b> · <% end %>
+      <%= t("play.path.points", points: @player.standing_columns[:points]) %> ·
+      <%= t("play.path.record", wins: @player.number_of_wins, losses: @player.number_of_losses, draws: @player.number_of_draws) %>
+    </p>
+
+    <% if @steps.empty? %>
+      <p class="mt-4 text-[13px] text-muted"><%= t("play.path.empty") %></p>
+    <% else %>
+      <ol class="mt-4 flex flex-col divide-y divide-line/60 border-y border-line/60">
+        <% @steps.each do |step| %>
+          <li class="py-2.5" data-path-round="<%= step.round.number %>">
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
+              <b class="font-display font-semibold text-ink"><%= step.round.is_a?(SwissRound) ? t("play.path.round", number: step.round.number) : step.round.display_name %></b>
+              <% if step.pod %>
+                <span class="text-muted">· <%= t("play.tables.table") %> <%= step.pod.number %><% if step.seat && !@player.event.one_v_one? %> · <%= t("play.path.seat", seat: step.seat) %><% end %></span>
+              <% end %>
+              <span class="ms-auto" data-path-result="<%= step.result %>"><%= status_chip(PlayPlayerPath::TONES.fetch(step.result)) { t("play.path.results.#{step.result}") } %></span>
+            </div>
+            <% if step.others.any? %>
+              <p class="mt-1 text-[12px] text-muted">
+                <%= t("play.path.with") %>
+                <% step.others.each_with_index do |seating, index| %><%= ", " unless index.zero? %><%= link_to seating.event_participant.name, play_standing_player_path(@player.event.slug, seating.event_participant, locale: params[:locale]), class: "text-ink hover:underline underline-offset-[3px]" %><% unless @player.event.one_v_one? %> <span class="tabular">(<%= seating.order %>)</span><% end %><% if step.winner == seating.event_participant_id %> <%= icon("trophy", class: "text-[12px] text-muted") %><span class="sr-only"><%= t("play.pairings.winner") %></span><% end %><% end %>
+              </p>
+            <% end %>
+          </li>
+        <% end %>
+      </ol>
+    <% end %>
+  </div>
+<% end %>
