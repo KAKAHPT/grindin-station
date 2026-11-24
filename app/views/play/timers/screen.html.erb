@@ -12,8 +12,11 @@
    end %>
 <% pages = total.zero? ? [] : @pods.each_slice((total.to_f / (total / 12.0).ceil).ceil).to_a %>
 
-<div class="h-full grid grid-cols-[minmax(0,5fr)_minmax(0,8fr)] gap-6 p-8" data-screen>
-  <aside class="card flex flex-col gap-6 p-10 min-h-0">
+<%# A fixed stage scaled to the window (screen_fit_controller): 1920x1080, or 1080x1920 upright, where the
+    clock card goes on top and the tables under it in two columns. %>
+<div class="fixed inset-0 overflow-hidden" data-controller="screen-fit">
+<div class="screen-stage group/stage grid grid-cols-[minmax(0,5fr)_minmax(0,8fr)] data-[upright=true]:grid-cols-1 data-[upright=true]:grid-rows-[auto_minmax(0,1fr)] gap-6 p-8" data-screen data-screen-fit-target="stage">
+  <aside class="card flex flex-col gap-6 p-10 min-h-0 group-data-[upright=true]/stage:h-[600px]">
     <div class="flex items-center gap-3 min-w-0">
       <%= render "shared/mark", size: 44, rotating: true, id_suffix: "screen" %>
       <div class="min-w-0">
@@ -23,13 +26,13 @@
     </div>
 
     <div>
-      <p class="font-display font-bold tabular text-ink leading-none text-[min(11vw,210px)] -ms-1" data-screen-clock>
+      <p class="font-display font-bold tabular text-ink leading-none text-[200px] -ms-1 whitespace-nowrap" data-screen-clock data-screen-fit-target="clock">
         <% if running && @round.duration %>
           <span data-controller="big-timer" data-big-timer-started-at-value="<%= @round.started_at.iso8601(3) %>" data-big-timer-minutes-value="<%= @minutes %>"><%= clock_text(@round.started_at, @minutes * 60) %></span>
         <% elsif running %>
           <span data-controller="round-timer" data-round-timer-round-time-value="0" data-round-timer-started-at-value="<%= @round.started_at.iso8601 %>"><%= clock_text(@round.started_at, nil) %></span>
         <% else %>
-          <span class="block text-[min(4.2vw,80px)] leading-tight"><%= @round&.finished_at ? t("timer.closed") : t("timer.waiting") %></span>
+          <span class="block text-[80px] leading-tight whitespace-normal"><%= @round&.finished_at ? t("timer.closed") : t("timer.waiting") %></span>
         <% end %>
       </p>
       <% if running %><p class="mt-2 text-base font-semibold uppercase tracking-[0.08em] text-muted"><%= @round.duration ? t("screen.time_left") : t("screen.time_played") %></p><% end %>
@@ -67,7 +70,7 @@
 
   <section class="flex flex-col gap-4 min-h-0" data-controller="screen-pages" data-screen-pages-seconds-value="<%= params[:seconds].to_i.clamp(1, 120).then { |s| params[:seconds].present? ? s : 12 } %>">
     <% pages.each_with_index do |page, index| %>
-      <%= tag.div class: "grid grid-cols-3 gap-4 content-start", hidden: !index.zero?,
+      <%= tag.div class: "grid grid-cols-3 group-data-[upright=true]/stage:grid-cols-2 gap-4 content-start", hidden: !index.zero?,
                   data: { screen_pages_target: "page", label: t("screen.tables_range", from: page.first.number, to: page.last.number) } do %>
         <% page.each do |pod| %><%= render "play/pairings/table", pod: pod, event: @event %><% end %>
       <% end %>
@@ -79,4 +82,5 @@
       </div>
     <% end %>
   </section>
+</div>
 </div>
