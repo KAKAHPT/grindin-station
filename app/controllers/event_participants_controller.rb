@@ -83,7 +83,9 @@ class EventParticipantsController < ApplicationController # rubocop:disable Metr
     cancel_registration(@destroyed_participant)
     @event_participant = EventParticipant.new
 
-    redirect_to @event, notice: t("flash.notice.registration_canceled")
+    # Dropped from a /my-events ticket: back to that list, where the ticket now reads Dropped.
+    back = params[:from] == "my_events" ? my_events_path(locale: params[:locale]) : @event
+    redirect_to back, notice: t("flash.notice.registration_canceled")
   end
 
   private

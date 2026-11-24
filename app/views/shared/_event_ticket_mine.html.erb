@@ -8,7 +8,7 @@
                 class: button_classes(:light, size: :xs), data: { my_decklist: true } %>
   <% end %>
   <%= button_to t("my_events.drop"), tournament_event_participant_path(event, participant, locale: params[:locale]),
-                method: :delete, form_class: "contents", class: button_classes(:ghost, size: :xs),
+                method: :delete, params: { from: "my_events" }, form_class: "contents", class: button_classes(:ghost, size: :xs),
                 data: { my_drop: true, turbo_confirm: t(event.points_locked? ? "my_events.drop_confirm" : "play.events.cancel_confirm") } %>
 <% elsif participant.dropped? %>
   <span data-my-dropped><%= desk_chip(:missing) { t("my_events.dropped") } %></span>
