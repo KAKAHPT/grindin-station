@@ -816,6 +816,7 @@ es:
       byes: "Byes"
       bye: "Bye: %{name}"
       rounds: "Rondas"
+      round_word: "Ronda"
       winner: "Ganador"
     path:
       title: "Recorrido del jugador"
@@ -834,6 +835,7 @@ es:
         draw: "Empate"
         bye: "Bye"
         advance: "Avanzó"
+        winner: "Ganador"
         eliminated: "Eliminado"
         penalty: "Penalización"
         none: "Sin resultado"

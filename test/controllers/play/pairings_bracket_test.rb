@@ -14,6 +14,17 @@ module Play
       @cut.update!(published: true)
     end
 
+    test "the round selector reads Round 1, then the cut rounds by name" do
+      get play_pairings_path(@tournament.slug)
+
+      assert_select "[data-round-selector]" do
+        assert_select "[data-round-word]", text: "Round"
+        assert_select "a", text: "1"
+        assert_select "a[data-cut-round][aria-current=page]", text: "Top 13"
+        assert_select "a", text: "2", count: 0
+      end
+    end
+
     test "a cut round shows every stage of the cut: the played one with its tables and byes, the rest empty" do
       get play_pairings_path(@tournament.slug)
 
