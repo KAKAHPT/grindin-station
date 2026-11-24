@@ -2,7 +2,8 @@
 
 module Admin
   # /admin/organizers (M13 D17): the waiting-list signups (Pending by default, Approved, Declined) with Approve and
-  # Decline, then the current organizers with Revoke. The search box narrows both lists by name or e-mail.
+  # Decline, then the current organizers with Revoke (no events) and Suspend / Restore. The search box narrows
+  # both lists by name or e-mail.
   class OrganizersController < BaseController
     FILTERS = %w[pending approved declined].freeze
 
@@ -45,6 +46,22 @@ module Admin
       organizer.destroy!
       decline_signup_of(organizer.user)
       back_with(notice: t("admin.organizers.revoked_notice"))
+    end
+
+    # An organizer with events cannot be revoked (that would delete them): suspending takes the access away and
+    # hides the events not yet finished; finished ones stay as the players' history. Restore undoes it.
+    def suspend
+      organizer = EventOrganizer.find(params.expect(:id))
+      organizer.update!(suspended_at: Time.current)
+      Audit.record("organizer_suspended", subject: organizer.user, email: organizer.user&.email_address)
+      back_with(notice: t("admin.organizers.suspended_notice"))
+    end
+
+    def restore
+      organizer = EventOrganizer.find(params.expect(:id))
+      organizer.update!(suspended_at: nil)
+      Audit.record("organizer_restored", subject: organizer.user, email: organizer.user&.email_address)
+      back_with(notice: t("admin.organizers.restored_notice"))
     end
 
     private

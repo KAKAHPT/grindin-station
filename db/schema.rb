@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_07_200000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_24_210000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -130,6 +130,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_200000) do
     t.string "location"
     t.datetime "updated_at", null: false
     t.uuid "user_id"
+    t.datetime "suspended_at"
     t.index ["user_id"], name: "index_event_organizers_on_user_id"
   end
 
