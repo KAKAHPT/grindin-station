@@ -8,11 +8,16 @@ class BrandNameTest < ApplicationSystemTestCase
     visit events_path
     assert_selector ".topbar-brand [data-brand-name]", text: I18n.t("app.name"), visible: :visible
 
-    page.driver.browser.manage.window.resize_to(375, 800)
+    window = page.driver.browser.manage.window
+    size = window.size
+    window.resize_to(375, 800)
     assert_selector ".topbar-brand [data-brand-name]", visible: :visible
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")
 
     find(".topbar-brand").click
     assert_current_path root_path, ignore_query: true
+  ensure
+    # The browser is shared by the tests that follow: left at phone width they would get the collapsed menu.
+    window&.resize_to(size.width, size.height) if size
   end
 end
