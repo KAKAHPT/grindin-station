@@ -76,6 +76,7 @@ Rails.application.routes.draw do
   scope "/t/:slug", module: :play, as: :play do
     get "me", to: "tables#show"
     get "timer", to: "timers#show"
+    get "screen", to: "timers#screen"
     get "pairings", to: "pairings#show"
     get "standings", to: "standings#show"
     get "standings/:participant_id", to: "standings#player", as: :standing_player

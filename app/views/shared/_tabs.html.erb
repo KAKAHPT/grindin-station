@@ -1,5 +1,5 @@
 <%# Route tabs (underline teal). Local tabs: array of { label:, path:, active:, badge:, badge_data: } (badge optional;
-    a tab without a path shows disabled). %>
+    a tab without a path shows disabled). Optional local trailing: markup for the right end of the bar. %>
 <nav class="tabs" data-tabs>
   <% tabs.each do |tab| %>
     <% if tab[:path] %>
@@ -13,4 +13,5 @@
       <span class="tab tab-off" aria-disabled="true"><%= tab[:label] %></span>
     <% end %>
   <% end %>
+  <% if local_assigns[:trailing].present? %><span class="ms-auto self-center ps-3 pb-1.5 shrink-0"><%= trailing %></span><% end %>
 </nav>

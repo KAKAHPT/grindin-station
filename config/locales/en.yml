@@ -442,6 +442,7 @@ en:
         one: "1 Swiss round"
         other: "%{count} Swiss rounds"
       view_public: "View public page"
+      open_clock: "Open clock"
       confirm_state: "Are you sure?"
       confirm_start_no_shows: "%{count} without check-in will be left out and not paired: %{names}. Start anyway?"
       reopen: "Reopen"
@@ -868,6 +869,12 @@ en:
       confirmed: "Result confirmed."
       contested: "Result contested. A judge has been called."
       judge_called: "A judge has been called."
+  screen:
+    time_left: "Time left"
+    time_played: "Time played"
+    latest: "Latest result"
+    tables_finished_html: "%{done} / %{total} tables finished"
+    tables_range: "Tables %{from}–%{to}"
   timer:
     waiting: "Waiting for the next round"
     closed: "Round closed"
