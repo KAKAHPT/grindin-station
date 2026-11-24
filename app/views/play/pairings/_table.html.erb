@@ -5,7 +5,7 @@
 <% one_v_one = event.one_v_one? %>
 <% mine = local_assigns[:my_pod] && pod.id == my_pod.id %>
 <% results = pod.current_results.index_by(&:event_participant_id) %>
-<% status = pod.report_status %>
+<% status = pod_display_status(pod) %>
 <% drawn = status == :completed && results.values.all? { |result| result.is_a?(Draw) } %>
 <%= tag.article id: dom_id(pod), data: { pod_number: pod.number, pairing_table: true, my_table: (true if mine), bracket_card: (true if local_assigns[:bracket]) },
                 class: ["card flex flex-col overflow-clip", ("border-accent/55 ring-1 ring-accent/20" if mine)] do %>

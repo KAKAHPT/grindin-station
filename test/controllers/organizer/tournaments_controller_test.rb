@@ -414,6 +414,7 @@ module Organizer
     test "the tournament page is the Overview tab of the shell: header, six tabs, counters, format, lately" do
       tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
                                            state: :registration_open)
+      tournament.update!(price: 10, currency: "euro")
       JudgeCall.create!(event: tournament, reason: "rules")
 
       get organizer_tournament_path(tournament)
@@ -429,7 +430,20 @@ module Organizer
       assert_select "[data-overview-counters] .card", 4
       assert_select "[data-overview-format]", text: /Swiss rounds/
       assert_select "[data-overview-lately]", text: /Judge called/
+      assert_select "[data-overview-counters]", text: /unpaid/i
       assert_no_legacy_classes
+    end
+
+    test "a free tournament's Overview has no unpaid counter, and a drop shows under Lately" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_open)
+      tournament.event_participants.first.update!(dropped: true, dropped_at: Time.current)
+
+      get organizer_tournament_path(tournament)
+
+      assert_select "[data-overview-counters] .card", 3
+      assert_select "[data-overview-counters]", text: /unpaid/i, count: 0
+      assert_select "[data-overview-lately]", text: /dropped/
     end
 
     test "the Overview Export card lists the files and shows pairings only once a round is published" do

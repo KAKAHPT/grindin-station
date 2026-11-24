@@ -98,6 +98,9 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   # read_attribute: a record loaded against a schema without the column (or a stale schema cache) would otherwise
   # fall through to Kernel#format and raise "too few arguments".
+  # No entry fee: nothing about payment is shown on the roster.
+  def free? = price.to_d.zero?
+
   def one_v_one? = self[:format] == "one_v_one"
 
   def multiplayer? = self[:format] == "multiplayer"

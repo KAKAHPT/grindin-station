@@ -45,6 +45,18 @@ module Tournaments
       assert_operator dropped.reload.final_position, :<, 16
     end
 
+    test "a player who dropped before finishing a round has no final position and is not in the standings" do
+      tournament, = top_four_played_to_the_end
+      no_show = tournament.event_participants.create!(player_name: "Faltou", accepted_terms: true, dropped: true,
+                                                      player_email: "faltou-#{SecureRandom.hex(3)}@example.com")
+
+      Tournaments::FinishTournamentJob.perform_now(tournament)
+
+      assert_nil no_show.reload.final_position
+      assert_equal (1..16).to_a, tournament.event_participants.pluck(:final_position).compact.sort
+      assert_not_includes Feeds::Standings.ranked(tournament.reload).map(&:id), no_show.id
+    end
+
     test "circuit points are awarded from the final positions" do
       tournament, final = top_four_played_to_the_end
       circuit = circuits(:standard_circuit)

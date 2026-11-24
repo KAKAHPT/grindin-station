@@ -12,7 +12,7 @@ module OrganizerOverviewHelper
       unpaid: roster_unpaid_count(tournament), no_decklist: roster_no_decklist_count(tournament) }
   end
 
-  # The last events at the tournament: judge calls, enrolments and check-ins, newest first,
+  # The last events at the tournament: judge calls, enrolments, check-ins and drops, newest first,
   # as [text, time]. Participants come loaded; judge calls take one query (plus their pods).
   def tournament_lately(tournament)
     calls = tournament.judge_calls.includes(:pod).order(created_at: :desc).limit(LATELY_SHOWN).map { |c| call_event(c) }
@@ -30,7 +30,8 @@ module OrganizerOverviewHelper
   def participant_events(participants)
     participants.flat_map do |p|
       [[lately_text(:enrolled, p), p.created_at],
-       ([lately_text(:checked_in, p), p.checked_in_at] if p.checked_in_at)].compact
+       ([lately_text(:checked_in, p), p.checked_in_at] if p.checked_in_at),
+       ([lately_text(:dropped, p), p.dropped_at] if p.dropped? && p.dropped_at)].compact
     end
   end
 

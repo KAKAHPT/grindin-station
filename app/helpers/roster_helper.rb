@@ -18,7 +18,9 @@ module RosterHelper
 
   # The chips shown in the Desk column for one participant: attendance, then payment.
   def desk_chips(participant, event)
-    safe_join([attendance_chip(participant, event), payment_chip(participant), decklist_chip(participant)], " ")
+    chips = [attendance_chip(participant, event), (payment_chip(participant) unless event.free?),
+             decklist_chip(participant)]
+    safe_join(chips.compact, " ")
   end
 
   def attendance_chip(participant, event)

@@ -489,6 +489,7 @@ en:
         judge_call_table: "Judge called at table %{table}"
         enrolled: "%{name} enrolled"
         checked_in: "%{name} checked in"
+        dropped: "%{name} dropped"
     settings:
       standings: "Standings"
       standings_help: "What the public standings show. Organizer mode always shows everything."
@@ -836,6 +837,7 @@ en:
     closed: "Round closed"
   results:
     save: "Save result"
+    dialog_title: "Result for table %{table}"
     timeout_confirm: "Time called: the table is decided by the event's time rule. Continue?"
     timeout_applied:
       highest_seed_advances: "Time called — highest seed advances"
@@ -876,6 +878,7 @@ en:
     finish_without_cut_confirm: "Finish the tournament now, without playing the top cut? The swiss standings become the final standings."
     status:
       playing: "Playing"
+      waiting: "Waiting to start"
       pending: "Pending"
       review: "Review"
       disputed: "Disputed"
@@ -974,7 +977,7 @@ en:
       round_rollback: "Ongoing round destroyed, rolled back previous round to unfinished!"
       players_swapped: "Players Swapped!"
       tournament_created: "Tournament created successfully"
-      tournament_advanced: "Tournament advanceded!"
+      tournament_advanced: "Tournament advanced!"
       tournament_reopened: "Tournament reopened: correct the results and close the round again to finish it."
       tournament_updated: "Tournament updated successfully"
       password_reset_sent: "Password a reset instructions sent (if user with that email address exists)."

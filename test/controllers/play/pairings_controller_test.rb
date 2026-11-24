@@ -25,7 +25,7 @@ module Play
       @round.pods.preload(seatings: { event_participant: { player: :user } }).find_each do |pod|
         assert_select "[data-pod-number='#{pod.number}']" do
           assert_select "h3", text: /Table\s+#{pod.number}/
-          assert_select "[data-pod-status]", text: /Playing/
+          assert_select "[data-pod-status]", text: /Waiting to start/
           names = pod.seatings.map { |seating| seating.event_participant.name }
           assert_select "li[data-seat]" do |rows|
             assert_equal (1..names.size).map(&:to_s), rows.pluck("data-seat")
@@ -73,6 +73,15 @@ module Play
       assert_select "nav[data-play-nav] a[href=?][aria-current=page]", play_pairings_path(@tournament.slug),
                     text: "Pairings"
       assert_select "nav[data-play-nav] a[href=?]", play_standings_path(@tournament.slug), text: "Standings"
+    end
+
+    test "a table reads Playing once its round has started" do
+      @round.update!(started_at: Time.current)
+
+      get play_pairings_path(@tournament.slug)
+
+      assert_select "[data-pod-status]", text: /Playing/, count: @round.pods.count
+      assert_select "[data-pod-status]", text: /Waiting to start/, count: 0
     end
 
     test "a completed table marks the winner and a drawn one shows Draw" do

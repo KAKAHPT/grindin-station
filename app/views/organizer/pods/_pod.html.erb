@@ -12,7 +12,7 @@
   <div class="bg-ground/40 border-t border-line p-2.5">
     <% if show_results %>
       <% pod.seatings.each do |seating| %>
-        <%= button_to t("rounds.win", seat: seating.order), [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Win", event_participant_id: seating.event_participant_id }.merge(one_v_one ? { games: "" } : {}) }, form: { class: "hidden", data: { pod_result_target: "winForm", seat: seating.order } }, class: button_classes(:secondary, "w-full", size: :sm) %>
+        <%= button_to t("rounds.win", seat: seating.order), [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Win", event_participant_id: seating.event_participant_id }.merge(one_v_one ? { games: "" } : {}) }, form: { class: "hidden", data: { turbo_action: "replace", pod_result_target: "winForm", seat: seating.order } }, class: button_classes(:secondary, "w-full", size: :sm) %>
       <% end %>
     <% end %>
     <% draw_allowed = show_results && !pod.round.is_a?(SingleEliminationRound) %>
@@ -28,19 +28,19 @@
         <button type="button" data-action="pod-result#openDraw" class="<%= button_classes(:secondary, "w-full", size: :sm) %>"><%= t("rounds.draw") %></button>
       <% elsif draw_allowed %>
         <button type="button" data-action="pod-result#pickDraw" class="<%= button_classes(:secondary, "w-full", size: :sm) %>"><%= t("rounds.draw") %></button>
-        <%= button_to t("rounds.draw"), [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Draw" } }, form_class: "hidden", form: { data: { pod_result_target: "drawForm" } }, class: "hidden" %>
+        <%= button_to t("rounds.draw"), [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Draw" } }, form_class: "hidden", form: { data: { turbo_action: "replace", pod_result_target: "drawForm" } }, class: "hidden" %>
       <% end %>
       <% if staff_can_act %>
-        <%= button_to t("rounds.add_extra_time"), [:extra_time, :organizer, pod.event, pod.round.becomes(Round), pod], method: :patch, form_class: "contents", class: button_classes(:ghost, nil, size: :sm) %>
+        <%= button_to t("rounds.add_extra_time"), [:extra_time, :organizer, pod.event, pod.round.becomes(Round), pod], method: :patch, form_class: "contents", form: { data: { turbo_action: "replace" } }, class: button_classes(:ghost, nil, size: :sm) %>
       <% end %>
       <% if time_called %>
-        <%= button_to t("rounds.time_called"), timeout_organizer_tournament_round_pod_results_path(pod.event, pod.round.becomes(Round), pod), method: :post, data: { turbo_confirm: t("results.timeout_confirm") }, form_class: "contents", class: button_classes(:danger, nil, size: :sm) %>
+        <%= button_to t("rounds.time_called"), timeout_organizer_tournament_round_pod_results_path(pod.event, pod.round.becomes(Round), pod), method: :post, data: { turbo_confirm: t("results.timeout_confirm") }, form_class: "contents", form: { data: { turbo_action: "replace" } }, class: button_classes(:danger, nil, size: :sm) %>
       <% end %>
     <% end %>
     <% if draw_allowed && one_v_one %>
       <div data-pod-result-target="drawScores" role="group" aria-label="<%= t("rounds.draw_scores") %>" class="flex gap-2" hidden>
         <% draw_score_options(pod.event).each do |label, value| %>
-          <%= button_to label, [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Draw", games: value } }, form_class: "flex-1", class: button_classes(:secondary, "w-full", size: :sm) %>
+          <%= button_to label, [:organizer, pod.event, pod.round.becomes(Round), pod, :results], params: { result: { type: "Draw", games: value } }, form_class: "flex-1", form: { data: { turbo_action: "replace" } }, class: button_classes(:secondary, "w-full", size: :sm) %>
         <% end %>
         <button type="button" data-action="pod-result#cancel" class="<%= button_classes(:ghost, nil, size: :sm) %>"><%= t("rounds.cancel") %></button>
       </div>

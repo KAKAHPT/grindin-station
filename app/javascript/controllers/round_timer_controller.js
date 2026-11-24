@@ -4,10 +4,24 @@ export default class extends Controller {
   static values = { startedAt: String, finishedAt: String, roundTime: Number, finishedLabel: String };
   connect() {
     this.fullscreen = false;
+    this.render();
+  }
+
+  disconnect() {
+    clearInterval(this.interval);
+  }
+
+  // A live refresh morphs the attribute in place without reconnecting: closing the round must stop the clock.
+  finishedAtValueChanged() {
+    this.render();
+  }
+
+  render() {
+    clearInterval(this.interval);
     const started_at = new Date(this.startedAtValue);
     if (this.finishedAtValue == "") {
       this.updateTimer(started_at);
-      setInterval(() => {
+      this.interval = setInterval(() => {
         this.updateTimer(started_at);
       }, 1000);
     } else {

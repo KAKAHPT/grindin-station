@@ -489,6 +489,7 @@ pt:
         judge_call_table: "Juiz chamado à mesa %{table}"
         enrolled: "%{name} inscreveu-se"
         checked_in: "%{name} fez check-in"
+        dropped: "%{name} saiu do torneio"
     settings:
       standings: "Classificação"
       standings_help: "O que as classificações públicas mostram. O modo organizador mostra sempre tudo."
@@ -836,6 +837,7 @@ pt:
     closed: "Ronda fechada"
   results:
     save: "Guardar resultado"
+    dialog_title: "Resultado da mesa %{table}"
     timeout_confirm: "Tempo chamado: a mesa é decidida pela regra de tempo do evento. Continuar?"
     timeout_applied:
       highest_seed_advances: "Tempo chamado — o melhor seed avança"
@@ -876,6 +878,7 @@ pt:
     finish_without_cut_confirm: "Terminar o torneio agora, sem jogar o top? A classificação suíça passa a ser a final."
     status:
       playing: "A jogar"
+      waiting: "À espera de começar"
       pending: "Pendente"
       review: "Revisão"
       disputed: "Em disputa"

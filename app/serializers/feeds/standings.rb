@@ -9,11 +9,11 @@ module Feeds
   class Standings
     def self.call(event, updated: Feeds.last_change(event)) = new(event).to_h(updated)
 
-    # Off-waitlist participants in the order of the public standings page: final positions once the
-    # event is finished, then playing before dropped, then rank score, then name.
+    # Ranked participants (see EventParticipant#ranked?) in the order of the public standings page: final
+    # positions once the event is finished, then playing before dropped, then rank score, then name.
     def self.ranked(event, participants = EventParticipant.standings_for(event))
       final = event.finished?
-      participants.reject(&:waitlisted?).sort_by do |p|
+      participants.select(&:ranked?).sort_by do |p|
         [final && p.final_position ? 0 : 1, (p.final_position if final).to_i, p.playing? ? 0 : 1, -p.rank_score, p.name]
       end
     end
