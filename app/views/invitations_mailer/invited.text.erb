@@ -1,0 +1,8 @@
+<%= t("invitations_mailer.invited.greeting", name: @user.name) %>
+
+<%= t("invitations_mailer.invited.body", organizer: @event.event_organizer&.name, event: @event.name) %>
+<% if @event.start_time %><%= l(@event.start_time, format: t("play.events.time_format")) %><% if @event.address.present? %> · <%= @event.address %><% end %><% end %>
+
+<%= t("invitations_mailer.invited.link") %>: <%= play_event_url(@event.slug) %>
+
+<%= t("invitations_mailer.invited.account") %>

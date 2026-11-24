@@ -8,7 +8,7 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
     swiss_rounds_count top_cut_size round_minutes top_cut_round_minutes pairing_mode uneven_field self_report_enabled
     result_confirmation confirmation_timeout_minutes waitlist_enabled decklist_required self_check_in_enabled
     check_in_opens_hours_before show_commanders_in_standings show_decklists show_beaten_in_standings
-    show_unique_in_standings hide_standings_until_finished top_cut_timeout_rule featured
+    show_unique_in_standings hide_standings_until_finished top_cut_timeout_rule featured invitation_only
   ].freeze
 
   # The form has one Format select: Commander / cEDH is the pods, any other game format is 1v1.

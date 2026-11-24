@@ -153,6 +153,7 @@ Rails.application.routes.draw do
         get "export/sheet", to: "exports#sheet", as: :export_sheet
       end
       resources :staff, only: %i[index create destroy]
+      resources :invitations, only: %i[index create destroy]
       resources :judge_calls, only: %i[index] do
         member do
           patch :acknowledge

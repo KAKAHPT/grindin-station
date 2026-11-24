@@ -43,6 +43,7 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
   accepts_nested_attributes_for :player, update_only: true
   has_one :event_organizer, dependent: :nullify
   has_many :event_staff, class_name: "EventStaff", dependent: :destroy
+  has_many :event_invitations, dependent: :destroy
   has_many :notifications, dependent: :destroy
   has_many :posts, dependent: :destroy
   has_many :post_likes, dependent: :destroy
