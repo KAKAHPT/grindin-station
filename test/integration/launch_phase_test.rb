@@ -9,7 +9,7 @@ require "test_helper"
 class LaunchPhaseTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
   # Where the paused modules live. Kept apart from config/routes.rb on purpose: a route added to one of these
   # modules without its switch fails here.
-  PAUSED = %r{\A/(feed|follows|rankings|circuits|leagues|organizers|o/|fairness|teams|team_memberships|
+  PAUSED = %r{\A/(feed|follows|rankings|circuits|leagues|organizers|o/|teams|team_memberships|
                   organizer/(leagues|circuits|about)|admin/(feed|circuits|invitational))(/|\z|\(|\.)}x
   VERBS = %w[GET POST PATCH PUT DELETE].freeze
   LINKS = "a[href], form[action], [formaction], turbo-frame[src], iframe[src]"
@@ -29,8 +29,16 @@ class LaunchPhaseTest < ActionDispatch::IntegrationTest # rubocop:disable Metric
 
   teardown { Features.settings = nil }
 
-  test "only the cEDH tournament is on at launch" do
-    assert_equal Features::NAMES.index_with { false }, Features.launch
+  test "only the cEDH tournament and the seat report are on at launch" do
+    assert_equal Features::NAMES.index_with { |name| name == :fairness }, Features.launch
+  end
+
+  test "the seat report opens and the landing links to it" do
+    get "/fairness"
+    assert_response :success
+
+    get "/"
+    assert_select "a[data-tests][href=?]", "/fairness"
   end
 
   test "an unknown module name raises instead of reading as off" do
@@ -53,7 +61,7 @@ class LaunchPhaseTest < ActionDispatch::IntegrationTest # rubocop:disable Metric
   test "the tournament pages open and link to nothing that is paused" do
     slug = @tournament.slug
     visitor = ["/", "/events", "/tournaments", "/privacy", "/t/#{slug}", "/t/#{slug}/pairings",
-               "/t/#{slug}/standings", "/p/launch-player"]
+               "/t/#{slug}/standings", "/p/launch-player", "/fairness"]
 
     assert_pages_without_paused_links(visitor)
     sign_in(@player)
@@ -94,7 +102,7 @@ class LaunchPhaseTest < ActionDispatch::IntegrationTest # rubocop:disable Metric
     assert_select ".topbar-links a[href^='/events']"
   end
 
-  test "the landing keeps the waiting list and the fair-seats story, without circuits, format filter or seat report" do
+  test "the landing keeps the waiting list and the fair-seats story, without circuits or format filter" do
     circuit = Circuit.create!(name: "Paused circuit", event_organizer: event_organizers(:standard_organizer))
     circuit.update_columns(featured: true) # rubocop:disable Rails/SkipsModelValidations
     get "/"
@@ -102,7 +110,7 @@ class LaunchPhaseTest < ActionDispatch::IntegrationTest # rubocop:disable Metric
     assert_response :success
     assert_select "form[action='#{waitlist_signups_path}']"
     assert_select ".lp-why"
-    assert_select "[data-featured-circuits], [data-upcoming-filter], [data-tests]", count: 0
+    assert_select "[data-featured-circuits], [data-upcoming-filter]", count: 0
     assert_select ".lp-lead", text: I18n.t("landing.lead_cedh")
   end
 
