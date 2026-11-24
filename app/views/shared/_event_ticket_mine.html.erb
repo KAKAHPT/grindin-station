@@ -1,0 +1,15 @@
+<%# The viewer's own actions on a /my-events ticket: Decklist (until the swiss starts) leads to the field on the event
+    page; Drop cancels the registration before the swiss and drops the player afterwards. Tournaments only, while
+    the player is still in and the event has not finished. %>
+<% if event.is_a?(Tournament) && participant.playing? && !event.finished? %>
+  <% unless event.points_locked? %>
+    <%= link_to t(participant.decklist.blank? ? "my_events.add_decklist" : "my_events.decklist"),
+                play_event_path(event.slug, locale: params[:locale], anchor: "event_participant_decklist"),
+                class: button_classes(:light, size: :xs), data: { my_decklist: true } %>
+  <% end %>
+  <%= button_to t("my_events.drop"), tournament_event_participant_path(event, participant, locale: params[:locale]),
+                method: :delete, params: { from: "my_events" }, form_class: "contents", class: button_classes(:ghost, size: :xs),
+                data: { my_drop: true, turbo_confirm: t(event.points_locked? ? "my_events.drop_confirm" : "play.events.cancel_confirm") } %>
+<% elsif participant.dropped? %>
+  <span data-my-dropped><%= desk_chip(:missing) { t("my_events.dropped") } %></span>
+<% end %>

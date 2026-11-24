@@ -16,7 +16,7 @@ class EventParticipantsStandingsTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_standings_headers(:en)
-    assert_select "p", text: I18n.t("standings.help.beaten")
+    assert_select "[role=tooltip]", text: I18n.t("standings.help.beaten")
   end
 
   test "public standings render in portuguese" do
@@ -25,7 +25,7 @@ class EventParticipantsStandingsTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_standings_headers(:pt)
     assert_select "th", text: /\A\s*Batidos\s*\z/
-    assert_select "p", text: I18n.t("standings.help.beaten", locale: :pt)
+    assert_select "[role=tooltip]", text: I18n.t("standings.help.beaten", locale: :pt)
   end
 
   test "the portuguese standings have no english headers or tooltips" do

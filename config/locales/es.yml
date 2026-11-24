@@ -1,6 +1,7 @@
 es:
   topbar:
     events: "Eventos"
+    my_events: "Mis eventos"
     rankings: "Rankings"
     organizers: "Organizadores"
     circuits: "Circuitos"
@@ -983,13 +984,10 @@ es:
     help:
       rank: "El puesto de cada jugador se calcula con los criterios de desempate que ves en esta tabla:"
       wld: "V-D-E es el registro en este evento: Victorias - Derrotas - Empates"
-      win_rate: "Win %: porcentaje de partidas ganadas (sin byes). No es criterio de desempate."
       points: "Puntos de match: %{win} por victoria, %{draw} por empate, %{loss} por derrota."
       owr: "Win rate de los rivales: la media de los puntos de tus rivales sobre el máximo de cada uno, con un mínimo igual a un empate."
       beaten: "Rivales vencidos: jugadores distintos en las mesas que ganaste."
       unique: "Rivales únicos: jugadores distintos a los que te enfrentaste."
-      seed: "Resto de empates: sorteo con semilla hecho en la ronda 1, fijo durante todo el evento."
-      movement: "Flechas pequeñas: puestos ganados o perdidos desde la última ronda."
       omw: "OMW%: la media de los porcentajes de matches ganados de tus rivales, cada uno con un mínimo del 33% (sin byes)."
       gw: "GW%: tus puntos de partida (3 por partida ganada, 1 por partida empatada) sobre 3 por partida jugada, con un mínimo del 33%."
       ogw: "OGW%: la media de los porcentajes de partidas ganadas de tus rivales, cada uno con un mínimo del 33% (sin byes)."
@@ -1140,6 +1138,19 @@ es:
       password: "Tu contraseña"
       new_password: "Al menos 8 caracteres"
       repeat_password: "Repite la contraseña"
+  my_events:
+    title: "Mis eventos"
+    lead: "Los eventos en los que estás inscrito."
+    running: "En curso"
+    upcoming: "Próximos"
+    past: "Pasados"
+    empty: "Aún no estás inscrito en ningún evento."
+    browse: "Ver los eventos"
+    decklist: "Decklist"
+    add_decklist: "Añadir decklist"
+    drop: "Drop"
+    drop_confirm: "¿Salir de este evento? No serás emparejado en las próximas rondas."
+    dropped: "Has salido"
   invitations:
     chip: "Solo por invitación"
     setting_help: "Solo las cuentas que invites pueden inscribirse por su cuenta; las invitas en la pestaña Invitaciones. Siempre puedes añadir a cualquiera desde la lista de jugadores."

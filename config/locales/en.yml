@@ -1,6 +1,7 @@
 en:
   topbar:
     events: "Events"
+    my_events: "My events"
     rankings: "Rankings"
     organizers: "Organizers"
     circuits: "Circuits"
@@ -983,13 +984,10 @@ en:
     help:
       rank: "Player rank is calculated according to the tiebreakers you can see in this table:"
       wld: "W-L-D is the record in this event: Wins - Losses - Draws"
-      win_rate: "Win %: share of games won (byes excluded). Not a tiebreaker."
       points: "Match points: %{win} per win, %{draw} per draw, %{loss} per loss."
       owr: "Opponents' win rate: the average of your opponents' points out of their maximum, floored at a draw."
       beaten: "Opponents beaten: distinct players at the tables you won."
       unique: "Unique opponents: distinct players you faced."
-      seed: "Remaining ties: a draw seeded at round 1, fixed for the whole event."
-      movement: "Small arrows: places moved since the last round."
       omw: "OMW%: the average of your opponents' match win rates, each floored at 33% (byes excluded)."
       gw: "GW%: your game points (3 per game won, 1 per drawn game) out of 3 per game played, floored at 33%."
       ogw: "OGW%: the average of your opponents' game win rates, each floored at 33% (byes excluded)."
@@ -1140,6 +1138,19 @@ en:
       password: "Your password"
       new_password: "At least 8 characters"
       repeat_password: "Repeat the password"
+  my_events:
+    title: "My events"
+    lead: "The events you are registered in."
+    running: "Running now"
+    upcoming: "Upcoming"
+    past: "Past"
+    empty: "You are not registered in any event yet."
+    browse: "See the events"
+    decklist: "Decklist"
+    add_decklist: "Add decklist"
+    drop: "Drop"
+    drop_confirm: "Drop from this event? You will not be paired in the next rounds."
+    dropped: "Dropped"
   invitations:
     chip: "Invitation only"
     setting_help: "Only the accounts you invite can register themselves; you invite them in the Invitations tab. You can still add anyone from the roster."

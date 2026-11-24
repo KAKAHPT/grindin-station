@@ -1,0 +1,15 @@
+<div class="col-span-full pt-2" data-my-events>
+  <h1 class="font-display text-2xl font-semibold text-ink"><%= t("my_events.title") %></h1>
+  <p class="mt-1 text-[13px] text-muted"><%= t("my_events.lead") %></p>
+</div>
+
+<%= render "shared/ticket_grid", events: @running, enrolled: @enrolled, heading: t("my_events.running"), dense: true, participants: @participants %>
+<%= render "shared/ticket_grid", events: @upcoming, enrolled: @enrolled, heading: t("my_events.upcoming"), dense: true, participants: @participants %>
+<%= render "shared/ticket_grid", events: @past, enrolled: @enrolled, heading: t("my_events.past"), dense: true, participants: @participants %>
+
+<% if @running.empty? && @upcoming.empty? && @past.empty? %>
+  <div class="col-span-full card px-4 py-8 text-center" data-list-empty>
+    <p class="text-[13px] text-muted"><%= t("my_events.empty") %></p>
+    <%= link_to t("my_events.browse"), events_path(locale: params[:locale]), class: button_classes(:secondary, "mt-4") %>
+  </div>
+<% end %>
