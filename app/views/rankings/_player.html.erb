@@ -14,7 +14,7 @@
       <% else %>
         <span class="truncate"><%= player.name %></span>
       <% end %>
-      <%= profile_team_tag(user) if user %>
+      <%= profile_team_tag(user) if user && Features.on?(:teams) %>
     </div>
     <% meta = [("@#{user.handle}" if visible), (country_name(user.country) if user&.country.present?)].compact %>
     <% if meta.any? %>

@@ -1541,6 +1541,7 @@ pt:
   rankings:
     title: "Rankings"
     lead: "Todos os jogadores, todos os torneios. Escolhe uma época, um país, um organizador ou uma equipa para filtrar as tabelas."
+    lead_without_teams: "Todos os jogadores, todos os torneios. Escolhe uma época, um país ou um organizador para filtrar as tabelas."
     tabs:
       points: "Pontos de ranking"
       points_sub: "pontos somados por evento"
@@ -1550,6 +1551,7 @@ pt:
       teams_sub: "ranking de equipas"
     filters:
       search: "Procura um jogador ou equipa…"
+      search_player: "Procura um jogador…"
       search_team: "Procura uma equipa…"
       search_chip: "Pesquisa"
       season: "Época"

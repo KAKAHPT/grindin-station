@@ -11,6 +11,7 @@ class LaunchPhaseTest < ActionDispatch::IntegrationTest # rubocop:disable Metric
   # modules without its switch fails here.
   PAUSED = %r{\A/(feed|follows|rankings|circuits|leagues|organizers|o/|fairness|teams|team_memberships|
                   organizer/(leagues|circuits|about)|admin/(feed|circuits|invitational))(/|\z|\(|\.)}x
+  PAUSED_WITHOUT_RANKINGS = %r{\A/(feed|follows|circuits|leagues|organizers|o/|teams|team_memberships)(/|\z|\?|\.)}
   VERBS = %w[GET POST PATCH PUT DELETE].freeze
   LINKS = "a[href], form[action], [formaction], turbo-frame[src], iframe[src]"
   LINK_ATTRIBUTES = %w[href action formaction src].freeze
@@ -61,6 +62,24 @@ class LaunchPhaseTest < ActionDispatch::IntegrationTest # rubocop:disable Metric
     reset!
     sign_in(@owner)
     assert_pages_without_paused_links(visitor + organizer_pages)
+  end
+
+  # The next module to come back: checked ahead, so switching it on is one line.
+  test "with rankings switched on the page has no Teams tab, team or format filter, and links to nothing paused" do
+    Rankings::Rebuild.call
+    Features.settings = Features.launch.merge(rankings: true)
+
+    %w[points elo teams].each do |tab|
+      get "/rankings", params: { tab: tab, season: "all", team: "Tagged", play: "legacy" }
+
+      assert_response :success
+      assert_select "[data-rankings-tabs] a", count: 2
+      assert_select "select[name=team], select[name=play], [data-team], [data-circuits-note]", count: 0
+      targets = response.parsed_body.css(LINKS).flat_map { |node| LINK_ATTRIBUTES.filter_map { |name| node[name] } }
+      assert_empty targets.grep(PAUSED_WITHOUT_RANKINGS), "/rankings?tab=#{tab} links to a paused module"
+    end
+    get "/"
+    assert_select ".topbar-links a[href^='/rankings']"
   end
 
   test "names in the pairings and the standings open the player's profile" do
