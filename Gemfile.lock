@@ -92,7 +92,7 @@ GEM
     bindex (0.8.1)
     bootsnap (1.26.1)
       msgpack (~> 1.5)
-    brakeman (8.1.0)
+    brakeman (8.1.1)
       racc
     builder (3.3.0)
     bundler-audit (0.9.3)
@@ -146,6 +146,7 @@ GEM
       logger
     faraday-net_http (3.5.0)
       net-http (~> 0.5)
+    ffi (1.17.4)
     ffi (1.17.4-aarch64-linux-gnu)
     ffi (1.17.4-arm-linux-gnu)
     ffi (1.17.4-arm64-darwin)
