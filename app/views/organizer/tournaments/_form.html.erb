@@ -38,8 +38,8 @@
     <%= f.number_field_with_label :maximum_participants, placeholder: t("organizer.settings.no_limit") %>
   </div>
   <%= f.file_field_with_label :cover %>
-  <%= f.text_area_with_label :prizes, rows: 3, placeholder: "- 1st: Black Lotus\n- 2nd~4th: Timetwister" %>
-  <%= f.text_area_with_label :schedule, rows: 3, placeholder: "- 9:00 Check-in\n- 10:00 First round" %>
+  <%= f.text_area_with_label :prizes, rows: 3, placeholder: t("organizer.settings.prizes_placeholder") %>
+  <%= f.text_area_with_label :schedule, rows: 3, placeholder: t("organizer.settings.schedule_placeholder") %>
   <%= f.text_area_with_label :rules, rows: 4 %>
   <%= f.text_area_with_label :description, rows: 3, placeholder: t("organizer.settings.description_placeholder") %>
   <%= f.check_box_with_label :featured %>

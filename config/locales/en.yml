@@ -225,6 +225,8 @@ en:
     name: "Grindin Station"
     description: "Pairings, standings and results of cEDH events, live on your phone."
   activerecord:
+    models:
+      tournament: "Tournament"
     errors:
       models:
         team_membership:
@@ -352,6 +354,19 @@ en:
         check_in_opens_hours_before: "Check-in opens (hours before the start)"
         top_cut_timeout_rule: "If a top cut game times out"
         country: "Country"
+        name: "Name"
+        start_time: "Start time"
+        end_time: "End time"
+        address: "Address"
+        price: "Price"
+        currency: "Currency"
+        minimum_participants: "Minimum participants"
+        maximum_participants: "Maximum participants"
+        cover: "Cover"
+        prizes: "Prizes"
+        schedule: "Schedule"
+        rules: "Rules"
+        description: "Description"
       event_participant:
         accepted_terms: "I have read and accepted the rules for this event."
       result:
@@ -488,6 +503,8 @@ en:
       country_help: "Two-letter code, used by the country filter on /events"
       price_placeholder: "Fee per player"
       no_limit: "No limit"
+      prizes_placeholder: "- 1st: Black Lotus\n- 2nd~4th: Timetwister"
+      schedule_placeholder: "- 9:00 Check-in\n- 10:00 First round"
       description_placeholder: "How to get to the venue, where to eat, etc."
       featured_help: "Shown in the Featured strip at the top of grindin.cedhpt.com while the event is upcoming or running."
       back: "Back"
