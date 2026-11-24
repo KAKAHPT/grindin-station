@@ -8,7 +8,7 @@ class DeployConfigTest < ActiveSupport::TestCase # rubocop:disable Metrics/Class
   REQUIRED_SECRETS = %w[
     RAILS_MASTER_KEY PRIMARY_DATABASE_URL CACHE_DATABASE_URL QUEUE_DATABASE_URL CABLE_DATABASE_URL
     GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET DISCORD_CLIENT_ID DISCORD_CLIENT_SECRET
-    SMTP_ADDRESS SMTP_PORT SMTP_DOMAIN SMTP_USER_NAME SMTP_PASSWORD
+    SMTP_ADDRESS SMTP_PORT SMTP_DOMAIN SMTP_USER_NAME SMTP_PASSWORD MAIL_FROM
   ].freeze
 
   def with_env(vars)
@@ -107,6 +107,7 @@ class DeployConfigTest < ActiveSupport::TestCase # rubocop:disable Metrics/Class
     # The secrets are checked in a preflight job; the deploy job is skipped (not failed) while they are missing.
     preflight = workflow["jobs"]["preflight"]
     assert_match(/workflow_run\.conclusion == 'success'/, preflight["if"])
+    assert_equal "production", preflight["environment"], "environment secrets are empty to a job outside it"
     assert_equal "Check required secrets", preflight["steps"].first["name"]
     assert_includes preflight["steps"].first["run"], "SSH_KNOWN_HOSTS"
     assert_not_includes Rails.root.join(".github/workflows/deploy.yml").read, "ssh-keyscan",
