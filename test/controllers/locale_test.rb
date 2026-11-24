@@ -88,10 +88,10 @@ class LocaleTest < ActionDispatch::IntegrationTest
     assert_select "html[lang=pt]"
   end
 
-  test "without param or cookie the browser's Accept-Language decides" do
-    get root_path, headers: { "Accept-Language" => "fr-FR,pt;q=0.9,es;q=0.8" }
-    assert_select "html[lang=pt]"
-    get root_path, headers: { "Accept-Language" => "de" }
+  test "without param or cookie everyone enters in English, whatever the browser's language" do
+    get root_path, headers: { "Accept-Language" => "pt-PT,pt;q=0.9,es;q=0.8" }
+    assert_select "html[lang=en]"
+    get root_path
     assert_select "html[lang=en]"
   end
 
