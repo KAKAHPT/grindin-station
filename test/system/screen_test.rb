@@ -31,7 +31,9 @@ class ScreenTest < ApplicationSystemTestCase
     travel_to(3.minutes.ago) { report(7, winner: 0) }
     travel_to(2.minutes.ago) { report(2, winner: nil) }
     report(4, winner: 2)
-    page.driver.browser.manage.window.resize_to(1920, 1080)
+    window = page.driver.browser.manage.window
+    size = window.size
+    window.resize_to(1920, 1080)
     visit "#{play_screen_path(@tournament.slug)}?seconds=1"
 
     assert_selector "[data-screen-clock]", text: /\A\d\d:\d\d\z/
@@ -46,6 +48,9 @@ class ScreenTest < ApplicationSystemTestCase
     assert_selector "article[data-pod-number='26']", wait: 6
     assert_no_selector "article[data-pod-number='1']"
     assert_selector "[data-screen-pager]", text: /TABLES 19–26/i
+  ensure
+    # The browser is shared by the tests that follow: give it back at the size it came with.
+    window&.resize_to(size.width, size.height) if size
   end
 
   test "the whole screen scales with the window: nothing leaves it and the clock stays inside its card" do
