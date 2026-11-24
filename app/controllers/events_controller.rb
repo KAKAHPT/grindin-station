@@ -18,11 +18,12 @@ class EventsController < ApplicationController
     @filter_options = ticket_filter_options
     @featured = featured_tickets
     ongoing_tournaments = ongoing_tickets(Tournament)
-    ongoing_leagues = ongoing_tickets(League)
+    ongoing_leagues = Features.on?(:leagues) ? ongoing_tickets(League) : []
     @ongoing = ongoing_tournaments + ongoing_leagues
     # An event shown under "running now" is not listed again below it.
     @tournaments = ticket_scope(Tournament, past: @past, except: ongoing_tournaments, filters: @filters)
     @leagues = ticket_scope(League, past: @past, except: ongoing_leagues, filters: @filters)
+    @leagues = @leagues.none unless Features.on?(:leagues)
     @enrolled = enrolled_counts(@tournaments.to_a + @leagues.to_a + @ongoing + @featured)
   end
 

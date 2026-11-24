@@ -23,21 +23,28 @@ Rails.application.routes.draw do
   resources :registrations, only: %i[new create]
   resources :confirmations, only: %i[new create show], param: :token
   resource :account, only: %i[show update destroy]
-  resources :teams, only: :create
-  resources :team_memberships, only: %i[create update destroy]
+  constraints(Features.constraint(:teams)) do
+    resources :teams, only: :create
+    resources :team_memberships, only: %i[create update destroy]
+  end
   delete "/account/identities/:id" => "accounts#unlink_identity", as: :unlink_identity
   get "/p/:handle", to: "profiles#show", as: :profile, constraints: { handle: /[a-z0-9-]+/ }
-  get "/organizers", to: "organizers#index", as: :organizers
-  get "/fairness", to: "pages#fairness", as: :fairness
   get "/privacy", to: "pages#privacy", as: :privacy
-  get "/feed", to: "posts#index", as: :feed
-  post "/follows/:handle", to: "follows#create", as: :follow, constraints: { handle: /[a-z0-9-]+/ }
-  delete "/follows/:handle", to: "follows#destroy", constraints: { handle: /[a-z0-9-]+/ }
-  resources :posts, only: %i[create destroy], path: "feed/posts", as: :feed_posts do
-    post :like, on: :member
-    post :report, on: :member
+  # Modules that can be paused (config/features.yml): while one is off its routes do not match, so they answer 404.
+  get "/fairness", to: "pages#fairness", as: :fairness, constraints: Features.constraint(:fairness)
+  constraints(Features.constraint(:organizers)) do
+    get "/organizers", to: "organizers#index", as: :organizers
+    get "/o/:handle", to: "organizers#show", as: :organizer_profile, constraints: { handle: /[a-z0-9-]+/ }
   end
-  get "/o/:handle", to: "organizers#show", as: :organizer_profile, constraints: { handle: /[a-z0-9-]+/ }
+  constraints(Features.constraint(:feed)) do
+    get "/feed", to: "posts#index", as: :feed
+    post "/follows/:handle", to: "follows#create", as: :follow, constraints: { handle: /[a-z0-9-]+/ }
+    delete "/follows/:handle", to: "follows#destroy", constraints: { handle: /[a-z0-9-]+/ }
+    resources :posts, only: %i[create destroy], path: "feed/posts", as: :feed_posts do
+      post :like, on: :member
+      post :report, on: :member
+    end
+  end
   resources :notifications, only: :index do
     post :mark_all_read, on: :collection
   end
@@ -53,12 +60,14 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :leagues, only: %i[index show] do
-    resources :rounds, only: :show
+  constraints(Features.constraint(:leagues)) do
+    resources :leagues, only: %i[index show] do
+      resources :rounds, only: :show
 
-    resources :event_participants do
-      collection do
-        get "me"
+      resources :event_participants do
+        collection do
+          get "me"
+        end
       end
     end
   end
@@ -87,8 +96,8 @@ Rails.application.routes.draw do
   end
 
   resources :events, only: %i[index]
-  resources :circuits, only: %i[index show]
-  get "/rankings", to: "rankings#show", as: :rankings
+  resources :circuits, only: %i[index show], constraints: Features.constraint(:circuits)
+  get "/rankings", to: "rankings#show", as: :rankings, constraints: Features.constraint(:rankings)
 
   namespace :admin do
     root "dashboard#show"
@@ -100,15 +109,21 @@ Rails.application.routes.draw do
       patch :featured, on: :member
       patch :tier, on: :member
     end
-    resources :circuits, only: %i[index] do
-      patch :featured, on: :member
+    constraints(Features.constraint(:circuits)) do
+      resources :circuits, only: %i[index] do
+        patch :featured, on: :member
+      end
     end
-    get "feed", to: "feed#index", as: :feed
-    patch "feed/pause", to: "feed#pause", as: :pause_feed
-    patch "feed/:id/keep", to: "feed#keep", as: :keep_feed
-    delete "feed/:id/remove", to: "feed#remove", as: :remove_feed
-    get "invitational", to: "invitational#show", as: :invitational
-    get "invitational/export.csv", to: "invitational#export", as: :invitational_export, format: false
+    constraints(Features.constraint(:feed)) do
+      get "feed", to: "feed#index", as: :feed
+      patch "feed/pause", to: "feed#pause", as: :pause_feed
+      patch "feed/:id/keep", to: "feed#keep", as: :keep_feed
+      delete "feed/:id/remove", to: "feed#remove", as: :remove_feed
+    end
+    constraints(Features.constraint(:rankings)) do
+      get "invitational", to: "invitational#show", as: :invitational
+      get "invitational/export.csv", to: "invitational#export", as: :invitational_export, format: false
+    end
     # The approve/decline id is the waiting-list signup's, the revoke id the EventOrganizer's.
     resources :organizers, only: :index do
       member do
@@ -121,7 +136,7 @@ Rails.application.routes.draw do
 
   namespace :organizer do
     root "tournaments#index"
-    resource :about, only: %i[edit update], controller: "about"
+    resource :about, only: %i[edit update], controller: "about", constraints: Features.constraint(:organizers)
 
     resources :tournaments do
       get :preview, on: :collection, to: "previews#new"
@@ -166,34 +181,38 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :leagues do
-      member do
-        %w[players melee standings rounds].each do |kind|
-          get "export/#{kind}", to: "exports##{kind}", as: "export_#{kind}"
-        end
-      end
-      resources :infractions, only: %i[new create]
-      resources :event_participants do
-        resources :infractions, only: %i[index destroy]
-      end
-      resources :rounds do
+    constraints(Features.constraint(:leagues)) do
+      resources :leagues do
         member do
-          get :print
-          get :slips
+          %w[players melee standings rounds].each do |kind|
+            get "export/#{kind}", to: "exports##{kind}", as: "export_#{kind}"
+          end
         end
-        resources :seatings, only: [] do
-          patch :swap, on: :collection
+        resources :infractions, only: %i[new create]
+        resources :event_participants do
+          resources :infractions, only: %i[index destroy]
         end
-        resources :pods do
-          resources :results
-          resources :infractions, only: %i[new create]
+        resources :rounds do
+          member do
+            get :print
+            get :slips
+          end
+          resources :seatings, only: [] do
+            patch :swap, on: :collection
+          end
+          resources :pods do
+            resources :results
+            resources :infractions, only: %i[new create]
+          end
         end
+        post :create_pickup_pod, on: :member
       end
-      post :create_pickup_pod, on: :member
     end
 
-    resources :circuits do
-      resources :tournaments, only: %i[new create]
+    constraints(Features.constraint(:circuits)) do
+      resources :circuits do
+        resources :tournaments, only: %i[new create]
+      end
     end
   end
 

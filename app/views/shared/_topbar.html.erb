@@ -2,11 +2,12 @@
     bell in the bar; the nav links, language switch (EN / PT / ES) and account links fold under the hamburger (Stimulus menu).
     Local modal_sign_in: true opens Sign in in the modal frame (only the application layout has one). %>
 <% here = ->(path) { request.path == path || request.path.start_with?("#{path}/") } %>
+<%# A paused module (config/features.yml) has no link. %>
 <% links = [[t("topbar.events"), events_path(locale: params[:locale]), here.(events_path)],
-            [t("topbar.rankings"), rankings_path(locale: params[:locale]), here.(rankings_path)],
-            [t("topbar.circuits"), circuits_path(locale: params[:locale]), here.(circuits_path)],
-            [t("topbar.organizers"), organizers_path(locale: params[:locale]), here.(organizers_path) || request.path.start_with?("/o/")],
-            [t("topbar.feed"), feed_path(locale: params[:locale]), here.(feed_path)]] %>
+            ([t("topbar.rankings"), rankings_path(locale: params[:locale]), here.(rankings_path)] if Features.on?(:rankings)),
+            ([t("topbar.circuits"), circuits_path(locale: params[:locale]), here.(circuits_path)] if Features.on?(:circuits)),
+            ([t("topbar.organizers"), organizers_path(locale: params[:locale]), here.(organizers_path) || request.path.start_with?("/o/")] if Features.on?(:organizers)),
+            ([t("topbar.feed"), feed_path(locale: params[:locale]), here.(feed_path)] if Features.on?(:feed))].compact %>
 <header class="topbar" data-controller="menu" data-topbar>
   <div class="topbar-in">
     <%= link_to root_path(locale: params[:locale]), class: "topbar-brand" do %>

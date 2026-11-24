@@ -102,7 +102,7 @@ module TournamentsHelper # rubocop:disable Metrics/ModuleLength
   # its side: pods offer only commander, a 1v1 event the 1v1 formats.
   def tournament_format_options(tournament)
     formats =
-      if tournament.new_record? then Event::GAME_FORMATS
+      if tournament.new_record? then Features.on?(:one_v_one) ? Event::GAME_FORMATS : ["commander"]
       elsif tournament.multiplayer? then ["commander"]
       else Event::GAME_FORMATS - ["commander"]
       end
