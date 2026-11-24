@@ -12,7 +12,7 @@
   <div class="topbar-in">
     <%= link_to root_path(locale: params[:locale]), class: "topbar-brand" do %>
       <%= render "shared/mark", size: 30, rotating: true, id_suffix: "topbar" %>
-      <span class="sr-only"><%= t("app.name") %></span>
+      <span data-brand-name><%= t("app.name") %></span>
     <% end %>
 
     <div id="topbar-panel" class="topbar-panel" data-menu-target="panel" data-open="false">
