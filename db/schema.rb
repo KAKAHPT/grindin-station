@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_24_210000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_24_220000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -122,6 +122,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_210000) do
     t.index ["fingerprint"], name: "index_error_events_on_fingerprint"
   end
 
+  create_table "event_invitations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "event_id", null: false
+    t.uuid "user_id", null: false
+    t.uuid "invited_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "user_id"], name: "index_event_invitations_on_event_id_and_user_id", unique: true
+    t.index ["invited_by_id"], name: "index_event_invitations_on_invited_by_id"
+    t.index ["user_id"], name: "index_event_invitations_on_user_id"
+  end
+
   create_table "event_organizers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "default_currency", default: 0
@@ -221,6 +232,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_210000) do
     t.datetime "updated_at", null: false
     t.decimal "wager_percentage", precision: 5, scale: 2
     t.boolean "waitlist_enabled", default: false, null: false
+    t.boolean "invitation_only", default: false, null: false
     t.index ["circuit_id"], name: "index_events_on_circuit_id"
     t.index ["event_organizer_id"], name: "index_events_on_event_organizer_id"
     t.index ["featured"], name: "index_events_on_featured"
@@ -527,6 +539,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_210000) do
   add_foreign_key "circuit_standings", "players"
   add_foreign_key "circuits", "event_organizers"
   add_foreign_key "elo_ratings", "players", on_delete: :cascade
+  add_foreign_key "event_invitations", "events"
+  add_foreign_key "event_invitations", "users"
+  add_foreign_key "event_invitations", "users", column: "invited_by_id", on_delete: :nullify
   add_foreign_key "event_organizers", "users"
   add_foreign_key "event_participants", "events"
   add_foreign_key "event_participants", "players"
