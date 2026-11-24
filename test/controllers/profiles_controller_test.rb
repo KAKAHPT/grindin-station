@@ -275,6 +275,17 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     assert_select "a[href=?]", profile_path(@mate.handle), count: 0
   end
 
+  test "a banner tops the profile of the user who set one, and only theirs" do
+    @owner.banner.attach(io: file_fixture("cover1.jpg").open, filename: "cover1.jpg", content_type: "image/jpeg")
+
+    get profile_path("rita")
+    assert_response :success
+    assert_select "img[data-profile-banner][src*='/rails/active_storage/']", 1
+
+    get profile_path(@mate.handle)
+    assert_select "img[data-profile-banner]", 0
+  end
+
   test "organizer form saves show_decklists" do
     sign_in(users(:organizer_user))
     tournament = events(:small_tournament)
