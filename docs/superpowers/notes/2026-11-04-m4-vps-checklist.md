@@ -55,6 +55,7 @@ O workflow usa `environment: production`; os segredos podem estar no environment
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | não | OAuth Google; redirect `https://GS_DOMAIN/auth/google_oauth2/callback` |
 | `DISCORD_CLIENT_ID` / `DISCORD_CLIENT_SECRET` | não | OAuth Discord; redirect `https://GS_DOMAIN/auth/discord/callback` |
 | `SMTP_ADDRESS`, `SMTP_PORT`, `SMTP_DOMAIN`, `SMTP_USER_NAME`, `SMTP_PASSWORD` | não | e-mail de saída (reposição de palavra-passe). Sem `SMTP_ADDRESS` os e-mails não são enviados |
+| `MAIL_FROM` | não | remetente dos e-mails, p. ex. `grindin@cedhpt.com`. Sem ele: `noreply@GS_DOMAIN`. Obrigatório na prática com o SMTP da Hostinger, que só envia em nome da própria caixa |
 
 - No GitHub Actions o registo `ghcr.io` usa o `GITHUB_TOKEN` (permissão `packages: write` já no workflow); não é preciso PAT.
   A imagem tem `LABEL org.opencontainers.image.source` a apontar para o repositório, por isso o pacote fica ligado a ele.
