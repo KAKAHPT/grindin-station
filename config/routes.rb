@@ -133,6 +133,8 @@ Rails.application.routes.draw do
       end
     end
     patch "organizers/:id/revoke", to: "organizers#revoke", as: :revoke_organizer
+    patch "organizers/:id/suspend", to: "organizers#suspend", as: :suspend_organizer
+    patch "organizers/:id/restore", to: "organizers#restore", as: :restore_organizer
   end
 
   namespace :organizer do

@@ -103,6 +103,49 @@ module Admin
                     text: /#{Regexp.escape(organizer.user.email_address)}.*#{organizer.events.count}/m
     end
 
+    test "suspend takes organizer access away and hides unfinished events, keeping finished ones" do
+      organizer = event_organizers(:standard_organizer)
+      owner = organizer.user
+      open_event = TournamentBuilder.build(players: 4, organizer: organizer, state: :registration_open)
+      done = TournamentBuilder.build(players: 4, organizer: organizer)
+      done.update_columns(state: Tournament.states[:finished]) # rubocop:disable Rails/SkipsModelValidations
+
+      assert_difference -> { AuditEvent.where(action: "organizer_suspended").count }, 1 do
+        patch admin_suspend_organizer_path(organizer)
+      end
+      assert_predicate organizer.reload, :suspended?
+      assert_not owner.reload.organizer?
+      assert_nil owner.staff_role_for(open_event)
+      assert_not_includes Tournament.visible, open_event
+      assert_includes Tournament.visible, done
+      get admin_organizers_path
+      assert_select "tr[data-organizer='#{organizer.id}'] [data-suspended]"
+      assert_select "tr[data-organizer='#{organizer.id}'] button", text: I18n.t("admin.organizers.restore")
+
+      delete session_path
+      get play_event_path(open_event.slug)
+      assert_response :not_found
+      get play_event_path(done.slug)
+      assert_response :success
+      sign_in owner
+      get organizer_tournament_path(open_event)
+      assert_response :redirect
+    end
+
+    test "restore gives a suspended organizer the access and the public events back" do
+      organizer = event_organizers(:standard_organizer)
+      owner = organizer.user
+      open_event = TournamentBuilder.build(players: 4, organizer: organizer, state: :registration_open)
+      organizer.update!(suspended_at: 1.day.ago)
+
+      assert_difference -> { AuditEvent.where(action: "organizer_restored").count }, 1 do
+        patch admin_restore_organizer_path(organizer)
+      end
+      assert_not organizer.reload.suspended?
+      assert_predicate owner.reload, :organizer?
+      assert_includes Tournament.visible, open_event
+    end
+
     test "revoke is refused for an organizer with events" do
       organizer = event_organizers(:standard_organizer)
       assert_predicate organizer.events, :exists?
@@ -121,7 +164,7 @@ module Admin
 
       get admin_organizers_path
 
-      assert_select "tr[data-organizer='#{organizer.id}'] button", count: 0
+      assert_select "tr[data-organizer='#{organizer.id}'] button", text: I18n.t("admin.organizers.revoke"), count: 0
       assert_no_difference -> { AuditEvent.count } do
         patch admin_revoke_organizer_path(organizer)
       end

@@ -8,6 +8,11 @@ class EventOrganizer < ApplicationRecord
 
   delegate :name, to: :user
 
+  scope :suspended, -> { where.not(suspended_at: nil) }
+
+  # Suspended by an admin: the user loses organizer access and the events not yet finished leave the public site.
+  def suspended? = suspended_at.present?
+
   CURRENCIES = {
     euro: 0,
     dollar: 1

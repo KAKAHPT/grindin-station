@@ -15,7 +15,7 @@ module PublicEvent
 
   # Works for any Event (tournament or league); returns the event.
   def ensure_public!(event)
-    hidden = event.state.in?(HIDDEN_STATES) && !current_user&.staff_role_for(event)
+    hidden = event.hidden_from_public? && !current_user&.staff_role_for(event)
     raise ActiveRecord::RecordNotFound if hidden
 
     event

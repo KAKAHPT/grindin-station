@@ -153,12 +153,14 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
   end
 
   def organizer?(event = nil)
-    event_organizer.present? && (event.blank? || event_organizer.events.include?(event))
+    return false if event_organizer.nil? || event_organizer.suspended?
+
+    event.blank? || event_organizer.events.include?(event)
   end
 
   # "organizer" for the event's owner, else the staff row's role, else nil.
   def staff_role_for(event)
-    return "organizer" if event.event_organizer&.user_id == id
+    return (event.event_organizer.suspended? ? nil : "organizer") if event.event_organizer&.user_id == id
 
     event_staff.find_by(event: event)&.role
   end

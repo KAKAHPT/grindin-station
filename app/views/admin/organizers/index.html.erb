@@ -82,16 +82,21 @@
         <% @organizers.each do |organizer| %>
           <% events_count = @events_counts.fetch(organizer.id, 0) %>
           <tr data-organizer="<%= organizer.id %>">
-            <td class="font-semibold"><%= organizer.user.name %></td>
+            <td class="font-semibold"><%= organizer.user.name %><% if organizer.suspended? %> <span class="ms-1.5 align-middle" data-suspended><%= desk_chip(:bad) { t("admin.organizers.suspended_chip") } %></span><% end %></td>
             <td class="text-muted break-all"><%= organizer.user.email_address %></td>
             <td class="r tabular"><%= events_count %></td>
             <td class="r whitespace-nowrap text-muted tabular"><%= l(organizer.created_at.to_date) %></td>
             <td class="r">
+              <div class="inline-flex items-center gap-1.5">
+              <% if organizer.suspended? %>
+                <%= button_to t("admin.organizers.restore"), admin_restore_organizer_path(organizer, **back), method: :patch, class: button_classes(:secondary, size: :sm) %>
+              <% else %>
+                <%= button_to t("admin.organizers.suspend"), admin_suspend_organizer_path(organizer, **back), method: :patch, class: button_classes(:danger, size: :sm), form: { data: { turbo_confirm: t("admin.organizers.suspend_confirm", email: organizer.user.email_address) } } %>
+              <% end %>
               <% if events_count.zero? && @circuits_counts.fetch(organizer.id, 0).zero? %>
                 <%= button_to t("admin.organizers.revoke"), admin_revoke_organizer_path(organizer, **back), method: :patch, class: button_classes(:secondary, size: :sm), form: { data: { turbo_confirm: t("admin.organizers.revoke_confirm", email: organizer.user.email_address) } } %>
-              <% else %>
-                <span class="text-[12px] text-muted" title="<%= t("admin.organizers.revoke_refused") %>">—</span>
               <% end %>
+              </div>
             </td>
           </tr>
         <% end %>

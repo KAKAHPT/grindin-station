@@ -45,7 +45,12 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
     user.event_organizer ? for_organizer(user.event_organizer).or(staffed) : staffed
   }
   # On Tournament or League: state is their enum (the names do not cast on Event itself).
-  scope :visible, -> { where.not(state: HIDDEN_STATES) }
+  # A suspended organizer's events stay public only once finished (the players' history).
+  scope :visible, lambda {
+    where.not(state: HIDDEN_STATES)
+      .where("events.state = ? OR events.event_organizer_id NOT IN (?)", Tournament.states.fetch("finished"),
+             EventOrganizer.suspended.select(:id))
+  }
   scope :past, -> { where(end_time: ...Time.current) }
   scope :upcoming, -> { where(start_time: Time.current..) }
   scope :for_player, ->(player) { joins(:event_participants).where(event_participants: { player: player }) }
@@ -122,6 +127,11 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   def byes? = uneven_field == "byes"
 
   # Locked in the state being saved or the one it leaves, so a state change cannot unlock them.
+  # Off the public site: a draft, a canceled event, or an unfinished one whose organizer is suspended.
+  def hidden_from_public?
+    state.in?(HIDDEN_STATES) || (!finished? && event_organizer&.suspended?)
+  end
+
   def points_locked?
     UNLOCKED_POINTS_STATES.exclude?(state) || (persisted? && UNLOCKED_POINTS_STATES.exclude?(state_was))
   end

@@ -13,7 +13,7 @@ class AuditEvent < ApplicationRecord
     rate_limited
     admin_granted admin_revoked
     error_resolved data_exported
-    organizer_approved organizer_declined organizer_revoked
+    organizer_approved organizer_declined organizer_revoked organizer_suspended organizer_restored
     post_removed post_kept feed_paused
   ].freeze
 
