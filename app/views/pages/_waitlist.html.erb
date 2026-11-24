@@ -1,11 +1,10 @@
 <%# Waiting-list card of the landing (id waitlist, replaced in place by the Turbo Stream answer of POST /waitlist).
     Locals: signup (WaitlistSignup), state nil (the form), :done (on the list) or :limited (rate limited). %>
 <div id="waitlist" class="lp-wl" data-waitlist>
-  <div>
+  <div class="col-span-full">
     <p class="lp-wl-t"><%= t("landing.waitlist.title") %></p>
     <p class="lp-wl-m"><%= t("landing.waitlist.text") %></p>
   </div>
-  <span class="lp-chip"><i aria-hidden="true"></i><%= t("landing.waitlist.chip") %></span>
   <% if state == :done %>
     <p class="lp-wl-done" role="status"><strong><%= t("landing.waitlist.done") %></strong> <%= t("landing.waitlist.done_text") %></p>
   <% else %>

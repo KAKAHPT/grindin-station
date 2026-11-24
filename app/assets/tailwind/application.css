@@ -1570,27 +1570,6 @@
     justify-content: center;
   }
 
-  .lp-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    height: 20px;
-    padding: 0 6px;
-    border-radius: 4px;
-    font: 600 10.5px var(--font-body);
-    letter-spacing: 0.02em;
-    white-space: nowrap;
-    color: var(--color-muted);
-    background: rgb(255 255 255 / 0.06);
-  }
-
-  .lp-chip i {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: currentColor;
-  }
-
   /* Waiting-list card */
   .lp-wl {
     position: relative;

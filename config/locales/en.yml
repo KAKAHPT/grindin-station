@@ -1294,7 +1294,6 @@ en:
     waitlist:
       title: "Organising is by invitation for now"
       text: "Join the waiting list and we will get in touch with your store or community."
-      chip: "Waiting list"
       name: "Your name"
       email: "E-mail"
       join: "Join"

@@ -1294,7 +1294,6 @@ es:
     waitlist:
       title: "Por ahora, organizar es solo por invitación"
       text: "Únete a la lista de espera y contactaremos con tu tienda o comunidad."
-      chip: "Lista de espera"
       name: "Tu nombre"
       email: "Correo electrónico"
       join: "Unirme"
