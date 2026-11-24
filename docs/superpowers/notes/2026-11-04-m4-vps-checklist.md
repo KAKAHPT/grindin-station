@@ -37,7 +37,7 @@ Ficheiros de referência: `config/deploy.yml`, `.kamal/secrets`, `config/postgre
 
 ## 4. Segredos no GitHub (Settings → Environments → `production` → Secrets)
 
-O workflow usa `environment: production`; os segredos podem estar no environment ou no repositório.
+Os dois jobs do workflow (`preflight` e `deploy`) usam `environment: production`; os segredos podem estar no environment ou no repositório.
 
 - [ ] Criar o environment `production` (Settings → Environments → New environment) e, em **Deployment branches and tags**,
       escolher "Selected branches and tags" com a regra `main` só. Assim um "Run workflow" a partir de outro branch não

@@ -107,6 +107,7 @@ class DeployConfigTest < ActiveSupport::TestCase # rubocop:disable Metrics/Class
     # The secrets are checked in a preflight job; the deploy job is skipped (not failed) while they are missing.
     preflight = workflow["jobs"]["preflight"]
     assert_match(/workflow_run\.conclusion == 'success'/, preflight["if"])
+    assert_equal "production", preflight["environment"], "environment secrets are empty to a job outside it"
     assert_equal "Check required secrets", preflight["steps"].first["name"]
     assert_includes preflight["steps"].first["run"], "SSH_KNOWN_HOSTS"
     assert_not_includes Rails.root.join(".github/workflows/deploy.yml").read, "ssh-keyscan",
