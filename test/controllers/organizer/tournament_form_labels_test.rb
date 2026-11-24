@@ -19,6 +19,7 @@ module Organizer
         assert_response :success
         assert_empty untranslated_labels
         assert_select "form button", text: /Tournament/, count: 0
+        assert_select "form [placeholder*='1st'], form [placeholder*='First round']", count: 0
       end
 
       test "no label of the tournament settings falls back to the English attribute name in #{locale}" do

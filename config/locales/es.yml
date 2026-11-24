@@ -503,6 +503,8 @@ es:
       country_help: "Código de dos letras, usado por el filtro de país en /events"
       price_placeholder: "Precio por jugador"
       no_limit: "Sin límite"
+      prizes_placeholder: "- 1.º: Black Lotus\n- 2.º a 4.º: Timetwister"
+      schedule_placeholder: "- 9:00 Check-in\n- 10:00 Primera ronda"
       description_placeholder: "Cómo llegar al lugar, dónde comer, etc."
       featured_help: "Aparece en la franja Destacados en la parte superior de grindin.cedhpt.com mientras el evento está por llegar o en curso."
       back: "Volver"
