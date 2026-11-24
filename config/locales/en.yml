@@ -1071,7 +1071,7 @@ en:
       title: "Your account"
       profile: "Profile"
       avatar_hint: "JPEG, PNG or WebP, up to 2 MB."
-      banner_hint: "Shown behind your card on the Organizers page and on your page. JPEG, PNG or WebP, up to 4 MB; about 4:1 works best."
+      banner_hint: "Shown at the top of your public profile, and behind your card and page as an organizer. JPEG, PNG or WebP, up to 4 MB; about 4:1 works best."
       email_hint: "To change your e-mail, also type your current password below."
       email_pending: "A confirmation link was sent to %{email}. The change applies when you open it; until then you sign in with your current e-mail."
       wizards_email_hint: "Used by organizers to report your results to Wizards EventLink. Leave empty to use your sign-in e-mail."

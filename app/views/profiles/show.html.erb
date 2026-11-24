@@ -2,7 +2,11 @@
 <% content_for :description, t("profiles.description", name: @user.display_name) %>
 <% content_for :wide_main, "1" %>
 <div data-controller="profile-events" data-action="input->profile-events#search change->profile-events#season click->profile-events#year click->profile-events#toggle">
-<section class="card">
+<section class="card overflow-clip">
+  <%# An organizer's banner (set on the account page) tops their profile. %>
+  <% if @user.banner.attached? %>
+    <%= image_tag url_for(@user.banner.variant(:wide)), alt: "", class: "block w-full h-28 sm:h-44 object-cover border-b border-line", data: { profile_banner: true } %>
+  <% end %>
   <div class="p-5">
     <div class="flex items-center gap-4">
       <% if @user.avatar.attached? %>

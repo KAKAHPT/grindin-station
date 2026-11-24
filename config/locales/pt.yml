@@ -1071,7 +1071,7 @@ pt:
       title: "A tua conta"
       profile: "Perfil"
       avatar_hint: "JPEG, PNG ou WebP, até 2 MB."
-      banner_hint: "Aparece por trás do teu cartão na página Organizadores e na tua página. JPEG, PNG ou WebP, até 4 MB; cerca de 4:1 fica melhor."
+      banner_hint: "Aparece no topo do teu perfil público, e por trás do teu cartão e da tua página de organizador. JPEG, PNG ou WebP, até 4 MB; cerca de 4:1 fica melhor."
       email_hint: "Para mudar o e-mail, escreve também a tua palavra-passe atual em baixo."
       email_pending: "Enviámos um link de confirmação para %{email}. A mudança aplica-se quando o abrires; até lá entras com o e-mail atual."
       wizards_email_hint: "Usado pelos organizadores para reportar os teus resultados ao Wizards EventLink. Deixa vazio para usar o e-mail de início de sessão."
