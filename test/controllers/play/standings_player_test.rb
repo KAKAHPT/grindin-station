@@ -49,6 +49,24 @@ module Play
       assert_select "[data-path-round='1'] p", text: /#{Regexp.escape(@winner.name)}/
     end
 
+    test "the player who advances from the final reads Winner, the others Eliminated" do
+      @tournament.update_columns(top_cut_size: 4) # rubocop:disable Rails/SkipsModelValidations
+      final = @tournament.rounds.create!(type: SingleEliminationRound, number: 2)
+      final.update!(published: true, started_at: 1.hour.ago)
+      seats = final.pods.first.seatings.order(:order).map(&:event_participant)
+      seats.each_with_index { |p, i| (i.zero? ? Advance : Eliminated).create!(round: final, event_participant: p) }
+      final.update!(finished_at: Time.current)
+      @tournament.update_columns(state: Tournament.states[:finished]) # rubocop:disable Rails/SkipsModelValidations
+
+      get play_standing_player_path(@tournament.slug, seats.first)
+      assert_select "[data-path-round='2']" do
+        assert_select "b", text: "Finals"
+        assert_select "[data-path-result=winner]", text: /Winner/
+      end
+      get play_standing_player_path(@tournament.slug, seats.last)
+      assert_select "[data-path-round='2'] [data-path-result=eliminated]"
+    end
+
     test "an unknown player, or one of another event, answers 404" do
       @tournament.update!(state: :finished)
       other = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))

@@ -5,8 +5,8 @@
 class PlayPlayerPath
   Step = Data.define(:round, :pod, :seat, :result, :others, :winner)
   # Chip tone of each outcome (status_chip).
-  TONES = { "win" => :accent, "advance" => :accent, "draw" => :ink, "bye" => :ink, "loss" => :muted,
-            "eliminated" => :muted, "penalty" => :danger, "none" => :muted }.freeze
+  TONES = { "win" => :accent, "advance" => :accent, "winner" => :accent, "draw" => :ink, "bye" => :ink,
+            "loss" => :muted, "eliminated" => :muted, "penalty" => :danger, "none" => :muted }.freeze
 
   def self.call(event, participant) = new(event, participant).steps
 
@@ -33,7 +33,7 @@ class PlayPlayerPath
   def step(round, pod, result)
     seatings = pod ? pod.seatings.sort_by(&:order) : []
     mine = seatings.find { |s| s.event_participant_id == @participant.id }
-    Step.new(round: round, pod: pod, seat: mine&.order, result: outcome(result, pod),
+    Step.new(round: round, pod: pod, seat: mine&.order, result: outcome(result, pod, round),
              others: seatings - [mine], winner: winner_id(round, seatings))
   end
 
@@ -44,10 +44,12 @@ class PlayPlayerPath
     won&.event_participant_id
   end
 
-  # win, loss, draw, penalty, advance, eliminated, bye (a result with no table) or none (no result recorded).
-  def outcome(result, pod)
+  # win, loss, draw, penalty, advance, winner (advancing from the final), eliminated, bye (a result with no
+  # table) or none (no result recorded).
+  def outcome(result, pod, round)
     return "none" unless result
     return "bye" if pod.nil?
+    return "winner" if result.is_a?(Advance) && round.last_single_elimination_round?
 
     result.type.downcase
   end
