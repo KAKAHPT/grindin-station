@@ -19,6 +19,8 @@ class OrganizerRoundFlowTest < ApplicationSystemTestCase # rubocop:disable Metri
     assert_predicate @tournament.reload, :registration_closed?
 
     accept_confirm { click_button "Move to Swiss stage" }
+    # The notice of the step before reads the same and may still be on screen: wait for the button to go.
+    assert_no_button "Move to Swiss stage"
     assert_text I18n.t("flash.notice.tournament_updated")
     assert_predicate @tournament.reload, :swiss?
 

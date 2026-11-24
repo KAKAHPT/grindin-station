@@ -1146,6 +1146,11 @@ pt:
     past: "Passados"
     empty: "Ainda não estás inscrito em nenhum evento."
     browse: "Ver os eventos"
+    decklist: "Decklist"
+    add_decklist: "Inserir decklist"
+    drop: "Drop"
+    drop_confirm: "Sair deste evento? Não serás emparelhado nas próximas rondas."
+    dropped: "Saíste"
   invitations:
     chip: "Só por convite"
     setting_help: "Só as contas que convidares se podem inscrever sozinhas; convidas no separador Convites. Podes sempre adicionar qualquer pessoa na lista de jogadores."

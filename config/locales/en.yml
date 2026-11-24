@@ -1146,6 +1146,11 @@ en:
     past: "Past"
     empty: "You are not registered in any event yet."
     browse: "See the events"
+    decklist: "Decklist"
+    add_decklist: "Add decklist"
+    drop: "Drop"
+    drop_confirm: "Drop from this event? You will not be paired in the next rounds."
+    dropped: "Dropped"
   invitations:
     chip: "Invitation only"
     setting_help: "Only the accounts you invite can register themselves; you invite them in the Invitations tab. You can still add anyone from the roster."

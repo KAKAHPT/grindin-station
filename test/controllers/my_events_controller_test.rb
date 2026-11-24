@@ -27,6 +27,9 @@ class MyEventsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-ticket-grid] a[href=?]", play_event_path(@mine.slug)
     assert_select "a[href=?]", play_event_path(@other.slug), count: 0
     assert_select "[data-ticket-grid] [data-register]", count: 0
+    assert_select "[data-my-decklist]", text: I18n.t("my_events.add_decklist")
+    assert_select "form[action=?] [data-my-drop]",
+                  tournament_event_participant_path(@mine, @mine.event_participants.find_by!(player: @user.player))
     assert_select ".topbar-links a.on[href=?]", my_events_path, text: I18n.t("topbar.my_events")
   end
 
@@ -39,6 +42,26 @@ class MyEventsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h2", text: I18n.t("my_events.running")
     assert_select "h2", text: I18n.t("my_events.past")
     assert_select "h2", text: I18n.t("my_events.upcoming"), count: 0
+  end
+
+  test "drop cancels the registration before the swiss and drops the player once it runs" do
+    sign_in
+    participant = @mine.event_participants.find_by!(player: @user.player)
+    assert_difference -> { @mine.event_participants.count }, -1 do
+      delete tournament_event_participant_path(@mine, participant)
+    end
+
+    running = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer), state: :swiss)
+    seat = running.event_participants.first
+    seat.update!(player: @user.player)
+    get my_events_path
+    assert_select "[data-my-drop]", count: 1
+    assert_select "[data-my-decklist]", count: 0
+    delete tournament_event_participant_path(running, seat)
+    assert_predicate seat.reload, :dropped?
+    get my_events_path
+    assert_select "[data-my-dropped]"
+    assert_select "[data-my-drop]", count: 0
   end
 
   test "a player with no events reads so and gets a link to the events" do

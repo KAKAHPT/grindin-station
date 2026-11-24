@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # /my-events: the events the signed-in player is registered in, as the same tickets as /events: running now,
-# upcoming, then past (latest first).
+# upcoming, then past (latest first). Each ticket carries the player's own actions: decklist and drop.
 class MyEventsController < ApplicationController
   include EventTickets
 
@@ -13,9 +13,14 @@ class MyEventsController < ApplicationController
     @past, @upcoming = rest.partition { |event| event.finished? || event.end_time.past? }
     @upcoming.reverse!
     @enrolled = enrolled_counts(events)
+    @participants = my_registrations(events)
   end
 
   private
+
+  def my_registrations(events)
+    EventParticipant.where(event_id: events.map(&:id), player: current_user.player).index_by(&:event_id)
+  end
 
   def my_events
     ticket_preload(visible_events.for_player(current_user.player)).order(start_time: :desc).limit(LIMIT).to_a

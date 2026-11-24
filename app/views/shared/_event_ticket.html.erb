@@ -3,7 +3,7 @@
     Register (Join waiting list once it is sold out). Past events too.
     Locals: event (Tournament or League, cover and organizer preloaded), enrolled (count), sold_out (optional,
     computed from enrolled when not given), large (optional: the /events variant with a taller cover, the time and
-    address and a description excerpt), registered (optional: the viewer is already in it, so no Register). Pieces from EventTicketHelper. %>
+    address and a description excerpt), participant (optional, /my-events: the viewer's own registration, so Decklist and Drop take the place of Register). Pieces from EventTicketHelper. %>
 <% sold_out = local_assigns.fetch(:sold_out) { event.sold_out?(enrolled) } %>
 <% large = local_assigns[:large] %>
 <% href = ticket_href(event) %>
@@ -34,7 +34,11 @@
     <p class="lp-evr-n"><%= ticket_enrolled(event, enrolled) %></p>
     <div class="lp-evr-act">
       <%= link_to t("landing.upcoming.view"), href, class: button_classes(:secondary, size: :xs) %>
-      <%= ticket_register_button(event, sold_out) unless local_assigns[:registered] %>
+      <% if local_assigns[:participant] %>
+        <%= render "shared/event_ticket_mine", event: event, participant: participant %>
+      <% else %>
+        <%= ticket_register_button(event, sold_out) %>
+      <% end %>
     </div>
   </div>
 <% end %>
