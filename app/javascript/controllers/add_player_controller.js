@@ -4,7 +4,7 @@ import { Controller } from "@hotwired/stimulus";
 // up as the organizer types (urlValue, JSON rows from Registrations::PlayerSearch) and picking one fills the hidden
 // player_id; the fields of the hidden tabs are disabled so only the active tab is submitted.
 export default class extends Controller {
-  static targets = ["tab", "panel", "input", "results", "playerId", "chosen", "mode"];
+  static targets = ["tab", "panel", "input", "results", "playerId", "chosen", "mode", "single"];
   static values = { url: String, mode: String, inEvent: String, empty: String };
 
   connect() {
@@ -26,7 +26,12 @@ export default class extends Controller {
       panel.hidden = !active;
       panel.querySelectorAll("input, textarea").forEach((field) => { field.disabled = !active; });
     });
-    if (mode === "manual") this.clearPick();
+    // The decklist belongs to one player: the Several tab has none.
+    this.singleTargets.forEach((block) => {
+      block.hidden = mode === "list";
+      block.querySelectorAll("input").forEach((field) => { field.disabled = mode === "list"; });
+    });
+    if (mode === "manual" || mode === "list") this.clearPick();
   }
 
   search(event) {

@@ -20,14 +20,15 @@ module Tournaments
       return unless winner && author
       return if Post.exists?(event: tournament, kind: "result")
 
-      players = tournament.event_participants.where(waitlisted: false).count
+      players = tournament.event_participants.where.not(final_position: nil).count
       Post.create!(user: author, event: tournament, kind: "result",
                    body: I18n.t("feed.result_body", winner: winner.name, event: tournament.name, count: players))
     end
 
-    # Every non-waitlisted participant gets a unique position 1..N: playing players before dropped ones, each
+    # Every non-waitlisted participant who played gets a unique position 1..N: playing players before dropped ones, each
     # group by rank_score, which puts top-cut advancements first (the cut winner, then the finalists, then
-    # earlier eliminations) and then the swiss order. Waitlisted players get nil; finishing again recomputes.
+    # earlier eliminations) and then the swiss order. Waitlisted players and those who dropped before finishing
+    # a round get nil; finishing again recomputes.
     def record_final_positions(tournament)
       positions = Arel::Nodes::Case.new(EventParticipant.arel_table[:id])
       ranked = final_order(tournament)
@@ -39,7 +40,7 @@ module Tournaments
     end
 
     def final_order(tournament)
-      EventParticipant.standings_for(tournament).reject(&:waitlisted?)
+      EventParticipant.standings_for(tournament).select(&:ranked?)
         .sort_by { |participant| [participant.playing? ? 0 : 1, -participant.rank_score, participant.id] }
     end
   end

@@ -106,6 +106,16 @@ class EventParticipant < ApplicationRecord
     playing? && !waitlisted?
   end
 
+  # Left before finishing a single round (a no-show, a late withdrawal): not part of the standings.
+  def withdrew_unplayed?
+    dropped? && results.empty?
+  end
+
+  # Has a row in the standings and a final position.
+  def ranked?
+    !waitlisted? && !withdrew_unplayed?
+  end
+
   # Roster filter states: enrolled, checked_in, waitlisted, dropped.
   def roster_status?(status)
     case status

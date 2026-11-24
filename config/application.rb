@@ -26,7 +26,8 @@ module GrindinStation
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    # config.time_zone = "Central Time (US & Canada)"
+    # Phase 1 is cEDH PT only: times are entered and shown in Portuguese time.
+    config.time_zone = "Lisbon"
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end

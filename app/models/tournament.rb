@@ -65,6 +65,7 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
   validate :top_cut_fits_the_field
   validate :swiss_has_rounds, if: -> { will_save_change_to_state? && swiss? }
   validate :structure_locked_after_start, on: :update
+  before_validation :leave_out_no_shows, on: :update, if: :starting?
   before_update :snapshot_structure, if: lambda {
     will_save_change_to_state? && (swiss? || straight_to_single_elimination?)
   }
@@ -122,10 +123,17 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
 
   def single_elimination_round_name(round_number)
     remaining = number_of_swiss_rounds + number_of_single_elimination_rounds - round_number
-    return %w[Finals Semi-Finals Quarter-Finals][remaining] unless one_v_one?
+    return multiplayer_cut_round_name(remaining) unless one_v_one?
 
     key = ONE_V_ONE_CUT_ROUND_KEYS[remaining]
     I18n.t("rounds.cut_names.#{key}") if key
+  end
+
+  # Check-in decides who plays: once anyone is checked in, the enrolled players who are not are left out
+  # (dropped as no-shows) when the event starts. An event that never used check-in starts with everyone.
+  def no_show_participants
+    enrolled = event_participants.select(&:enrolled?)
+    enrolled.any?(&:checked_in?) ? enrolled.reject(&:checked_in?) : []
   end
 
   def ongoing?
@@ -146,6 +154,26 @@ class Tournament < Event # rubocop:disable Metrics/ClassLength
   end
 
   private
+
+  def starting? = will_save_change_to_state? && state_was == "registration_closed" && ongoing?
+
+  def leave_out_no_shows
+    no_show_participants.each do |participant|
+      participant.update!(dropped: true, drop_reason: "no_show")
+      Audit.record(:participant_dropped, subject: participant, event: self, participant_id: participant.id,
+                                         reason: "no_show")
+    end
+  end
+
+  # Pods: the last round is "Finals"; the ones before are named by the players still in ("Top 16", "Top 40").
+  def multiplayer_cut_round_name(remaining)
+    return "Finals" if remaining.zero?
+
+    cut_size = top_cut_size_or_suggested
+    stages = Tournaments::TopCut.stages_for(cut_size, format) if cut_size.positive?
+    stage = stages && remaining < stages.size && stages[-(remaining + 1)]
+    "Top #{stage[:byes] + (stage[:pods] * 4)}" if stage
+  end
 
   def no_swiss? = one_v_one? && (swiss_rounds_count || suggested_structure[:swiss_rounds]).zero?
 

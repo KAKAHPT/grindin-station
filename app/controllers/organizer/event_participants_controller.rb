@@ -3,7 +3,7 @@
 module Organizer
   class EventParticipantsController < OrganizerController # rubocop:disable Metrics/ClassLength
     layout "modal"
-    DESK_ACTIONS = %i[update check_in undo_check_in mark_paid mark_unpaid].freeze
+    DESK_ACTIONS = %i[update check_in undo_check_in check_in_all mark_paid mark_unpaid].freeze
     STATUSES = %w[enrolled checked_in waitlisted dropped].freeze
 
     allow_roles :organizer, :judge, :scorekeeper, :caster, only: :index
@@ -15,7 +15,9 @@ module Organizer
                with: -> { render json: [], status: :too_many_requests }
 
     SCOREKEEPER_ATTRIBUTES = %w[checked_in paid].freeze
-    ADD_MODES = %w[email name manual].freeze
+    ADD_MODES = %w[email name manual list].freeze
+    # The "Several" tab: guests pasted one name per line.
+    LIST_LIMIT = 200
 
     def index
       @event = load_tournament
@@ -62,6 +64,8 @@ module Organizer
         return redirect_to roster_path(@event_participant.event), alert: t("flash.alert.registration_closed")
       end
 
+      return create_list if @mode == "list"
+
       @event_participant.attributes = event_participant_params
 
       if picked_by_name? && @event_participant.save
@@ -80,6 +84,14 @@ module Organizer
       # TODO: stay in place or fix the updated item
       redirect_to [:organizer, @event, :event_participants, { layout: "application" }],
                   notice: "#{@event_participant.name} #{@event_participant.dropped? ? 'dropped' : 'updated'}!"
+    end
+
+    # Everyone enrolled who is not checked in yet, in one go.
+    def check_in_all
+      @event = load_tournament
+      pending = @event.event_participants.enrolled.where(checked_in: false).to_a
+      pending.each { |participant| participant.update!(checked_in: true) }
+      redirect_to roster_path(@event), notice: t("flash.notice.checked_in_all", count: pending.size)
     end
 
     def check_in = desk_update(checked_in: true)
@@ -107,6 +119,44 @@ module Organizer
     def destroy; end
 
     private
+
+    # Adds one guest per pasted line, all or none: a refused name comes back in the dialog with its reason.
+    def create_list
+      event = @event_participant.event
+      @names = params[:names].to_s
+      names = @names.lines.map(&:squish).compact_blank.uniq
+      refused = list_refusal(event, names) || add_guests(event, names)
+      return redirect_to(roster_path(event), notice: t("flash.notice.players_added", count: names.size)) unless refused
+
+      @event_participant.errors.add(:base, refused)
+      render :new, status: :unprocessable_entity, layout: modal_layout
+    end
+
+    def list_refusal(_event, names)
+      return t("organizer.roster.add.list_empty") if names.empty?
+
+      t("organizer.roster.add.list_too_long", limit: LIST_LIMIT) if names.size > LIST_LIMIT
+    end
+
+    # nil when every guest was saved; otherwise nothing is saved and the first refusal is returned.
+    def add_guests(event, names)
+      terms = event_participant_params[:accepted_terms]
+      refused = nil
+      # One name check per guest (EventParticipant#guest_name_free) is the work, not an N+1.
+      Prosopite.pause
+      EventParticipant.transaction do
+        names.each do |name|
+          guest = EventParticipant.new(event: event, player_name: name, accepted_terms: terms)
+          next if guest.save
+
+          refused = "#{name}: #{guest.errors.full_messages.to_sentence}"
+          raise ActiveRecord::Rollback
+        end
+      end
+      refused
+    ensure
+      Prosopite.resume
+    end
 
     # The "by name" tab adds only a player picked from the list; a typed name alone would be a guest.
     def picked_by_name?

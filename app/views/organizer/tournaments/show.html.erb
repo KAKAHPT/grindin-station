@@ -6,7 +6,9 @@
 <div class="col-span-full kpi" data-overview-counters>
   <div class="card"><b class="tabular"><%= counters[:enrolled] %></b><span><%= t("organizer.overview.enrolled", count: counters[:waitlist]) %></span></div>
   <div class="card"><b class="tabular"><%= counters[:checked_in] %></b><span><%= t("organizer.roster.counters.checked_in") %></span></div>
-  <div class="card"><b class="tabular"><%= counters[:unpaid] %></b><span><%= t("organizer.roster.counters.unpaid") %></span></div>
+  <% unless @tournament.free? %>
+    <div class="card"><b class="tabular"><%= counters[:unpaid] %></b><span><%= t("organizer.roster.counters.unpaid") %></span></div>
+  <% end %>
   <div class="card"><b class="tabular"><%= counters[:no_decklist] %></b><span><%= t("organizer.overview.without_decklist") %></span></div>
 </div>
 

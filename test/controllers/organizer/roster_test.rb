@@ -18,6 +18,50 @@ module Organizer
         end
     end
 
+    test "check in everyone checks in the enrolled players who were not, and the button leaves" do
+      sign_in_as("scorekeeper")
+      @participant.update!(checked_in: true)
+      stamped = @participant.reload.checked_in_at
+      get organizer_tournament_event_participants_path(@tournament, layout: "application")
+      assert_select "form[action$='/event_participants/check_in_all']", 1
+
+      patch check_in_all_organizer_tournament_event_participants_path(@tournament)
+
+      assert_redirected_to organizer_tournament_event_participants_path(@tournament, layout: "application")
+      assert_equal "3 players checked in.", flash[:notice]
+      assert(@tournament.event_participants.reload.all? { |p| p.checked_in? && p.checked_in_at })
+      assert_equal stamped, @participant.reload.checked_in_at
+      follow_redirect!
+      assert_select "form[action$='/event_participants/check_in_all']", 0
+    end
+
+    test "the Several tab adds one guest per pasted line, or none when a line is refused" do
+      sign_in_as("organizer")
+      add =
+        lambda do |names, terms: "1"|
+          post organizer_tournament_event_participants_path(@tournament),
+               params: { mode: "list", names: names, event_participant: { accepted_terms: terms } }
+        end
+
+      assert_difference -> { @tournament.event_participants.count }, 3 do
+        add.call("Ana Silva\n  Rui   Costa \n\nAna Silva\nMarta Reis\n")
+      end
+      assert_equal "3 players added.", flash[:notice]
+      names = @tournament.event_participants.reload.map(&:name)
+      assert_empty ["Ana Silva", "Marta Reis", "Rui Costa"] - names
+
+      assert_no_difference -> { @tournament.event_participants.count } do
+        add.call("Novo Jogador\nAna Silva")
+        assert_response :unprocessable_entity
+        assert_select "[data-errors]", text: /Ana Silva/
+        assert_select "textarea[name=names]", text: /Novo Jogador/
+        add.call("   \n")
+        assert_select "[data-errors]", text: /at least one name/
+        add.call("Sem Regras", terms: "0")
+        assert_response :unprocessable_entity
+      end
+    end
+
     test "a scorekeeper checks a player in and out and marks them paid" do
       sign_in_as("scorekeeper")
 

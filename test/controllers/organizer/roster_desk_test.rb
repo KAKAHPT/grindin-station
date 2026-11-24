@@ -7,10 +7,30 @@ module Organizer
   class RosterDeskTest < ActionDispatch::IntegrationTest
     setup do
       @tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+      @tournament.update!(price: 10, currency: "euro")
       @tournament.rounds.create!(type: SwissRound, number: 1)
       @tournament.event_participants.first.update!(checked_in: true, paid: true, decklist: "Kinnan, Bonder Prodigy")
       post session_path, params: { session: { email_address: users(:organizer_user).email_address,
                                               password: "password123" } }
+    end
+
+    test "a free event shows nothing about payment" do
+      @tournament.update!(price: 0)
+
+      get organizer_tournament_event_participants_path(@tournament, layout: "application")
+
+      assert_response :success
+      assert_select "#roster_count_unpaid", 0
+      assert_select "form[action$='/mark_paid'], form[action$='/mark_unpaid']", 0
+      assert_select "tbody", text: /Unpaid|Paid/, count: 0
+    end
+
+    test "a row action comes back to the same place: the page morphs and keeps its scroll" do
+      get organizer_tournament_event_participants_path(@tournament, layout: "application")
+
+      assert_select "meta[name='turbo-refresh-method'][content=morph]"
+      assert_select "meta[name='turbo-refresh-scroll'][content=preserve]"
+      assert_select "form[action$='/check_in'] button[data-turbo-action=replace]", minimum: 1
     end
 
     test "each player has desk chips and a hidden stats row opened by the plus button" do

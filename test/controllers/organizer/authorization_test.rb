@@ -3,7 +3,7 @@
 require "test_helper"
 
 module Organizer
-  class AuthorizationTest < ActionDispatch::IntegrationTest
+  class AuthorizationTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
     ROLES = %w[organizer judge scorekeeper].freeze
 
     setup do
@@ -99,6 +99,16 @@ module Organizer
       pod = @round.pods.first
       expected = { "organizer" => 200, "judge" => 200, "scorekeeper" => 200 }
       assert_matrix(expected) { get new_organizer_tournament_round_pod_result_path(@tournament, @round, pod) }
+    end
+
+    test "result entry is titled by the table and opens on Win" do
+      pod = @round.pods.first
+      sign_in_as("organizer")
+
+      get new_organizer_tournament_round_pod_result_path(@tournament, @round, pod)
+
+      assert_select "body", text: /Result for table #{pod.number}/
+      assert_select "select[name='result[type]'] option[selected]", text: "Win"
     end
 
     private

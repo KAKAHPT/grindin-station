@@ -25,6 +25,36 @@ module Organizer
       assert_select "form[action='#{organizer_tournaments_path}']"
     end
 
+    test "starting leaves out the enrolled players without check-in, after naming them in the confirmation" do
+      tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_closed)
+      absent = tournament.event_participants.order(:id).first(2)
+      tournament.event_participants.where.not(id: absent.map(&:id)).find_each { |p| p.update!(checked_in: true) }
+
+      get organizer_tournament_path(tournament)
+      assert_select "form button[data-turbo-confirm*='2 without check-in']"
+      absent.each { |p| assert_select "form button[data-turbo-confirm*=?]", p.name }
+
+      patch organizer_tournament_path(tournament), params: { tournament: { state: "swiss" } }
+
+      assert tournament.reload.swiss?
+      assert_equal(%w[no_show no_show], absent.map { |p| p.reload.drop_reason })
+      seated = tournament.rounds.first.pods.flat_map { |pod| pod.seatings.map(&:event_participant_id) }
+      assert_equal 6, seated.size
+      assert_empty seated & absent.map(&:id)
+    end
+
+    test "an event that never used check-in starts with everyone, with the plain confirmation" do
+      tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_closed)
+
+      get organizer_tournament_path(tournament)
+      assert_select "form button[data-turbo-confirm='Are you sure?']"
+      patch organizer_tournament_path(tournament), params: { tournament: { state: "swiss" } }
+
+      assert_equal 8, tournament.reload.event_participants.count(&:enrolled?)
+    end
+
     test "a judge moves the tournament to swiss but cannot open Settings; a staff organizer can" do
       tournament = TournamentBuilder.build(players: 8, organizer: event_organizers(:standard_organizer),
                                            state: :registration_closed)
@@ -414,6 +444,7 @@ module Organizer
     test "the tournament page is the Overview tab of the shell: header, six tabs, counters, format, lately" do
       tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
                                            state: :registration_open)
+      tournament.update!(price: 10, currency: "euro")
       JudgeCall.create!(event: tournament, reason: "rules")
 
       get organizer_tournament_path(tournament)
@@ -429,7 +460,20 @@ module Organizer
       assert_select "[data-overview-counters] .card", 4
       assert_select "[data-overview-format]", text: /Swiss rounds/
       assert_select "[data-overview-lately]", text: /Judge called/
+      assert_select "[data-overview-counters]", text: /unpaid/i
       assert_no_legacy_classes
+    end
+
+    test "a free tournament's Overview has no unpaid counter, and a drop shows under Lately" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer),
+                                           state: :registration_open)
+      tournament.event_participants.first.update!(dropped: true, dropped_at: Time.current)
+
+      get organizer_tournament_path(tournament)
+
+      assert_select "[data-overview-counters] .card", 3
+      assert_select "[data-overview-counters]", text: /unpaid/i, count: 0
+      assert_select "[data-overview-lately]", text: /dropped/
     end
 
     test "the Overview Export card lists the files and shows pairings only once a round is published" do

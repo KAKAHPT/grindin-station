@@ -22,7 +22,7 @@ module Play
       assert_select "[data-bracket][data-controller=bracket][data-bracket-open-value='2']" do
         assert_select "[data-bracket-stage]", count: 2
         assert_select "[data-bracket-stage='2']" do
-          assert_select "h2", text: "Semi-Finals"
+          assert_select "h2", text: "Top 13"
           assert_select "[data-stage-status=upcoming]", count: 1
           assert_select "[data-byes][data-bracket-card] li[data-participant-id=?]", @cut.byes.sole.event_participant_id
           assert_select "article[data-pairing-table][data-bracket-card]", count: 3

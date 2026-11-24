@@ -1,4 +1,4 @@
-<%# The Add player dialog: three tabs. By e-mail (an existing account, or a new one with the name given), by name
+<%# The Add player dialog: four tabs (the fourth, Several, adds one guest per pasted line). By e-mail (an existing account, or a new one with the name given), by name
     (an existing account picked from the list) or manually (a guest with no account). add_player_controller looks
     accounts up as the organizer types and submits only the active tab's fields. Locals: event_participant, mode. %>
 <% event = event_participant.event %>
@@ -19,7 +19,7 @@
   <%= f.hidden_field :player_id, data: { add_player_target: "playerId" } %>
 
   <div class="<%= PaletteHelper::SEGMENT_TRACK %> mb-4" role="tablist" data-add-tabs>
-    <% %w[email name manual].each do |tab| %>
+    <% %w[email name manual list].each do |tab| %>
       <button type="button" role="tab" aria-selected="<%= tab == mode %>" data-add-player-target="tab" data-mode="<%= tab %>"
               data-action="add-player#show" class="<%= segment_classes(tab == mode) %>"><%= t("organizer.roster.add.tabs.#{tab}") %></button>
     <% end %>
@@ -55,7 +55,17 @@
                                 label: { for: "guest_name", text: t("organizer.roster.add.guest_name") } %>
   <% end %>
 
-  <%= f.text_field_with_label :decklist, placeholder: "https://moxfield.com/xyz" %>
+  <%= tag.div data: { add_player_target: "panel", mode: "list" }, hidden: mode != "list" do %>
+    <p class="form-help mb-3"><%= t("organizer.roster.add.help.list") %></p>
+    <div class="field mb-4">
+      <label for="guest_names" class="<%= ModalFormBuilder::LABEL_CLASSES %>"><%= t("organizer.roster.add.names") %></label>
+      <%= text_area_tag :names, local_assigns[:names], id: "guest_names", rows: 8, class: "field-input h-auto py-2", placeholder: "John Smith\nJane Doe" %>
+    </div>
+  <% end %>
+
+  <%= tag.div data: { add_player_target: "single" }, hidden: mode == "list" do %>
+    <%= f.text_field_with_label :decklist, placeholder: "https://moxfield.com/xyz" %>
+  <% end %>
   <%= f.check_box_with_label :accepted_terms, label: { text: t("organizer.roster.add.terms") } %>
 
   <% content_for :footer do %>

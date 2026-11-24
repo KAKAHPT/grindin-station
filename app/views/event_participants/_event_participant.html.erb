@@ -24,7 +24,7 @@
     <% if local_assigns[:final] && event_participant.final_position == 1 %>
       <span data-winner class="me-1.5 align-middle"><%= icon("trophy", class: "text-[14px] text-muted") %><span class="sr-only"><%= t("play.pairings.winner") %></span></span>
     <% end %>
-    <span class="<%= "inline-block align-middle max-w-[7.5rem] truncate @lg:max-w-none" if local_assigns[:wide_only].present? %>"><%= profile_link(event_participant.player.user, truncate(event_participant.name)) %></span>
+    <span class="<%= "inline-block align-middle max-w-[7.5rem] truncate @lg:max-w-none" if local_assigns[:wide_only].present? %>"><% if local_assigns[:path_dialog] %><%= link_to truncate(event_participant.name), play_standing_player_path(event_participant.event.slug, event_participant, locale: params[:locale]), data: { turbo_frame: "player_path", player_path: true }, class: "hover:underline underline-offset-[3px]" %><% else %><%= profile_link(event_participant.player.user, truncate(event_participant.name)) %><% end %></span>
     <% if you %><span data-you class="ms-1.5 align-middle"><%= desk_chip(:ok) { t("play.tables.you") } %></span><% end %>
   </th>
   <% columns = event_participant.standing_columns %>

@@ -18,6 +18,8 @@
     expanded row). Public standings mark the viewer's row "You"; both the page and the modal show the
     movement arrows (shared/_movement). %>
 <% me_id = (current_participant&.id unless @standings_in_modal) %>
+<%# Final standings page: a name opens that player's path (rounds, seats, opponents) in a dialog. %>
+<% path_dialog = @tournament.finished? && !@standings_in_modal %>
 <% content_for :close do %>
   <% if latest_published %>
     <%= link_to [@tournament, latest_published.becomes(Round)], class: "ms-auto #{icon_button_classes}" do %>
@@ -197,13 +199,25 @@
         <%= render partial: "event_participants/event_participant", collection: @standings.reject(&:waitlisted?).sort_by(&:name), locals: { wide_only: wide_only, pad: pad, me_id: me_id, show_beaten: show_beaten, show_unique: show_unique } %>
       <% else %>
         <%# The feed's order (Feeds::Standings.ranked): final positions once finished, then playing, rank score, name. %>
-        <%= render partial: "event_participants/event_participant", collection: Feeds::Standings.ranked(@tournament, @standings), locals: { wide_only: wide_only, pad: pad, final: @tournament.finished?, me_id: me_id, show_beaten: show_beaten, show_unique: show_unique } %>
+        <%= render partial: "event_participants/event_participant", collection: Feeds::Standings.ranked(@tournament, @standings), locals: { wide_only: wide_only, pad: pad, final: @tournament.finished?, path_dialog: path_dialog, me_id: me_id, show_beaten: show_beaten, show_unique: show_unique } %>
       <% end %>
     </tbody>
   </table>
   </div>
   </div>
   <%= render "tournaments/standings_help", event: @tournament, show_beaten: show_beaten, show_unique: show_unique %>
+  <% if path_dialog %>
+    <p class="mt-3 text-xs text-muted" data-path-hint><%= t("play.path.hint") %></p>
+    <div data-controller="player-path">
+      <dialog class="rk-dialog" data-player-path-target="dialog" data-action="click->player-path#backdrop close->player-path#clear" data-player-path-dialog aria-label="<%= t("play.path.title") %>">
+        <div class="flex items-center justify-between px-[18px] py-3.5 border-b border-line">
+          <h2 class="font-display text-base font-semibold text-ink"><%= t("play.path.title") %></h2>
+          <button type="button" class="<%= icon_button_classes(size: :sm) %>" data-action="player-path#close" aria-label="<%= t("common.close") %>">✕</button>
+        </div>
+        <%= turbo_frame_tag "player_path", class: "block min-h-24", data: { player_path_target: "frame", action: "turbo:before-fetch-request->player-path#open" } %>
+      </dialog>
+    </div>
+  <% end %>
 <% end %>
 
 <% content_for :footer do %>

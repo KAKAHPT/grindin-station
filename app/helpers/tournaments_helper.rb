@@ -22,15 +22,21 @@ module TournamentsHelper # rubocop:disable Metrics/ModuleLength
   }.with_indifferent_access.freeze
 
   POD_STATUS_TONES = {
-    playing: :ink, pending: :muted, review: :muted, disputed: :danger, completed: :accent
+    playing: :ink, waiting: :muted, pending: :muted, review: :muted, disputed: :danger, completed: :accent
   }.freeze
 
   def pod_status_tone(status)
     POD_STATUS_TONES.fetch(status)
   end
 
-  def pod_status_chip(pod)
+  # The pod's report status, except that a published table is :waiting until its round starts.
+  def pod_display_status(pod)
     status = pod.report_status
+    status == :playing && !pod.round.started? ? :waiting : status
+  end
+
+  def pod_status_chip(pod)
+    status = pod_display_status(pod)
     status_chip(pod_status_tone(status)) { t("rounds.status.#{status}") }
   end
 
