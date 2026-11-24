@@ -39,15 +39,22 @@ module EventTicketHelper
     tag.span(tournament_price(event), class: "whitespace-nowrap") if event.price.to_d.zero? || event.currency
   end
 
-  # The organizer's initials and name (a link to the organizer page when the user has a handle), or nil without one.
+  # The organizer's picture (their initials without one) and name (a link to the organizer page when the user has
+  # a handle), or nil without an organizer.
   def ticket_organizer(event)
     user = event.event_organizer&.user
     return unless user&.name
 
-    tag.p(class: "lp-evr-org") do
-      safe_join([tag.i(user.name.split.first(2).map { |word| word[0] }.join.upcase, "aria-hidden": "true"),
-                 ticket_organizer_name(user)])
+    tag.p(class: "lp-evr-org") { safe_join([ticket_organizer_mark(user), ticket_organizer_name(user)]) }
+  end
+
+  def ticket_organizer_mark(user)
+    if user.avatar.attached?
+      return image_tag(url_for(user.avatar.variant(:thumb)), alt: "", width: 18, height: 18,
+                                                             data: { organizer_avatar: true })
     end
+
+    tag.i(user.name.split.first(2).pluck(0).join.upcase, "aria-hidden": "true")
   end
 
   # The organizer's name, linked to /o/:handle when they have one (and organizer pages are on).

@@ -70,8 +70,11 @@ class PagesController < ApplicationController
 
   # One preload, the latest published rounds and one count for the featured and the upcoming tickets together.
   def ticket_counts(events)
-    associations = [{ cover_attachment: :blob }, { event_organizer: :user }]
+    associations = [{ cover_attachment: :blob }, { event_organizer: { user: { avatar_attachment: :blob } } }]
+    # The covers and the organizers' pictures are one attachments query each: alike enough to read as an N+1.
+    Prosopite.pause
     ActiveRecord::Associations::Preloader.new(records: events, associations: associations).call
+    Prosopite.resume
     Event.load_latest_published_round_numbers(events)
     EventParticipant.enrolled.where(event_id: events.map(&:id)).group(:event_id).count
   end
