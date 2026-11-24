@@ -23,7 +23,7 @@
       <% if (organizer = event.event_organizer&.user)&.name %>
         <dt class="text-muted"><%= t("play.events.organizer") %></dt>
         <dd data-event-organizer>
-          <%= organizer.handle ? link_to(organizer.name, organizer_profile_path(organizer.handle, locale: params[:locale]), class: "hover:underline") : organizer.name %>
+          <%= organizer.handle && Features.on?(:organizers) ? link_to(organizer.name, organizer_profile_path(organizer.handle, locale: params[:locale]), class: "hover:underline") : organizer.name %>
         </dd>
       <% end %>
       <dt class="text-muted"><%= t("play.events.price") %></dt>

@@ -2,7 +2,9 @@
     card, the featured tournaments and circuits (when any), the next public tournaments and, last, how seats are
     weighted (Why it is fair). %>
 <% content_for :title, t("landing.title") %>
-<% content_for :description, t("landing.description") %>
+<%# While 1v1 is paused (config/features.yml) the texts promise cEDH only. %>
+<% cedh_only = !Features.on?(:one_v_one) %>
+<% content_for :description, t(cedh_only ? "landing.description_cedh" : "landing.description") %>
 <% content_for :full_main, "1" %>
 <% content_for :footer_note do %>
   <p class="mb-3 text-xs" data-attribution><%= t("landing.attribution") %></p>
@@ -26,8 +28,8 @@
       <div class="lp-mark"><%= render "shared/mark", size: 84, id_suffix: "hero", rotating: true %></div>
       <p class="lp-eyebrow"><%= t("landing.eyebrow") %></p>
       <h1><%= t("landing.headline") %></h1>
-      <p class="lp-sub"><%= t("landing.tagline_html") %> <%= link_to t("landing.why.tests"), fairness_path(locale: url_locale), class: "lp-sub-a", data: { tests: true } %></p>
-      <p class="lp-lead"><%= t("landing.lead") %></p>
+      <p class="lp-sub"><%= t("landing.tagline_html") %> <% if Features.on?(:fairness) %><%= link_to t("landing.why.tests"), fairness_path(locale: url_locale), class: "lp-sub-a", data: { tests: true } %><% end %></p>
+      <p class="lp-lead"><%= t(cedh_only ? "landing.lead_cedh" : "landing.lead") %></p>
       <div class="lp-ctas">
         <%= link_to t("landing.cta_events"), "#upcoming", class: button_classes(:light, size: :sm) %>
       </div>
@@ -105,7 +107,9 @@
         <% end %>
       </ol>
       <p><%= t("landing.why.audit") %></p>
-      <p class="lp-why-cta"><%= link_to t("landing.why.tests"), fairness_path(locale: url_locale), class: button_classes(:secondary, size: :sm), data: { tests: true } %></p>
+      <% if Features.on?(:fairness) %>
+        <p class="lp-why-cta"><%= link_to t("landing.why.tests"), fairness_path(locale: url_locale), class: button_classes(:secondary, size: :sm), data: { tests: true } %></p>
+      <% end %>
     </section>
   </div>
 </div>

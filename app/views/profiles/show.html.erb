@@ -14,14 +14,16 @@
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-2.5 min-w-0">
           <h1 class="font-display text-xl font-semibold truncate"><%= @user.display_name %></h1>
-          <%= profile_team_tag(@user) %>
+          <%= profile_team_tag(@user) if Features.on?(:teams) %>
         </div>
         <p class="text-sm text-muted truncate">@<%= @user.handle %></p>
         <% if @user.country.present? %>
           <p data-profile-country class="text-sm text-muted"><%= country_name(@user.country) %></p>
         <% end %>
       </div>
-      <div class="shrink-0" data-profile-follow><%= render "shared/follow_button", user: @user %></div>
+      <% if Features.on?(:feed) %>
+        <div class="shrink-0" data-profile-follow><%= render "shared/follow_button", user: @user %></div>
+      <% end %>
     </div>
     <% if @user.bio.present? %>
       <div data-profile-bio class="mt-4 text-sm text-ink/90 space-y-2 break-words"><%= simple_format(@user.bio) %></div>

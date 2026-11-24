@@ -21,11 +21,10 @@ module EventFiltersHelper
        filters[:country], t("events.filters.country")],
       [:organizer, :select, all_option(:all_organizers) + options[:organizers].map { |_, name, handle| [name, handle] },
        filters[:organizer]&.last, t("events.filters.organizer")],
-      [:play, :select, all_option(:all_formats) + Event::PLAYS.map { |play| [play_label(play), play] },
-       filters[:play], t("events.filters.format")],
+      play_filter_field(filters),
       [:sort, :select, sort_options(sorts, scope), params[:sort].to_s.presence_in(sorts) || sorts.first,
        t("#{scope}.sort.label")]
-    ]
+    ].compact
   end
 
   # [[label, value]] of a list's sort select, each option read as "Sort by: …" so it is not taken for a filter.
@@ -47,6 +46,14 @@ module EventFiltersHelper
   private
 
   def all_option(key) = [[t("events.filters.#{key}"), ""]]
+
+  # The Format select; nil while 1v1 is paused (config/features.yml): every event is Commander / cEDH.
+  def play_filter_field(filters)
+    return unless Features.on?(:one_v_one)
+
+    [:play, :select, all_option(:all_formats) + Event::PLAYS.map { |play| [play_label(play), play] },
+     filters[:play], t("events.filters.format")]
+  end
 
   # The chip texts of the active filters.
   def event_filter_values(filters)

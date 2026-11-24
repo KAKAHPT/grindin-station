@@ -45,6 +45,8 @@ module Organizer
 
     def create
       attributes = tournament_params.merge(event_organizer: current_organizer)
+      # While 1v1 is paused (config/features.yml) every new tournament is Commander / cEDH, whatever was sent.
+      attributes = attributes.merge(game_format: "commander", format: "multiplayer") unless Features.on?(:one_v_one)
       if attributes[:game_format].present? && attributes[:format].blank?
         attributes[:format] = Tournament.format_for_game(attributes[:game_format])
       end

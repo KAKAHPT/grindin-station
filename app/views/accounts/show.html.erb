@@ -84,11 +84,13 @@
             <%= f.select :visibility, User::VISIBILITIES.map { |v| [ t(".visibility.#{v}"), v ] }, {}, class: input %>
           </div>
         </div>
-        <div class="<%= field %>">
-          <%= f.label :feed_scope %>
-          <%= f.select :feed_scope, User::FEED_SCOPES.map { |v| [ t(".feed_scope.#{v}"), v ] }, {}, class: input %>
-          <p class="<%= hint %>"><%= t(".feed_scope_hint") %></p>
-        </div>
+        <% if Features.on?(:feed) %>
+          <div class="<%= field %>">
+            <%= f.label :feed_scope %>
+            <%= f.select :feed_scope, User::FEED_SCOPES.map { |v| [ t(".feed_scope.#{v}"), v ] }, {}, class: input %>
+            <p class="<%= hint %>"><%= t(".feed_scope_hint") %></p>
+          </div>
+        <% end %>
         <div class="<%= field %>">
           <%= f.label :bio %>
           <%= f.text_area :bio, rows: 4, maxlength: 500, class: input %>
@@ -124,7 +126,7 @@
     <%= f.button t(".save"), class: button_classes(:primary, "w-full sm:w-auto") %>
   <% end %>
 
-  <%= render "accounts/team", user: @user %>
+  <%= render "accounts/team", user: @user if Features.on?(:teams) %>
 
   <section class="card">
     <h2 class="card-title"><%= t(".identities") %></h2>

@@ -65,7 +65,10 @@ module EventTickets
 
   # Tournaments and leagues in one query: the state enum lives on the subclasses, and both map the hidden states
   # (draft, canceled) to the same integers, so the base class can filter them by value.
-  def visible_events = Event.where.not(state: Tournament.states.values_at(*Event::HIDDEN_STATES))
+  # While leagues are paused (config/features.yml) only tournaments are listed.
+  def visible_events
+    (Features.on?(:leagues) ? Event : Tournament).where.not(state: Tournament.states.values_at(*Event::HIDDEN_STATES))
+  end
 
   def ticket_filter_organizers(events)
     EventOrganizer.joins(:user).where(id: events.select(:event_organizer_id))

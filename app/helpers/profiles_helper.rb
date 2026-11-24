@@ -11,7 +11,7 @@ module ProfilesHelper
     return label unless user&.handle.present? && user.profile_visible_to?(nil)
 
     path =
-      if organizer_page
+      if organizer_page && Features.on?(:organizers)
         organizer_profile_path(user.handle,
                                locale: params[:locale])
       else
