@@ -92,7 +92,9 @@ module EventTickets
   # The signed-in viewer's own events of a type running now (none for a visitor).
   def ongoing_tickets(klass) = ticket_preload(klass.for_player(current_user&.player).ongoing).to_a
 
-  def ticket_preload(scope) = scope.preload(cover_attachment: :blob, event_organizer: :user)
+  def ticket_preload(scope)
+    scope.preload(cover_attachment: :blob, event_organizer: { user: { avatar_attachment: :blob } })
+  end
 
   def enrolled_counts(events)
     Event.load_latest_published_round_numbers(events)

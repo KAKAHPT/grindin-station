@@ -2308,6 +2308,15 @@
     color: var(--color-warn);
   }
 
+  .lp-evr-org img {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: 1px solid var(--color-line-strong);
+    object-fit: cover;
+  }
+
   .lp-evr-org i {
     display: flex;
     align-items: center;
