@@ -21,6 +21,5 @@ class InvitationsTest < ApplicationSystemTestCase
 
     assert_selector "[data-invitations] tbody tr", count: 1
     assert_selector "[data-invitations]", text: I18n.t("invitations.waiting")
-    page.save_screenshot(ENV["SHOT"]) if ENV["SHOT"]
   end
 end
