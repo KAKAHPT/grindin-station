@@ -25,6 +25,20 @@ module Organizer
       assert_match "is already in this event", response.body
     end
 
+    test "a refused form comes back as a whole styled page, and as the dialog to the dialog's frame" do
+      params = { mode: "manual", event_participant: { player_name: "No rules" } }
+
+      post organizer_tournament_event_participants_path(@tournament), params: params
+      assert_response :unprocessable_entity
+      assert_select "html head link[rel=stylesheet]"
+      assert_select "turbo-frame#modal form", count: 0
+
+      post organizer_tournament_event_participants_path(@tournament),
+           params: params, headers: { "Turbo-Frame" => "modal" }
+      assert_response :unprocessable_entity
+      assert_select "turbo-frame#modal form"
+    end
+
     test "a guest added with no name and no e-mail is called Manual player 1" do
       post organizer_tournament_event_participants_path(@tournament),
            params: { event_participant: { accepted_terms: "1" } }

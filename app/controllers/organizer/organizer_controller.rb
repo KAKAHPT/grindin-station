@@ -83,6 +83,12 @@ module Organizer
 
     private
 
+    # A form that failed comes back inside the dialog when the dialog's frame asked for it, as a whole page otherwise
+    # (the "modal" layout alone is a fragment: no <head>, no stylesheet).
+    def modal_layout
+      turbo_frame_request_id == "modal" ? "modal" : "modal_page"
+    end
+
     def role_event
       return @role_event if defined?(@role_event)
 
