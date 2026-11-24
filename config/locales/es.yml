@@ -1210,6 +1210,7 @@ es:
     kinds:
       judge_call: "Se ha llamado a un juez en %{event}."
       result_contested: "Se ha impugnado un resultado de tu mesa en %{event}. Viene un juez."
+      round_published: "%{round} de %{event} ya salió. Mira tu mesa."
       mentioned: "%{name} te mencionó en el feed social."
       team_requested: "%{name} pide entrar en %{team}."
       team_invited: "Te invitaron a %{team}."

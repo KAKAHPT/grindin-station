@@ -55,9 +55,10 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
     2.times { Notification.create!(user: user, kind: "result_contested") }
     sign_in(user)
 
+    # Two contested results plus the published round's own notification.
     get play_me_path(@tournament.slug)
-    assert_select "a[data-notifications-bell][href=?]", notifications_path, text: /2/
-    assert_equal 2, user.unread_notifications_count
+    assert_select "a[data-notifications-bell][href=?]", notifications_path, text: /3/
+    assert_equal 3, user.unread_notifications_count
 
     post mark_all_read_notifications_path
     assert_redirected_to notifications_path
