@@ -4,6 +4,7 @@
 <% here = ->(path) { request.path == path || request.path.start_with?("#{path}/") } %>
 <%# A paused module (config/features.yml) has no link. %>
 <% links = [[t("topbar.events"), events_path(locale: params[:locale]), here.(events_path)],
+            ([t("topbar.my_events"), my_events_path(locale: params[:locale]), here.(my_events_path)] if authenticated?),
             ([t("topbar.rankings"), rankings_path(locale: params[:locale]), here.(rankings_path)] if Features.on?(:rankings)),
             ([t("topbar.circuits"), circuits_path(locale: params[:locale]), here.(circuits_path)] if Features.on?(:circuits)),
             ([t("topbar.organizers"), organizers_path(locale: params[:locale]), here.(organizers_path) || request.path.start_with?("/o/")] if Features.on?(:organizers)),

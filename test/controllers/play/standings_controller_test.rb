@@ -107,7 +107,6 @@ module Play
       assert_select "tr#event_participant_#{down.id} [data-movement]", text: /▼2/
       assert_select "tr#event_participant_#{same.id} [data-movement]", text: /–/
       assert_select "tr#event_participant_#{fresh.id} [data-movement]", count: 0
-      assert_select "p", text: "Small arrows: places moved since the last round."
 
       get tournament_event_participants_path(@tournament), headers: { "Turbo-Frame" => "modal" }
       assert_select "tr#event_participant_#{down.id} [data-movement]", text: /▼2/
@@ -124,8 +123,8 @@ module Play
       assert_response :success
       assert_select "thead th", text: /\A\s*(Beaten|Unique)\s*\z/, count: 0
       assert_select "#tooltip-beaten, #tooltip-unique", count: 0
-      assert_select "p", text: I18n.t("standings.help.beaten"), count: 0
-      assert_select "p", text: I18n.t("standings.help.unique"), count: 0
+      assert_select "[role=tooltip]", text: I18n.t("standings.help.beaten"), count: 0
+      assert_select "[role=tooltip]", text: I18n.t("standings.help.unique"), count: 0
       assert_select "thead th", text: /\A\s*OWR\s*\z/
       assert_select "tbody tr:first-child td", 5
 
@@ -134,8 +133,8 @@ module Play
 
       assert_select "thead th", text: /\A\s*Beaten\s*\z/, count: 1
       assert_select "thead th", text: /\A\s*Unique\s*\z/, count: 1
-      assert_select "p", text: I18n.t("standings.help.beaten")
-      assert_select "p", text: I18n.t("standings.help.unique")
+      assert_select "[role=tooltip]", text: I18n.t("standings.help.beaten")
+      assert_select "[role=tooltip]", text: I18n.t("standings.help.unique")
       assert_select "tbody tr:first-child td", 7
 
       @tournament.update_columns(show_unique_in_standings: false) # rubocop:disable Rails/SkipsModelValidations

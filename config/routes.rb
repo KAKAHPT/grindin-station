@@ -98,6 +98,7 @@ Rails.application.routes.draw do
   end
 
   resources :events, only: %i[index]
+  get "/my-events", to: "my_events#index", as: :my_events
   resources :circuits, only: %i[index show], constraints: Features.constraint(:circuits)
   get "/rankings", to: "rankings#show", as: :rankings, constraints: Features.constraint(:rankings)
 

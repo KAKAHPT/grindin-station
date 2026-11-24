@@ -69,9 +69,9 @@ class OneVOnePagesTest < ActionDispatch::IntegrationTest # rubocop:disable Metri
     assert_equal(ONE_V_ONE_COLUMNS, css_select("thead th").map { |th| th.text.strip })
     assert_select "tbody tr", 4
     assert_select "tbody span[role=img]", 0
-    assert_select "p", text: I18n.t("standings.help.omw")
-    assert_select "p", text: I18n.t("standings.help.ogw")
-    assert_select "p", text: I18n.t("standings.help.beaten"), count: 0
+    assert_select "[role=tooltip]", text: I18n.t("standings.help.omw")
+    assert_select "[role=tooltip]", text: I18n.t("standings.help.ogw")
+    assert_select "[role=tooltip]", text: I18n.t("standings.help.beaten"), count: 0
     assert_select "tr##{ActionView::RecordIdentifier.dom_id(@winner)} td", text: "66.7%"
   end
 

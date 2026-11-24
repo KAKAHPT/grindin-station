@@ -17,7 +17,7 @@
       <div class="<%= class_names("lp-evl", "lp-evl-lg" => local_assigns[:large], "lp-evl-dense" => local_assigns[:dense]) %>">
         <% events.each do |event| %>
           <% count = enrolled.fetch(event.id, 0) %>
-          <%= render "shared/event_ticket", event: event, enrolled: count, sold_out: event.sold_out?(count), large: local_assigns[:large] %>
+          <%= render "shared/event_ticket", event: event, enrolled: count, sold_out: event.sold_out?(count), large: local_assigns[:large], registered: local_assigns[:registered] %>
         <% end %>
       </div>
     <% end %>
