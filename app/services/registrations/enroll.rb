@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 module Registrations
-  # Signs a player up: refused once the swiss started; when the event is full the player joins the
-  # waitlist (when enabled) or is refused. The caller checks the terms were accepted.
+  # Signs a player up: refused once the swiss started, or when the event is by invitation and the player has none;
+  # when the event is full the player joins the waitlist (when enabled) or is refused. The caller checks the terms
+  # were accepted.
   class Enroll
     def self.call(event:, player:, decklist: nil)
       event.with_lock do
@@ -24,6 +25,7 @@ module Registrations
       # Self-registration only while the organizer keeps it open (closing registrations must stick).
       raise Closed unless event.registration_open?
       raise AlreadyEnrolled if event.event_participants.exists?(player: player)
+      raise NotInvited if event.invitation_only && !event.invited?(player.user)
     end
     private_class_method :guard!
   end

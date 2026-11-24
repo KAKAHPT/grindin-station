@@ -5,7 +5,9 @@
 <% join_waitlist = full && event.waitlist_enabled %>
 <% shut = full && !event.waitlist_enabled %>
 <section data-registration class="card">
-  <h2 class="card-title"><%= t("play.events.registration") %></h2>
+  <%# By invitation: only an invited account gets the form; anyone else reads why not. %>
+  <% uninvited = event.invitation_only && !event.invited?(current_user) %>
+  <h2 class="card-title flex items-center justify-between gap-3"><%= t("play.events.registration") %><% if event.invitation_only %><span data-invitation-only><%= desk_chip(:info) { t("invitations.chip") } %></span><% end %></h2>
   <div class="p-4 flex flex-col gap-3">
     <p data-counters class="text-[13px] text-muted">
       <%= t(event.registration_open? && !shut ? "play.events.counts_open" : "play.events.counts", count: enrolled) %>
@@ -13,13 +15,19 @@
         <%= t("play.events.counts_waitlist", count: waitlist) %>
       <% end %>
     </p>
-    <% if event.registration_open? && current_participant.nil? && shut %>
+    <% if event.registration_open? && current_participant.nil? && uninvited %>
+      <p data-not-invited class="text-[13px] text-muted"><%= t(authenticated? ? "invitations.not_invited" : "invitations.sign_in_if_invited") %></p>
+      <% unless authenticated? %>
+        <%= link_to t("navigation.sign_in"), new_session_path(locale: params[:locale]), class: button_classes(:secondary, "w-full") %>
+      <% end %>
+    <% elsif event.registration_open? && current_participant.nil? && shut %>
       <p data-full class="text-[13px] text-warn/80"><%= t("play.events.full") %></p>
     <% elsif event.registration_open? && current_participant.nil? %>
       <% if join_waitlist %>
         <p class="text-[13px] text-warn"><%= t("play.events.full_waitlist") %></p>
       <% end %>
       <% if authenticated? %>
+        <% if event.invitation_only %><p data-invited class="text-[13px] text-accent"><%= t("invitations.you_are_invited") %></p><% end %>
         <%= form_with model: EventParticipant.new, url: tournament_event_participants_path(event, locale: params[:locale]),
                       class: "flex flex-col gap-3" do |f| %>
           <label class="field">

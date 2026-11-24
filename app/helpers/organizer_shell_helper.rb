@@ -98,13 +98,15 @@ module OrganizerShellHelper # rubocop:disable Metrics/ModuleLength
   end
 
   # Tab => roles that may open it (nil: every staff role; :owner: the event's owner only).
-  TAB_ROLES = { overview: nil, roster: nil, rounds: nil, judge: %w[organizer judge], staff: :owner,
-                settings: %w[organizer] }.freeze
+  TAB_ROLES = { overview: nil, roster: nil, rounds: nil, judge: %w[organizer judge], invitations: %w[organizer],
+                staff: :owner, settings: %w[organizer] }.freeze
 
-  # The route tabs the viewer's role can open; Rounds is disabled until there is a round.
+  # The route tabs the viewer's role can open; Rounds is disabled until there is a round, and Invitations shows
+  # only on an event by invitation.
   def tournament_tabs(tournament, role:, active:, open_calls:)
     TAB_ROLES.filter_map do |key, roles|
       next unless tab_allowed?(tournament, roles, role)
+      next if key == :invitations && !tournament.invitation_only
 
       tab = { key: key, path: tab_path(tournament, key), label: t("organizer.shell.tabs.#{key}"),
               active: key == active }
@@ -125,6 +127,7 @@ module OrganizerShellHelper # rubocop:disable Metrics/ModuleLength
     { overview: -> { organizer_tournament_path(tournament) },
       roster: -> { organizer_tournament_event_participants_path(tournament, layout: "application") },
       judge: -> { organizer_tournament_judge_calls_path(tournament) },
+      invitations: -> { organizer_tournament_invitations_path(tournament) },
       staff: -> { organizer_tournament_staff_index_path(tournament) },
       settings: -> { edit_organizer_tournament_path(tournament) } }.fetch(key).call
   end
@@ -140,6 +143,7 @@ module OrganizerShellHelper # rubocop:disable Metrics/ModuleLength
     when "event_participants" then :roster
     when "rounds" then :rounds
     when "judge_calls" then :judge
+    when "invitations" then :invitations
     when "staff" then :staff
     else action_name.in?(%w[edit update]) ? :settings : :overview
     end

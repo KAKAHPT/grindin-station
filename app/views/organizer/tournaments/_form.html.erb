@@ -85,6 +85,8 @@
   <%= f.check_box_with_label :show_decklists %>
 
   <h2 class="form-section"><%= t("organizer.settings.registration") %></h2>
+  <%= f.check_box_with_label :invitation_only %>
+  <p class="form-help -mt-3 mb-4 ms-6"><%= t("invitations.setting_help") %></p>
   <%= f.check_box_with_label :waitlist_enabled %>
   <%= f.check_box_with_label :decklist_required %>
   <p class="form-help -mt-3 mb-4 ms-6"><%= t("organizer.settings.decklist_help") %></p>

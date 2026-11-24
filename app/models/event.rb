@@ -9,6 +9,7 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   has_many :rooms, dependent: :destroy
   has_many :pods, through: :rounds
   has_many :event_staff, class_name: "EventStaff", dependent: :destroy
+  has_many :event_invitations, dependent: :destroy
   has_many :judge_calls, dependent: :destroy
   has_many :standings_snapshots, dependent: :delete_all
   has_many :posts, dependent: :destroy
@@ -130,6 +131,11 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   # Off the public site: a draft, a canceled event, or an unfinished one whose organizer is suspended.
   def hidden_from_public?
     state.in?(HIDDEN_STATES) || (!finished? && event_organizer&.suspended?)
+  end
+
+  # By invitation: only an invited account registers itself (the organizer still adds anyone from the roster).
+  def invited?(user)
+    user.present? && event_invitations.exists?(user_id: user.id)
   end
 
   def points_locked?

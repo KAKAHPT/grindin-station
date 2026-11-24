@@ -1,0 +1,79 @@
+<%= render "organizer/tournaments/shell", tournament: @tournament %>
+<% invited = @invitations.index_by(&:user_id) %>
+
+<section class="col-span-full card overflow-clip" data-invite-search>
+  <h2 class="card-title"><%= t("invitations.find_title") %></h2>
+  <% unless @tournament.invitation_only %>
+    <p class="border-b border-line px-4 py-3 text-[12.5px] text-warn" data-invitations-off><%= t("invitations.off") %></p>
+  <% end %>
+  <%= form_with url: organizer_tournament_invitations_path(@tournament), method: :get, class: "flex flex-wrap items-end gap-2 px-3.5 py-3" do |f| %>
+    <label class="field w-full sm:w-80">
+      <%= t("invitations.search") %>
+      <%= f.search_field :q, value: @q, autofocus: true, autocomplete: "off", placeholder: t("invitations.search_placeholder"), class: "field-input" %>
+    </label>
+    <%= f.submit t("invitations.find"), name: nil, class: button_classes(:primary, size: :xs) %>
+  <% end %>
+  <p class="px-4 pb-3 text-[12px] text-muted"><%= t("invitations.search_help") %></p>
+  <% if @q.present? %>
+    <table class="ctable border-t border-line">
+      <tbody>
+        <% @results.each do |row| %>
+          <% user_id = @user_ids[row[:player_id]] %>
+          <tr data-result="<%= row[:player_id] %>">
+            <td class="font-semibold"><%= row[:name] %><% if row[:handle].present? %> <span class="font-normal text-muted">@<%= row[:handle] %></span><% end %></td>
+            <td class="text-muted break-all"><%= row[:email] %></td>
+            <td class="r">
+              <% if row[:in_event] %>
+                <%= desk_chip(:ok) { t("invitations.registered") } %>
+              <% else %>
+                <%= button_to t(invited[user_id] ? "invitations.invite_again" : "invitations.invite"), organizer_tournament_invitations_path(@tournament, q: @q),
+                              params: { player_id: row[:player_id] }, class: button_classes(invited[user_id] ? :secondary : :light, size: :sm) %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <% if @results.empty? %>
+      <p class="border-t border-line px-4 py-3 text-[12px] text-muted" data-no-results><%= t("invitations.no_results") %></p>
+    <% end %>
+  <% end %>
+</section>
+
+<section class="col-span-full card overflow-clip" data-invitations>
+  <h2 class="card-title"><%= t("invitations.title") %> <span class="font-normal text-muted tabular"><%= @invitations.size %></span></h2>
+  <table class="ctable">
+    <thead>
+      <tr>
+        <th><%= t("organizer.staff.name") %></th>
+        <th><%= t("organizer.staff.email") %></th>
+        <th><%= t("invitations.invited_on") %></th>
+        <th><%= t("invitations.status") %></th>
+        <th class="r"><span class="sr-only"><%= t("invitations.remove") %></span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @invitations.each do |invitation| %>
+        <tr data-invitation="<%= invitation.id %>">
+          <td class="font-semibold"><%= invitation.user.name %></td>
+          <td class="text-muted break-all"><%= invitation.user.email_address %></td>
+          <td class="whitespace-nowrap text-muted tabular"><%= l(invitation.updated_at, format: :short) %></td>
+          <td>
+            <% if @registered.include?(invitation.user_id) %>
+              <%= desk_chip(:ok) { t("invitations.registered") } %>
+            <% else %>
+              <%= desk_chip(:missing) { t("invitations.waiting") } %>
+            <% end %>
+          </td>
+          <td class="r">
+            <%= button_to t("invitations.remove"), organizer_tournament_invitation_path(@tournament, invitation), method: :delete,
+                          data: { turbo_confirm: t("invitations.confirm_remove", name: invitation.user.name) }, class: button_classes(:ghost, size: :sm) %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <% if @invitations.empty? %>
+    <p class="border-t border-line px-4 py-3 text-[12px] text-muted"><%= t("invitations.empty") %></p>
+  <% end %>
+</section>
