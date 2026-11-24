@@ -20,6 +20,20 @@ module RetryDetachedNodes
 end
 Capybara::Node::Base.prepend(RetryDetachedNodes)
 
+# Chrome 158 refuses the "*" origin Capybara 3.40 passes to Storage.clearDataForOrigin when it resets a session
+# ("* is not a valid URL"), so every test errored in teardown. Cookies are cleared for the whole browser and the
+# other storage (local storage) for the test server's own origin, the only one the tests visit.
+module ClearStorageWithoutWildcardOrigin
+  def execute_cdp(cmd, params = {})
+    return super unless cmd == "Storage.clearDataForOrigin" && params[:origin] == "*"
+
+    super("Network.clearBrowserCookies")
+    other = params[:storageTypes].split(",") - ["cookies"]
+    super(cmd, origin: Capybara.current_session.server.base_url, storageTypes: other.join(",")) if other.any?
+  end
+end
+Capybara::Selenium::Driver::ChromeDriver.prepend(ClearStorageWithoutWildcardOrigin)
+
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   # Chrome's password manager flags the fixtures' "password123" as leaked and its dialog swallows every
   # click after signing in, so it is switched off.
