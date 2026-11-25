@@ -1871,6 +1871,12 @@ pt:
       left: "Já não estás em %{name}."
       already_in_a_team: "Sai primeiro da tua equipa atual."
   leagues:
+    me:
+      rank: "%{rank}.º"
+      rank_title: "%{rank}.º lugar em %{players} na classificação"
+      record: "%{wins}V · %{losses}D · %{draws}E"
+      record_title: "Vitórias · derrotas · empates"
+      win_rate_title: "Percentagem de vitórias"
     game: "Jogo %{n}"
     tabs:
       mine: "A minha ronda"

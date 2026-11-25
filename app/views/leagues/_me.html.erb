@@ -1,0 +1,19 @@
+<%# The signed-in player's own line beside the league tabs: picture, name, place in the standings,
+    wins-losses-draws and win rate. Locals: me (their participant, with results loaded), rank, players. %>
+<% user = me.player.user %>
+<% rate = me.win_rate %>
+<span class="flex items-center gap-2 text-[12.5px]" data-league-me>
+  <% if user&.avatar&.attached? %>
+    <%= image_tag url_for(user.avatar.variant(:thumb)), alt: "", width: 24, height: 24, class: "size-6 shrink-0 rounded-full object-cover border border-line" %>
+  <% else %>
+    <span class="inline-flex size-6 shrink-0 items-center justify-center rounded-full border border-line bg-surface-raised text-[10px] font-semibold text-muted" aria-hidden="true"><%= me.name.split.first(2).pluck(0).join.upcase %></span>
+  <% end %>
+  <span class="hidden max-w-32 truncate font-semibold text-ink sm:inline"><%= me.name %></span>
+  <% if rank %>
+    <span class="tabular font-display font-semibold text-ink" data-league-rank title="<%= t("leagues.me.rank_title", rank: rank, players: players) %>"><%= t("leagues.me.rank", rank: rank) %></span>
+  <% end %>
+  <span class="tabular text-muted" data-league-record title="<%= t("leagues.me.record_title") %>">
+    <%= t("leagues.me.record", wins: me.number_of_wins, losses: me.number_of_losses, draws: me.number_of_draws) %>
+  </span>
+  <span class="tabular font-display font-semibold text-accent" data-league-win-rate title="<%= t("leagues.me.win_rate_title") %>"><%= rate ? number_to_percentage(rate * 100, precision: 0) : "–" %></span>
+</span>

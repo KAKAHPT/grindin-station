@@ -63,6 +63,14 @@ class LeagueTablesControllerTest < ActionDispatch::IntegrationTest # rubocop:dis
     assert_select "[data-league-played] [data-winner]", 1
 
     assert_equal([900, 900, 900, 1300, 1000], @players.map { |player| player.reload.league_score.to_i })
+    as(3) do
+      get league_path(@league)
+      assert_select "[data-league-me] [data-league-rank]", text: "#1"
+      assert_select "[data-league-me] [data-league-record]", text: /1W · 0L · 0D/
+      assert_select "[data-league-me] [data-league-win-rate]", text: "100%"
+    end
+    get league_path(@league)
+    assert_select "[data-league-me]", 0
     get league_path(@league, tab: "standings")
     assert_select "[data-league-row]:first-child td", text: @players[3].name
     as(0) do

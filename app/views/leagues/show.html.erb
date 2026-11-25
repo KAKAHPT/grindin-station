@@ -9,7 +9,9 @@
 <% end %>
 
 <% if @tab %>
-  <div class="col-span-full pt-2"><%= render "shared/tabs", tabs: league_tabs(league, @tab) %></div>
+  <div class="col-span-full pt-2">
+    <%= render "shared/tabs", tabs: league_tabs(league, @tab), trailing: (render("leagues/me", me: @me, rank: @my_rank, players: @ranked_count) if @me) %>
+  </div>
 <% end %>
 <% if @tab == "tables" %>
   <%= render "leagues/tables", league: league %>

@@ -23,12 +23,37 @@ class LeaguesController < ApplicationController
     return unless @league.play_mode_open_tables?
 
     @tab = params[:tab].presence_in(%w[tables mine played standings]) || "about"
-    @standings = @league.ranked_participants if @tab == "standings"
-    load_tables if @tab.in?(%w[tables mine])
-    load_played if @tab == "played"
+    load_me
+    load_tab
   end
 
   private
+
+  # The viewer's own strip beside the tabs: their entry, place in the standings and how many are ranked.
+  def load_me
+    @me = my_record or return
+
+    @ranked = @league.ranked_participants
+    @my_rank = @ranked.index { |participant| participant.id == @me.id }&.succ
+    @ranked_count = @ranked.size
+  end
+
+  def load_tab
+    case @tab
+    when "standings" then @standings = @ranked || @league.ranked_participants
+    when "tables", "mine" then load_tables
+    when "played" then load_played
+    end
+  end
+
+  # The signed-in player's own entry in the league, for the strip beside the tabs (picture, record, win rate).
+  def my_record
+    player = current_user&.player or return
+
+    @league.event_participants.find do |participant|
+      participant.player_id == player.id && participant.enrolled?
+    end
+  end
 
   # The Tables tab: the viewer's own table, the tables waiting for players and the ones being played.
   def load_tables # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity -- three lists from one load

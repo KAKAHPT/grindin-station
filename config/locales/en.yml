@@ -1871,6 +1871,12 @@ en:
       left: "No longer in %{name}."
       already_in_a_team: "Leave your current team first."
   leagues:
+    me:
+      rank: "#%{rank}"
+      rank_title: "Place %{rank} of %{players} in the standings"
+      record: "%{wins}W · %{losses}L · %{draws}D"
+      record_title: "Wins · losses · draws"
+      win_rate_title: "Win rate"
     game: "Game %{n}"
     tabs:
       mine: "My round"
