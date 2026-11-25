@@ -237,6 +237,17 @@ class EventsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable M
     assert_listed running
   end
 
+  test "a tournament finished before its end date is listed under Past, not with the upcoming ones" do
+    early = upcoming("Early Cup", start: 3.hours.ago)
+    early.update_columns(state: Tournament.states[:finished], end_time: 5.hours.from_now) # rubocop:disable Rails/SkipsModelValidations
+
+    get events_path
+    assert_not_listed early
+
+    get events_path(filter: "past")
+    assert_listed early
+  end
+
   private
 
   # A registration_open tournament of @organizer starting from_now (or at start); attributes: country, format, ...
