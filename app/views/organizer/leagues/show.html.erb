@@ -48,7 +48,7 @@
         <% end %>
         <tr>
           <td><%= t("league_desk.registered") %></td>
-          <td class="r tabular" data-detail="registered"><%= @league.event_participants.size %><% if @league.maximum_participants %> / <%= @league.maximum_participants %><% end %></td>
+          <td class="r tabular" data-detail="registered"><%= @league.event_participants.size %><% if @league.maximum_participants&.to_f&.finite? %> / <%= @league.maximum_participants.to_i %><% end %></td>
         </tr>
         <tr><td><%= label.(:starting_points) %></td><td class="r tabular"><%= @league.starting_points %></td></tr>
         <tr><td><%= label.(:wager_percentage) %></td><td class="r font-display font-semibold text-accent tabular"><%= @league.wager_percentage.to_i %>%</td></tr>
