@@ -22,6 +22,16 @@ module Admin
       assert_select "tr[data-signup='#{@without_account.id}'] button", text: I18n.t("admin.organizers.decline")
     end
 
+    test "names keep one line and are cut when very long; e-mails are never broken mid-word" do
+      EventOrganizer.find_or_create_by!(user: users(:player_one))
+
+      get admin_organizers_path
+
+      assert_select "tr[data-signup] span.truncate[data-signup-name][title='Player One']", text: "Player One"
+      assert_select "tr[data-organizer] span.truncate[data-organizer-name]"
+      assert_select "[data-admin-signups] td.break-all, [data-admin-organizers] td.break-all", 0
+    end
+
     test "approving a signup with an account creates the organizer, stamps, audits and e-mails" do
       user = users(:player_one)
 

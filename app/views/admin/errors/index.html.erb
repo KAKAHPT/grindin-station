@@ -19,7 +19,7 @@
           <tr data-error="<%= group.fingerprint %>">
             <td class="r tabular" data-col="count"><%= group.count %></td>
             <td class="whitespace-nowrap text-muted tabular"><%= l(group.last_seen_at, format: :short) %></td>
-            <td class="font-semibold"><%= link_to group.latest&.error_class, admin_error_path(group.fingerprint), class: "hover:text-accent" %></td>
+            <td class="whitespace-nowrap font-semibold"><%= link_to group.latest&.error_class, admin_error_path(group.fingerprint), class: "hover:text-accent" %></td>
             <td class="text-muted break-all"><%= truncate(group.latest&.message, length: 140) %></td>
             <td><%= status_chip(:muted) { group.latest&.source.to_s } %></td>
             <td class="r">

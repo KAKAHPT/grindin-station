@@ -88,7 +88,7 @@
         <tbody>
           <% @overview.health.each do |row| %>
             <tr data-health="<%= row.event.id %>">
-              <td class="font-semibold"><%= link_to row.event.name, [:organizer, row.event], class: "hover:text-accent" %></td>
+              <td class="font-semibold"><%= link_to row.event.name, [:organizer, row.event], class: "block max-w-56 truncate hover:text-accent", title: row.event.name %></td>
               <td class="r tabular" data-col="round"><%= row.round_number || "—" %></td>
               <td class="r tabular" data-col="judge_calls"><%= row.judge_calls %></td>
               <td class="r tabular" data-col="disputed"><%= row.disputed %></td>

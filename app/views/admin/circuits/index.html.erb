@@ -16,8 +16,8 @@
       <tbody>
         <% @circuits.each do |circuit| %>
           <tr data-circuit="<%= circuit.id %>">
-            <td class="font-semibold text-ink"><%= link_to circuit.name, circuit_path(circuit), class: "hover:underline" %></td>
-            <td><%= circuit.event_organizer&.name %></td>
+            <td class="font-semibold text-ink"><%= link_to circuit.name, circuit_path(circuit), class: "block max-w-56 truncate hover:underline", title: circuit.name %></td>
+            <td><span class="block max-w-56 truncate" title="<%= circuit.event_organizer&.name %>"><%= circuit.event_organizer&.name %></span></td>
             <td class="r tabular"><%= @events_counts.fetch(circuit.id, 0) %></td>
             <td class="r tabular whitespace-nowrap"><%= l(circuit.created_at, format: :short) %></td>
             <td class="r">
