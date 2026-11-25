@@ -3,7 +3,7 @@
 <tr
   id="<%= dom_id(event_participant) %>"
   <% if you %>data-me<% end %>
-  class="<%= event_participant.playing? ? "" : "line-through text-muted" %> h-[34px] <%= you ? "bg-accent/[0.07]" : "odd:bg-white/[0.015]" %> hover:bg-white/[0.04] transition-colors"
+  class="<%= event_participant.playing? ? "" : "line-through text-muted" %> h-[38px] <%= you ? "bg-accent/[0.07]" : "odd:bg-white/[0.015]" %> hover:bg-white/[0.04] transition-colors"
 >
   <th
     scope="row"
@@ -36,7 +36,7 @@
     <% if you %><span data-you class="ms-1.5 align-middle"><%= desk_chip(:ok) { t("play.tables.you") } %></span><% end %>
   </th>
   <% columns = event_participant.standing_columns %>
-  <td class="<%= pad %> py-0.5 tabular text-right font-display text-[12px] font-semibold text-accent"><%= columns[:points] %></td>
+  <td class="<%= pad %> py-0.5 tabular text-right font-display text-[14px] font-semibold text-accent"><%= columns[:points] %></td>
   <% if event_participant.event.one_v_one? %>
     <td class="<%= pad %> py-0.5 tabular text-right"><%= rate_label(columns[:omw]) %></td>
     <td class="<%= local_assigns[:wide_only] %> <%= pad %> py-0.5 tabular text-right"><%= rate_label(columns[:gw]) %></td>
