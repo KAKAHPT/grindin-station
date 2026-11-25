@@ -1,6 +1,6 @@
 <%# One league table as a pod card, the same look as a table on a tournament's pairings page: title band with the
-    status, the four seats, and (waiting tables) the Join button. A waiting table has no seat order yet: its seats
-    show a dot and the free ones a dashed "Free seat". Locals: league, table, viewer (participant or nil), joinable. %>
+    status, the players, and (waiting tables) the Join button. A waiting table lists who is in so far and grows as
+    players join; it has no seat order yet, so its seats show a dot. Locals: league, table, viewer (participant or nil), joinable. %>
 <% pod = table.pod %>
 <% seats = pod ? pod.seatings.map { |seating| [seating.order, seating.event_participant] } : table.participants.map { |seated| [nil, seated] } %>
 <% free = League::TABLE_SIZE - seats.size %>
@@ -35,12 +35,6 @@
         </span>
         <% if won %><%= icon("trophy", class: "text-[14px] text-muted") %><span class="sr-only"><%= t("play.pairings.winner") %></span><% end %>
       <% end %>
-    <% end %>
-    <% free.times do %>
-      <li class="flex items-center gap-2.5 px-4 py-1.5 min-h-9" data-free-seat>
-        <span class="inline-flex size-[22px] shrink-0 rounded-[4px] border border-dashed border-line-strong" aria-hidden="true"></span>
-        <span class="text-[13px] text-muted"><%= t("leagues.tables.free_seat") %></span>
-      </li>
     <% end %>
   </ol>
   <% if table.waiting? %>

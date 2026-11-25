@@ -19,12 +19,6 @@
           <% if you %><%= desk_chip(:ok) { t("play.tables.you") } %><% end %>
         <% end %>
       <% end %>
-      <% (League::TABLE_SIZE - table.participants.size).times do %>
-        <li class="flex items-center gap-3 px-4 py-2.5" data-free-seat>
-          <span class="inline-flex size-7 shrink-0 rounded-[4px] border border-dashed border-line-strong" aria-hidden="true"></span>
-          <span class="text-[15px] text-muted"><%= t("leagues.tables.free_seat") %></span>
-        </li>
-      <% end %>
     </ol>
     <div class="border-t border-line px-4 py-3 text-[13px]">
       <p class="text-muted">

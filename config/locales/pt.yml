@@ -1885,7 +1885,6 @@ pt:
         other: "* Menos de %{count} jogos: ainda não qualificado para o top cut."
     tables:
       table_of: "Mesa de %{name}"
-      free_seat: "Lugar livre"
       report_title: "Reportar o resultado"
       i_won: "Ganhei"
       was_draw: "Foi empate"

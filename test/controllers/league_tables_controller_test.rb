@@ -35,7 +35,7 @@ class LeagueTablesControllerTest < ActionDispatch::IntegrationTest # rubocop:dis
     as(1) do
       get league_path(@league, tab: "tables")
       assert_select "[data-waiting-table] form[action=?]", join_league_table_path(@league, table)
-      assert_select "[data-waiting-table] [data-free-seat]", 3
+      assert_select "[data-waiting-table] li", 1
       post join_league_table_path(@league, table)
     end
     as(2) { post join_league_table_path(@league, table) }

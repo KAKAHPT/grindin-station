@@ -1885,7 +1885,6 @@ en:
         other: "* Fewer than %{count} games: not yet qualified for the top cut."
     tables:
       table_of: "%{name}'s table"
-      free_seat: "Free seat"
       report_title: "Report the result"
       i_won: "I won"
       was_draw: "It was a draw"

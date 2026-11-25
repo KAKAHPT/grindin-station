@@ -1885,7 +1885,6 @@ es:
         other: "* Menos de %{count} partidas: aún no clasificado para el top cut."
     tables:
       table_of: "Mesa de %{name}"
-      free_seat: "Lugar libre"
       report_title: "Reportar el resultado"
       i_won: "Gané"
       was_draw: "Fue empate"
