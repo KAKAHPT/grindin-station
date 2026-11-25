@@ -1420,7 +1420,11 @@ pt:
     lead_cedh: "Feito para cEDH. Emparelhamentos, classificações e mesas atualizam ao vivo em todos os telemóveis da sala."
     cta_events: "Próximos eventos"
     attribution: "As ilustrações das cartas são Fan Content não oficial, permitido pela Fan Content Policy. Não aprovado nem apoiado pela Wizards. Partes dos materiais usados são propriedade da Wizards of the Coast. ©Wizards of the Coast LLC."
+    signup:
+      title: "Queres jogar?"
+      text: "Cria a tua conta de jogador, grátis, para te inscreveres nos torneios."
     waitlist:
+      heading: "Lista de espera para organizadores"
       title: "Para já, organizar é só por convite"
       text: "Entra na lista de espera e entramos em contacto com a tua loja ou comunidade."
       name: "O teu nome"

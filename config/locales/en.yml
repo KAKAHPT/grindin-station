@@ -1420,7 +1420,11 @@ en:
     lead_cedh: "Built for cEDH. Pairings, standings and tables update live on every phone in the room."
     cta_events: "Upcoming events"
     attribution: "Card art is unofficial Fan Content permitted under the Fan Content Policy. Not approved or endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC."
+    signup:
+      title: "Want to play?"
+      text: "Create your free player account to register for tournaments."
     waitlist:
+      heading: "Waiting list for organizers"
       title: "Organising is by invitation for now"
       text: "Join the waiting list and we will get in touch with your store or community."
       name: "Your name"

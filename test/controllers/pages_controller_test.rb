@@ -21,6 +21,17 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     assert_select "[data-attribution]", text: /Wizards of the Coast/
   end
 
+  test "a visitor gets a sign-up row under the upcoming events; a signed-in player does not" do
+    get root_path
+    assert_select "[data-upcoming] [data-signup-cta] a[href=?]", new_registration_path, text: "Sign up"
+    assert_select "[data-organizers-box] h2", text: "Waiting list for organizers"
+    assert_select "[data-organizers-box] [data-waitlist]"
+
+    post session_path, params: { session: { email_address: users(:player_one).email_address, password: "password123" } }
+    get root_path
+    assert_select "[data-signup-cta]", count: 0
+  end
+
   test "the landing is translated" do
     get root_path(locale: "pt")
 

@@ -1639,6 +1639,51 @@
     border-radius: 10px;
   }
 
+  /* Grey box around the waiting-list card, labelled for organisers so players do not take it for the sign-up. */
+  .lp-org {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 36px auto 0;
+    padding: 14px 16px 16px;
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+  }
+
+  .lp-org-t {
+    font: 600 12px var(--font-display);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .lp-org .lp-wl {
+    max-width: none;
+    margin-top: 10px;
+  }
+
+  /* Sign-up row under the upcoming tournaments (signed-out visitors). */
+  .lp-join {
+    margin-top: 16px;
+    padding: 14px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line-strong);
+    border-radius: 10px;
+    font-size: 13.5px;
+    color: var(--color-muted);
+  }
+
+  .lp-join strong {
+    color: var(--color-ink);
+    font-family: var(--font-display);
+  }
+
   .lp-wl-t {
     font: 600 13px var(--font-display);
   }
