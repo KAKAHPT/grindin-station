@@ -1,0 +1,43 @@
+<%# Standings of an open-tables league: score, games, wins, draws, losses; who has too few games for the cut
+    is marked. Locals: league, standings (League#ranked_participants). %>
+<section class="col-span-full card overflow-clip mt-4" data-league-standings>
+  <h2 class="card-title"><%= t("lists.league.standings") %></h2>
+  <% if standings.any? %>
+    <div class="overflow-x-auto">
+      <table class="ctable">
+        <thead>
+          <tr>
+            <th class="r w-12"><%= t("lists.columns.rank") %></th>
+            <th><%= t("lists.columns.player") %></th>
+            <th class="r"><%= t("lists.columns.score") %></th>
+            <th class="r"><%= t("leagues.standings.games") %></th>
+            <th class="r"><%= t("lists.columns.wins") %></th>
+            <th class="r"><%= t("lists.columns.draws") %></th>
+            <th class="r"><%= t("lists.columns.losses") %></th>
+            <% if league.finished? %><th class="r"><%= t("lists.columns.position") %></th><% end %>
+          </tr>
+        </thead>
+        <tbody>
+          <% standings.each.with_index(1) do |participant, rank| %>
+            <% short = participant.league_games < league.min_games_for_cut %>
+            <tr data-league-row="<%= participant.id %>">
+              <td class="r font-display font-semibold text-muted"><%= rank %></td>
+              <td class="text-ink"><%= league_player(participant) %></td>
+              <td class="r font-mono"><%= number_with_precision(participant.league_score, precision: 2) %></td>
+              <td class="r <%= "text-muted" if short %>" data-league-games><%= participant.league_games %><% if short %>*<% end %></td>
+              <td class="r"><%= participant.number_of_wins %></td>
+              <td class="r"><%= participant.number_of_draws %></td>
+              <td class="r"><%= participant.number_of_losses %></td>
+              <% if league.finished? %><td class="r"><%= participant.final_position %></td><% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <% if league.min_games_for_cut.positive? && league.top_cut_size.to_i.positive? %>
+      <p class="border-t border-line px-4 py-2.5 text-[12px] text-muted"><%= t("leagues.standings.min_games_note", count: league.min_games_for_cut) %></p>
+    <% end %>
+  <% else %>
+    <p class="px-4 py-6 text-center text-[12.5px] text-muted"><%= t("lists.league.standings_empty") %></p>
+  <% end %>
+</section>

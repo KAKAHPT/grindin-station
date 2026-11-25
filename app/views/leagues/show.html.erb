@@ -8,6 +8,16 @@
                                     line: play_info_line(league, playing.size) %>
 <% end %>
 
+<% if @tab %>
+  <div class="col-span-full pt-2"><%= render "shared/tabs", tabs: league_tabs(league, @tab) %></div>
+<% end %>
+<% if @tab == "tables" %>
+  <%= render "leagues/tables", league: league %>
+<% elsif @tab == "standings" %>
+  <%= render "leagues/standings", league: league, standings: @standings %>
+<% end %>
+
+<% if @tab.nil? || @tab == "about" %>
 <div class="col-span-full grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr] items-start pt-4">
   <section data-about class="card">
     <h2 class="card-title"><%= t("play.events.about") %></h2>
@@ -79,7 +89,9 @@
   </div>
 </div>
 
-<% if league.finished? || league.playing? %>
+<% end %>
+
+<% if @tab.nil? && (league.finished? || league.playing?) %>
   <section class="col-span-full card overflow-clip" data-league-standings>
     <h2 class="card-title"><%= t("lists.league.standings") %></h2>
     <% standings = playing.sort_by { |ep| -(ep.league_score || 0) } %>

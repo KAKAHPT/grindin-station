@@ -1,0 +1,94 @@
+<%# The viewer's own league table. Waiting: who is in, Leave or Close. Full: the seats, the result (report,
+    confirm, contest), the clock and asking the organizer to cancel. Locals: league, table, participant. %>
+<% locale = params[:locale] %>
+<section class="card overflow-clip" data-my-table="<%= table.state %>" data-controller="dialog">
+  <h2 class="card-title"><%= t("leagues.tables.my_table") %></h2>
+  <% if table.waiting? %>
+    <div class="px-4 py-4 text-[13px]">
+      <p class="text-ink"><%= safe_join(table.participants.map { |seated| league_player(seated) }, ", ") %></p>
+      <p class="mt-1 text-muted">
+        <%= t("leagues.tables.seats_left", count: League::TABLE_SIZE - table.participants.size) %> ·
+        <%= t("leagues.tables.closes_at", time: l(table.expires_at, format: :short)) %>
+      </p>
+      <div class="mt-3">
+        <% if table.opener_id == participant.id %>
+          <%= button_to t("leagues.tables.close"), close_league_table_path(league, table, locale: locale), class: button_classes(:secondary, size: :sm) %>
+        <% else %>
+          <%= button_to t("leagues.tables.leave"), leave_league_table_path(league, table, locale: locale), class: button_classes(:secondary, size: :sm) %>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <% pod = table.pod %>
+    <ol class="divide-y divide-line text-[13px]">
+      <% pod.seatings.each do |seating| %>
+        <li class="flex items-center gap-3 px-4 py-2.5">
+          <span class="font-display font-semibold text-muted tabular"><%= seating.order %></span>
+          <span class="text-ink"><%= league_player(seating.event_participant) %></span>
+        </li>
+      <% end %>
+    </ol>
+
+    <div class="border-t border-line px-4 py-4 text-[13px]" data-table-result>
+      <% if pod.disputed? %>
+        <p class="text-ink" data-result-state="disputed"><%= t("leagues.tables.disputed") %></p>
+      <% elsif pod.pending_result %>
+        <p class="text-ink" data-result-state="pending">
+          <%= t("leagues.tables.reported", result: league_pending_text(pod)) %>
+        </p>
+        <p class="mt-1 text-[12px] text-muted"><%= t("leagues.tables.accepted_at", time: l(pod.reported_at + league.confirmation_timeout_minutes.minutes, format: :short)) %></p>
+        <% unless pod.confirmations.key?(participant.id) %>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <%= button_to t("leagues.tables.confirm"), confirm_league_table_path(league, table, locale: locale), class: button_classes(:primary, size: :sm) %>
+            <%= form_with url: contest_league_table_path(league, table, locale: locale), class: "flex flex-wrap gap-2" do |form| %>
+              <%= form.text_field :reason, required: true, maxlength: 300, placeholder: t("leagues.tables.contest_reason"), class: "field w-56", "aria-label": t("leagues.tables.contest_reason") %>
+              <%= form.submit t("leagues.tables.contest"), class: button_classes(:secondary, size: :sm) %>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <%= form_with url: report_league_table_path(league, table, locale: locale), data: { report_form: true } do |form| %>
+          <fieldset>
+            <legend class="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted"><%= t("leagues.tables.who_won") %></legend>
+            <div class="mt-2 grid gap-1.5">
+              <% pod.seatings.each do |seating| %>
+                <label class="flex items-center gap-2 text-ink">
+                  <%= form.radio_button :result, seating.event_participant_id, required: true %> <%= seating.event_participant.name %>
+                </label>
+              <% end %>
+              <label class="flex items-center gap-2 text-ink"><%= form.radio_button :result, "draw", required: true %> <%= t("leagues.tables.draw") %></label>
+            </div>
+          </fieldset>
+          <%= form.submit t("leagues.tables.submit_result"), class: button_classes(:primary, "mt-3", size: :sm) %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2 border-t border-line px-4 py-3 text-[13px]">
+      <% if pod.clock_started_at %>
+        <span class="font-mono text-ink" data-table-clock data-controller="big-timer"
+              data-big-timer-started-at-value="<%= pod.clock_started_at.iso8601(3) %>" data-big-timer-minutes-value="<%= league.round_minutes %>"><%= clock_text(pod.clock_started_at, league.round_minutes * 60) %></span>
+      <% else %>
+        <%= button_to t("leagues.tables.open_clock"), clock_league_table_path(league, table, locale: locale), class: button_classes(:secondary, size: :sm) %>
+      <% end %>
+      <% if table.cancel_pending? %>
+        <span class="text-muted" data-cancel-state="pending"><%= t("leagues.tables.cancel_pending") %></span>
+      <% else %>
+        <% if table.cancel_state == "refused" %><span class="text-muted" data-cancel-state="refused"><%= t("leagues.tables.cancel_refused") %></span><% end %>
+        <button type="button" class="<%= button_classes(:ghost, size: :sm) %>" data-action="dialog#open" data-cancel-open><%= t("leagues.tables.cancel") %></button>
+      <% end %>
+    </div>
+
+    <dialog data-dialog-target="dialog" data-action="click->dialog#backdrop" class="card w-[min(28rem,92vw)] p-0 text-ink">
+      <%= form_with url: cancel_league_table_path(league, table, locale: locale), class: "p-4" do |form| %>
+        <h3 class="font-display text-[15px] font-semibold"><%= t("leagues.tables.cancel_title") %></h3>
+        <p class="mt-1 text-[12.5px] text-muted"><%= t("leagues.tables.cancel_lead") %></p>
+        <%= form.text_area :reason, required: true, rows: 3, maxlength: 500, class: "field mt-3 w-full", "aria-label": t("leagues.tables.cancel_reason") %>
+        <div class="mt-3 flex justify-end gap-2">
+          <button type="button" class="<%= button_classes(:ghost, size: :sm) %>" data-action="dialog#close"><%= t("leagues.tables.cancel_back") %></button>
+          <%= form.submit t("leagues.tables.cancel_send"), class: button_classes(:primary, size: :sm) %>
+        </div>
+      <% end %>
+    </dialog>
+  <% end %>
+</section>

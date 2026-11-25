@@ -63,6 +63,11 @@ Rails.application.routes.draw do
   constraints(Features.constraint(:leagues)) do
     resources :leagues, only: %i[index show] do
       resources :rounds, only: :show
+      resources :tables, only: :create, controller: "league_tables" do
+        member do
+          %i[join leave close report confirm contest cancel clock].each { |action| post action }
+        end
+      end
 
       resources :event_participants do
         collection do

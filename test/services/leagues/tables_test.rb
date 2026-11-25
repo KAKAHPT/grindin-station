@@ -188,7 +188,7 @@ module Leagues
     def give_account(participant)
       user = User.create!(name: participant.name, email_address: "conta-#{SecureRandom.hex(4)}@example.com",
                           password: "password123", confirmed_at: Time.current)
-      participant.player.update!(user: user)
+      participant.update!(player: user.player)
       user
     end
   end
