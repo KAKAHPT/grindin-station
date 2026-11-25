@@ -5,6 +5,9 @@
 <% seats = pod ? pod.seatings.map { |seating| [seating.order, seating.event_participant] } : table.participants.map { |seated| [nil, seated] } %>
 <% free = League::TABLE_SIZE - seats.size %>
 <% mine = viewer && seats.any? { |_, seated| seated.id == viewer.id } %>
+<% results = pod ? pod.current_results.index_by(&:event_participant_id) : {} %>
+<% done = pod&.finished? %>
+<% drawn = done && results.values.all? { |result| result.is_a?(Draw) } %>
 <%= tag.article data: { league_table: table.state, waiting_table: (table.id if table.waiting?), my_table: (true if mine) },
                 class: ["card flex flex-col overflow-clip", ("border-accent/55 ring-1 ring-accent/20" if mine)] do %>
   <div class="band flex items-center justify-between gap-2 px-4 py-2.5">
@@ -12,7 +15,10 @@
       <%= pod ? pod.round.display_name : t("leagues.tables.table_of", name: table.opener.name) %>
     </h3>
     <% if pod %>
-      <%= pod_status_chip(pod) %>
+      <span class="flex flex-wrap items-center justify-end gap-x-3 gap-y-0.5">
+        <% if drawn %><%= status_chip(:muted, data: { draw: true }) { t("play.draw") } %><% end %>
+        <%= pod_status_chip(pod) %>
+      </span>
     <% else %>
       <%= status_chip(:warn, data: { seats_left: free }) { t("leagues.tables.seats_left", count: free) } %>
     <% end %>
@@ -20,12 +26,14 @@
   <ol class="flex flex-col divide-y divide-line/60">
     <% seats.each do |order, seated| %>
       <% you = viewer && seated.id == viewer.id %>
-      <%= tag.li data: { seat: order, me: (true if you) }, class: ["flex items-center gap-2.5 px-4 py-1.5 min-h-9", ("bg-accent/[0.08]" if you)] do %>
-        <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= you ? "text-accent" : "text-muted" %>"><%= order || "·" %></span>
+      <% won = done && results[seated.id].is_a?(Win) %>
+      <%= tag.li data: { seat: order, me: (true if you), winner: (true if won) }, class: ["flex items-center gap-2.5 px-4 py-1.5 min-h-9", ("bg-accent/[0.08]" if you || won)] do %>
+        <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= you || won ? "text-accent" : "text-muted" %>"><%= order || "·" %></span>
         <span class="flex flex-1 items-center gap-1.5 min-w-0 text-[13px]">
-          <span class="truncate <%= "font-semibold text-ink" if you %>"><%= league_player(seated) %></span>
+          <span class="truncate <%= "font-semibold text-ink" if you || won %>"><%= league_player(seated) %></span>
           <% if you %><%= desk_chip(:ok) { t("play.tables.you") } %><% end %>
         </span>
+        <% if won %><%= icon("trophy", class: "text-[14px] text-muted") %><span class="sr-only"><%= t("play.pairings.winner") %></span><% end %>
       <% end %>
     <% end %>
     <% free.times do %>

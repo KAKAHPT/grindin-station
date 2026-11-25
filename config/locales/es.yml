@@ -1873,6 +1873,8 @@ es:
   leagues:
     game: "Partida %{n}"
     tabs:
+      mine: "Mi ronda"
+      played: "Rondas completas"
       about: "Información"
       tables: "Mesas"
       standings: "Clasificación"
@@ -1888,6 +1890,9 @@ es:
       i_won: "Gané"
       was_draw: "Fue empate"
       report_help: "Solo quien ganó reporta la victoria. Después otro jugador la confirma."
+      at_a_table: "Estás en una mesa. El resultado se reporta y se confirma en Mi ronda."
+      no_table: "Ahora mismo no estás en ninguna mesa."
+      none_played: "Todavía no ha terminado ninguna partida."
       my_table: "Mi mesa"
       open_lead: "Abre una mesa y espera a tres jugadores más, o entra en una de las de abajo."
       open: "Abrir mesa"

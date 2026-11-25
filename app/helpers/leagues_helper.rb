@@ -12,7 +12,7 @@ module LeaguesHelper
 
   # The tabs of an open-tables league page.
   def league_tabs(league, active)
-    %w[about tables standings].map do |tab|
+    %w[about tables mine played standings].map do |tab|
       { label: t("leagues.tabs.#{tab}"), active: tab == active,
         path: league_path(league, tab: (tab unless tab == "about"), locale: params[:locale]) }
     end

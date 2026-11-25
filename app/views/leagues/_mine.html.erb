@@ -1,0 +1,13 @@
+<%# The My round tab: the viewer's own table, where the result is reported, confirmed or contested. Locals: league.
+    Uses @participant and @my_table. %>
+<%= turbo_stream_from league, :tables %>
+<div class="col-span-full grid gap-4 pt-4" data-league-mine>
+  <% if @my_table %>
+    <%= render "leagues/my_table", league: league, table: @my_table, participant: @participant %>
+  <% else %>
+    <div class="card flex flex-wrap items-center justify-between gap-3 px-4 py-4" data-no-table>
+      <p class="text-[13px] text-muted"><%= t(@participant&.enrolled? ? "leagues.tables.no_table" : "leagues.tables.enrol_first") %></p>
+      <%= link_to t("leagues.tabs.tables"), league_path(league, tab: "tables", locale: params[:locale]), class: button_classes(:secondary) %>
+    </div>
+  <% end %>
+</div>

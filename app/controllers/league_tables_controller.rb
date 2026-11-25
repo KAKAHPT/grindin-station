@@ -83,7 +83,11 @@ class LeagueTablesController < ApplicationController
 
   def pod! = @table.pod || raise(Leagues::Tables::NotAllowed, "not_in_play")
 
-  def tables_tab = league_path(@league, tab: "tables", locale: params[:locale])
+  # "My round" while the player sits at a table, the list of tables otherwise.
+  def tables_tab
+    seated = participant && LeagueTableSeat.active.exists?(event_participant_id: participant.id)
+    league_path(@league, tab: seated ? "mine" : "tables", locale: params[:locale])
+  end
 
   # Everyone looking at the league's tables sees the change.
   def done(key)

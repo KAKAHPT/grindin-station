@@ -1,9 +1,12 @@
-<%# The Tables tab of an open-tables league: the viewer's own table, opening one, the tables waiting for players
-    and the ones being played. Locals: league. Uses @participant, @my_table, @waiting, @in_play. %>
+<%# The Tables tab of an open-tables league: opening a table (or the way to "My round" when the viewer sits at
+    one), the tables waiting for players and the ones being played, as pod cards. Locals: league. Uses @participant, @my_table, @waiting, @in_play. %>
 <%= turbo_stream_from league, :tables %>
 <div class="col-span-full grid gap-4 pt-4" data-league-tables>
   <% if @my_table %>
-    <%= render "leagues/my_table", league: league, table: @my_table, participant: @participant %>
+    <div class="card flex flex-wrap items-center justify-between gap-3 px-4 py-4" data-go-to-mine>
+      <p class="text-[13px] text-muted"><%= t("leagues.tables.at_a_table") %></p>
+      <%= link_to t("leagues.tabs.mine"), league_path(league, tab: "mine", locale: params[:locale]), class: button_classes(:primary) %>
+    </div>
   <% elsif !league.tables_open? %>
     <p class="card px-4 py-4 text-[13px] text-muted" data-tables-closed><%= t("leagues.tables.closed_#{league.play? ? "date" : "state"}") %></p>
   <% elsif @participant&.enrolled? %>

@@ -22,9 +22,10 @@ class LeaguesController < ApplicationController
     @league = ensure_public!(scope.find(params[:id]))
     return unless @league.play_mode_open_tables?
 
-    @tab = params[:tab].presence_in(%w[tables standings]) || "about"
+    @tab = params[:tab].presence_in(%w[tables mine played standings]) || "about"
     @standings = @league.ranked_participants if @tab == "standings"
-    load_tables if @tab == "tables"
+    load_tables if @tab.in?(%w[tables mine])
+    load_played if @tab == "played"
   end
 
   private
@@ -34,8 +35,15 @@ class LeaguesController < ApplicationController
     tables = @league.league_tables.where(state: %w[waiting filled]).preload(TABLE_PRELOAD).order(:created_at).to_a
     @participant = current_user&.player && @league.event_participants.find_by(player: current_user.player)
     @my_table = @participant && tables.find { |table| mine?(table) }
-    @waiting = tables.select { |table| table.waiting? && !table.overdue? } - [@my_table]
-    @in_play = tables.select(&:in_play?) - [@my_table]
+    @waiting = tables.select { |table| table.waiting? && !table.overdue? }
+    @in_play = tables.select(&:in_play?)
+  end
+
+  # The Completed rounds tab: the games with a final result, latest first.
+  def load_played
+    @participant = current_user&.player && @league.event_participants.find_by(player: current_user.player)
+    @played = @league.league_tables.filled.joins(pod: :round).where.not(rounds: { finished_at: nil })
+      .order("rounds.finished_at DESC").preload(TABLE_PRELOAD).page(params[:page]).per(24)
   end
 
   # Waiting with the viewer in it, or full with the viewer seated and no final result yet.

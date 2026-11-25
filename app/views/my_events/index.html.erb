@@ -13,7 +13,7 @@
             <p class="text-[12px] text-muted"><%= table.league.name %> · <%= t("my_events.league_table_#{table.state}") %></p>
             <p class="text-ink"><%= table.participants.map(&:name).join(", ") %></p>
           </div>
-          <%= link_to t("my_events.league_table_open"), league_path(table.league, tab: "tables", locale: params[:locale]), class: button_classes(:primary, size: :sm) %>
+          <%= link_to t("my_events.league_table_open"), league_path(table.league, tab: "mine", locale: params[:locale]), class: button_classes(:primary, size: :sm) %>
         </li>
       <% end %>
     </ul>

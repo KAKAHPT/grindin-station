@@ -45,7 +45,7 @@ module NotificationsHelper
     return unless league && Features.on?(:leagues)
 
     staff = kind.in?(%w[league_cancel_requested league_table_stale])
-    staff ? organizer_league_path(league, locale: locale) : league_path(league, tab: "tables", locale: locale)
+    staff ? organizer_league_path(league, locale: locale) : league_path(league, tab: "mine", locale: locale)
   end
 
   # The feed, or nothing while it is paused (config/features.yml).

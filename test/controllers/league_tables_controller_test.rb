@@ -38,6 +38,7 @@ class LeagueTablesControllerTest < ActionDispatch::IntegrationTest # rubocop:dis
     as(2) { post join_league_table_path(@league, table) }
     as(3) do
       post join_league_table_path(@league, table)
+      assert_redirected_to league_path(@league, tab: "mine")
       follow_redirect!
       assert_select "[data-my-table=filled] [data-report-form]"
       assert_select "[data-report=win]"
@@ -48,9 +49,15 @@ class LeagueTablesControllerTest < ActionDispatch::IntegrationTest # rubocop:dis
     end
     as(0) do
       get league_path(@league, tab: "tables")
+      assert_select "[data-go-to-mine]"
+      assert_select "[data-league-table=filled][data-my-table]"
+      get league_path(@league, tab: "mine")
       assert_select "[data-result-state=pending]"
       post confirm_league_table_path(@league, table)
+      assert_redirected_to league_path(@league, tab: "tables")
     end
+    get league_path(@league, tab: "played")
+    assert_select "[data-league-played] [data-winner]", 1
 
     assert_equal([900, 900, 900, 1300, 1000], @players.map { |player| player.reload.league_score.to_i })
     get league_path(@league, tab: "standings")
@@ -104,10 +111,12 @@ class LeagueTablesControllerTest < ActionDispatch::IntegrationTest # rubocop:dis
     LeagueBuilder.fill_table!(@league, @players.first(4))
     as(0) do
       get my_events_path
-      assert_select "[data-my-league-tables] a[href=?]", league_path(@league, tab: "tables")
+      assert_select "[data-my-league-tables] a[href=?]", league_path(@league, tab: "mine")
     end
     as(4) do
       get my_events_path
+      get league_path(@league, tab: "mine")
+      assert_select "[data-no-table]"
       assert_select "[data-my-league-tables]", 0
     end
   end

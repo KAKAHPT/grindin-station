@@ -1873,6 +1873,8 @@ en:
   leagues:
     game: "Game %{n}"
     tabs:
+      mine: "My round"
+      played: "Completed rounds"
       about: "About"
       tables: "Tables"
       standings: "Standings"
@@ -1888,6 +1890,9 @@ en:
       i_won: "I won"
       was_draw: "It was a draw"
       report_help: "Only the winner reports a win. Another player then confirms it."
+      at_a_table: "You are at a table. Report and confirm the result in My round."
+      no_table: "You are not at a table right now."
+      none_played: "No game has finished yet."
       my_table: "My table"
       open_lead: "Open a table and wait for three more players, or join one below."
       open: "Open a table"
