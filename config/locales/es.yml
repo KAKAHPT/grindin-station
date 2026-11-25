@@ -16,6 +16,7 @@ es:
   admin:
     title: "Admin"
     nav:
+      accounts: "Cuentas"
       overview: "Resumen"
       audit: "Auditoría"
       errors: "Errores"
@@ -24,6 +25,21 @@ es:
       feed: "Feed"
       invitational: "Invitaciones"
       organizers: "Organizadores"
+    accounts:
+      title: "Cuentas"
+      search: "Nombre, e-mail o handle"
+      name: "Nombre"
+      email: "E-mail"
+      role: "Rol"
+      confirmed: "E-mail confirmado"
+      registered: "Registro"
+      deleted: "Cuenta eliminada"
+      "yes": "Sí"
+      "no": "No"
+      roles:
+        admin: "Admin"
+        organizer: "Organizador"
+        player: "Jugador"
     states:
       draft: "Borrador"
       registration_open: "Inscripciones abiertas"
