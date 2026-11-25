@@ -30,9 +30,7 @@ class OmniauthCallbacksController < ApplicationController
     user = Accounts::ConnectIdentity.call(auth: request.env["omniauth.auth"], current_user: signed_in)
     return redirect_to(account_path, notice: t("auth.linked", provider: provider_name)) if signed_in
 
-    start_new_session_for user
-    Audit.record(:oauth_sign_in, actor: user, subject: user, provider: params[:provider])
-    redirect_to after_authentication_url, notice: t("flash.notice.signed_in")
+    sign_in_with_provider(user)
   end
 
   # OmniAuth sends the strategy and its error key (e.g. "invalid_credentials").
@@ -44,6 +42,15 @@ class OmniauthCallbacksController < ApplicationController
   end
 
   private
+
+  # An account an admin blocked is sent back to the sign-in page.
+  def sign_in_with_provider(user)
+    return back_to_sign_in(t("flash.alert.account_blocked")) if user.blocked?
+
+    start_new_session_for user
+    Audit.record(:oauth_sign_in, actor: user, subject: user, provider: params[:provider])
+    redirect_to after_authentication_url, notice: t("flash.notice.signed_in")
+  end
 
   def audit_failure(error)
     Audit.record(:oauth_failed, provider: params[:provider].to_s, reason: error.class.name.demodulize.underscore)

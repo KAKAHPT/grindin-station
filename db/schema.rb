@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_24_220000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_25_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -516,6 +516,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_220000) do
     t.string "unconfirmed_email"
     t.datetime "updated_at", null: false
     t.string "visibility", default: "public", null: false
+    t.datetime "blocked_at"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
     t.index ["handle"], name: "index_users_on_handle", unique: true
   end

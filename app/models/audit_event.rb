@@ -14,6 +14,7 @@ class AuditEvent < ApplicationRecord
     admin_granted admin_revoked
     error_resolved data_exported
     organizer_approved organizer_declined organizer_revoked organizer_suspended organizer_restored
+    account_blocked account_unblocked account_deleted_by_admin
     post_removed post_kept feed_paused
   ].freeze
 

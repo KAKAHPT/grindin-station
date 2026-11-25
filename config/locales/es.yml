@@ -27,6 +27,20 @@ es:
       organizers: "Organizadores"
     accounts:
       title: "Cuentas"
+      actions: 'Acciones'
+      blocked_chip: 'Bloqueada'
+      resend: 'Reenviar confirmación'
+      block: 'Bloquear'
+      unblock: 'Desbloquear'
+      delete: 'Eliminar'
+      block_confirm: '¿Bloquear %{email}? Se cierra su sesión y no puede entrar hasta que la desbloquees.'
+      delete_confirm: '¿Eliminar la cuenta %{email}? El nombre, el e-mail y las imágenes se borran para siempre; los resultados pasados quedan como "Jugador eliminado". No se puede deshacer.'
+      already_confirmed: 'Ese e-mail ya está confirmado.'
+      confirmation_sent: 'E-mail de confirmación enviado a %{email}.'
+      blocked_notice: '%{email} está bloqueada.'
+      unblocked_notice: '%{email} ya puede entrar de nuevo.'
+      deleted_notice: 'La cuenta %{email} fue eliminada.'
+      protected: 'Los admins y las cuentas eliminadas no se pueden bloquear ni eliminar aquí.'
       search: "Nombre, e-mail o handle"
       name: "Nombre"
       email: "E-mail"
@@ -1073,6 +1087,7 @@ es:
       password_reset_link_invalid: "El enlace para restablecer la contraseña no es válido o ha caducado."
       try_again_later: "Inténtalo de nuevo más tarde."
       confirm_first: "Confirma primero tu e-mail: abre el enlace que te enviamos, o pide uno nuevo abajo."
+      account_blocked: "Esta cuenta está bloqueada. Contacta con el equipo del sitio si crees que es un error."
       confirm_link_invalid: "Ese enlace de confirmación ya no es válido. Pide uno nuevo."
       email_change_refused: "Ese e-mail ya no está disponible."
       no_player: "Esta cuenta no puede inscribirse en eventos."

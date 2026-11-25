@@ -39,6 +39,8 @@ class ConfirmationsController < ApplicationController
   def confirm_account(user)
     user.confirm!
     Audit.record(:email_confirmed, actor: user, subject: user)
+    return redirect_to new_session_path, alert: t("flash.alert.account_blocked") if user.blocked?
+
     start_new_session_for user
     redirect_to root_path, notice: t("flash.notice.email_confirmed")
   end

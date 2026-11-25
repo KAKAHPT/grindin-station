@@ -27,6 +27,20 @@ en:
       organizers: "Organizers"
     accounts:
       title: "Accounts"
+      actions: 'Actions'
+      blocked_chip: 'Blocked'
+      resend: 'Resend confirmation'
+      block: 'Block'
+      unblock: 'Unblock'
+      delete: 'Delete'
+      block_confirm: 'Block %{email}? They are signed out and cannot sign in until you unblock them.'
+      delete_confirm: 'Delete the account %{email}? The name, e-mail and pictures are erased for good; past results stay as "Removed player". This cannot be undone.'
+      already_confirmed: 'That e-mail is already confirmed.'
+      confirmation_sent: 'Confirmation e-mail sent to %{email}.'
+      blocked_notice: '%{email} is blocked.'
+      unblocked_notice: '%{email} can sign in again.'
+      deleted_notice: 'The account %{email} was deleted.'
+      protected: 'Admins and deleted accounts cannot be blocked or deleted here.'
       search: "Name, e-mail or handle"
       name: "Name"
       email: "E-mail"
@@ -1073,6 +1087,7 @@ en:
       password_reset_link_invalid: "Password reset link is invalid or has expired."
       try_again_later: "Try again later."
       confirm_first: "Confirm your e-mail first: open the link we sent you, or ask for a new one below."
+      account_blocked: "This account is blocked. Contact the site's team if you think this is a mistake."
       confirm_link_invalid: "That confirmation link is not valid any more. Ask for a new one."
       email_change_refused: "That e-mail is no longer available."
       no_player: "This account cannot register for events."
