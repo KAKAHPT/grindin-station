@@ -825,6 +825,8 @@ en:
       title: "Player path"
       hint: "Tap a name to see that player's path through the tournament."
       profile: "View profile"
+      no_profile: "This player has no profile."
+      private_profile: "This profile is private."
       position: "Place %{position}"
       points: "%{points} points"
       record: "%{wins} wins · %{losses} losses · %{draws} draws"

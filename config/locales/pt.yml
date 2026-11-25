@@ -825,6 +825,8 @@ pt:
       title: "Percurso do jogador"
       hint: "Toca num nome para ver o percurso desse jogador no torneio."
       profile: "Ver perfil"
+      no_profile: "Este jogador não tem perfil."
+      private_profile: "Este perfil é privado."
       position: "%{position}.º lugar"
       points: "%{points} pontos"
       record: "%{wins} vitórias · %{losses} derrotas · %{draws} empates"

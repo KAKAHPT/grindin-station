@@ -825,6 +825,8 @@ es:
       title: "Recorrido del jugador"
       hint: "Toca un nombre para ver el recorrido de ese jugador en el torneo."
       profile: "Ver perfil"
+      no_profile: "Este jugador no tiene perfil."
+      private_profile: "Este perfil es privado."
       position: "Puesto %{position}"
       points: "%{points} puntos"
       record: "%{wins} victorias · %{losses} derrotas · %{draws} empates"
