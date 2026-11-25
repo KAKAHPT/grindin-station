@@ -19,7 +19,7 @@ class EventParticipantsController < ApplicationController # rubocop:disable Metr
       return redirect_to(play_standings_path(@tournament.slug, locale: params[:locale]))
     end
 
-    @standings = EventParticipant.standings_for(@tournament)
+    @standings = EventParticipant.standings_for(@tournament, avatars: true)
     @standings_in_modal = true
     render layout: "modal"
   end
