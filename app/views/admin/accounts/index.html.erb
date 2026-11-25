@@ -26,18 +26,24 @@
         <% @accounts.each do |account| %>
           <% roles = [(t("admin.accounts.roles.admin") if account.admin?), (t("admin.accounts.roles.organizer") if account.event_organizer)].compact %>
           <tr data-account="<%= account.id %>">
+            <%# The name keeps one line and sets the column's width; a very long one is cut with "…" (full name on hover). %>
             <td class="font-semibold">
-              <% if account.anonymized? %>
-                <span class="text-muted"><%= t("admin.accounts.deleted") %></span>
-              <% elsif account.handle.present? %>
-                <%= link_to account.name, profile_path(account.handle), class: "hover:text-accent" %> <span class="font-normal text-muted">@<%= account.handle %></span>
-              <% else %>
-                <%= account.name %>
+              <div class="flex items-center gap-1.5 whitespace-nowrap">
+                <% if account.anonymized? %>
+                  <span class="text-muted"><%= t("admin.accounts.deleted") %></span>
+                <% elsif account.handle.present? %>
+                  <%= link_to account.name, profile_path(account.handle), class: "block max-w-56 truncate hover:text-accent", title: account.name, data: { account_name: true } %>
+                <% else %>
+                  <span class="block max-w-56 truncate" title="<%= account.name %>" data-account-name><%= account.name %></span>
+                <% end %>
+                <% if account.blocked? %><span data-blocked><%= desk_chip(:bad) { t("admin.accounts.blocked_chip") } %></span><% end %>
+              </div>
+              <% if account.handle.present? && !account.anonymized? %>
+                <div class="max-w-56 truncate text-[12px] font-normal text-muted">@<%= account.handle %></div>
               <% end %>
-              <% if account.blocked? %><span class="ms-1.5 align-middle" data-blocked><%= desk_chip(:bad) { t("admin.accounts.blocked_chip") } %></span><% end %>
             </td>
-            <td class="text-muted"><%= account.email_address %></td>
-            <td><%= roles.presence&.join(", ") || t("admin.accounts.roles.player") %></td>
+            <td class="whitespace-nowrap text-muted"><%= account.email_address %></td>
+            <td class="whitespace-nowrap"><%= roles.presence&.join(", ") || t("admin.accounts.roles.player") %></td>
             <td data-confirmed="<%= account.confirmed? %>"><%= account.confirmed? ? t("admin.accounts.yes") : t("admin.accounts.no") %></td>
             <td class="r whitespace-nowrap text-muted tabular"><%= l(account.created_at.to_date) %></td>
             <td class="r">
