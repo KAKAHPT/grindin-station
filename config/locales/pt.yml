@@ -16,6 +16,7 @@ pt:
   admin:
     title: "Admin"
     nav:
+      accounts: "Contas"
       overview: "Visão geral"
       audit: "Auditoria"
       errors: "Erros"
@@ -24,6 +25,21 @@ pt:
       feed: "Feed"
       invitational: "Convites"
       organizers: "Organizadores"
+    accounts:
+      title: "Contas"
+      search: "Nome, e-mail ou handle"
+      name: "Nome"
+      email: "E-mail"
+      role: "Papel"
+      confirmed: "E-mail confirmado"
+      registered: "Registo"
+      deleted: "Conta apagada"
+      "yes": "Sim"
+      "no": "Não"
+      roles:
+        admin: "Admin"
+        organizer: "Organizador"
+        player: "Jogador"
     states:
       draft: "Rascunho"
       registration_open: "Inscrições abertas"

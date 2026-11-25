@@ -1,0 +1,47 @@
+<%= render "admin/nav", active: :accounts %>
+
+<section class="col-span-full card overflow-clip" data-admin-accounts>
+  <h2 class="card-title"><%= t("admin.accounts.title") %> <span class="text-muted tabular" data-accounts-total><%= @total %></span></h2>
+  <%= form_with url: admin_accounts_path, method: :get, class: "flex flex-wrap items-end gap-2 border-b border-line px-3.5 py-3" do |f| %>
+    <label class="field w-full sm:w-72">
+      <%= t("admin.accounts.search") %>
+      <%= f.search_field :q, value: @q, class: "field-input" %>
+    </label>
+    <%= f.submit t("admin.events.filter"), name: nil, class: button_classes(:primary, size: :sm) %>
+    <%= link_to t("admin.events.clear"), admin_accounts_path, class: button_classes(:ghost, size: :sm) %>
+  <% end %>
+  <div class="overflow-x-auto">
+    <table class="ctable">
+      <thead>
+        <tr>
+          <th><%= t("admin.accounts.name") %></th>
+          <th><%= t("admin.accounts.email") %></th>
+          <th><%= t("admin.accounts.role") %></th>
+          <th><%= t("admin.accounts.confirmed") %></th>
+          <th class="r"><%= t("admin.accounts.registered") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @accounts.each do |account| %>
+          <% roles = [(t("admin.accounts.roles.admin") if account.admin?), (t("admin.accounts.roles.organizer") if account.event_organizer)].compact %>
+          <tr data-account="<%= account.id %>">
+            <td class="font-semibold">
+              <% if account.anonymized? %>
+                <span class="text-muted"><%= t("admin.accounts.deleted") %></span>
+              <% elsif account.handle.present? %>
+                <%= link_to account.name, profile_path(account.handle), class: "hover:text-accent" %> <span class="font-normal text-muted">@<%= account.handle %></span>
+              <% else %>
+                <%= account.name %>
+              <% end %>
+            </td>
+            <td class="text-muted"><%= account.email_address %></td>
+            <td><%= roles.presence&.join(", ") || t("admin.accounts.roles.player") %></td>
+            <td data-confirmed="<%= account.confirmed? %>"><%= account.confirmed? ? t("admin.accounts.yes") : t("admin.accounts.no") %></td>
+            <td class="r whitespace-nowrap text-muted tabular"><%= l(account.created_at.to_date) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<div class="col-span-full"><%= paginate @accounts %></div>
