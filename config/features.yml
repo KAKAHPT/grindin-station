@@ -2,6 +2,7 @@
 # answer "not found"; its code, tables and data stay as they are. To bring one back: set it to true and deploy.
 #
 # Launch phase 1 (2026-11-24): only the cEDH tournament is public. Players' profiles stay on.
+# 2026-11-25: the seat report (/fairness) is public too.
 shared:
   feed: false          # /feed, posts, likes, Follow buttons and follower counts
   leagues: false       # /leagues and the organizer's leagues
@@ -9,7 +10,7 @@ shared:
   rankings: false      # /rankings and the admin's invitational table
   teams: false         # teams on the account page and the team tag on profiles
   one_v_one: false     # 1v1 tournaments (Standard, Modern, …): new tournaments are Commander / cEDH
-  fairness: false      # /fairness, the public seat report
+  fairness: true       # /fairness, the public seat report (on since 2026-11-25)
   organizers: false    # /organizers, the organizer pages /o/:handle and their editor
 
 # The tests run with everything on, so a paused module cannot rot; test/integration/launch_phase_test.rb
