@@ -90,6 +90,27 @@ module Organizer
       assert_select "[data-pending-table]", 0
     end
 
+    test "a player without the organizer profile cannot create or run a league" do
+      league = LeagueBuilder.build(players: 4, organizer: @organizer)
+      pod = LeagueBuilder.fill_table!(league, league.event_participants.to_a)
+      delete session_path
+      player = User.create!(name: "So Jogador", email_address: "so-jogador@example.com", password: "password123",
+                            confirmed_at: Time.current)
+      post session_path, params: { session: { email_address: player.email_address, password: "password123" } }
+
+      get new_organizer_league_path
+      assert_response :redirect
+      assert_no_difference -> { League.count } do
+        post organizer_leagues_path, params: { league: { name: "Minha liga", start_time: 1.day.from_now,
+                                                         end_time: 1.month.from_now } }
+      end
+      patch transition_organizer_league_path(league), params: { to: "closing" }
+      patch pod_result_organizer_league_path(league, pod_id: pod.id), params: { result: "draw" }
+
+      assert_predicate league.reload, :play?
+      assert_not pod.reload.finished?
+    end
+
     private
 
     def update_path(league) = organizer_league_path(league)
