@@ -1,6 +1,7 @@
 <%# The landing (/): the scrolling card-art mosaic behind the hero (headline, tagline, lead), then the featured
     tournaments and circuits (when any), the next public tournaments, how seats are weighted (Why it is fair) and,
-    last, the organisers' waiting-list card. %>
+    last, the organisers' waiting-list card in its own labelled grey box. Signed-out visitors get a sign-up row under
+    the upcoming tournaments. %>
 <% content_for :title, t("landing.title") %>
 <%# While 1v1 is paused (config/features.yml) the texts promise cEDH only. %>
 <% cedh_only = !Features.on?(:one_v_one) %>
@@ -93,6 +94,13 @@
     <% else %>
       <p class="card lp-empty"><%= t("landing.upcoming.empty") %></p>
     <% end %>
+    <% unless authenticated? %>
+      <%# Players were filling in the organisers' waiting list to register: the way to an account sits here. %>
+      <div class="lp-join" data-signup-cta>
+        <p><strong><%= t("landing.signup.title") %></strong> <%= t("landing.signup.text") %></p>
+        <%= link_to t("auth.sign_up"), new_registration_path(locale: url_locale), class: button_classes(:light) %>
+      </div>
+    <% end %>
   </section>
 
   <div class="lp-fair" id="about">
@@ -112,5 +120,8 @@
   </div>
 
   <%# Last on the page: players looking for a tournament were filling it in by mistake when it sat under the hero. %>
-  <%= render "pages/waitlist", signup: @waitlist_signup, state: nil %>
+  <section class="lp-org" data-organizers-box>
+    <h2 class="lp-org-t"><%= t("landing.waitlist.heading") %></h2>
+    <%= render "pages/waitlist", signup: @waitlist_signup, state: nil %>
+  </section>
 </div>
