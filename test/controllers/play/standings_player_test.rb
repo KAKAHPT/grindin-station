@@ -49,6 +49,24 @@ module Play
       assert_select "[data-path-round='1'] p", text: /#{Regexp.escape(@winner.name)}/
     end
 
+    test "the path links the profile out of the dialog's frame, or says why there is none" do
+      @tournament.update!(state: :finished)
+      user = @winner.player.user
+      user.update!(handle: "path-winner", visibility: "public")
+
+      get play_standing_player_path(@tournament.slug, @winner)
+      assert_select "a[data-path-profile=link][data-turbo-frame=_top][href=?]", profile_path("path-winner")
+
+      user.update!(visibility: "private")
+      get play_standing_player_path(@tournament.slug, @winner)
+      assert_select "a[data-path-profile]", 0
+      assert_select "[data-path-profile=private]", text: "This profile is private."
+
+      @winner.player.update_columns(user_id: nil, guest_name: "Guest") # rubocop:disable Rails/SkipsModelValidations
+      get play_standing_player_path(@tournament.slug, @winner)
+      assert_select "[data-path-profile=none]", text: "This player has no profile."
+    end
+
     test "the player who advances from the final reads Winner, the others Eliminated" do
       @tournament.update_columns(top_cut_size: 4) # rubocop:disable Rails/SkipsModelValidations
       final = @tournament.rounds.create!(type: SingleEliminationRound, number: 2)

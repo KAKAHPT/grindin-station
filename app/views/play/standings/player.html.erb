@@ -3,8 +3,15 @@
   <div class="px-[18px] py-4" data-player-path="<%= @player.id %>">
     <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
       <h3 class="font-display text-lg font-semibold tracking-tight text-ink"><%= @player.name %></h3>
-      <% profile = profile_link(@player.player.user, t("play.path.profile")) %>
-      <% if profile != t("play.path.profile") %><span class="text-xs text-muted underline underline-offset-[3px]" data-turbo-frame="_top"><%= profile %></span><% end %>
+      <%# The link leaves the dialog's frame (data-turbo-frame on the link itself); without a profile to open, a note. %>
+      <% user = @player.player.user %>
+      <% if user&.handle.blank? %>
+        <span class="text-xs text-muted" data-path-profile="none"><%= t("play.path.no_profile") %></span>
+      <% elsif user.profile_visible_to?(current_user) %>
+        <%= link_to t("play.path.profile"), profile_path(user.handle, locale: params[:locale]), data: { turbo_frame: "_top", path_profile: "link" }, class: "text-xs text-muted underline underline-offset-[3px] hover:text-accent" %>
+      <% else %>
+        <span class="text-xs text-muted" data-path-profile="private"><%= t("play.path.private_profile") %></span>
+      <% end %>
     </div>
     <p class="mt-1 text-[13px] text-muted">
       <% if @player.final_position %><b class="text-accent font-semibold"><%= t("play.path.position", position: @player.final_position) %></b> · <% end %>

@@ -31,4 +31,15 @@ class PlayerPathTest < ApplicationSystemTestCase
     assert_no_selector "dialog[data-player-path-dialog][open]"
     assert_no_selector "turbo-frame#player_path h3", visible: :all
   end
+
+  test "View profile in the dialog opens the player's profile page" do
+    @winner.player.user.update!(handle: "path-winner", visibility: "public")
+    visit play_standings_path(@tournament.slug)
+
+    click_link @winner.name
+    within("dialog[data-player-path-dialog][open]") { click_link "View profile" }
+
+    assert_current_path profile_path("path-winner")
+    assert_no_text "Content missing"
+  end
 end
