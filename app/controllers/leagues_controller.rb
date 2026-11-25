@@ -62,6 +62,21 @@ class LeaguesController < ApplicationController
     @my_table = @participant && tables.find { |table| mine?(table) }
     @waiting = tables.select { |table| table.waiting? && !table.overdue? }
     @in_play = tables.select(&:in_play?)
+    load_cut if @league.finals? || @league.finished?
+  end
+
+  # The top cut's rounds, latest first, and the viewer's own table still to finish in the round being played.
+  def load_cut
+    @cut_rounds = LeagueCutRound.where(event: @league).order(number: :desc)
+      .preload(:results, pods: { seatings: { event_participant: { player: :user } } }).to_a
+    round = @cut_rounds.find { |cut| cut.finished_at.nil? }
+    @my_cut_round = round
+    @my_cut_pod = @participant && round&.pods&.find { |pod| cut_seat_open?(round, pod) }
+  end
+
+  def cut_seat_open?(round, pod)
+    seated = pod.seatings.map(&:event_participant_id)
+    seated.include?(@participant.id) && round.results.none? { |result| seated.include?(result.event_participant_id) }
   end
 
   # The Completed rounds tab: the games with a final result, latest first.

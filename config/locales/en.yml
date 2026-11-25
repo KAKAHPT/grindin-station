@@ -1909,7 +1909,9 @@ en:
       i_won: "I won"
       was_draw: "It was a draw"
       report_help: "Only the winner reports a win. The game closes at once; if it is wrong, ask for a correction in Completed rounds."
-      at_a_table: "You are at a table. Report and confirm the result in My round."
+      cut_report_help: 'The winner says "I won" and the table closes at once. The organizer checks the round before the next one.'
+      cut_confirm: "Report your win at this table?"
+      at_a_table: "You are at a table. The result is reported in My round."
       no_table: "You are not at a table right now."
       none_played: "No game has finished yet."
       my_table: "My table"
@@ -1942,6 +1944,7 @@ en:
         other: "%{count} seats left"
       notices:
         correction_requested: "Correction sent to the organizer."
+        cut_reported: "Result reported: your table is closed."
         opened: "Table opened. It closes by itself in 2 hours if it does not fill."
         joined: "You joined the table."
         filled: "The table is full: good game!"

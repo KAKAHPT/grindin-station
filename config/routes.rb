@@ -68,6 +68,9 @@ Rails.application.routes.draw do
           %i[join leave close report correction cancel clock].each { |action| post action }
         end
       end
+      resources :cut_pods, only: [], controller: "league_cut_pods" do
+        member { post :report }
+      end
 
       resources :event_participants do
         collection do

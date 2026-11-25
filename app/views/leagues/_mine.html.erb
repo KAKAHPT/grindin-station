@@ -4,6 +4,11 @@
 <div class="col-span-full grid gap-4 pt-4" data-league-mine>
   <% if @my_table %>
     <%= render "leagues/my_table", league: league, table: @my_table, participant: @participant %>
+  <% elsif @my_cut_pod %>
+    <div class="sm:max-w-md">
+      <%= render "leagues/cut_pod", league: league, round: @my_cut_round, pod: @my_cut_pod, viewer: @participant, report: true,
+                 results: @my_cut_round.results.index_by(&:event_participant_id) %>
+    </div>
   <% else %>
     <div class="card flex flex-wrap items-center justify-between gap-3 px-4 py-4" data-no-table>
       <p class="text-[13px] text-muted"><%= t(@participant&.enrolled? ? "leagues.tables.no_table" : "leagues.tables.enrol_first") %></p>

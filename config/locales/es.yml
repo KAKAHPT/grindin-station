@@ -1909,7 +1909,9 @@ es:
       i_won: "Gané"
       was_draw: "Fue empate"
       report_help: "Solo quien ganó reporta la victoria. La partida se cierra enseguida; si hay un error, pide la corrección en Rondas completas."
-      at_a_table: "Estás en una mesa. El resultado se reporta y se confirma en Mi ronda."
+      cut_report_help: 'Quien ganó pulsa "Gané" y la mesa se cierra enseguida. El organizador revisa la ronda antes de la siguiente.'
+      cut_confirm: "¿Reportar tu victoria en esta mesa?"
+      at_a_table: "Estás en una mesa. El resultado se reporta en Mi ronda."
       no_table: "Ahora mismo no estás en ninguna mesa."
       none_played: "Todavía no ha terminado ninguna partida."
       my_table: "Mi mesa"
@@ -1942,6 +1944,7 @@ es:
         other: "faltan %{count} lugares"
       notices:
         correction_requested: "Corrección enviada al organizador."
+        cut_reported: "Resultado reportado: tu mesa está cerrada."
         opened: "Mesa abierta. Se cierra sola en 2 horas si no se llena."
         joined: "Entraste en la mesa."
         filled: "La mesa está llena: ¡buena partida!"
