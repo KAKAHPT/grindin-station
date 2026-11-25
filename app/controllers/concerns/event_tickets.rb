@@ -12,13 +12,19 @@ module EventTickets
 
   private
 
-  # Visible (not draft or canceled) events of a type, upcoming soonest first or past latest first, one page;
-  # except: events already shown elsewhere on the page (the viewer's running now); filters: from ticket_filters.
+  # Visible (not draft or canceled) events of a type, upcoming soonest first or past latest first, one page.
+  # An event running now (a live swiss or cut, whatever its dates say) stays with the upcoming ones for everyone
+  # until it finishes, as on the landing; except: events already shown elsewhere on the page (the viewer's
+  # running now); filters: from ticket_filters.
   def ticket_scope(klass, past:, except: [], filters: {})
     scope = filter_tickets(klass.visible.where.not(id: except.map(&:id)), filters)
-    scope = past ? scope.past : scope.upcoming
+    scope = scope.merge(past ? listed_past(klass) : listed_now(klass))
     ticket_preload(sort_tickets(scope, past: past)).page(params[:page]).load
   end
+
+  def listed_now(klass) = klass.upcoming.or(klass.ongoing)
+
+  def listed_past(klass) = klass.past.where.not(id: klass.ongoing.select(:id))
 
   def ticket_sort = params[:sort].to_s.presence_in(SORTS) || "date"
 
