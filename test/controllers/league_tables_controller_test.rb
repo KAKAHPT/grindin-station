@@ -29,7 +29,7 @@ class LeagueTablesControllerTest < ActionDispatch::IntegrationTest # rubocop:dis
     assert_select "[data-league-rounds]", 0
   end
 
-  test "four players fill a table, report, confirm and the standings follow" do # rubocop:disable Metrics/BlockLength
+  test "four players fill a table, the winner reports and the standings follow" do # rubocop:disable Metrics/BlockLength
     as(0) { post league_tables_path(@league) }
     table = @league.league_tables.sole
     as(1) do
@@ -49,7 +49,7 @@ class LeagueTablesControllerTest < ActionDispatch::IntegrationTest # rubocop:dis
       post report_league_table_path(@league, table), params: { result: @players[0].id }
       assert_equal I18n.t("results.not_allowed.invalid_type"), flash[:alert]
       post report_league_table_path(@league, table), params: { result: "win" }
-      assert_redirected_to league_path(@league, tab: "tables")
+      assert_redirected_to league_path(@league, tab: "played")
     end
     as(1) do
       get league_path(@league, tab: "tables")

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # What a player does at a league's tables (the Tables tab of the league page): open one, join, leave, close,
-# and at a full table report, confirm or contest the result, ask to cancel it and start its clock.
+# and at a full table report the result, ask for a correction, ask to cancel it and start its clock.
 class LeagueTablesController < ApplicationController
   include PublicEvent
 
@@ -39,7 +39,9 @@ class LeagueTablesController < ApplicationController
   def report
     type = { "win" => "Win", "draw" => "Draw" }.fetch(params[:result].to_s) { raise Results::NotAllowed, "invalid_type" }
     Results::Report.call(pod: pod!, participant: participant!, type: type, winner: (participant! if type == "Win"))
-    done("reported")
+    Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
+    # The game is closed: on to Completed rounds, where it now is (and where a correction is asked).
+    redirect_to league_path(@league, tab: "played", locale: params[:locale]), notice: t("leagues.tables.notices.reported")
   end
 
   # The reported result is wrong: the player asks the staff to correct it.
