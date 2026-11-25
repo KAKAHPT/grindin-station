@@ -1212,6 +1212,7 @@ es:
     invite: "Invitar"
     invite_again: "Enviar otra vez"
     registered: "Inscrito"
+    clock_minutes: "Reloj de cada partida (minutos)"
     waiting: "Aún no inscrito"
     invited_on: "Invitado"
     status: "Estado"
@@ -2031,4 +2032,5 @@ es:
     enter: "Introducir"
     close_round: "Cerrar la ronda"
     cut_tables: "%{round}: mesas"
+    registered: "Inscritos"
     table: "Mesa %{n}"

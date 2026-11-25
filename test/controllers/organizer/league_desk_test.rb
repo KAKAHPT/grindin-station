@@ -33,6 +33,8 @@ module Organizer
 
       get organizer_league_path(league)
       assert_select "[data-league-step=play]"
+      assert_select "[data-league-details] [data-detail=draw_rule]", text: I18n.t("league_desk.draw_split")
+      assert_select "[data-league-details] [data-detail=registered]", text: "8"
       patch transition_organizer_league_path(league), params: { to: "play" }
       assert_predicate league.reload, :play?
 

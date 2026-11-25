@@ -1212,6 +1212,7 @@ en:
     invite: "Invite"
     invite_again: "Send again"
     registered: "Registered"
+    clock_minutes: "A game's clock (minutes)"
     waiting: "Not registered yet"
     invited_on: "Invited"
     status: "Status"
@@ -2031,4 +2032,5 @@ en:
     enter: "Enter"
     close_round: "Close the round"
     cut_tables: "%{round}: tables"
+    registered: "Registered"
     table: "Table %{n}"

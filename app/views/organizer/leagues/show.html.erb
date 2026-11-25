@@ -27,6 +27,54 @@
   <%= render "organizer/leagues/desk", league: @league %>
 <% end %>
 
+<% if @league.play_mode_open_tables? %>
+  <%# The league's settings as the organizer set them, in the viewer's language. %>
+  <% label = ->(attribute) { Event.human_attribute_name(attribute) } %>
+  <% limit = ->(value) { value.presence || t("league_desk.no_limit") } %>
+  <section class="col-span-full card overflow-clip" data-league-details>
+    <h2 class="card-title"><%= t("organizer.leagues.details") %></h2>
+    <table class="ctable">
+      <tbody>
+        <tr>
+          <td><%= label.(:start_time) %></td>
+          <td class="r"><time data-controller="date" data-date-timestamp-value="<%= @league.start_time.iso8601 %>"></time></td>
+        </tr>
+        <tr>
+          <td><%= label.(:end_time) %></td>
+          <td class="r"><time data-controller="date" data-date-timestamp-value="<%= @league.end_time.iso8601 %>"></time></td>
+        </tr>
+        <% if @league.address.present? %>
+          <tr><td><%= label.(:address) %></td><td class="r"><%= @league.address %></td></tr>
+        <% end %>
+        <tr>
+          <td><%= t("league_desk.registered") %></td>
+          <td class="r tabular" data-detail="registered"><%= @league.event_participants.size %><% if @league.maximum_participants %> / <%= @league.maximum_participants %><% end %></td>
+        </tr>
+        <tr><td><%= label.(:starting_points) %></td><td class="r tabular"><%= @league.starting_points %></td></tr>
+        <tr><td><%= label.(:wager_percentage) %></td><td class="r font-display font-semibold text-accent tabular"><%= @league.wager_percentage.to_i %>%</td></tr>
+        <tr><td><%= label.(:draw_rule) %></td><td class="r" data-detail="draw_rule"><%= t("league_desk.draw_#{@league.draw_rule}") %></td></tr>
+        <tr>
+          <td><%= label.(:top_cut_size) %></td>
+          <td class="r"><%= @league.top_cut_size.to_i.zero? ? t("league_desk.no_cut") : t("league_desk.top", size: @league.top_cut_size) %></td>
+        </tr>
+        <tr><td><%= label.(:min_games_for_cut) %></td><td class="r tabular"><%= @league.min_games_for_cut %></td></tr>
+        <tr><td><%= label.(:max_games_per_week) %></td><td class="r tabular"><%= limit.(@league.max_games_per_week) %></td></tr>
+        <tr><td><%= label.(:max_games_vs_same_opponent) %></td><td class="r tabular"><%= limit.(@league.max_games_vs_same_opponent) %></td></tr>
+        <tr><td><%= t("league_desk.clock_minutes") %></td><td class="r tabular"><%= @league.round_minutes %></td></tr>
+        <% if Features.on?(:circuits) && @league.circuit %>
+          <tr><td><%= label.(:circuit_id) %></td><td class="r"><%= link_to @league.circuit.name, circuit_path(@league.circuit), class: "text-accent hover:underline" %></td></tr>
+        <% end %>
+      </tbody>
+    </table>
+  </section>
+  <% [[:prizes, @league.prizes], [:rules, @league.rules], [:description, @league.description]].each do |attribute, text| %>
+    <% next if text.blank? %>
+    <section class="col-span-full card overflow-clip">
+      <h2 class="card-title"><%= label.(attribute) %></h2>
+      <div class="markdown px-4 text-[13px] text-muted"><%= marksmithed(text) %></div>
+    </section>
+  <% end %>
+<% else %>
 <section class="col-span-full card overflow-clip">
   <h2 class="card-title"><%= t("organizer.leagues.details") %></h2>
   <table class="ctable">
@@ -71,6 +119,8 @@
     <h2 class="card-title">Description</h2>
     <div class="markdown px-4 text-[13px] text-muted"><%= marksmithed(@league.description) %></div>
   </section>
+<% end %>
+
 <% end %>
 
 <% if (@league.state.in?(%w[play finals]) || @league.finished?) && !@league.play_mode_open_tables? %>
