@@ -71,6 +71,7 @@ Rails.application.routes.draw do
       resources :cut_pods, only: [], controller: "league_cut_pods" do
         member { post :report }
       end
+      resource :registration, only: %i[create destroy], controller: "league_registrations"
 
       resources :event_participants do
         collection do
@@ -209,6 +210,8 @@ Rails.application.routes.draw do
           patch "pods/:pod_id/result", action: :enter_result, as: :pod_result
           patch "tables/:table_id/correction", action: :decide_correction, as: :table_correction
           patch "cut_rounds/:round_id/close", action: :close_cut_round, as: :close_cut_round
+          patch "tables/:table_id/cancel", action: :cancel_table, as: :cancel_table
+          patch "participants/:participant_id/drop", action: :drop_participant, as: :drop_participant
           %w[players melee standings rounds].each do |kind|
             get "export/#{kind}", to: "exports##{kind}", as: "export_#{kind}"
           end

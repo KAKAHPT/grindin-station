@@ -24,6 +24,10 @@
 <% end %>
 
 <% if @tab.nil? || @tab == "about" %>
+<%# Someone not in the league yet finds the way in first; a player's own registration sits beside About. %>
+<% if @tab && @registration.nil? %>
+  <div class="col-span-full pt-4"><%= render "leagues/registration", league: league, registration: nil %></div>
+<% end %>
 <div class="col-span-full grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr] items-start pt-4">
   <section data-about class="card">
     <h2 class="card-title"><%= t("play.events.about") %></h2>
@@ -65,12 +69,14 @@
   </section>
 
   <div class="grid gap-4">
+    <% if @tab && @registration %><%= render "leagues/registration", league: league, registration: @registration %><% end %>
     <% if league.wager_percentage.present? %>
       <section class="card" data-league-wager>
         <h2 class="card-title"><%= t("lists.league.wager") %></h2>
         <div class="p-4">
-          <p class="font-display text-2xl font-semibold text-ink"><%= league.wager_percentage %>%</p>
-          <p class="mt-1 text-[12.5px] text-muted"><%= t("lists.league.wager_line", percent: league.wager_percentage) %></p>
+          <% wager = number_with_precision(league.wager_percentage, precision: 2, strip_insignificant_zeros: true) %>
+          <p class="font-display text-2xl font-semibold text-ink"><%= wager %>%</p>
+          <p class="mt-1 text-[12.5px] text-muted"><%= t("lists.league.wager_line", percent: wager) %></p>
         </div>
       </section>
     <% end %>

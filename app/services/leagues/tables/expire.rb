@@ -12,6 +12,7 @@ module Leagues
 
             table.release_seats!
             table.update!(state: "expired")
+            Turbo::StreamsChannel.broadcast_refresh_later_to(table.league, :tables)
           end
         end
       end

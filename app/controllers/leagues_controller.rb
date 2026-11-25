@@ -24,6 +24,7 @@ class LeaguesController < ApplicationController
 
     @tab = params[:tab].presence_in(%w[tables mine played standings]) || "about"
     load_me
+    load_registration
     load_tab
   end
 
@@ -40,9 +41,23 @@ class LeaguesController < ApplicationController
 
   def load_tab
     case @tab
-    when "standings" then @standings = @ranked || @league.ranked_participants
+    when "standings" then @standings = final_order(@ranked || @league.ranked_participants)
     when "tables", "mine" then load_tables
     when "played" then load_played
+    end
+  end
+
+  # A finished league reads in its final order (the cut's champion first), not by score.
+  def final_order(ranked)
+    return ranked unless @league.finished?
+
+    ranked.sort_by.with_index { |participant, index| [participant.final_position || Float::INFINITY, index] }
+  end
+
+  # The viewer's registration (enrolled, waitlisted or dropped), for the sign-up card.
+  def load_registration
+    @registration = current_user&.player && @league.event_participants.find do |p|
+      p.player_id == current_user.player.id
     end
   end
 

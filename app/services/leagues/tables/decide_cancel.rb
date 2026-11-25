@@ -7,6 +7,9 @@ module Leagues
     class DecideCancel
       def self.call(table:, by:, approve:) = new(table, by, approve).call
 
+      # The organizer cancels a full table still to finish on their own, with a reason (nobody asked).
+      def self.void(table:, by:, reason:) = new(table, by, true).void(reason)
+
       def initialize(table, by, approve)
         @table = table
         @by = by
@@ -23,6 +26,22 @@ module Leagues
           Audit.record(:league_table_cancel_decided, actor: @by, subject: @table, event: @table.league,
                                                      approved: @approve, reason: @table.cancel_reason)
           Notify.create_for(users, kind: "league_cancel_#{@approve ? 'approved' : 'refused'}", subject: @table.league)
+          @table
+        end
+      end
+
+      def void(reason) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+        LeagueTable.transaction do
+          @table.lock!
+          raise NotAllowed, "not_in_play" unless @table.in_play?
+          raise NotAllowed, "reason_required" if reason.to_s.strip.empty?
+
+          users = @table.pod.users.pluck(:id)
+          @table.update!(cancel_reason: reason.to_s.strip) unless @table.cancel_pending?
+          approve
+          Audit.record(:league_table_cancel_decided, actor: @by, subject: @table, event: @table.league,
+                                                     approved: true, reason: @table.cancel_reason)
+          Notify.create_for(users, kind: "league_cancel_approved", subject: @table.league)
           @table
         end
       end

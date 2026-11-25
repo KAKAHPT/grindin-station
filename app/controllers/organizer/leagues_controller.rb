@@ -47,10 +47,7 @@ module Organizer
       @league.attributes = league_params
 
       if @league.save
-        if @league.state_previously_changed?
-          from, to = @league.state_previous_change
-          Audit.record(:event_state_changed, subject: @league, event: @league, from: from, to: to)
-        end
+        audit_update
 
         redirect_to [:organizer, @league], notice: t("flash.notice.league_updated")
       else
@@ -67,7 +64,10 @@ module Organizer
       @league = League.for_organizer(current_organizer).find(params[:id])
       step = STEPS.fetch(params[:to].to_s) { raise Leagues::Lifecycle::NotAllowed, "unknown" }
       Leagues::Lifecycle.public_send(step, @league, by: current_user)
-      redirect_to [:organizer, @league], notice: t("league_desk.n_#{params[:to]}")
+      Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
+      # "Make cut" with nobody qualified finishes the league by the standings.
+      done = @league.finished? ? "finished" : params[:to]
+      redirect_to [:organizer, @league], notice: t("league_desk.n_#{done}")
     rescue Leagues::Lifecycle::NotAllowed
       redirect_to [:organizer, @league], alert: t("league_desk.e_transition")
     end
@@ -84,12 +84,45 @@ module Organizer
       redirect_to [:organizer, @league], alert: t("league_desk.e_transition")
     end
 
+    # The organizer cancels a full table still to finish, with a reason: the game counts for nothing.
+    def cancel_table # rubocop:disable Metrics/AbcSize
+      @league = League.for_organizer(current_organizer).find(params[:id])
+      table = @league.league_tables.find(params[:table_id])
+      Leagues::Tables::DecideCancel.void(table: table, by: current_user, reason: params[:reason])
+      Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
+      redirect_to [:organizer, @league], notice: t("league_desk.n_approved")
+    rescue Leagues::Tables::NotAllowed => e
+      redirect_to [:organizer, @league], alert: t("leagues.tables.not_allowed.#{e.message}")
+    end
+
+    # The organizer takes a player out of the league (Leagues::Leave).
+    def drop_participant # rubocop:disable Metrics/AbcSize
+      @league = League.for_organizer(current_organizer).find(params[:id])
+      participant = @league.event_participants.where(dropped: false).find(params[:participant_id])
+      Leagues::Leave.call(league: @league, participant: participant, by: current_user)
+      Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
+      redirect_to [:organizer, @league], notice: t("league_desk.n_dropped", name: participant.name)
+    rescue Leagues::Tables::NotAllowed => e
+      redirect_to [:organizer, @league], alert: t("leagues.tables.not_allowed.#{e.message}")
+    end
+
+    GAME_STATES = %w[play closing closed].freeze
+
     # The organizer enters (or corrects) the result of a league game or of a cut table: params[:result] is the
-    # winner's participant id or "draw".
-    def enter_result # rubocop:disable Metrics/AbcSize
+    # winner's participant id or "draw". A league game only until the cut is made (it would change who made
+    # it); a cut table only while its round is open.
+    def enter_result # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
       @league = League.for_organizer(current_organizer).find(params[:id])
       pod = Pod.joins(:round).where(rounds: { event_id: @league.id }).find(params[:pod_id])
+      cut = pod.round.is_a?(LeagueCutRound)
+      open = cut ? @league.finals? && pod.round.finished_at.nil? : @league.state.in?(GAME_STATES)
+      return redirect_to [:organizer, @league], alert: t("league_desk.e_transition") unless open
+
       winner = pod.event_participants.find_by(id: params[:result]) unless params[:result] == "draw"
+      if winner.nil? && params[:result] != "draw"
+        return redirect_to [:organizer, @league], alert: t("leagues.tables.not_allowed.invalid_result")
+      end
+
       Results::Apply.call(pod: pod, type: winner ? "Win" : "Draw", winner: winner, by: current_user)
       pod.clear_report_state!
       Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
@@ -128,6 +161,19 @@ module Organizer
     end
 
     private
+
+    # A step taken from the form, and a new end date (the league extended or shortened).
+    def audit_update
+      if @league.state_previously_changed?
+        from, to = @league.state_previous_change
+        Audit.record(:event_state_changed, subject: @league, event: @league, from: from, to: to)
+      end
+      return unless @league.end_time_previously_changed? && @league.playing?
+
+      from, to = @league.end_time_previous_change
+      Audit.record(:league_end_changed, actor: current_user, subject: @league, event: @league,
+                                        from: from&.iso8601, to: to&.iso8601)
+    end
 
     # The organizer's view of an open-tables league: the full tables still to finish (with any cancellation
     # asked) and, once closed, who qualifies for the cut.

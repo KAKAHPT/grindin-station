@@ -1,0 +1,34 @@
+<%# The viewer's place in an open-tables league: sign up (also while it is being played), or leave it.
+    Locals: league, registration (their EventParticipant or nil). %>
+<% locale = params[:locale] %>
+<section class="card px-4 py-4 text-[13px]" data-league-registration>
+  <% if registration&.dropped? %>
+    <p class="text-muted" data-registration="dropped"><%= t("leagues.registration.dropped") %></p>
+  <% elsif registration %>
+    <div class="flex flex-wrap items-center justify-between gap-3" data-registration="<%= registration.waitlisted? ? "waitlisted" : "enrolled" %>">
+      <p class="text-ink">
+        <%= registration.waitlisted? ? t("leagues.registration.waitlisted", position: registration.waitlist_position) : t("leagues.registration.enrolled") %>
+      </p>
+      <% unless league.finished? || league.finals? %>
+        <%= button_to t("leagues.registration.leave"), league_registration_path(league, locale: locale), method: :delete,
+                      class: button_classes(:ghost, size: :sm), form: { data: { turbo_confirm: t("leagues.registration.confirm_leave") } } %>
+      <% end %>
+    </div>
+  <% elsif !league.accepts_registrations? %>
+    <p class="text-muted" data-registration="closed"><%= t("leagues.registration.closed") %></p>
+  <% elsif !authenticated? %>
+    <div class="flex flex-wrap items-center justify-between gap-3" data-registration="sign_in">
+      <p class="text-muted"><%= t("leagues.registration.sign_in_lead") %></p>
+      <%= link_to t("leagues.registration.sign_in"), new_session_path(locale: locale), class: button_classes(:primary, size: :sm) %>
+    </div>
+  <% else %>
+    <%= form_with url: league_registration_path(league, locale: locale), method: :post, class: "grid gap-3", data: { registration: "open" } do |form| %>
+      <p class="text-muted"><%= t("leagues.registration.lead") %></p>
+      <label class="flex items-start gap-2 text-ink">
+        <%= form.check_box :accepted_terms, { required: true, class: "field-check mt-0.5" }, "1", "" %>
+        <span><%= EventParticipant.human_attribute_name(:accepted_terms) %></span>
+      </label>
+      <div><%= form.submit t("leagues.registration.register"), class: button_classes(:primary) %></div>
+    <% end %>
+  <% end %>
+</section>

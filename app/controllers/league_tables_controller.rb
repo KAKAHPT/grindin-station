@@ -36,9 +36,12 @@ class LeagueTablesController < ApplicationController
   end
 
   # A player reports their own win ("win") or a draw ("draw"); nobody reports a win for someone else.
-  def report
+  def report # rubocop:disable Metrics/AbcSize
     type = { "win" => "Win", "draw" => "Draw" }.fetch(params[:result].to_s) { raise Results::NotAllowed, "invalid_type" }
     Results::Report.call(pod: pod!, participant: participant!, type: type, winner: (participant! if type == "Win"))
+    # The others at the table learn it at once: a mistake is theirs to flag (Pedir correção).
+    others = pod!.users.where.not(id: current_user.id).pluck(:id)
+    Notify.create_for(others, kind: "league_result_reported", subject: pod!)
     Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
     # The game is closed: on to Completed rounds, where it now is (and where a correction is asked).
     redirect_to league_path(@league, tab: "played", locale: params[:locale]),

@@ -45,7 +45,7 @@
                           { selected: league.play_mode }, disabled: locked %>
   <div class="grid grid-cols-1 gap-x-3 sm:grid-cols-2">
     <%= f.number_field_with_label :starting_points, min: 1, step: 1, disabled: locked %>
-    <%= f.number_field_with_label :wager_percentage, min: 0, max: 100, step: 1, placeholder: "10", disabled: locked %>
+    <%= f.number_field_with_label :wager_percentage, min: 0, max: 100, step: 1, required: true, disabled: locked %>
     <%= f.select_with_label :draw_rule, League::DRAW_RULES.map { |rule| [t("league_desk.draw_#{rule}"), rule] },
                             { selected: league.draw_rule }, disabled: locked %>
     <%= f.number_field_with_label :round_minutes, min: 1, step: 1, label: { text: t("league_desk.clock_minutes") } %>

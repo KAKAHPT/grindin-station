@@ -7,15 +7,18 @@
       <p class="text-[13px] text-muted"><%= t("leagues.tables.at_a_table") %></p>
       <%= link_to t("leagues.tabs.mine"), league_path(league, tab: "mine", locale: params[:locale]), class: button_classes(:primary) %>
     </div>
-  <% elsif !league.tables_open? %>
-    <p class="card px-4 py-4 text-[13px] text-muted" data-tables-closed><%= t("leagues.tables.closed_#{league.play? ? "date" : "state"}") %></p>
-  <% elsif @participant&.enrolled? %>
+  <% elsif league.tables_open? && @participant&.enrolled? %>
     <div class="card flex flex-wrap items-center justify-between gap-3 px-4 py-4" data-open-table>
       <p class="text-[13px] text-muted"><%= t("leagues.tables.open_lead") %></p>
       <%= button_to t("leagues.tables.open"), league_tables_path(league, locale: params[:locale]), class: button_classes(:primary) %>
     </div>
   <% else %>
-    <p class="card px-4 py-4 text-[13px] text-muted" data-tables-visitor><%= t("leagues.tables.enrol_first") %></p>
+    <% unless league.tables_open? %>
+      <p class="card px-4 py-4 text-[13px] text-muted" data-tables-closed><%= t("leagues.tables.closed_#{league.play? ? "date" : "state"}") %></p>
+    <% end %>
+    <% unless @participant&.enrolled? %>
+      <div data-tables-visitor><%= render "leagues/registration", league: league, registration: @registration %></div>
+    <% end %>
   <% end %>
 
   <% (@cut_rounds || []).each do |round| %>

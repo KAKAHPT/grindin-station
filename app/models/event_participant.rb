@@ -76,6 +76,9 @@ class EventParticipant < ApplicationRecord
 
   validate :guest_name_free, on: :create
 
+  # A league's player starts with the league's starting points (the column default is 1000).
+  before_create { self.league_score = event.starting_points if event.is_a?(League) && event.play_mode_open_tables? }
+
   delegate :name, to: :player
 
   # Names the next manual player in this event ("Manual player 1", 2, ...).
@@ -421,7 +424,7 @@ class EventParticipant < ApplicationRecord
 
   def rebuild_round
     latest = event.rounds.max_by(&:number)
-    return unless event.swiss? && latest && !latest.published
+    return unless event.is_a?(Tournament) && event.swiss? && latest && !latest.published
 
     latest.destroy
     Tournaments::StartSwissRoundJob.perform_now(event.reload)

@@ -40,7 +40,7 @@ class LeagueOpenTablesTest < ApplicationSystemTestCase
       visit league_path(@league, tab: "mine")
       assert_selector "[data-my-table=filled] li[data-seat]", count: 4
       assert_fits_the_phone
-      click_button I18n.t("leagues.tables.i_won")
+      accept_confirm { click_button I18n.t("leagues.tables.i_won") }
       assert_text I18n.t("leagues.tables.notices.reported")
       assert_selector "[data-league-played] li[data-winner]", text: @players[0].name
 

@@ -89,6 +89,15 @@
               </div>
               <%= render "organizer/leagues/result_form", league: league, pod: table.pod, draw: true %>
             </div>
+            <% unless table.cancel_pending? %>
+              <details class="mt-2 text-[12px]" data-cancel-table>
+                <summary class="cursor-pointer text-muted hover:text-ink"><%= t("league_desk.cancel_table") %></summary>
+                <%= form_with url: cancel_table_organizer_league_path(league, table_id: table.id), method: :patch, class: "mt-2 flex flex-wrap items-center gap-2" do |form| %>
+                  <%= form.text_field :reason, required: true, maxlength: 300, placeholder: t("leagues.tables.cancel_reason"), "aria-label": t("leagues.tables.cancel_reason"), class: "field-input w-64 max-w-full" %>
+                  <%= form.submit t("league_desk.cancel_table"), class: button_classes(:secondary, size: :sm), data: { turbo_confirm: t("league_desk.confirm_cancel_table") } %>
+                <% end %>
+              </details>
+            <% end %>
             <% if table.cancel_pending? %>
               <div class="mt-3 rounded-md border border-line bg-surface-raised px-3 py-2" data-cancel-request>
                 <p class="text-[12px] text-muted"><%= t("league_desk.asked_by", name: table.cancel_requested_by&.name) %></p>

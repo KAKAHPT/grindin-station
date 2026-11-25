@@ -25,6 +25,8 @@ module Leagues
         raise NotAllowed, "not_member" unless table.seats.exists?(event_participant_id: participant&.id)
         raise NotAllowed, "reason_required" if reason.to_s.strip.empty?
         raise NotAllowed, "already_requested" if table.correction_pending?
+        # The staff answered this player about this game already: their answer stands.
+        raise NotAllowed, "already_answered" if table.correction_requested_by_id == participant.id
       end
       private_class_method :check!
     end

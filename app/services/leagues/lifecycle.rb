@@ -15,10 +15,14 @@ module Leagues
 
     # No table can be opened or joined any more. Waiting tables are voided; the full ones play to the end,
     # and the league is closed when the last of them is settled (at once when there is none).
-    def close(league, by:)
+    def close(league, by:) # rubocop:disable Metrics/MethodLength
       refuse("not_in_play") unless league.play?
       League.transaction do
+        # Each table is locked and looked at again: one a 4th player filled meanwhile plays to the end.
         league.league_tables.waiting.find_each do |table|
+          table.lock!
+          next unless table.waiting?
+
           table.release_seats!
           table.update!(state: "closed")
         end
@@ -33,6 +37,7 @@ module Leagues
       return if league.league_tables.correction_pending.exists?
 
       league.update!(state: :closed)
+      Audit.record(:event_state_changed, subject: league, event: league, from: "closing", to: "closed")
     end
 
     # Back to play, while the cut has not started.
@@ -56,6 +61,7 @@ module Leagues
 
     def finish(league, by:)
       refuse("not_closed") unless league.closed?
+      refuse("corrections_pending") if league.league_tables.correction_pending.exists?
       move(league, :finished, by)
     end
 

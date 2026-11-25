@@ -20,6 +20,7 @@ class League < Event
   # A reported result closes the game at once; a mistake is fixed by a correction request to the staff.
   attribute :result_confirmation, default: "none"
   attribute :top_cut_size, default: 16
+  attribute :wager_percentage, default: 10
 
   # Removed by the database with the league (and with a participant who is deleted).
   has_many :league_tables, foreign_key: :event_id, dependent: nil, inverse_of: :league
@@ -28,12 +29,16 @@ class League < Event
   validates :format, inclusion: { in: %w[multiplayer] }
   validates :wager_percentage,
             numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100, allow_blank: true }
+  validates :wager_percentage, presence: true, if: :play_mode_open_tables?
   validates :starting_points, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
   validates :draw_rule, inclusion: { in: DRAW_RULES }
   validates :min_games_for_cut, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :max_games_per_week, :max_games_vs_same_opponent,
             numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_nil: true
   validates :top_cut_size, inclusion: { in: CUT_SIZES }, allow_nil: true
+
+  # Before the first game everyone shows the starting points, also when the organizer changes them.
+  after_update :reset_scores, if: -> { saved_change_to_starting_points? && play_mode_open_tables? }
 
   enum :state, {
     draft: 0,
@@ -72,6 +77,9 @@ class League < Event
     play? && play_mode_open_tables? && (end_time.nil? || end_time.future?)
   end
 
+  # An open-tables league keeps taking players while it is in play: a late one starts with the starting points.
+  def accepts_registrations? = registration_open? || (play? && play_mode_open_tables?)
+
   alias pickup_play_mode? play_mode_pickup?
 
   # No planned rounds: the games come as the players open tables. The cut is the tournament one, of the
@@ -105,8 +113,10 @@ class League < Event
     ranked_participants.select { |participant| participant.enrolled? && participant.league_games >= min_games_for_cut }
   end
 
-  # The largest cut the qualified field fills: the chosen size, else 4, else none.
+  # The largest cut the qualified field fills: the chosen size, else 4, else none. No cut when none was chosen.
   def cut_size_for_field
+    return 0 unless top_cut_size.to_i.positive?
+
     qualified = cut_field.size
     [top_cut_size.to_i, 4].uniq.find { |size| size.positive? && qualified >= size } || 0
   end
@@ -122,6 +132,8 @@ class League < Event
   end
 
   private
+
+  def reset_scores = Scoring::PointWager.new(self).recalculate_all!
 
   def start_finals
     return Leagues::StartFinalsRoundJob.perform_now(self) unless play_mode_open_tables?

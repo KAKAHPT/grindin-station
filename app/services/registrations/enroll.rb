@@ -23,7 +23,7 @@ module Registrations
     def self.guard!(event, player)
       raise ArgumentError, "a player is required" if player.nil?
       # Self-registration only while the organizer keeps it open (closing registrations must stick).
-      raise Closed unless event.registration_open?
+      raise Closed unless event.accepts_registrations?
       raise AlreadyEnrolled if event.event_participants.exists?(player: player)
       raise NotInvited if event.invitation_only && !event.invited?(player.user)
     end

@@ -48,7 +48,7 @@ module NotificationsHelper
 
     return organizer_league_path(league, locale: locale) if kind.in?(STAFF_LEAGUE_KINDS)
 
-    tab = kind.start_with?("league_correction") ? "played" : "mine"
+    tab = kind.start_with?("league_correction", "league_result") ? "played" : "mine"
     league_path(league, tab: tab, locale: locale)
   end
 

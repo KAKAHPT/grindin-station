@@ -50,9 +50,9 @@
         <p class="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted"><%= t("leagues.tables.report_title") %></p>
         <div class="mt-2 flex flex-wrap gap-2" data-report-form>
           <%= button_to t("leagues.tables.i_won"), report_league_table_path(league, table, locale: locale), params: { result: "win" },
-                        class: button_classes(:primary, size: :sm), form: { data: { report: "win" } } %>
+                        class: button_classes(:primary, size: :sm), form: { data: { report: "win", turbo_confirm: t("leagues.tables.confirm_win") } } %>
           <%= button_to t("leagues.tables.was_draw"), report_league_table_path(league, table, locale: locale), params: { result: "draw" },
-                        class: button_classes(:secondary, size: :sm), form: { data: { report: "draw" } } %>
+                        class: button_classes(:secondary, size: :sm), form: { data: { report: "draw", turbo_confirm: t("leagues.tables.confirm_draw") } } %>
         </div>
         <p class="mt-2 text-[12px] text-muted"><%= t("leagues.tables.report_help") %></p>
     </div>

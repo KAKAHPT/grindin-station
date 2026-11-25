@@ -18,7 +18,7 @@ class AuditEventTest < ActiveSupport::TestCase
                   post_removed post_kept feed_paused
                   email_confirmed confirmation_resent
                   account_blocked account_unblocked account_deleted_by_admin
-                  league_table_cancel_decided]
+                  league_table_cancel_decided league_end_changed]
     assert_equal expected.sort, AuditEvent::ACTIONS.sort
   end
 

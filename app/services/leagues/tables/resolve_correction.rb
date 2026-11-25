@@ -5,10 +5,11 @@ module Leagues
     # The staff answer a correction request: `result` is the winner's participant id, "draw", or "keep" (the
     # reported result stands). A new result rewrites the game and replays the league's scores (Results::Apply).
     class ResolveCorrection
-      def self.call(table:, by:, result:) # rubocop:disable Metrics/MethodLength
+      def self.call(table:, by:, result:) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
         LeagueTable.transaction do
           table.lock!
           raise NotAllowed, "nothing_pending" unless table.correction_pending?
+          raise NotAllowed, "league_over" unless table.league.state.in?(RequestCorrection::OPEN_STATES)
 
           kept = result.to_s == "keep"
           apply(table.pod, result, by) unless kept

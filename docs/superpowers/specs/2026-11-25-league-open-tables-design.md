@@ -235,3 +235,25 @@ finds a league player's current pod.
   Tables and My round; the winner reports "I won" and the table closes at once. The organizer can correct a table
   and closes each round, which starts the next one (or finishes the league).
 - After reporting a league game the player lands on Completed rounds, where the game and "Ask for a correction" are.
+
+
+## Addendum 2: audit of 2026-11-25 (night), Claude's calls, not yet seen by the owner
+
+An independent read of the branch found gaps; these were closed on the branch:
+
+- **Registration.** Players sign up from the league page (`LeagueRegistrationsController`, rules accepted), also
+  while the league is in play (they start with the starting points), and leave it (`Leagues::Leave`): before the
+  start the registration is removed, afterwards it is a drop and the games stay. Nobody leaves while seated at a
+  full table still to finish. The organizer's league page lists the players and can take one out (same rule).
+- **Organizer cancels a full table** on their own with a reason (`DecideCancel.void`), no request needed.
+- **No cut means no cut**: `top_cut_size` 0 never falls back to a Top 4.
+- **Corrections**: the league cannot finish with one waiting; a player answered about a game cannot ask again
+  about it (another player of that game can); results of league games are not rewritten after the cut is made.
+- **Scores**: the starting points show before the first game; a new league stakes 10% and a blank wager is refused.
+- **Reporting**: "Ganhei" and "Foi empate" ask to confirm, and the other three players get a notification.
+- **Finished league**: the Standings tab reads in final order (the cut's champion first).
+- Closing the league re-checks each waiting table under its lock; expiry and the organizer's steps refresh the
+  open pages; a change of the end date during play is audited (`league_end_changed`).
+
+Left open on purpose: guests (players without an account) cannot be added to an open-tables league, since they
+could not open or join tables; a player who left cannot come back by themselves.

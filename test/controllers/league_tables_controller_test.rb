@@ -29,6 +29,27 @@ class LeagueTablesControllerTest < ActionDispatch::IntegrationTest # rubocop:dis
     assert_select "[data-league-rounds]", 0
   end
 
+  test "the other three are told when a result is reported, and the buttons ask first" do
+    LeagueBuilder.fill_table!(@league, @players.first(4))
+    table = @league.league_tables.sole
+
+    as(1) do
+      get league_path(@league, tab: "mine")
+      assert_select "form[data-report=win][data-turbo-confirm]"
+      assert_select "form[data-report=draw][data-turbo-confirm]"
+      assert_difference -> { Notification.where(kind: "league_result_reported").count }, 3 do
+        post report_league_table_path(@league, table), params: { result: "draw" }
+      end
+    end
+
+    told = Notification.where(kind: "league_result_reported").pluck(:user_id)
+    assert_equal [@users[0], @users[2], @users[3]].map(&:id).sort, told.sort
+    as(0) do
+      get notifications_path
+      assert_response :success
+    end
+  end
+
   test "four players fill a table, the winner reports and the standings follow" do # rubocop:disable Metrics/BlockLength
     as(0) { post league_tables_path(@league) }
     table = @league.league_tables.sole
