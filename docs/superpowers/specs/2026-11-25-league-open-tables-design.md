@@ -231,3 +231,7 @@ finds a league player's current pod.
   visitor to sign in) · My round (the viewer's table: report, clock, cancel) · Completed rounds (finished games
   with the winner) · Standings (score, games, W / D / L, win %, larger text).
 - **The viewer's strip** at the right of the tabs: picture, name, place in the standings, record and win rate.
+- **Top cut tables** (builder's call, 2026-11-25, not yet seen by the owner): the players of a cut table see it in
+  Tables and My round; the winner reports "I won" and the table closes at once. The organizer can correct a table
+  and closes each round, which starts the next one (or finishes the league).
+- After reporting a league game the player lands on Completed rounds, where the game and "Ask for a correction" are.
