@@ -220,6 +220,23 @@ class EventsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable M
     assert_order sooner, theirs, later
   end
 
+  test "a tournament running now is listed for everyone until it finishes, and not under Past" do
+    running = upcoming("Running Cup", start: 12.hours.ago)
+    running.update_columns(state: Tournament.states[:swiss], end_time: 1.hour.ago) # rubocop:disable Rails/SkipsModelValidations
+
+    get events_path
+    assert_listed running
+
+    get events_path(filter: "past")
+    assert_not_listed running
+
+    running.update_column(:state, Tournament.states[:finished]) # rubocop:disable Rails/SkipsModelValidations
+    get events_path
+    assert_not_listed running
+    get events_path(filter: "past")
+    assert_listed running
+  end
+
   private
 
   # A registration_open tournament of @organizer starting from_now (or at start); attributes: country, format, ...

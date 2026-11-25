@@ -185,8 +185,10 @@ class EventParticipant < ApplicationRecord
 
   # The event's participants loaded for the standings: players, current results with their rounds,
   # seat counts and swiss tables come in a fixed number of queries, whatever the field size.
-  def self.standings_for(event)
-    participants = event.event_participants.includes(:event, player: :user, results: :round).to_a
+  # avatars: also load the players' pictures (the public standings table shows them).
+  def self.standings_for(event, avatars: false)
+    user = avatars ? { user: { avatar_attachment: :blob } } : :user
+    participants = event.event_participants.includes(:event, player: user, results: :round).to_a
     standings = Standings.new(event, participants)
     participants.each { |participant| participant.standings = standings }
   end
