@@ -20,17 +20,17 @@
     <section class="card">
       <h2 class="card-title"><%= t(".profile") %></h2>
       <div class="p-4 space-y-4">
-        <div class="flex items-center gap-4">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
           <% if @user.avatar.attached? && @user.avatar.blob.persisted? %>
-            <%= image_tag @user.avatar.variant(:thumb), alt: "", class: "size-20 rounded-full object-cover border border-line" %>
+            <%= image_tag @user.avatar.variant(:thumb), alt: "", class: "size-20 shrink-0 rounded-full object-cover border border-line" %>
           <% else %>
-            <div class="size-20 rounded-full bg-surface-raised border border-line flex items-center justify-center font-display text-2xl text-muted">
+            <div class="size-20 shrink-0 rounded-full bg-surface-raised border border-line flex items-center justify-center font-display text-2xl text-muted">
               <%= @user.name.to_s.first.upcase %>
             </div>
           <% end %>
-          <div class="flex-1 <%= field %>">
+          <div class="w-full sm:flex-1 <%= field %>">
             <%= f.label :avatar %>
-            <%= f.file_field :avatar, accept: User::AVATAR_TYPES.join(","), class: "#{input} file:me-3 file:rounded file:border-0 file:bg-surface-raised file:px-2 file:py-1 file:text-ink" %>
+            <%= render "shared/file_field", input: f.file_field(:avatar, accept: User::AVATAR_TYPES.join(","), class: "file-field-input") %>
             <p class="<%= hint %>"><%= t(".avatar_hint") %></p>
           </div>
         </div>
@@ -41,7 +41,7 @@
               <%= image_tag @user.banner.variant(:card), alt: "", class: "mb-2 h-24 w-full rounded-lg object-cover border border-line" %>
             <% end %>
             <%= f.label :banner %>
-            <%= f.file_field :banner, accept: User::AVATAR_TYPES.join(","), class: "#{input} file:me-3 file:rounded file:border-0 file:bg-surface-raised file:px-2 file:py-1 file:text-ink" %>
+            <%= render "shared/file_field", input: f.file_field(:banner, accept: User::AVATAR_TYPES.join(","), class: "file-field-input") %>
             <p class="<%= hint %>"><%= t(".banner_hint") %></p>
           </div>
         <% end %>

@@ -1480,6 +1480,9 @@ es:
       register: "Inscribirme"
   helpers:
     required: "obligatorio"
+    file:
+      choose: "Elegir archivo"
+      none: "Ningún archivo elegido"
   events:
     sort:
       label: "Ordenar por"

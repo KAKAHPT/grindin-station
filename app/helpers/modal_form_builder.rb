@@ -39,6 +39,11 @@ class ModalFormBuilder < ActionView::Helpers::FormBuilder
     end
   end
 
+  # The site's file picker (shared/_file_field) instead of the browser's own control.
+  def file_field(method, options = {})
+    @template.render("shared/file_field", input: super(method, options.merge(class: "file-field-input")))
+  end
+
   def select(method, choices = nil, options = {}, html_options = {}, &block)
     @template.select(
       @object_name, method, choices, objectify_options(options),

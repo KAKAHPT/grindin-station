@@ -25,6 +25,8 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     assert_select "input[name='user[handle]'][value=?]", @user.handle
     assert_select "select[name='user[visibility]']"
     assert_select "input[type=file][name='user[avatar]']"
+    # The site's own picker (shared/_file_field), not the browser's control: Safari drew that one out of its box.
+    assert_select ".file-field[data-controller='file-field'] input.file-field-input[name='user[avatar]']"
     assert_select "form[action=?]", unlink_identity_path(@user.identities.first)
     assert_select "input[name=confirmation]"
   end
