@@ -1883,6 +1883,8 @@ en:
         one: "* Fewer than %{count} game: not yet qualified for the top cut."
         other: "* Fewer than %{count} games: not yet qualified for the top cut."
     tables:
+      table_of: "%{name}'s table"
+      free_seat: "Free seat"
       my_table: "My table"
       open_lead: "Open a table and wait for three more players, or join one below."
       open: "Open a table"

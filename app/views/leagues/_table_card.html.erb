@@ -1,0 +1,46 @@
+<%# One league table as a pod card, the same look as a table on a tournament's pairings page: title band with the
+    status, the four seats, and (waiting tables) the Join button. A waiting table has no seat order yet: its seats
+    show a dot and the free ones a dashed "Free seat". Locals: league, table, viewer (participant or nil), joinable. %>
+<% pod = table.pod %>
+<% seats = pod ? pod.seatings.map { |seating| [seating.order, seating.event_participant] } : table.participants.map { |seated| [nil, seated] } %>
+<% free = League::TABLE_SIZE - seats.size %>
+<% mine = viewer && seats.any? { |_, seated| seated.id == viewer.id } %>
+<%= tag.article data: { league_table: table.state, waiting_table: (table.id if table.waiting?), my_table: (true if mine) },
+                class: ["card flex flex-col overflow-clip", ("border-accent/55 ring-1 ring-accent/20" if mine)] do %>
+  <div class="band flex items-center justify-between gap-2 px-4 py-2.5">
+    <h3 class="font-display text-[15px] font-semibold leading-none tracking-tight text-ink">
+      <%= pod ? pod.round.display_name : t("leagues.tables.table_of", name: table.opener.name) %>
+    </h3>
+    <% if pod %>
+      <%= pod_status_chip(pod) %>
+    <% else %>
+      <%= status_chip(:warn, data: { seats_left: free }) { t("leagues.tables.seats_left", count: free) } %>
+    <% end %>
+  </div>
+  <ol class="flex flex-col divide-y divide-line/60">
+    <% seats.each do |order, seated| %>
+      <% you = viewer && seated.id == viewer.id %>
+      <%= tag.li data: { seat: order, me: (true if you) }, class: ["flex items-center gap-2.5 px-4 py-1.5 min-h-9", ("bg-accent/[0.08]" if you)] do %>
+        <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= you ? "text-accent" : "text-muted" %>"><%= order || "·" %></span>
+        <span class="flex flex-1 items-center gap-1.5 min-w-0 text-[13px]">
+          <span class="truncate <%= "font-semibold text-ink" if you %>"><%= league_player(seated) %></span>
+          <% if you %><%= desk_chip(:ok) { t("play.tables.you") } %><% end %>
+        </span>
+      <% end %>
+    <% end %>
+    <% free.times do %>
+      <li class="flex items-center gap-2.5 px-4 py-1.5 min-h-9" data-free-seat>
+        <span class="inline-flex size-[22px] shrink-0 rounded-[4px] border border-dashed border-line-strong" aria-hidden="true"></span>
+        <span class="text-[13px] text-muted"><%= t("leagues.tables.free_seat") %></span>
+      </li>
+    <% end %>
+  </ol>
+  <% if table.waiting? %>
+    <div class="mt-auto flex items-center justify-between gap-3 border-t border-line px-4 py-2.5">
+      <span class="text-[12px] text-muted"><%= t("leagues.tables.closes_at", time: l(table.expires_at, format: :short)) %></span>
+      <% if joinable %>
+        <%= button_to t("leagues.tables.join"), join_league_table_path(league, table, locale: params[:locale]), class: button_classes(:primary, size: :sm) %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

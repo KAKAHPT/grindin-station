@@ -1,12 +1,33 @@
 <%# The viewer's own league table. Waiting: who is in, Leave or Close. Full: the seats, the result (report,
     confirm, contest), the clock and asking the organizer to cancel. Locals: league, table, participant. %>
 <% locale = params[:locale] %>
-<section class="card overflow-clip" data-my-table="<%= table.state %>" data-controller="dialog">
-  <h2 class="card-title"><%= t("leagues.tables.my_table") %></h2>
+<section class="card overflow-clip border-accent/55 ring-1 ring-accent/20 sm:max-w-md" data-my-table="<%= table.state %>" data-controller="dialog">
+  <div class="band flex items-center justify-between gap-2 px-4 py-2.5">
+    <h2 class="flex items-center gap-2 font-display text-[15px] font-semibold leading-none tracking-tight text-ink">
+      <%= table.pod ? table.pod.round.display_name : t("leagues.tables.my_table") %>
+      <%= desk_chip(:ok) { t("play.pairings.your_table") } %>
+    </h2>
+    <% if table.pod %><%= pod_status_chip(table.pod) %><% end %>
+  </div>
   <% if table.waiting? %>
-    <div class="px-4 py-4 text-[13px]">
-      <p class="text-ink"><%= safe_join(table.participants.map { |seated| league_player(seated) }, ", ") %></p>
-      <p class="mt-1 text-muted">
+    <ol class="flex flex-col divide-y divide-line/60">
+      <% table.participants.each do |seated| %>
+        <% you = seated.id == participant.id %>
+        <%= tag.li class: ["flex items-center gap-3 px-4 py-2.5", ("bg-accent/[0.08]" if you)] do %>
+          <span class="<%= PaletteHelper::SEAT_SQUARE %> <%= you ? "text-accent" : "text-muted" %>">·</span>
+          <span class="flex-1 min-w-0 truncate text-[15px] <%= "font-semibold text-ink" if you %>"><%= league_player(seated) %></span>
+          <% if you %><%= desk_chip(:ok) { t("play.tables.you") } %><% end %>
+        <% end %>
+      <% end %>
+      <% (League::TABLE_SIZE - table.participants.size).times do %>
+        <li class="flex items-center gap-3 px-4 py-2.5" data-free-seat>
+          <span class="inline-flex size-7 shrink-0 rounded-[4px] border border-dashed border-line-strong" aria-hidden="true"></span>
+          <span class="text-[15px] text-muted"><%= t("leagues.tables.free_seat") %></span>
+        </li>
+      <% end %>
+    </ol>
+    <div class="border-t border-line px-4 py-3 text-[13px]">
+      <p class="text-muted">
         <%= t("leagues.tables.seats_left", count: League::TABLE_SIZE - table.participants.size) %> ·
         <%= t("leagues.tables.closes_at", time: l(table.expires_at, format: :short)) %>
       </p>
@@ -20,12 +41,14 @@
     </div>
   <% else %>
     <% pod = table.pod %>
-    <ol class="divide-y divide-line text-[13px]">
+    <ol class="flex flex-col divide-y divide-line/60">
       <% pod.seatings.each do |seating| %>
-        <li class="flex items-center gap-3 px-4 py-2.5">
-          <span class="font-display font-semibold text-muted tabular"><%= seating.order %></span>
-          <span class="text-ink"><%= league_player(seating.event_participant) %></span>
-        </li>
+        <% you = seating.event_participant_id == participant.id %>
+        <%= tag.li data: { seat: seating.order }, class: ["flex items-center gap-3 px-4 py-2.5", ("bg-accent/[0.08]" if you)] do %>
+          <span class="<%= PaletteHelper::SEAT_SQUARE %> <%= you ? "text-accent" : "text-muted" %>"><%= seating.order %></span>
+          <span class="flex-1 min-w-0 truncate text-[15px] <%= "font-semibold text-ink" if you %>"><%= league_player(seating.event_participant) %></span>
+          <% if you %><%= desk_chip(:ok) { t("play.tables.you") } %><% end %>
+        <% end %>
       <% end %>
     </ol>
 

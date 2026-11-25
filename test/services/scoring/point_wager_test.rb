@@ -48,6 +48,16 @@ module Scoring
       assert_equal [810, 1210, 1170, 810, 1000], scores
     end
 
+    test "points stay whole: stakes are rounded and a shared pot is divided without fractions" do
+      @league.update!(wager_percentage: 7)
+      play(@players.first(4), winner: @players[0])
+      play(@players.first(4), winner: :draw)
+
+      # first game: 70 each -> 1210 / 930 x3; draw: stakes 85 + 65 x3 = 280, 70 back to each
+      assert_equal [1195, 935, 935, 935, 1000], scores
+      assert(@players.all? { |player| player.reload.league_score == player.league_score.to_i })
+    end
+
     test "the starting points and the percentage are the league's" do
       @league.update!(starting_points: 500, wager_percentage: 20)
       play(@players.first(4), winner: @players[3])

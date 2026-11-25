@@ -15,38 +15,24 @@
     <p class="card px-4 py-4 text-[13px] text-muted" data-tables-visitor><%= t("leagues.tables.enrol_first") %></p>
   <% end %>
 
-  <section class="card overflow-clip" data-waiting-tables>
-    <h2 class="card-title"><%= t("leagues.tables.waiting_title") %></h2>
+  <section data-waiting-tables>
+    <h2 class="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted"><%= t("leagues.tables.waiting_title") %></h2>
     <% if @waiting.any? %>
-      <ul class="divide-y divide-line">
-        <% @waiting.each do |table| %>
-          <li class="flex flex-wrap items-center justify-between gap-3 px-4 py-3" data-waiting-table="<%= table.id %>">
-            <div class="min-w-0 text-[13px]">
-              <p class="text-ink"><%= safe_join(table.participants.map { |participant| league_player(participant) }, ", ") %></p>
-              <p class="mt-0.5 text-[12px] text-muted">
-                <%= t("leagues.tables.seats_left", count: League::TABLE_SIZE - table.participants.size) %> ·
-                <%= t("leagues.tables.closes_at", time: l(table.expires_at, format: :short)) %>
-              </p>
-            </div>
-            <% if @participant&.enrolled? && @my_table.nil? && league.tables_open? %>
-              <%= button_to t("leagues.tables.join"), join_league_table_path(league, table, locale: params[:locale]), class: button_classes(:primary, size: :sm) %>
-            <% end %>
-          </li>
-        <% end %>
-      </ul>
+      <div class="grid grid-cols-1 gap-3 content-start sm:grid-cols-2 lg:grid-cols-3">
+        <% joinable = @participant&.enrolled? && @my_table.nil? && league.tables_open? %>
+        <%= render partial: "leagues/table_card", collection: @waiting, as: :table, locals: { league: league, viewer: @participant, joinable: joinable } %>
+      </div>
     <% else %>
-      <p class="px-4 py-6 text-center text-[12.5px] text-muted"><%= t("leagues.tables.none_waiting") %></p>
+      <p class="card px-4 py-6 text-center text-[12.5px] text-muted"><%= t("leagues.tables.none_waiting") %></p>
     <% end %>
   </section>
 
   <% if @in_play.any? %>
-    <section class="card overflow-clip" data-tables-in-play>
-      <h2 class="card-title"><%= t("leagues.tables.in_play_title") %></h2>
-      <ul class="divide-y divide-line text-[13px]">
-        <% @in_play.each do |table| %>
-          <li class="px-4 py-3 text-ink"><%= safe_join(table.pod.seatings.map { |seating| league_player(seating.event_participant) }, ", ") %></li>
-        <% end %>
-      </ul>
+    <section data-tables-in-play>
+      <h2 class="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted"><%= t("leagues.tables.in_play_title") %></h2>
+      <div class="grid grid-cols-1 gap-3 content-start sm:grid-cols-2 lg:grid-cols-3">
+        <%= render partial: "leagues/table_card", collection: @in_play, as: :table, locals: { league: league, viewer: @participant, joinable: false } %>
+      </div>
     </section>
   <% end %>
 </div>

@@ -23,7 +23,7 @@
             <tr data-league-row="<%= participant.id %>">
               <td class="r font-display font-semibold text-muted"><%= rank %></td>
               <td class="text-ink"><%= league_player(participant) %></td>
-              <td class="r font-mono"><%= number_with_precision(participant.league_score, precision: 2) %></td>
+              <td class="r font-mono"><%= number_with_precision(participant.league_score, precision: 0, delimiter: " ") %></td>
               <td class="r <%= "text-muted" if short %>" data-league-games><%= participant.league_games %><% if short %>*<% end %></td>
               <td class="r"><%= participant.number_of_wins %></td>
               <td class="r"><%= participant.number_of_draws %></td>

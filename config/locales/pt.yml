@@ -1883,6 +1883,8 @@ pt:
         one: "* Menos de %{count} jogo: ainda não qualificado para o top cut."
         other: "* Menos de %{count} jogos: ainda não qualificado para o top cut."
     tables:
+      table_of: "Mesa de %{name}"
+      free_seat: "Lugar livre"
       my_table: "A minha mesa"
       open_lead: "Abre uma mesa e espera por mais três jogadores, ou entra numa das de baixo."
       open: "Abrir mesa"
