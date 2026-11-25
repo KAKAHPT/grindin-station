@@ -419,6 +419,31 @@
     }
   }
 
+  /* The narrowest phones (320 px): a long "Sign in" (es "Iniciar sesión") beside the name no longer pushes the
+     bar wider than the screen. */
+  @media (max-width: 359.98px) {
+    .topbar-in {
+      gap: 6px;
+      padding: 0 10px;
+    }
+
+    .topbar-brand {
+      min-width: 0;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .topbar-brand span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .topbar-end {
+      flex-shrink: 0;
+      gap: 6px;
+    }
+  }
+
   /* Language switch */
   .lang {
     display: inline-flex;
