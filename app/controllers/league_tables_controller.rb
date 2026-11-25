@@ -41,7 +41,8 @@ class LeagueTablesController < ApplicationController
     Results::Report.call(pod: pod!, participant: participant!, type: type, winner: (participant! if type == "Win"))
     Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
     # The game is closed: on to Completed rounds, where it now is (and where a correction is asked).
-    redirect_to league_path(@league, tab: "played", locale: params[:locale]), notice: t("leagues.tables.notices.reported")
+    redirect_to league_path(@league, tab: "played", locale: params[:locale]),
+                notice: t("leagues.tables.notices.reported")
   end
 
   # The reported result is wrong: the player asks the staff to correct it.

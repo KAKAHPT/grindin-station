@@ -27,7 +27,8 @@ class LeagueCutPodsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-cut-report]", 0
     assert_select "[data-go-to-mine]"
     get league_path(@league, tab: "mine")
-    assert_select "[data-cut-pod][data-my-table] [data-cut-report] form[action=?]", report_league_cut_pod_path(@league, @pod)
+    assert_select "[data-cut-pod][data-my-table] [data-cut-report] form[action=?]",
+                  report_league_cut_pod_path(@league, @pod)
 
     post report_league_cut_pod_path(@league, @pod)
 

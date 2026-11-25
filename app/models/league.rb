@@ -90,7 +90,7 @@ class League < Event
 
   def single_elimination_round_name(round_number)
     remaining = number_of_swiss_rounds + number_of_single_elimination_rounds - round_number
-    remaining.zero? ? "Finals" : "Top #{top_cut_size}"
+    remaining.zero? ? I18n.t("rounds.cut_names.finals") : "Top #{top_cut_size}"
   end
 
   # The standings: league score, then more wins, then fewer games, then who registered first.

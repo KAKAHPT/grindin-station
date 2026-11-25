@@ -9,7 +9,7 @@ class LeagueCutPodsController < ApplicationController
     redirect_to mine_tab, alert: t("results.not_allowed.#{error.message}")
   end
 
-  def report
+  def report # rubocop:disable Metrics/AbcSize
     league = ensure_public!(League.find(params.expect(:league_id)))
     pod = Pod.joins(:round).where(rounds: { event_id: league.id, type: "LeagueCutRound", finished_at: nil })
       .find(params.expect(:id))

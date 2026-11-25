@@ -56,7 +56,7 @@ class LeaguesController < ApplicationController
   end
 
   # The Tables tab: the viewer's own table, the tables waiting for players and the ones being played.
-  def load_tables # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity -- three lists from one load
+  def load_tables # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity -- three lists from one load
     tables = @league.league_tables.where(state: %w[waiting filled]).preload(TABLE_PRELOAD).order(:created_at).to_a
     @participant = current_user&.player && @league.event_participants.find_by(player: current_user.player)
     @my_table = @participant && tables.find { |table| mine?(table) }
