@@ -19,6 +19,12 @@ production:
   leagues_expire_tables:
     class: Leagues::ExpireTablesJob
     schedule: every minute
+  leagues_accept_pending:
+    class: Leagues::AcceptPendingJob
+    schedule: every 5 minutes
+  leagues_flag_stale_tables:
+    class: Leagues::FlagStaleTablesJob
+    schedule: every day at 6am
   admin_trim:
     class: Admin::TrimJob
     schedule: every day at 4:30am

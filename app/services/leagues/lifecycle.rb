@@ -6,11 +6,52 @@ module Leagues
   module Lifecycle
     extend self
 
+    class NotAllowed < StandardError; end
+
+    def start(league, by:)
+      refuse("not_startable") unless league.registration_open? || league.registration_closed?
+      move(league, :play, by)
+    end
+
+    # No table can be opened or joined any more. Waiting tables are voided; the full ones play to the end,
+    # and the league is closed when the last of them is settled (at once when there is none).
+    def close(league, by:)
+      refuse("not_in_play") unless league.play?
+      League.transaction do
+        league.league_tables.waiting.find_each do |table|
+          table.release_seats!
+          table.update!(state: "closed")
+        end
+        move(league, :closing, by)
+        settle_closing(league)
+      end
+    end
+
     def settle_closing(league)
       return unless league.closing?
       return if league.league_tables.filled.includes(pod: [:seatings, { round: :results }]).any?(&:in_play?)
 
       league.update!(state: :closed)
+    end
+
+    # Back to play, while the cut has not started.
+    def reopen(league, by:)
+      refuse("not_closed") unless league.closing? || league.closed?
+      refuse("cut_started") if league.rounds.exists?(type: "LeagueCutRound")
+      move(league, :play, by)
+    end
+
+    private
+
+    def refuse(key)
+      raise NotAllowed, key
+    end
+
+    def move(league, state, by)
+      from = league.state
+      league.update!(state: state)
+      Audit.record(:event_state_changed, actor: by, subject: league, event: league, from: from, to: state.to_s)
+      league
     end
   end
 end
