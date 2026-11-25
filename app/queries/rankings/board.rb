@@ -7,6 +7,8 @@ module Rankings
   # filters (D6): a filtered leaderboard lists the season rating of the players with a matching contribution.
   # Ratings are kept per play pool (M15 D6): the leaderboard always shows one (multiplayer unless another is asked
   # for); the points and teams tabs default to every format.
+  # Only players with an account are listed (owner's decision, 2026-11-25): a player added by name is a new player
+  # in each event, so their points never add up. They still count as opponents in the stored ratings.
   class Board # rubocop:disable Metrics/ClassLength -- filters, options and three tables of one page
     LEADERBOARD_PLAY = "multiplayer"
     SORTS = %i[points events wins top_cuts conversion].freeze
@@ -139,7 +141,7 @@ module Rankings
     # teams stored on contributions) and the organizers, in one query.
     def options
       @options ||=
-        option_lists(RankingContribution.left_joins(player: :user).joins(ORGANIZERS).distinct.pluck(*OPTION_COLUMNS))
+        option_lists(RankingContribution.joins(player: :user).joins(ORGANIZERS).distinct.pluck(*OPTION_COLUMNS))
     end
 
     def option_lists(rows)
@@ -153,7 +155,7 @@ module Rankings
     # The contributions matching the filters; the team filter and the search match the account (players' tabs) or
     # the team stored on the contribution (Teams tab, where the search is the team name).
     def filtered(team_from: :user) # rubocop:disable Metrics/AbcSize -- one line per filter
-      scope = RankingContribution.left_joins(player: :user)
+      scope = RankingContribution.joins(player: :user)
       scope = scope.where(season: filters[:season]) unless filters[:season] == :all
       scope = scope.where(event_organizer_id: filters[:event_organizer_id]) if filters[:event_organizer_id]
       scope = scope.where(format: filters[:play]) if filters[:play]

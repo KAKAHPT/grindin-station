@@ -1541,6 +1541,7 @@ es:
   rankings:
     title: "Rankings"
     lead: "Todos los jugadores, todos los torneos. Elige una temporada, un país, un organizador o un equipo para filtrar las tablas."
+    lead_without_teams: "Todos los jugadores, todos los torneos. Elige una temporada, un país o un organizador para filtrar las tablas."
     tabs:
       points: "Puntos de ranking"
       points_sub: "puntos sumados por evento"
@@ -1550,6 +1551,7 @@ es:
       teams_sub: "ranking de equipos"
     filters:
       search: "Busca un jugador o equipo…"
+      search_player: "Busca un jugador…"
       search_team: "Busca un equipo…"
       search_chip: "Búsqueda"
       season: "Temporada"
