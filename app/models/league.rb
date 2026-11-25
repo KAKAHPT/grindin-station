@@ -21,7 +21,8 @@ class League < Event
   attribute :confirmation_timeout_minutes, default: 1440
   attribute :top_cut_size, default: 16
 
-  has_many :league_tables, foreign_key: :event_id, dependent: :destroy, inverse_of: :league
+  # Removed by the database with the league (and with a participant who is deleted).
+  has_many :league_tables, foreign_key: :event_id, dependent: nil, inverse_of: :league
 
   # Leagues pair pods of 3-5; the 1v1 pairer and bracket are tournament-only.
   validates :format, inclusion: { in: %w[multiplayer] }

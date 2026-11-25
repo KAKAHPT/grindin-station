@@ -13,25 +13,25 @@ class AddLeagueOpenTables < ActiveRecord::Migration[8.1]
     add_column :pods, :clock_started_at, :datetime
 
     create_table :league_tables, id: :uuid do |t|
-      t.references :event, type: :uuid, null: false, foreign_key: true, index: false
-      t.references :opener, type: :uuid, null: false, foreign_key: { to_table: :event_participants }
+      t.references :event, type: :uuid, null: false, foreign_key: { on_delete: :cascade }, index: false
+      t.references :opener, type: :uuid, null: false, foreign_key: { to_table: :event_participants, on_delete: :cascade }
       t.string :state, default: "waiting", null: false
       t.references :pod, type: :uuid, foreign_key: { on_delete: :nullify }
       t.datetime :filled_at
       t.datetime :stale_notified_at
       t.text :cancel_reason
-      t.references :cancel_requested_by, type: :uuid, foreign_key: { to_table: :event_participants }
+      t.references :cancel_requested_by, type: :uuid, foreign_key: { to_table: :event_participants, on_delete: :nullify }
       t.datetime :cancel_requested_at
       t.string :cancel_state
-      t.references :cancel_decided_by, type: :uuid, foreign_key: { to_table: :users }
+      t.references :cancel_decided_by, type: :uuid, foreign_key: { to_table: :users, on_delete: :nullify }
       t.datetime :cancel_decided_at
       t.timestamps
       t.index %i[event_id state]
     end
 
     create_table :league_table_seats, id: :uuid do |t|
-      t.references :league_table, type: :uuid, null: false, foreign_key: true, index: false
-      t.references :event_participant, type: :uuid, null: false, foreign_key: true, index: false
+      t.references :league_table, type: :uuid, null: false, foreign_key: { on_delete: :cascade }, index: false
+      t.references :event_participant, type: :uuid, null: false, foreign_key: { on_delete: :cascade }, index: false
       t.boolean :active, default: true, null: false
       t.timestamps
       t.index %i[league_table_id event_participant_id], unique: true

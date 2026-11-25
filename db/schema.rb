@@ -597,13 +597,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_25_180000) do
   add_foreign_key "judge_calls", "events"
   add_foreign_key "judge_calls", "pods", on_delete: :nullify
   add_foreign_key "judge_calls", "users", column: "acknowledged_by_user_id", on_delete: :nullify
-  add_foreign_key "league_table_seats", "event_participants"
-  add_foreign_key "league_table_seats", "league_tables"
-  add_foreign_key "league_tables", "event_participants", column: "cancel_requested_by_id"
-  add_foreign_key "league_tables", "event_participants", column: "opener_id"
-  add_foreign_key "league_tables", "events"
+  add_foreign_key "league_table_seats", "event_participants", on_delete: :cascade
+  add_foreign_key "league_table_seats", "league_tables", on_delete: :cascade
+  add_foreign_key "league_tables", "event_participants", column: "cancel_requested_by_id", on_delete: :nullify
+  add_foreign_key "league_tables", "event_participants", column: "opener_id", on_delete: :cascade
+  add_foreign_key "league_tables", "events", on_delete: :cascade
   add_foreign_key "league_tables", "pods", on_delete: :nullify
-  add_foreign_key "league_tables", "users", column: "cancel_decided_by_id"
+  add_foreign_key "league_tables", "users", column: "cancel_decided_by_id", on_delete: :nullify
   add_foreign_key "notifications", "users"
   add_foreign_key "players", "users"
   add_foreign_key "pods", "event_participants", column: "reported_by_participant_id", on_delete: :nullify

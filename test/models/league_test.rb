@@ -48,6 +48,20 @@ class LeagueTest < ActiveSupport::TestCase
     assert second.seats.create!(event_participant: player)
   end
 
+  test "a league with tables, games and a cancellation asked can be deleted, and so can one of its players" do
+    league = LeagueBuilder.build(players: 5, organizer: event_organizers(:standard_organizer))
+    players = league.event_participants.order(:created_at).to_a
+    pod = LeagueBuilder.fill_table!(league, players.first(4))
+    Leagues::Tables::RequestCancel.call(table: pod.league_table, participant: players[1], reason: "No show")
+    Leagues::Tables::Open.call(league: league, participant: players[4])
+
+    players[4].destroy!
+    assert_equal 1, league.league_tables.count
+
+    league.destroy!
+    assert_equal 0, LeagueTable.where(event_id: league.id).count
+  end
+
   test "tables open only in play, in open-tables mode, before the end date" do
     league = leagues(:standard_league)
     league.update_columns(state: League.states[:play], play_mode: 2, end_time: 1.day.from_now) # rubocop:disable Rails/SkipsModelValidations
