@@ -442,6 +442,11 @@
       flex-shrink: 0;
       gap: 6px;
     }
+
+    /* A long name is cut sooner, so it leaves room for the mark and the site name. */
+    .topbar-user {
+      max-width: 7rem;
+    }
   }
 
   /* Language switch */
@@ -1139,9 +1144,53 @@
     padding: 8px 10px;
   }
 
-  input[type="file"].field-input {
-    height: auto;
-    padding: 6px 10px;
+  /* File picker (shared/_file_field): the box of a .field-input holding our button and the file name; the native
+     input is invisible over all of it, so a tap anywhere opens the browser's chooser. */
+  .file-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+    height: 36px;
+    padding: 0 10px 0 5px;
+    border-radius: 6px;
+    border: 1px solid var(--color-line-strong);
+    background-color: var(--color-ground);
+    color: var(--color-ink);
+    font: 13px var(--font-body);
+    overflow: hidden;
+  }
+
+  .file-field:focus-within {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px var(--color-accent);
+  }
+
+  .file-field-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .file-field-button {
+    flex: none;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background-color: var(--color-surface-raised);
+    white-space: nowrap;
+  }
+
+  .file-field-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-muted);
   }
 
   .field-input:focus {

@@ -21,7 +21,7 @@
     <% end %>
     <div class="field">
       <%= label_tag "user_banner", t("organizer.about.banner_file") %>
-      <%= file_field_tag "user[banner]", accept: User::AVATAR_TYPES.join(","), class: "field-input file:me-3 file:rounded file:border-0 file:bg-surface-raised file:px-2 file:py-1 file:text-ink" %>
+      <%= render "shared/file_field", input: file_field_tag("user[banner]", accept: User::AVATAR_TYPES.join(","), class: "file-field-input") %>
       <p class="form-help"><%= t("accounts.show.banner_hint") %></p>
     </div>
 
