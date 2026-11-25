@@ -1,4 +1,7 @@
-<% ((@round.event.rounds.size + 1)..@round.event.number_of_swiss_rounds).each do |future_round| %>
+<%# Counted once: each call can cost a participants count, and a repeat on one line trips the N+1 detector. %>
+<% swiss_rounds = @round.event.number_of_swiss_rounds %>
+<% cut_rounds = @round.event.number_of_single_elimination_rounds %>
+<% ((@round.event.rounds.size + 1)..swiss_rounds).each do |future_round| %>
   <li>
     <span
       class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-line-strong cursor-not-allowed"
@@ -8,7 +11,7 @@
   </li>
 <% end %>
 
-<% (([@round.event.number_of_swiss_rounds + 1, @round.event.rounds.size + 1].max)..(@round.event.number_of_swiss_rounds + @round.event.number_of_single_elimination_rounds)).each do |future_elim_round| %>
+<% (([swiss_rounds + 1, @round.event.rounds.size + 1].max)..(swiss_rounds + cut_rounds)).each do |future_elim_round| %>
   <li>
     <span
       class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-line-strong cursor-not-allowed"
