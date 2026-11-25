@@ -7,13 +7,12 @@
 <section class="col-span-full card overflow-clip" data-league-desk="<%= league.state %>">
   <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
     <p class="text-[13px] text-ink" data-league-state>
-      <% case league.state %>
-      <% when "play" %><%= t("league_desk.state_play") %>
-      <% when "closing" %><%= t("league_desk.state_closing", count: @pending_tables.size) %>
-      <% when "closed" %><%= t("league_desk.state_closed") %>
-      <% when "finals" %><%= t("league_desk.state_finals") %>
-      <% when "finished" %><%= t("league_desk.state_finished") %>
-      <% else %><%= event_state_label(league, nil) %>
+      <% if league.state == "closing" %>
+        <%= t("league_desk.state_closing", count: @pending_tables.size) %>
+      <% elsif league.state.in?(%w[play closed finals finished]) %>
+        <%= t("league_desk.state_#{league.state}") %>
+      <% else %>
+        <%= event_state_label(league, nil) %>
       <% end %>
     </p>
     <div class="flex flex-wrap gap-2">
