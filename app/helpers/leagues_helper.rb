@@ -17,13 +17,4 @@ module LeaguesHelper
         path: league_path(league, tab: (tab unless tab == "about"), locale: params[:locale]) }
     end
   end
-
-  # What the table's reported result says: "Ana won" or "Draw".
-  def league_pending_text(pod)
-    pending = pod.pending_result
-    return t("leagues.tables.draw") if pending["type"] == "Draw"
-
-    winner = pod.seatings.map(&:event_participant).find { |participant| participant.id == pending["winner_id"] }
-    t("leagues.tables.won", name: winner&.name)
-  end
 end

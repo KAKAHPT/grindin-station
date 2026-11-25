@@ -3,7 +3,7 @@
 require "test_helper"
 
 module Organizer
-  class LeagueDeskTest < ActionDispatch::IntegrationTest
+  class LeagueDeskTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
     setup do
       @organizer = event_organizers(:standard_organizer)
       post session_path, params: { session: { email_address: @organizer.user.email_address, password: "password123" } }
@@ -88,6 +88,24 @@ module Organizer
       assert_equal([1000] * 4, players.map { |player| player.reload.league_score.to_i })
       get organizer_league_path(league)
       assert_select "[data-pending-table]", 0
+    end
+
+    test "the organizer corrects or keeps a result a player says is wrong" do
+      league = LeagueBuilder.build(players: 4, organizer: @organizer)
+      players = league.event_participants.order(:created_at).to_a
+      pod = LeagueBuilder.fill_table!(league, players)
+      Results::Report.call(pod: pod, participant: players[0], type: "Win", winner: players[0])
+      Leagues::Tables::RequestCorrection.call(table: pod.league_table, participant: players[2],
+                                              reason: "I won this one")
+
+      get organizer_league_path(league)
+      assert_select "[data-correction-request]", text: /I won this one/
+      patch table_correction_organizer_league_path(league, table_id: pod.league_table.id),
+            params: { result: players[2].id }
+
+      assert_equal([900, 900, 1300, 900], players.map { |player| player.reload.league_score.to_i })
+      get organizer_league_path(league)
+      assert_select "[data-corrections]", 0
     end
 
     test "a player without the organizer profile cannot create or run a league" do

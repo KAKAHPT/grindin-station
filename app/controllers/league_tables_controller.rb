@@ -9,7 +9,7 @@ class LeagueTablesController < ApplicationController
   before_action :load_table, except: :create
 
   rescue_from Leagues::Tables::NotAllowed do |error|
-    redirect_to tables_tab, alert: t("leagues.tables.not_allowed.#{error.message}")
+    redirect_back_or_to tables_tab, alert: t("leagues.tables.not_allowed.#{error.message}")
   end
   rescue_from Results::NotAllowed do |error|
     redirect_to tables_tab, alert: t("results.not_allowed.#{error.message}")
@@ -42,14 +42,12 @@ class LeagueTablesController < ApplicationController
     done("reported")
   end
 
-  def confirm
-    Results::Confirm.call(pod: pod!, participant: participant!)
-    done("confirmed")
-  end
-
-  def contest
-    Results::Contest.call(pod: pod!, participant: participant!, reason: params[:reason])
-    done("contested")
+  # The reported result is wrong: the player asks the staff to correct it.
+  def correction
+    Leagues::Tables::RequestCorrection.call(table: @table, participant: participant!, reason: params[:reason])
+    Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
+    redirect_to league_path(@league, tab: "played", locale: params[:locale]),
+                notice: t("leagues.tables.notices.correction_requested")
   end
 
   def cancel

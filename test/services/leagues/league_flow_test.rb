@@ -3,7 +3,7 @@
 require "test_helper"
 
 module Leagues
-  # The 24-hour acceptance, the stale-table notice, cancelling a table and closing / reopening the league.
+  # Reporting and correcting a result, the stale-table notice, cancelling a table and closing / reopening the league.
   class LeagueFlowTest < ActiveSupport::TestCase # rubocop:disable Metrics/ClassLength
     setup do
       @organizer = event_organizers(:standard_organizer)
@@ -13,36 +13,45 @@ module Leagues
       @table = @pod.league_table
     end
 
-    test "a report nobody contested for 24 hours is accepted and scored" do
+    test "the winner's report closes the game; a wrong result is corrected on request" do
       Results::Report.call(pod: @pod, participant: @players[0], type: "Win", winner: @players[0])
-      @pod.update_column(:reported_at, 23.hours.ago) # rubocop:disable Rails/SkipsModelValidations
-      AcceptPendingJob.perform_now
-      assert_equal 1000, @players[0].reload.league_score.to_i
+      assert_predicate @pod.reload, :finished?
+      assert_equal [1300, 900, 900, 900], points
 
-      @pod.update_column(:reported_at, 25.hours.ago) # rubocop:disable Rails/SkipsModelValidations
-      AcceptPendingJob.perform_now
+      assert_equal("reason_required", refused { request_correction(@players[1], " ") })
+      assert_equal("not_member", refused { request_correction(@players[5], "Wrong") })
+      assert_difference -> { Notification.where(kind: "league_correction_requested").count }, 1 do
+        request_correction(@players[1], "I won, not player 1")
+      end
+      assert_equal("already_requested", refused { request_correction(@players[2], "Again") })
 
-      assert_equal([1300, 900, 900, 900], @players.first(4).map { |p| p.reload.league_score.to_i })
-      assert_nil @pod.reload.pending_result
+      Tables::ResolveCorrection.call(table: @table, by: @organizer.user, result: @players[1].id)
+
+      assert_equal "corrected", @table.reload.correction_state
+      assert_equal [900, 1300, 900, 900], points
+      assert Tables::Open.call(league: @league, participant: @players[0])
     end
 
-    test "a contested report is never accepted by itself" do
-      Results::Report.call(pod: @pod, participant: @players[0], type: "Win", winner: @players[0])
-      Results::Contest.call(pod: @pod, participant: @players[1], reason: "I won")
-      @pod.update_column(:reported_at, 3.days.ago) # rubocop:disable Rails/SkipsModelValidations
+    test "the organizer can keep a result; a game without a result cannot be corrected" do
+      assert_equal("not_finished", refused { request_correction(@players[0], "Wrong") })
+      Results::Report.call(pod: @pod, participant: @players[0], type: "Draw")
+      request_correction(@players[3], "It was not a draw")
 
-      AcceptPendingJob.perform_now
+      Tables::ResolveCorrection.call(table: @table, by: @organizer.user, result: "keep")
 
-      assert_not @pod.reload.finished?
+      assert_equal "kept", @table.reload.correction_state
+      assert_equal [1000] * 4, points
     end
 
-    test "a league's pending report is not sent to staff review like a tournament's" do
+    test "a pending correction holds a closing league open and blocks the cut" do
       Results::Report.call(pod: @pod, participant: @players[0], type: "Win", winner: @players[0])
-      @pod.update_column(:reported_at, 2.days.ago) # rubocop:disable Rails/SkipsModelValidations
+      request_correction(@players[1], "Wrong winner")
 
-      Results::ExpirePendingJob.perform_now
+      Lifecycle.close(@league, by: @organizer.user)
+      assert_predicate @league.reload, :closing?
 
-      assert_nil @pod.reload.review_requested_at
+      Tables::ResolveCorrection.call(table: @table, by: @organizer.user, result: "keep")
+      assert_predicate @league.reload, :closed?
     end
 
     test "a table full for a week with no result notifies the staff once" do
@@ -164,6 +173,12 @@ module Leagues
     def request_cancel(participant, reason)
       Tables::RequestCancel.call(table: @table, participant: participant, reason: reason)
     end
+
+    def request_correction(participant, reason)
+      Tables::RequestCorrection.call(table: @table, participant: participant, reason: reason)
+    end
+
+    def points = @players.first(4).map { |player| player.reload.league_score.to_i }
 
     def refused(&block) = assert_raises(Tables::NotAllowed, &block).message
   end

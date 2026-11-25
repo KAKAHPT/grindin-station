@@ -27,6 +27,13 @@ class AddLeagueOpenTables < ActiveRecord::Migration[8.1]
       t.string :cancel_state
       t.references :cancel_decided_by, type: :uuid, foreign_key: { to_table: :users, on_delete: :nullify }
       t.datetime :cancel_decided_at
+      t.text :correction_reason
+      t.references :correction_requested_by, type: :uuid,
+                                             foreign_key: { to_table: :event_participants, on_delete: :nullify }
+      t.datetime :correction_requested_at
+      t.string :correction_state
+      t.references :correction_decided_by, type: :uuid, foreign_key: { to_table: :users, on_delete: :nullify }
+      t.datetime :correction_decided_at
       t.timestamps
       t.index %i[event_id state]
     end

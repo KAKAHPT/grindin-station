@@ -65,12 +65,10 @@ module Scoring
       assert_equal [400, 400, 400, 800, 500], scores
     end
 
-    test "a player's report and one confirmation score the game and free the table" do
+    test "a player's report closes the game at once, scores it and frees the table" do
       pod = LeagueBuilder.fill_table!(@league, @players.first(4))
 
       Results::Report.call(pod: pod, participant: @players[0], type: "Win", winner: @players[0])
-      assert_equal [1000] * 5, scores
-      Results::Confirm.call(pod: pod, participant: @players[1])
 
       assert_equal [1300, 900, 900, 900, 1000], scores
       assert_not_nil pod.round.reload.finished_at

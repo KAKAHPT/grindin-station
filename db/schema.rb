@@ -315,6 +315,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_25_180000) do
     t.datetime "cancel_requested_at"
     t.uuid "cancel_requested_by_id"
     t.string "cancel_state"
+    t.datetime "correction_decided_at"
+    t.uuid "correction_decided_by_id"
+    t.text "correction_reason"
+    t.datetime "correction_requested_at"
+    t.uuid "correction_requested_by_id"
+    t.string "correction_state"
     t.datetime "created_at", null: false
     t.uuid "event_id", null: false
     t.datetime "filled_at"
@@ -325,6 +331,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_25_180000) do
     t.datetime "updated_at", null: false
     t.index ["cancel_decided_by_id"], name: "index_league_tables_on_cancel_decided_by_id"
     t.index ["cancel_requested_by_id"], name: "index_league_tables_on_cancel_requested_by_id"
+    t.index ["correction_decided_by_id"], name: "index_league_tables_on_correction_decided_by_id"
+    t.index ["correction_requested_by_id"], name: "index_league_tables_on_correction_requested_by_id"
     t.index ["event_id", "state"], name: "index_league_tables_on_event_id_and_state"
     t.index ["opener_id"], name: "index_league_tables_on_opener_id"
     t.index ["pod_id"], name: "index_league_tables_on_pod_id"
@@ -600,10 +608,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_25_180000) do
   add_foreign_key "league_table_seats", "event_participants", on_delete: :cascade
   add_foreign_key "league_table_seats", "league_tables", on_delete: :cascade
   add_foreign_key "league_tables", "event_participants", column: "cancel_requested_by_id", on_delete: :nullify
+  add_foreign_key "league_tables", "event_participants", column: "correction_requested_by_id", on_delete: :nullify
   add_foreign_key "league_tables", "event_participants", column: "opener_id", on_delete: :cascade
   add_foreign_key "league_tables", "events", on_delete: :cascade
   add_foreign_key "league_tables", "pods", on_delete: :nullify
   add_foreign_key "league_tables", "users", column: "cancel_decided_by_id", on_delete: :nullify
+  add_foreign_key "league_tables", "users", column: "correction_decided_by_id", on_delete: :nullify
   add_foreign_key "notifications", "users"
   add_foreign_key "players", "users"
   add_foreign_key "pods", "event_participants", column: "reported_by_participant_id", on_delete: :nullify

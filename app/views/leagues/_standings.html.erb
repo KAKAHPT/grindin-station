@@ -4,7 +4,7 @@
   <h2 class="card-title"><%= t("lists.league.standings") %></h2>
   <% if standings.any? %>
     <div class="overflow-x-auto">
-      <table class="ctable">
+      <table class="ctable league-standings">
         <thead>
           <tr>
             <th class="r w-12"><%= t("lists.columns.rank") %></th>
@@ -14,6 +14,7 @@
             <th class="r"><%= t("lists.columns.wins") %></th>
             <th class="r"><%= t("lists.columns.draws") %></th>
             <th class="r"><%= t("lists.columns.losses") %></th>
+            <th class="r"><%= t("leagues.standings.win_rate") %></th>
             <% if league.finished? %><th class="r"><%= t("lists.columns.position") %></th><% end %>
           </tr>
         </thead>
@@ -28,6 +29,7 @@
               <td class="r"><%= participant.number_of_wins %></td>
               <td class="r"><%= participant.number_of_draws %></td>
               <td class="r"><%= participant.number_of_losses %></td>
+              <td class="r" data-league-win-rate><%= (rate = participant.win_rate) ? number_to_percentage(rate * 100, precision: 0) : "–" %></td>
               <% if league.finished? %><td class="r"><%= participant.final_position %></td><% end %>
             </tr>
           <% end %>

@@ -419,6 +419,17 @@
     }
   }
 
+  /* League standings: a size up from the other tables. */
+  .league-standings td {
+    padding-top: 11px;
+    padding-bottom: 11px;
+    font-size: 15px;
+  }
+
+  .league-standings th {
+    font-size: 11.5px;
+  }
+
   /* Language switch */
   .lang {
     display: inline-flex;

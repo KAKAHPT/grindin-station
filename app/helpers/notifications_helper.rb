@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module NotificationsHelper
+  STAFF_LEAGUE_KINDS = %w[league_cancel_requested league_table_stale league_correction_requested].freeze
+
   # The line for one notification, linked to where it is dealt with when there is such a page.
   def notification_line(notification)
     subject = notification.subject
@@ -44,8 +46,10 @@ module NotificationsHelper
   def league_notification_path(kind, league, locale)
     return unless league && Features.on?(:leagues)
 
-    staff = kind.in?(%w[league_cancel_requested league_table_stale])
-    staff ? organizer_league_path(league, locale: locale) : league_path(league, tab: "mine", locale: locale)
+    return organizer_league_path(league, locale: locale) if kind.in?(STAFF_LEAGUE_KINDS)
+
+    tab = kind.start_with?("league_correction") ? "played" : "mine"
+    league_path(league, tab: tab, locale: locale)
   end
 
   # The feed, or nothing while it is paused (config/features.yml).

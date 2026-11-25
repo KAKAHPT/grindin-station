@@ -46,6 +46,33 @@
   <% end %>
 </section>
 
+<% if @corrections.any? %>
+  <section class="col-span-full card overflow-clip" data-corrections>
+    <h2 class="card-title"><%= t("league_desk.corrections") %></h2>
+    <ul class="divide-y divide-line text-[13px]">
+      <% @corrections.each do |table| %>
+        <% results = table.pod.current_results.index_by(&:event_participant_id) %>
+        <li class="px-4 py-3" data-correction-request="<%= table.id %>">
+          <p class="text-ink">
+            <%= table.pod.round.display_name %> ·
+            <% table.pod.seatings.each_with_index do |seating, index| %><%= ", " unless index.zero? %><%= tag.span seating.event_participant.name, class: ("font-semibold text-accent" if results[seating.event_participant_id].is_a?(Win)) %><% end %>
+          </p>
+          <p class="mt-2 text-[12px] text-muted"><%= t("league_desk.correction_by", name: table.correction_requested_by&.name) %></p>
+          <p class="mt-1 text-ink"><%= table.correction_reason %></p>
+          <div class="mt-2 flex flex-wrap items-center gap-2">
+            <%= form_with url: table_correction_organizer_league_path(league, table_id: table.id), method: :patch, class: "flex items-center gap-2" do |form| %>
+              <% choices = table.pod.seatings.map { |seating| [seating.event_participant.name, seating.event_participant_id] } << [t("league_desk.draw"), "draw"] %>
+              <%= form.select :result, choices, { prompt: t("league_desk.winner") }, required: true, class: "field-input w-44", "aria-label": t("league_desk.winner") %>
+              <%= form.submit t("league_desk.correct"), class: button_classes(:primary, size: :sm) %>
+            <% end %>
+            <%= button_to t("league_desk.keep"), table_correction_organizer_league_path(league, table_id: table.id), method: :patch, params: { result: "keep" }, class: button_classes(:secondary, size: :sm) %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>
+
 <% if league.play? || league.closing? %>
   <section class="col-span-full card overflow-clip" data-pending-tables>
     <h2 class="card-title"><%= t("league_desk.pending_title") %></h2>

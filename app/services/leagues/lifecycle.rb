@@ -30,6 +30,7 @@ module Leagues
     def settle_closing(league)
       return unless league.closing?
       return if league.league_tables.filled.includes(pod: [:seatings, { round: :results }]).any?(&:in_play?)
+      return if league.league_tables.correction_pending.exists?
 
       league.update!(state: :closed)
     end
@@ -45,6 +46,7 @@ module Leagues
     # league finishes by the standings.
     def make_cut(league, by:)
       refuse("not_closed") unless league.closed?
+      refuse("corrections_pending") if league.league_tables.correction_pending.exists?
       size = league.cut_size_for_field
       return finish(league, by: by) if size.zero?
 

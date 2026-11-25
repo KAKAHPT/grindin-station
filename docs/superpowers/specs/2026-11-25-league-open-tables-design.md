@@ -217,3 +217,17 @@ finds a league player's current pod.
 - System tests for the player flow on a phone-sized browser and the organizer's close → cut → finish.
 - `test/integration/launch_phase_test.rb` keeps every league route 404 with the switch off.
 - The full tournament suite stays green with no test changed.
+
+## Changed by the owner after seeing it in the browser (2026-11-25, binding; these override the text above)
+
+- **Reporting**: two buttons only, "I won" and "It was a draw". Only the winner reports a win; anyone at the table
+  reports a draw. The report **closes the game at once** (no confirmation, no 24-hour window: `result_confirmation`
+  is "none" for a new league). A mistake is fixed by **Ask for a correction** (reason required) on the finished
+  game; the staff correct the result or keep it. A pending correction keeps a closing league from closing and
+  blocks the cut.
+- **Points are whole numbers**: stakes are rounded to the point; a shared pot is divided without fractions.
+- **League page tabs**: About (league information only, no rounds list) · Tables (every table in progress, as
+  pod cards like the pairings page; a waiting table lists who is in and has "Join this table", which sends a
+  visitor to sign in) · My round (the viewer's table: report, clock, cancel) · Completed rounds (finished games
+  with the winner) · Standings (score, games, W / D / L, win %, larger text).
+- **The viewer's strip** at the right of the tabs: picture, name, place in the standings, record and win rate.

@@ -47,23 +47,6 @@
     </ol>
 
     <div class="border-t border-line px-4 py-4 text-[13px]" data-table-result>
-      <% if pod.disputed? %>
-        <p class="text-ink" data-result-state="disputed"><%= t("leagues.tables.disputed") %></p>
-      <% elsif pod.pending_result %>
-        <p class="text-ink" data-result-state="pending">
-          <%= t("leagues.tables.reported", result: league_pending_text(pod)) %>
-        </p>
-        <p class="mt-1 text-[12px] text-muted"><%= t("leagues.tables.accepted_at", time: l(pod.reported_at + league.confirmation_timeout_minutes.minutes, format: :short)) %></p>
-        <% unless pod.confirmations.key?(participant.id) %>
-          <div class="mt-3 flex flex-wrap gap-2">
-            <%= button_to t("leagues.tables.confirm"), confirm_league_table_path(league, table, locale: locale), class: button_classes(:primary, size: :sm) %>
-            <%= form_with url: contest_league_table_path(league, table, locale: locale), class: "flex flex-wrap gap-2" do |form| %>
-              <%= form.text_field :reason, required: true, maxlength: 300, placeholder: t("leagues.tables.contest_reason"), class: "field w-56", "aria-label": t("leagues.tables.contest_reason") %>
-              <%= form.submit t("leagues.tables.contest"), class: button_classes(:secondary, size: :sm) %>
-            <% end %>
-          </div>
-        <% end %>
-      <% else %>
         <p class="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted"><%= t("leagues.tables.report_title") %></p>
         <div class="mt-2 flex flex-wrap gap-2" data-report-form>
           <%= button_to t("leagues.tables.i_won"), report_league_table_path(league, table, locale: locale), params: { result: "win" },
@@ -72,7 +55,6 @@
                         class: button_classes(:secondary, size: :sm), form: { data: { report: "draw" } } %>
         </div>
         <p class="mt-2 text-[12px] text-muted"><%= t("leagues.tables.report_help") %></p>
-      <% end %>
     </div>
 
     <div class="flex flex-wrap items-center gap-2 border-t border-line px-4 py-3 text-[13px]">

@@ -17,8 +17,8 @@ class League < Event
 
   # What a new league starts with; rows already stored keep their values.
   attribute :play_mode, default: 2
-  attribute :result_confirmation, default: "one"
-  attribute :confirmation_timeout_minutes, default: 1440
+  # A reported result closes the game at once; a mistake is fixed by a correction request to the staff.
+  attribute :result_confirmation, default: "none"
   attribute :top_cut_size, default: 16
 
   # Removed by the database with the league (and with a participant who is deleted).

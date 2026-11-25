@@ -98,6 +98,17 @@ module Organizer
       redirect_to [:organizer, @league], alert: t("results.not_allowed.#{e.message}")
     end
 
+    # Answers a correction request: params[:result] is the winner's participant id, "draw" or "keep".
+    def decide_correction # rubocop:disable Metrics/AbcSize
+      @league = League.for_organizer(current_organizer).find(params[:id])
+      table = @league.league_tables.find(params[:table_id])
+      Leagues::Tables::ResolveCorrection.call(table: table, by: current_user, result: params[:result])
+      Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
+      redirect_to [:organizer, @league], notice: t("league_desk.n_correction_#{table.correction_state}")
+    rescue Leagues::Tables::NotAllowed
+      redirect_to [:organizer, @league], alert: t("league_desk.e_transition")
+    end
+
     # Every table of the cut round has its winner: the round is closed and the next one (or the end) follows.
     def close_cut_round # rubocop:disable Metrics/AbcSize
       @league = League.for_organizer(current_organizer).find(params[:id])
@@ -125,6 +136,10 @@ module Organizer
         .preload(:cancel_requested_by, pod: [{ round: :results },
                                              { seatings: { event_participant: { player: :user } } }])
         .order(:filled_at).select(&:in_play?)
+      @corrections = @league.league_tables.correction_pending
+        .preload(:correction_requested_by, pod: [{ round: :results },
+                                                 { seatings: { event_participant: { player: :user } } }])
+        .order(:correction_requested_at).to_a
       @cut_field = @league.cut_field if @league.closed?
       @cut_round = LeagueCutRound.where(event: @league).order(:number)
         .preload(:results, pods: { seatings: { event_participant: { player: :user } } }).last

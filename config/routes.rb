@@ -65,7 +65,7 @@ Rails.application.routes.draw do
       resources :rounds, only: :show
       resources :tables, only: :create, controller: "league_tables" do
         member do
-          %i[join leave close report confirm contest cancel clock].each { |action| post action }
+          %i[join leave close report correction cancel clock].each { |action| post action }
         end
       end
 
@@ -204,6 +204,7 @@ Rails.application.routes.draw do
           patch :transition
           patch "tables/:table_id/cancellation", action: :decide_cancel, as: :table_cancellation
           patch "pods/:pod_id/result", action: :enter_result, as: :pod_result
+          patch "tables/:table_id/correction", action: :decide_correction, as: :table_correction
           patch "cut_rounds/:round_id/close", action: :close_cut_round, as: :close_cut_round
           %w[players melee standings rounds].each do |kind|
             get "export/#{kind}", to: "exports##{kind}", as: "export_#{kind}"

@@ -49,15 +49,23 @@ class LeagueTablesControllerTest < ActionDispatch::IntegrationTest # rubocop:dis
       post report_league_table_path(@league, table), params: { result: @players[0].id }
       assert_equal I18n.t("results.not_allowed.invalid_type"), flash[:alert]
       post report_league_table_path(@league, table), params: { result: "win" }
+      assert_redirected_to league_path(@league, tab: "tables")
+    end
+    as(1) do
+      get league_path(@league, tab: "tables")
+      assert_select "[data-go-to-mine]", 0
     end
     as(0) do
-      get league_path(@league, tab: "tables")
-      assert_select "[data-go-to-mine]"
-      assert_select "[data-league-table=filled][data-my-table]"
       get league_path(@league, tab: "mine")
-      assert_select "[data-result-state=pending]"
-      post confirm_league_table_path(@league, table)
-      assert_redirected_to league_path(@league, tab: "tables")
+      assert_select "[data-no-table]"
+      get league_path(@league, tab: "played")
+      assert_select "[data-correction-open]"
+      post correction_league_table_path(@league, table), params: { reason: "" }
+      assert_equal I18n.t("leagues.tables.not_allowed.reason_required"), flash[:alert]
+      post correction_league_table_path(@league, table), params: { reason: "Player 1 won" }
+      follow_redirect!
+      assert_select "[data-correction=pending]"
+      assert_select "[data-correction-open]", 0
     end
     get league_path(@league, tab: "played")
     assert_select "[data-league-played] [data-winner]", 1

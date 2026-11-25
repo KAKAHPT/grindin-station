@@ -14,11 +14,10 @@ class LeagueTest < ActiveSupport::TestCase
     assert_includes League.states, "canceled"
   end
 
-  test "a new league defaults to open tables, one confirmation in 24 hours and a cut of 16" do
+  test "a new league defaults to open tables, results closed on the report and a cut of 16" do
     league = League.new
     assert league.play_mode_open_tables?
-    assert_equal "one", league.result_confirmation
-    assert_equal 1440, league.confirmation_timeout_minutes
+    assert_equal "none", league.result_confirmation
     assert_equal 16, league.top_cut_size
     assert_equal 1000, league.starting_points
     assert_equal "split", league.draw_rule
