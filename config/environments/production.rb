@@ -73,7 +73,11 @@ Rails.application.configure do # rubocop:disable Metrics/BlockLength -- one envi
       user_name: ENV["SMTP_USER_NAME"].presence,
       password: ENV["SMTP_PASSWORD"].presence,
       authentication: :plain,
-      enable_starttls: true
+      enable_starttls: true,
+      # The 5 s default is too short for the provider's final "accepted" reply: the message went out but the job
+      # was recorded as failed (Net::ReadTimeout).
+      open_timeout: 10,
+      read_timeout: 30
     }.compact
   else
     # No mail server configured: drop outgoing mail instead of failing jobs against localhost:25.
