@@ -251,6 +251,11 @@ class EventParticipant < ApplicationRecord
   end
 
   # Advance results in single-elimination rounds (byes into the next cut round).
+  # Settled games of a league (not its cut).
+  def league_games
+    results.count { |result| result.round.is_play_round? }
+  end
+
   def number_of_advancements
     results.count { |result| result.is_a?(Advance) && result.round.is_a?(SingleEliminationRound) }
   end

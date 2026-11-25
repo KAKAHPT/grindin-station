@@ -13,7 +13,8 @@ class Pod < ApplicationRecord # rubocop:disable Metrics/ClassLength
   has_many :players, through: :event_participants
   has_many :users, through: :players
   has_many :judge_calls, dependent: :nullify
-  has_one :league_table, dependent: :nullify
+  # A league game's table; the database clears the link when the pod goes (no query here).
+  has_one :league_table, dependent: nil
   # An infraction outlives its table (a round redone, the event deleted): it keeps the player and loses the table.
   has_many :infractions, dependent: :nullify
   belongs_to :reported_by, class_name: "EventParticipant", foreign_key: :reported_by_participant_id,

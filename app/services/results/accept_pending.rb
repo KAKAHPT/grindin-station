@@ -4,7 +4,7 @@ module Results
   # Applies a pod's reported result as it stands, without the confirmations it was waiting for. Leagues use
   # it when the confirmation window ends with nobody contesting (tournaments never accept by themselves).
   class AcceptPending
-    def self.call(pod:)
+    def self.call(pod:) # rubocop:disable Metrics/AbcSize
       Pod.transaction do
         pod.lock!
         pending = pod.pending_result

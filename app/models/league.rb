@@ -12,6 +12,8 @@ class League < Event
   TABLE_WAIT = 2.hours
   DRAW_RULES = %w[split lost].freeze
   CUT_SIZES = [0, 4, 16].freeze
+  # The organizer-run modes (pickup, scheduled): three rounds and a final of the top 3, as before.
+  LEGACY_ROUNDS = { rounds: [{ swiss_round: :standard }] * 3, top: { players: 3, pods: [1] } }.freeze
 
   # What a new league starts with; rows already stored keep their values.
   attribute :play_mode, default: 2
@@ -71,23 +73,58 @@ class League < Event
 
   alias pickup_play_mode? play_mode_pickup?
 
+  # No planned rounds: the games come as the players open tables. The cut is the tournament one, of the
+  # size stored when the organizer made it (top_cut_size).
   def rounds_info
-    {
-      rounds: [{ swiss_round: :standard }, { swiss_round: :standard }, { swiss_round: :standard }],
-      top: { players: 3, pods: [1] }
-    }
+    return LEGACY_ROUNDS unless play_mode_open_tables?
+
+    cut = Tournaments::TopCut.for(top_cut_size) if top_cut_size.to_i.positive?
+    { rounds: [], top: cut && { players: cut.players, pods: cut.stages.pluck(:pods) } }
+  end
+
+  # The cut rounds are numbered after the league's games, so the tournament cut code finds its stage.
+  def number_of_swiss_rounds = rounds.where.not(type: "LeagueCutRound").maximum(:number).to_i
+
+  def number_of_single_elimination_rounds = rounds_info[:top] ? rounds_info[:top][:pods].size : 0
+
+  def single_elimination_round_name(round_number)
+    remaining = number_of_swiss_rounds + number_of_single_elimination_rounds - round_number
+    remaining.zero? ? "Finals" : "Top #{top_cut_size}"
+  end
+
+  # The standings: league score, then more wins, then fewer games, then who registered first.
+  def ranked_participants
+    EventParticipant.standings_for(self).select(&:ranked?).sort_by do |participant|
+      [-participant.league_score.to_d, -participant.number_of_wins, participant.league_games, participant.created_at]
+    end
+  end
+
+  # Who can make the cut, in standings order: enrolled, with at least min_games_for_cut league games.
+  def cut_field
+    ranked_participants.select { |participant| participant.enrolled? && participant.league_games >= min_games_for_cut }
+  end
+
+  # The largest cut the qualified field fills: the chosen size, else 4, else none.
+  def cut_size_for_field
+    qualified = cut_field.size
+    [top_cut_size.to_i, 4].uniq.find { |size| size.positive? && qualified >= size } || 0
   end
 
   def perform_state_based_actions
     return unless TRANSITIONS[state_previously_was.to_sym].include?(state.to_sym)
 
     case state.to_sym
-    when :play
-      Leagues::StartPlayRoundJob.perform_now(self)
-    when :finals
-      Leagues::StartFinalsRoundJob.perform_now(self)
-    when :finished
-      Leagues::FinishLeagueJob.perform_now(self)
+    when :play then Leagues::StartPlayRoundJob.perform_now(self) unless play_mode_open_tables?
+    when :finals then start_finals
+    when :finished then Leagues::FinishLeagueJob.perform_now(self)
     end
+  end
+
+  private
+
+  def start_finals
+    return Leagues::StartFinalsRoundJob.perform_now(self) unless play_mode_open_tables?
+
+    LeagueCutRound.create!(event: self, number: number_of_swiss_rounds + 1, is_finals_round: true)
   end
 end

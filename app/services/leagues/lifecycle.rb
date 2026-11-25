@@ -41,6 +41,22 @@ module Leagues
       move(league, :play, by)
     end
 
+    # The top cut, of the largest size the qualified field fills; with no cut possible (or none wanted) the
+    # league finishes by the standings.
+    def make_cut(league, by:)
+      refuse("not_closed") unless league.closed?
+      size = league.cut_size_for_field
+      return finish(league, by: by) if size.zero?
+
+      league.update_column(:top_cut_size, size) # rubocop:disable Rails/SkipsModelValidations
+      move(league, :finals, by)
+    end
+
+    def finish(league, by:)
+      refuse("not_closed") unless league.closed?
+      move(league, :finished, by)
+    end
+
     private
 
     def refuse(key)
