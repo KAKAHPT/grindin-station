@@ -1541,6 +1541,7 @@ en:
   rankings:
     title: "Rankings"
     lead: "Every player, every tournament. Pick a season, a country, an organizer or a team to narrow the tables."
+    lead_without_teams: "Every player, every tournament. Pick a season, a country or an organizer to narrow the tables."
     tabs:
       points: "Ranking points"
       points_sub: "points added over events"
@@ -1550,6 +1551,7 @@ en:
       teams_sub: "team ranking"
     filters:
       search: "Search a player or team…"
+      search_player: "Search a player…"
       search_team: "Search a team…"
       search_chip: "Search"
       season: "Season"

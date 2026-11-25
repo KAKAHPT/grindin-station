@@ -7,7 +7,7 @@ module Play
 
     def show
       @tournament = current_event
-      @standings = EventParticipant.standings_for(current_event)
+      @standings = EventParticipant.standings_for(current_event, avatars: true)
       @standings_in_modal = false
       render "event_participants/index"
     end

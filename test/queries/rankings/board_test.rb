@@ -27,6 +27,17 @@ module Rankings
       assert_equal 4, rows.size
     end
 
+    test "players without an account are left out of every table and of the counts" do
+      player = @ana.player
+      player.update_columns(user_id: nil, guest_name: "Convidada") # rubocop:disable Rails/SkipsModelValidations
+
+      board = Board.new({})
+      assert_not_includes board.points.map(&:player), player
+      assert_not_includes Board.new({}, tab: "elo").elo.map(&:player), player
+      assert_equal 3, board.points.size
+      assert_equal 3, board.summary[:players]
+    end
+
     test "the current year is the default and listed even before it has data" do
       travel_to Time.zone.local(@this_year + 1, 2, 1) do
         board = Board.new({})
