@@ -40,7 +40,11 @@ class LeagueTablesControllerTest < ActionDispatch::IntegrationTest # rubocop:dis
       post join_league_table_path(@league, table)
       follow_redirect!
       assert_select "[data-my-table=filled] [data-report-form]"
-      post report_league_table_path(@league, table), params: { result: @players[3].id }
+      assert_select "[data-report=win]"
+      assert_select "[data-report=draw]"
+      post report_league_table_path(@league, table), params: { result: @players[0].id }
+      assert_equal I18n.t("results.not_allowed.invalid_type"), flash[:alert]
+      post report_league_table_path(@league, table), params: { result: "win" }
     end
     as(0) do
       get league_path(@league, tab: "tables")

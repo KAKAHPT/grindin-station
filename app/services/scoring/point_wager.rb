@@ -5,7 +5,8 @@ module Scoring
   # player stakes wager_percentage % of the points they hold at that moment. A single winner takes the pot.
   # When everyone draws, the league's draw_rule decides: "split" shares the pot equally, "lost" gives it to
   # nobody. Points are whole numbers: a stake is rounded to the point and a shared pot is divided without
-  # fractions (what does not divide, at most three points, is not handed out). The games are replayed in the order they ended, from scratch, after every final result,
+  # fractions (what does not divide, at most three points, is not handed out). The games are replayed in the
+  # order they ended, from scratch, after every final result,
   # correction or cancelled table.
   class PointWager
     def initialize(event)

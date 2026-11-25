@@ -35,10 +35,10 @@ class LeagueTablesController < ApplicationController
     done("closed")
   end
 
-  # params[:result]: a seated player's participant id (the winner) or "draw".
+  # A player reports their own win ("win") or a draw ("draw"); nobody reports a win for someone else.
   def report
-    winner = pod!.event_participants.find_by(id: params[:result]) unless params[:result] == "draw"
-    Results::Report.call(pod: pod!, participant: participant!, type: winner ? "Win" : "Draw", winner: winner)
+    type = { "win" => "Win", "draw" => "Draw" }.fetch(params[:result].to_s) { raise Results::NotAllowed, "invalid_type" }
+    Results::Report.call(pod: pod!, participant: participant!, type: type, winner: (participant! if type == "Win"))
     done("reported")
   end
 

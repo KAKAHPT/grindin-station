@@ -70,20 +70,14 @@
           </div>
         <% end %>
       <% else %>
-        <%= form_with url: report_league_table_path(league, table, locale: locale), data: { report_form: true } do |form| %>
-          <fieldset>
-            <legend class="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted"><%= t("leagues.tables.who_won") %></legend>
-            <div class="mt-2 grid gap-1.5">
-              <% pod.seatings.each do |seating| %>
-                <label class="flex items-center gap-2 text-ink">
-                  <%= form.radio_button :result, seating.event_participant_id, required: true %> <%= seating.event_participant.name %>
-                </label>
-              <% end %>
-              <label class="flex items-center gap-2 text-ink"><%= form.radio_button :result, "draw", required: true %> <%= t("leagues.tables.draw") %></label>
-            </div>
-          </fieldset>
-          <%= form.submit t("leagues.tables.submit_result"), class: button_classes(:primary, "mt-3", size: :sm) %>
-        <% end %>
+        <p class="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted"><%= t("leagues.tables.report_title") %></p>
+        <div class="mt-2 flex flex-wrap gap-2" data-report-form>
+          <%= button_to t("leagues.tables.i_won"), report_league_table_path(league, table, locale: locale), params: { result: "win" },
+                        class: button_classes(:primary, size: :sm), form: { data: { report: "win" } } %>
+          <%= button_to t("leagues.tables.was_draw"), report_league_table_path(league, table, locale: locale), params: { result: "draw" },
+                        class: button_classes(:secondary, size: :sm), form: { data: { report: "draw" } } %>
+        </div>
+        <p class="mt-2 text-[12px] text-muted"><%= t("leagues.tables.report_help") %></p>
       <% end %>
     </div>
 
