@@ -13,7 +13,7 @@ module RankingsHelper
     seasons = board.seasons
     season = board.filters[:season].to_s
     [
-      [:q, :search, t(tab == "teams" ? "rankings.filters.search_team" : "rankings.filters.search"), board.filters[:q]],
+      [:q, :search, t(rankings_search_label(tab)), board.filters[:q]],
       [:season, :segment, seasons.map do |year|
         [year.to_s, year.to_s]
       end + [[t("rankings.filters.all_time"), "all"]], season,
@@ -24,12 +24,23 @@ module RankingsHelper
        board.filters[:country], t("rankings.filters.country")],
       [:organizer, :select, [[t("rankings.filters.all_organizers"), ""]] + board.organizers, board.filters[:organizer],
        t("rankings.filters.organizer")],
-      [:team, :select, [[t("rankings.filters.all_teams"), ""]] + board.teams.map do |team|
-        [team, team]
-      end, board.filters[:team],
-       t("rankings.filters.team")],
-      [:play, :select, rankings_play_options(board), board.filters[:play], t("rankings.filters.format")]
-    ]
+      (if Features.on?(:teams)
+         [:team, :select, [[t("rankings.filters.all_teams"), ""]] + board.teams.map do |team|
+           [team, team]
+         end, board.filters[:team],
+          t("rankings.filters.team")]
+       end),
+      (if Features.on?(:one_v_one)
+         [:play, :select, rankings_play_options(board), board.filters[:play],
+          t("rankings.filters.format")]
+       end)
+    ].compact
+  end
+
+  def rankings_search_label(tab)
+    return "rankings.filters.search_player" unless Features.on?(:teams)
+
+    tab == "teams" ? "rankings.filters.search_team" : "rankings.filters.search"
   end
 
   # The eight plays, after "All formats" except on the leaderboard (one pool at a time, M15 D6).
@@ -52,7 +63,9 @@ module RankingsHelper
       name = board.organizers.find { |_, handle| handle == filters[:organizer] }.first
       chips << [t("rankings.filters.organizer"), name, :organizer]
     end
-    chips << [t("rankings.filters.format"), play_label(filters[:play]), :play] if filters[:play]
+    if filters[:play] && Features.on?(:one_v_one)
+      chips << [t("rankings.filters.format"), play_label(filters[:play]), :play]
+    end
     chips << [t("rankings.filters.team"), filters[:team], :team] if filters[:team]
     chips << [t("rankings.filters.search_chip"), filters[:q], :q] if filters[:q]
     chips.map { |label, value, key| [label, value, rankings_url(key => nil, all: nil)] }
