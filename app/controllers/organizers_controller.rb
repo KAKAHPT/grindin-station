@@ -70,9 +70,18 @@ class OrganizersController < ApplicationController
     raise ActiveRecord::RecordNotFound unless @organizer && !@user.anonymized?
   end
 
-  def current_or_upcoming = ticket_preload(visible_events.where(end_time: Time.current..).order(:start_time)).to_a
+  # A finished event is past at once, even before its end date (both state enums map finished to the same integer).
+  def current_or_upcoming
+    current = visible_events.where(end_time: Time.current..).where.not(state: finished_state)
+    ticket_preload(current.order(:start_time)).to_a
+  end
 
-  def past_page = ticket_preload(visible_events.past.order(start_time: :desc)).page(params[:page]).load
+  def past_page
+    past = visible_events.past.or(visible_events.where(state: finished_state))
+    ticket_preload(past.order(start_time: :desc)).page(params[:page]).load
+  end
+
+  def finished_state = Tournament.states.fetch("finished")
 
   # Tournaments and leagues in one query: the state enum lives on the subclasses, and both map the hidden states
   # (draft, canceled) to the same integers, so the base class can filter them by value.
