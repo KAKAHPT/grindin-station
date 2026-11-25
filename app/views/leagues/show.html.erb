@@ -73,7 +73,8 @@
       </section>
     <% end %>
 
-    <% if league.rounds.any? %>
+    <%# An open-tables league has one "round" per game: they live in the Completed rounds tab, not here. %>
+    <% if league.rounds.any? && !league.play_mode_open_tables? %>
       <section class="card overflow-clip" data-league-rounds>
         <h2 class="card-title"><%= t("lists.league.rounds") %></h2>
         <ul class="divide-y divide-line text-[13px]">

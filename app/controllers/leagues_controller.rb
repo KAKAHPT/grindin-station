@@ -40,7 +40,7 @@ class LeaguesController < ApplicationController
   end
 
   # The Completed rounds tab: the games with a final result, latest first.
-  def load_played
+  def load_played # rubocop:disable Metrics/AbcSize
     @participant = current_user&.player && @league.event_participants.find_by(player: current_user.player)
     @played = @league.league_tables.filled.joins(pod: :round).where.not(rounds: { finished_at: nil })
       .order("rounds.finished_at DESC").preload(TABLE_PRELOAD).page(params[:page]).per(24)

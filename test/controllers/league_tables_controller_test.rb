@@ -23,7 +23,10 @@ class LeagueTablesControllerTest < ActionDispatch::IntegrationTest # rubocop:dis
     assert_response :success
     assert_select "[data-waiting-table]", 1
     assert_select "[data-waiting-table] form", 0
+    assert_select "[data-waiting-table] a[data-join-sign-in][href=?]", new_session_path
     assert_select "[data-tables-visitor]"
+    get league_path(@league)
+    assert_select "[data-league-rounds]", 0
   end
 
   test "four players fill a table, report, confirm and the standings follow" do # rubocop:disable Metrics/BlockLength

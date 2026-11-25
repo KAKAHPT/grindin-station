@@ -16,7 +16,7 @@
     </h3>
     <% if pod %>
       <span class="flex flex-wrap items-center justify-end gap-x-3 gap-y-0.5">
-        <% if drawn %><%= status_chip(:muted, data: { draw: true }) { t("play.draw") } %><% end %>
+        <% if drawn %><%= status_chip(:muted, data: { draw: true }) { t("leagues.tables.draw") } %><% end %>
         <%= pod_status_chip(pod) %>
       </span>
     <% else %>
@@ -46,8 +46,13 @@
   <% if table.waiting? %>
     <div class="mt-auto flex items-center justify-between gap-3 border-t border-line px-4 py-2.5">
       <span class="text-[12px] text-muted"><%= t("leagues.tables.closes_at", time: l(table.expires_at, format: :short)) %></span>
+      <%# Join: a signed-in, enrolled player who is free. A visitor is sent to sign in; anyone else sees why not. %>
       <% if joinable %>
         <%= button_to t("leagues.tables.join"), join_league_table_path(league, table, locale: params[:locale]), class: button_classes(:primary, size: :sm) %>
+      <% elsif !authenticated? %>
+        <%= link_to t("leagues.tables.join"), new_session_path(locale: params[:locale]), class: button_classes(:primary, size: :sm), data: { join_sign_in: true } %>
+      <% elsif !mine %>
+        <button type="button" disabled class="<%= button_classes(:secondary, "opacity-50 cursor-not-allowed", size: :sm) %>" title="<%= t("leagues.tables.join_blocked") %>" data-join-blocked><%= t("leagues.tables.join") %></button>
       <% end %>
     </div>
   <% end %>
