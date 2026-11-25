@@ -16,6 +16,7 @@ en:
   admin:
     title: "Admin"
     nav:
+      accounts: "Accounts"
       overview: "Overview"
       audit: "Audit"
       errors: "Errors"
@@ -24,6 +25,21 @@ en:
       feed: "Feed"
       invitational: "Invitational"
       organizers: "Organizers"
+    accounts:
+      title: "Accounts"
+      search: "Name, e-mail or handle"
+      name: "Name"
+      email: "E-mail"
+      role: "Role"
+      confirmed: "E-mail confirmed"
+      registered: "Registered"
+      deleted: "Deleted account"
+      "yes": "Yes"
+      "no": "No"
+      roles:
+        admin: "Admin"
+        organizer: "Organizer"
+        player: "Player"
     states:
       draft: "Draft"
       registration_open: "Registration open"
