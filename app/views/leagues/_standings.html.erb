@@ -1,6 +1,6 @@
-<%# Standings of an open-tables league: score, games, wins, draws, losses; who has too few games for the cut
+<%# Standings of an open-tables league: score, win rate, games, wins, draws, losses (narrow, centred); who has too few games for the cut
     is marked. Locals: league, standings (League#ranked_participants). %>
-<section class="col-span-full card overflow-clip mt-4" data-league-standings>
+<section class="col-span-full card overflow-clip mt-4 mx-auto w-full max-w-3xl" data-league-standings>
   <h2 class="card-title"><%= t("lists.league.standings") %></h2>
   <% if standings.any? %>
     <div class="overflow-x-auto">
@@ -10,11 +10,11 @@
             <th class="r w-12"><%= t("lists.columns.rank") %></th>
             <th><%= t("lists.columns.player") %></th>
             <th class="r"><%= t("lists.columns.score") %></th>
-            <th class="r"><%= t("leagues.standings.games") %></th>
-            <th class="r"><%= t("lists.columns.wins") %></th>
-            <th class="r"><%= t("lists.columns.draws") %></th>
-            <th class="r"><%= t("lists.columns.losses") %></th>
-            <th class="r"><%= t("leagues.standings.win_rate") %></th>
+            <th class="r w-24"><%= t("leagues.standings.win_rate") %></th>
+            <th class="r w-14"><%= t("leagues.standings.games") %></th>
+            <th class="r w-14"><%= t("lists.columns.wins") %></th>
+            <th class="r w-14"><%= t("lists.columns.draws") %></th>
+            <th class="r w-14"><%= t("lists.columns.losses") %></th>
             <% if league.finished? %><th class="r"><%= t("lists.columns.position") %></th><% end %>
           </tr>
         </thead>
@@ -25,11 +25,11 @@
               <td class="r font-display font-semibold text-muted"><%= rank %></td>
               <td class="text-ink"><%= league_player(participant) %></td>
               <td class="r font-mono"><%= number_with_precision(participant.league_score, precision: 0, delimiter: " ") %></td>
+              <td class="r" data-league-win-rate><%= (rate = participant.win_rate) ? number_to_percentage(rate * 100, precision: 0) : "–" %></td>
               <td class="r <%= "text-muted" if short %>" data-league-games><%= participant.league_games %><% if short %>*<% end %></td>
               <td class="r"><%= participant.number_of_wins %></td>
               <td class="r"><%= participant.number_of_draws %></td>
               <td class="r"><%= participant.number_of_losses %></td>
-              <td class="r" data-league-win-rate><%= (rate = participant.win_rate) ? number_to_percentage(rate * 100, precision: 0) : "–" %></td>
               <% if league.finished? %><td class="r"><%= participant.final_position %></td><% end %>
             </tr>
           <% end %>
