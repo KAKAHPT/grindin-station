@@ -1410,7 +1410,6 @@ en:
       MZ: "Mozambique"
       CV: "Cape Verde"
   landing:
-    title: "The tournament software with fair seats"
     description: "Tournament software with fair seats. Built for cEDH and multiplayer games, open to every format, live on every phone in the room."
     description_cedh: "Tournament software with fair seats. Built for cEDH, live on every phone in the room."
     eyebrow: "Grindin Station"

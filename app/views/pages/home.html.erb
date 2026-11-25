@@ -2,7 +2,7 @@
     tournaments and circuits (when any), the next public tournaments, how seats are weighted (Why it is fair) and,
     last, the organisers' waiting-list card in its own labelled grey box. Signed-out visitors get a sign-up row under
     the upcoming tournaments. %>
-<% content_for :title, t("landing.title") %>
+<%# No page title: the browser tab reads just the app name. %>
 <%# While 1v1 is paused (config/features.yml) the texts promise cEDH only. %>
 <% cedh_only = !Features.on?(:one_v_one) %>
 <% content_for :description, t(cedh_only ? "landing.description_cedh" : "landing.description") %>

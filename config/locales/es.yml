@@ -1410,7 +1410,6 @@ es:
       MZ: "Mozambique"
       CV: "Cabo Verde"
   landing:
-    title: "El software de torneos con asientos justos"
     description: "Software de torneos con asientos justos. Hecho para cEDH y juegos multijugador, abierto a todos los formatos, en directo en todos los móviles de la sala."
     description_cedh: "Software de torneos con asientos justos. Hecho para cEDH, en directo en todos los móviles de la sala."
     eyebrow: "Grindin Station"
