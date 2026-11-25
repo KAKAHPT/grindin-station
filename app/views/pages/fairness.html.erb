@@ -8,6 +8,8 @@
 <% min, max = @report["players"] %>
 <% pct = ->(value, digits = 1) { "#{number_with_precision(value, precision: digits)} %" } %>
 <% seatings = %w[fair random] %>
+<%# On a phone the table stacks (one value per line) and each value carries its column name. %>
+<% labels = { "fair" => t("fairness.columns.grindin"), "random" => t("fairness.columns.random") } %>
 
 <div class="fr-wrap" data-fairness>
   <p class="lp-eyebrow"><%= t("fairness.eyebrow") %></p>
@@ -35,7 +37,7 @@
       <p class="fr-note"><%= t("fairness.rounds.note_#{rounds}") %></p>
       <table class="fr-table">
         <thead>
-          <tr><th></th><th><%= t("fairness.columns.grindin") %></th><th><%= t("fairness.columns.random") %></th></tr>
+          <tr><th></th><th><%= labels["fair"] %></th><th><%= labels["random"] %></th></tr>
         </thead>
         <tbody>
           <% [["fair_rate", 1], ["never_first", 2]].each do |key, digits| %>
@@ -43,7 +45,7 @@
               <td><%= t("fairness.rows.#{key}") %></td>
               <% seatings.each do |seating| %>
                 <% value = block[seating][key] %>
-                <td><div class="fr-bar" data-seating="<%= seating %>" data-row="<%= key %>"><i style="width: <%= value %>%"></i><b><%= pct.call(value, digits) %></b></div></td>
+                <td data-label="<%= labels[seating] %>"><div class="fr-bar" data-seating="<%= seating %>" data-row="<%= key %>"><i style="width: <%= value %>%"></i><b><%= pct.call(value, digits) %></b></div></td>
               <% end %>
             </tr>
           <% end %>
@@ -51,14 +53,14 @@
             <tr>
               <td><%= t("fairness.rows.#{key}") %></td>
               <% seatings.each do |seating| %>
-                <td class="fr-mono"><%= block[seating][key].map { |value| number_with_precision(value, precision: 1) }.join(" / ") %></td>
+                <td class="fr-mono" data-label="<%= labels[seating] %>"><%= block[seating][key].map { |value| number_with_precision(value, precision: 1) }.join(" / ") %></td>
               <% end %>
             </tr>
           <% end %>
           <tr>
             <td><%= t("fairness.rows.worst") %></td>
             <% seatings.each do |seating| %>
-              <td class="fr-mono"><%= block[seating]["worst_example"].join("·") %></td>
+              <td class="fr-mono" data-label="<%= labels[seating] %>"><%= block[seating]["worst_example"].join("·") %></td>
             <% end %>
           </tr>
         </tbody>

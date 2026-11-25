@@ -430,6 +430,36 @@
     font-size: 11.5px;
   }
 
+  /* The narrowest phones (320 px): a long "Sign in" (es "Iniciar sesión") beside the name no longer pushes the
+     bar wider than the screen. */
+  @media (max-width: 359.98px) {
+    .topbar-in {
+      gap: 6px;
+      padding: 0 10px;
+    }
+
+    .topbar-brand {
+      min-width: 0;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .topbar-brand span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .topbar-end {
+      flex-shrink: 0;
+      gap: 6px;
+    }
+
+    /* A long name is cut sooner, so it leaves room for the mark and the site name. */
+    .topbar-user {
+      max-width: 7rem;
+    }
+  }
+
   /* Language switch */
   .lang {
     display: inline-flex;
@@ -1125,9 +1155,53 @@
     padding: 8px 10px;
   }
 
-  input[type="file"].field-input {
-    height: auto;
-    padding: 6px 10px;
+  /* File picker (shared/_file_field): the box of a .field-input holding our button and the file name; the native
+     input is invisible over all of it, so a tap anywhere opens the browser's chooser. */
+  .file-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+    height: 36px;
+    padding: 0 10px 0 5px;
+    border-radius: 6px;
+    border: 1px solid var(--color-line-strong);
+    background-color: var(--color-ground);
+    color: var(--color-ink);
+    font: 13px var(--font-body);
+    overflow: hidden;
+  }
+
+  .file-field:focus-within {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px var(--color-accent);
+  }
+
+  .file-field-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .file-field-button {
+    flex: none;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background-color: var(--color-surface-raised);
+    white-space: nowrap;
+  }
+
+  .file-field-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-muted);
   }
 
   .field-input:focus {
@@ -2469,8 +2543,89 @@
       grid-template-columns: 1fr;
     }
 
+    .fr-block {
+      padding: 16px;
+    }
+
+    .fr-block h2 small {
+      display: block;
+      margin: 4px 0 0;
+    }
+
+    /* The three-column table does not fit a phone: each row stacks (what is measured, then one line
+       per seating, named by its data-label) and the percentage sits beside its bar, not over it. */
+    .fr-table,
+    .fr-table tbody,
+    .fr-table tr,
+    .fr-table td {
+      display: block;
+    }
+
+    .fr-table thead {
+      display: none;
+    }
+
+    .fr-table tr {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--color-line);
+    }
+
+    .fr-table tr:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .fr-table td {
+      padding: 0;
+      border-bottom: 0;
+    }
+
     .fr-table td:first-child {
       width: auto;
+      color: var(--color-ink);
+    }
+
+    .fr-table td[data-label] {
+      margin-top: 10px;
+    }
+
+    .fr-table td[data-label]::before {
+      content: attr(data-label);
+      display: block;
+      margin-bottom: 4px;
+      font: 600 10.5px var(--font-body);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+    }
+
+    .fr-mono {
+      font-size: 14px;
+      white-space: normal;
+    }
+
+    .fr-bar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 62px;
+      align-items: center;
+      height: auto;
+      overflow: visible;
+      border-radius: 0;
+      background: linear-gradient(var(--color-ground) 0 0) no-repeat 0 50% / calc(100% - 62px) 10px;
+    }
+
+    .fr-bar i {
+      position: static;
+      height: 10px;
+      border-radius: 5px;
+    }
+
+    .fr-bar b {
+      position: static;
+      text-align: right;
+      font: 700 14px/20px var(--font-display);
+      color: var(--color-ink);
+      mix-blend-mode: normal;
     }
 
     .lp-upc,

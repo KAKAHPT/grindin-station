@@ -1499,6 +1499,9 @@ pt:
       register: "Inscrever"
   helpers:
     required: "obrigatório"
+    file:
+      choose: "Escolher ficheiro"
+      none: "Nenhum ficheiro escolhido"
   events:
     sort:
       label: "Ordenar por"

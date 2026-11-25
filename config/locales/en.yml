@@ -1499,6 +1499,9 @@ en:
       register: "Register"
   helpers:
     required: "required"
+    file:
+      choose: "Choose file"
+      none: "No file chosen"
   events:
     sort:
       label: "Sort by"

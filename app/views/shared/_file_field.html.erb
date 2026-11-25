@@ -1,0 +1,9 @@
+<%# File picker with the site's look. Browsers draw the native control their own way (Safari lets the button out of the
+    box and cuts the file name in the middle), so the real input lies invisible over the whole box and stays the thing
+    that is tapped, focused and submitted; the button and the file name are ours. Local: input (a file field with class
+    "file-field-input"). %>
+<span class="file-field" data-controller="file-field" data-action="change->file-field#show">
+  <%= input %>
+  <span class="file-field-button" aria-hidden="true"><%= t("helpers.file.choose") %></span>
+  <span class="file-field-name" aria-hidden="true" data-file-field-target="name" data-empty="<%= t("helpers.file.none") %>"><%= t("helpers.file.none") %></span>
+</span>
