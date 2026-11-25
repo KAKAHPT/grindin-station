@@ -1,6 +1,6 @@
-<%# The landing (/): the scrolling card-art mosaic behind the hero (headline, tagline, lead), then the waiting-list
-    card, the featured tournaments and circuits (when any), the next public tournaments and, last, how seats are
-    weighted (Why it is fair). %>
+<%# The landing (/): the scrolling card-art mosaic behind the hero (headline, tagline, lead), then the featured
+    tournaments and circuits (when any), the next public tournaments, how seats are weighted (Why it is fair) and,
+    last, the organisers' waiting-list card. %>
 <% content_for :title, t("landing.title") %>
 <%# While 1v1 is paused (config/features.yml) the texts promise cEDH only. %>
 <% cedh_only = !Features.on?(:one_v_one) %>
@@ -35,8 +35,6 @@
       </div>
     </div>
   </section>
-
-  <%= render "pages/waitlist", signup: @waitlist_signup, state: nil %>
 
   <% if @featured.any? %>
     <section class="lp-feat" data-featured data-controller="rail">
@@ -112,4 +110,7 @@
       <% end %>
     </section>
   </div>
+
+  <%# Last on the page: players looking for a tournament were filling it in by mistake when it sat under the hero. %>
+  <%= render "pages/waitlist", signup: @waitlist_signup, state: nil %>
 </div>
