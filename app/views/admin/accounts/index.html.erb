@@ -19,6 +19,7 @@
           <th><%= t("admin.accounts.role") %></th>
           <th><%= t("admin.accounts.confirmed") %></th>
           <th class="r"><%= t("admin.accounts.registered") %></th>
+          <th class="r"><span class="sr-only"><%= t("admin.accounts.actions") %></span></th>
         </tr>
       </thead>
       <tbody>
@@ -33,11 +34,29 @@
               <% else %>
                 <%= account.name %>
               <% end %>
+              <% if account.blocked? %><span class="ms-1.5 align-middle" data-blocked><%= desk_chip(:bad) { t("admin.accounts.blocked_chip") } %></span><% end %>
             </td>
             <td class="text-muted"><%= account.email_address %></td>
             <td><%= roles.presence&.join(", ") || t("admin.accounts.roles.player") %></td>
             <td data-confirmed="<%= account.confirmed? %>"><%= account.confirmed? ? t("admin.accounts.yes") : t("admin.accounts.no") %></td>
             <td class="r whitespace-nowrap text-muted tabular"><%= l(account.created_at.to_date) %></td>
+            <td class="r">
+              <%# Admins and deleted accounts have no block or delete here. %>
+              <% back = { q: @q, page: params[:page] }.compact %>
+              <div class="flex justify-end gap-1.5">
+                <% unless account.confirmed? || account.anonymized? %>
+                  <%= button_to t("admin.accounts.resend"), resend_confirmation_admin_account_path(account, **back), class: button_classes(:ghost, size: :sm) %>
+                <% end %>
+                <% unless account.admin? || account.anonymized? %>
+                  <% if account.blocked? %>
+                    <%= button_to t("admin.accounts.unblock"), unblock_admin_account_path(account, **back), method: :patch, class: button_classes(:ghost, size: :sm) %>
+                  <% else %>
+                    <%= button_to t("admin.accounts.block"), block_admin_account_path(account, **back), method: :patch, class: button_classes(:ghost, size: :sm), form: { data: { turbo_confirm: t("admin.accounts.block_confirm", email: account.email_address) } } %>
+                  <% end %>
+                  <%= button_to t("admin.accounts.delete"), admin_account_path(account, **back), method: :delete, class: button_classes(:danger, size: :sm), form: { data: { turbo_confirm: t("admin.accounts.delete_confirm", email: account.email_address) } } %>
+                <% end %>
+              </div>
+            </td>
           </tr>
         <% end %>
       </tbody>

@@ -16,7 +16,8 @@ class AuditEventTest < ActiveSupport::TestCase
                   admin_granted admin_revoked error_resolved data_exported tier_changed
                   organizer_approved organizer_declined organizer_revoked organizer_suspended organizer_restored
                   post_removed post_kept feed_paused
-                  email_confirmed confirmation_resent]
+                  email_confirmed confirmation_resent
+                  account_blocked account_unblocked account_deleted_by_admin]
     assert_equal expected.sort, AuditEvent::ACTIONS.sort
   end
 

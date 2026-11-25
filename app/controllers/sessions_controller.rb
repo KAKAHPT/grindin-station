@@ -15,7 +15,9 @@ class SessionsController < ApplicationController
   def create
     credentials = params.expect(session: [:email_address, :password])
     user = User.authenticate_by(email_address: credentials[:email_address].to_s, password: credentials[:password].to_s)
-    if user && !user.confirmed?
+    if user&.blocked?
+      redirect_to new_session_path, alert: t("flash.alert.account_blocked")
+    elsif user && !user.confirmed?
       redirect_to new_session_path, alert: t("flash.alert.confirm_first")
     elsif user
       start_new_session_for user

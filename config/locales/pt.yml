@@ -27,6 +27,20 @@ pt:
       organizers: "Organizadores"
     accounts:
       title: "Contas"
+      actions: 'Ações'
+      blocked_chip: 'Bloqueada'
+      resend: 'Reenviar confirmação'
+      block: 'Bloquear'
+      unblock: 'Desbloquear'
+      delete: 'Eliminar'
+      block_confirm: 'Bloquear %{email}? A sessão é terminada e não consegue entrar até desbloqueares.'
+      delete_confirm: 'Eliminar a conta %{email}? O nome, o e-mail e as imagens são apagados de vez; os resultados passados ficam como "Jogador removido". Não dá para desfazer.'
+      already_confirmed: 'Esse e-mail já está confirmado.'
+      confirmation_sent: 'E-mail de confirmação enviado para %{email}.'
+      blocked_notice: '%{email} está bloqueada.'
+      unblocked_notice: '%{email} já pode entrar outra vez.'
+      deleted_notice: 'A conta %{email} foi eliminada.'
+      protected: 'Admins e contas eliminadas não podem ser bloqueados nem eliminados aqui.'
       search: "Nome, e-mail ou handle"
       name: "Nome"
       email: "E-mail"
@@ -1073,6 +1087,7 @@ pt:
       password_reset_link_invalid: "A ligação para repor a palavra-passe é inválida ou expirou."
       try_again_later: "Tenta novamente mais tarde."
       confirm_first: "Confirma primeiro o teu e-mail: abre o link que te enviámos, ou pede um novo em baixo."
+      account_blocked: "Esta conta está bloqueada. Contacta a equipa do site se achas que é engano."
       confirm_link_invalid: "Esse link de confirmação já não é válido. Pede um novo."
       email_change_refused: "Esse e-mail já não está disponível."
       no_player: "Esta conta não pode inscrever-se em eventos."

@@ -37,6 +37,19 @@ class OmniauthCallbacksControllerTest < ActionDispatch::IntegrationTest # ruboco
     assert_equal users(:player_two), Session.last.user
   end
 
+  test "a blocked account is sent back to the sign in page without a session" do
+    users(:player_two).identities.create!(provider: "google_oauth2", uid: "g-123")
+    users(:player_two).update_column(:blocked_at, Time.current) # rubocop:disable Rails/SkipsModelValidations
+
+    assert_no_difference -> { Session.count } do
+      post "/auth/google_oauth2"
+      follow_redirect!
+    end
+
+    assert_redirected_to new_session_path
+    assert_match(/blocked/, flash[:alert])
+  end
+
   test "verified e-mail of an existing account is refused without linking or a session" do
     assert_no_difference [-> { Session.count }, -> { Identity.count }] do
       post "/auth/google_oauth2"

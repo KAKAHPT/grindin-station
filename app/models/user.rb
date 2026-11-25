@@ -124,6 +124,9 @@ class User < ApplicationRecord # rubocop:disable Metrics/ClassLength
   # sign-up creates an unconfirmed account, which cannot sign in with a password until its link is opened.
   def confirmed? = confirmed_at.present?
 
+  # Blocked by an admin (/admin/accounts): no sign-in until unblocked.
+  def blocked? = blocked_at.present?
+
   def confirm!
     update_column(:confirmed_at, Time.current) unless confirmed? # rubocop:disable Rails/SkipsModelValidations -- a stamp
   end

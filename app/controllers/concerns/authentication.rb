@@ -33,10 +33,10 @@ module Authentication
     resume_session&.user
   end
 
-  # A session older than Session::LIFETIME is ended, whatever the cookie says.
+  # A session older than Session::LIFETIME, or of an account an admin blocked, is ended, whatever the cookie says.
   def find_session_by_cookie
     record = Session.find_by(id: cookies.signed[:session_id]) if cookies.signed[:session_id]
-    return record unless record&.expired?
+    return record unless record&.expired? || record&.user&.blocked?
 
     record.destroy
     cookies.delete(:session_id)
