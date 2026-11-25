@@ -14,6 +14,48 @@ class LeagueTest < ActiveSupport::TestCase
     assert_includes League.states, "canceled"
   end
 
+  test "a new league defaults to open tables, one confirmation in 24 hours and a cut of 16" do
+    league = League.new
+    assert league.play_mode_open_tables?
+    assert_equal "one", league.result_confirmation
+    assert_equal 1440, league.confirmation_timeout_minutes
+    assert_equal 16, league.top_cut_size
+    assert_equal 1000, league.starting_points
+    assert_equal "split", league.draw_rule
+    assert_equal 10, league.min_games_for_cut
+  end
+
+  test "closing and closed are stored as 7 and 8 and the older states keep their numbers" do
+    assert_equal({ "draft" => 0, "registration_open" => 1, "registration_closed" => 2, "play" => 3, "finals" => 4,
+                   "finished" => 5, "canceled" => 6, "closing" => 7, "closed" => 8 }, League.states)
+  end
+
+  test "a draw rule outside the list is refused" do
+    league = leagues(:standard_league)
+    league.draw_rule = "burn"
+    assert_not league.valid?
+    assert league.errors[:draw_rule].any?
+  end
+
+  test "a player holds one active seat at a time" do
+    league = leagues(:standard_league)
+    player = event_participants(:league_event_participant_one)
+    first = LeagueTable.create!(league: league, opener: player)
+    first.seats.create!(event_participant: player)
+    second = LeagueTable.create!(league: league, opener: player)
+    assert_raises(ActiveRecord::RecordNotUnique) { second.seats.create!(event_participant: player) }
+    first.release_seats!
+    assert second.seats.create!(event_participant: player)
+  end
+
+  test "tables open only in play, in open-tables mode, before the end date" do
+    league = leagues(:standard_league)
+    league.update_columns(state: League.states[:play], play_mode: 2, end_time: 1.day.from_now) # rubocop:disable Rails/SkipsModelValidations
+    assert league.tables_open?
+    league.update_column(:end_time, 1.minute.ago) # rubocop:disable Rails/SkipsModelValidations
+    assert_not league.tables_open?
+  end
+
   test "a league cannot be 1v1" do
     league = leagues(:standard_league)
     league.format = "one_v_one"

@@ -16,6 +16,9 @@ production:
   results_expire_pending:
     class: Results::ExpirePendingJob
     schedule: every minute
+  leagues_expire_tables:
+    class: Leagues::ExpireTablesJob
+    schedule: every minute
   admin_trim:
     class: Admin::TrimJob
     schedule: every day at 4:30am
