@@ -1410,7 +1410,6 @@ pt:
       MZ: "Moçambique"
       CV: "Cabo Verde"
   landing:
-    title: "O software de torneios com lugares justos"
     description: "Software de torneios com lugares justos. Feito para cEDH e jogos multiplayer, aberto a todos os formatos, ao vivo em todos os telemóveis da sala."
     description_cedh: "Software de torneios com lugares justos. Feito para cEDH, ao vivo em todos os telemóveis da sala."
     eyebrow: "Grindin Station"

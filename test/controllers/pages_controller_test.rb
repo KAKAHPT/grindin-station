@@ -13,6 +13,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     assert_response :success
     assert_select "h1", text: "The grind never stops."
     assert_select ".lp-sub", text: /\AThe tournament software with fair seats\./
+    assert_select "title", text: "Grindin Station"
     assert_includes response.body, "Built for cEDH and multiplayer games, but open to every format."
     assert_select "[data-seat-board]", count: 0
     assert_select "h2", text: "Seats are weighted, not drawn"
