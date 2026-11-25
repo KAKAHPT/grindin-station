@@ -3,10 +3,10 @@
     <%= link_to t("organizer.leagues.title"), organizer_leagues_path, class: "text-[12px] font-semibold uppercase tracking-[0.08em] text-accent hover:underline" %>
     <div class="mt-1 flex flex-wrap items-center gap-2">
       <h1 class="font-display text-2xl font-semibold text-ink"><%= @league.name %></h1>
-      <% if @league.play_mode.present? %>
+      <% if @league.play_mode.present? && !@league.play_mode_open_tables? %>
         <%= desk_chip(:info) { @league.play_mode_scheduled? ? "Scheduled" : "Pick-up" } %>
       <% end %>
-      <% if @league.state.in?(%w[play finals]) %>
+      <% if @league.state.in?(%w[play finals]) && !@league.play_mode_open_tables? %>
         <%= desk_chip(:ok) { @league.state == "finals" ? "Finals" : "Playing" } %>
       <% end %>
     </div>
@@ -73,7 +73,7 @@
   </section>
 <% end %>
 
-<% if @league.state.in?(%w[play finals]) || @league.finished? %>
+<% if (@league.state.in?(%w[play finals]) || @league.finished?) && !@league.play_mode_open_tables? %>
   <section class="col-span-full card overflow-clip">
     <h2 class="card-title">Quick Standings</h2>
     <% standings = @league.event_participants.playing.includes(:results, player: :user).order(league_score: :desc).limit(5) %>
