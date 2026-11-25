@@ -201,6 +201,10 @@ Rails.application.routes.draw do
     constraints(Features.constraint(:leagues)) do
       resources :leagues do
         member do
+          patch :transition
+          patch "tables/:table_id/cancellation", action: :decide_cancel, as: :table_cancellation
+          patch "pods/:pod_id/result", action: :enter_result, as: :pod_result
+          patch "cut_rounds/:round_id/close", action: :close_cut_round, as: :close_cut_round
           %w[players melee standings rounds].each do |kind|
             get "export/#{kind}", to: "exports##{kind}", as: "export_#{kind}"
           end

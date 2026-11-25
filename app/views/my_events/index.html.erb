@@ -3,6 +3,23 @@
   <p class="mt-1 text-[13px] text-muted"><%= t("my_events.lead") %></p>
 </div>
 
+<% if @league_tables.present? %>
+  <section class="col-span-full card overflow-clip" data-my-league-tables>
+    <h2 class="card-title"><%= t("my_events.league_tables") %></h2>
+    <ul class="divide-y divide-line text-[13px]">
+      <% @league_tables.each do |table| %>
+        <li class="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+          <div class="min-w-0">
+            <p class="text-[12px] text-muted"><%= table.league.name %> · <%= t("my_events.league_table_#{table.state}") %></p>
+            <p class="text-ink"><%= table.participants.map(&:name).join(", ") %></p>
+          </div>
+          <%= link_to t("my_events.league_table_open"), league_path(table.league, tab: "tables", locale: params[:locale]), class: button_classes(:primary, size: :sm) %>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>
+
 <%= render "shared/ticket_grid", events: @running, enrolled: @enrolled, heading: t("my_events.running"), dense: true, participants: @participants %>
 <%= render "shared/ticket_grid", events: @upcoming, enrolled: @enrolled, heading: t("my_events.upcoming"), dense: true, participants: @participants %>
 <%= render "shared/ticket_grid", events: @past, enrolled: @enrolled, heading: t("my_events.past"), dense: true, participants: @participants %>

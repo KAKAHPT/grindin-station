@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Organizer
-  class LeaguesController < OrganizerController
+  class LeaguesController < OrganizerController # rubocop:disable Metrics/ClassLength -- the league and its desk
     require_organizer
 
     def index
@@ -17,6 +17,7 @@ module Organizer
         rounds: :pods,
         event_participants: { player: :user }
       ).find(params[:id])
+      load_desk if @league.play_mode_open_tables?
     rescue ActiveRecord::RecordNotFound
       redirect_to [:organizer, :leagues], alert: t("flash.alert.not_authorized_league")
     end
@@ -49,13 +50,62 @@ module Organizer
         if @league.state_previously_changed?
           from, to = @league.state_previous_change
           Audit.record(:event_state_changed, subject: @league, event: @league, from: from, to: to)
-          @league.perform_state_based_actions
         end
 
         redirect_to [:organizer, @league], notice: t("flash.notice.league_updated")
       else
         render :edit, status: :unprocessable_entity
       end
+    end
+
+    SCORING = %i[play_mode starting_points wager_percentage draw_rule].freeze
+    STEPS = { "play" => :start, "closing" => :close, "reopen" => :reopen, "finals" => :make_cut,
+              "finished" => :finish }.freeze
+
+    # The league's steps: start, close, reopen, make the cut, finish (Leagues::Lifecycle).
+    def transition # rubocop:disable Metrics/AbcSize
+      @league = League.for_organizer(current_organizer).find(params[:id])
+      step = STEPS.fetch(params[:to].to_s) { raise Leagues::Lifecycle::NotAllowed, "unknown" }
+      Leagues::Lifecycle.public_send(step, @league, by: current_user)
+      redirect_to [:organizer, @league], notice: t("league_desk.n_#{params[:to]}")
+    rescue Leagues::Lifecycle::NotAllowed
+      redirect_to [:organizer, @league], alert: t("league_desk.e_transition")
+    end
+
+    # Approves or refuses a table's cancellation request.
+    def decide_cancel # rubocop:disable Metrics/AbcSize
+      @league = League.for_organizer(current_organizer).find(params[:id])
+      table = @league.league_tables.find(params[:table_id])
+      approve = params[:approve] == "1"
+      Leagues::Tables::DecideCancel.call(table: table, by: current_user, approve: approve)
+      Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
+      redirect_to [:organizer, @league], notice: t("league_desk.n_#{approve ? 'approved' : 'refused'}")
+    rescue Leagues::Tables::NotAllowed
+      redirect_to [:organizer, @league], alert: t("league_desk.e_transition")
+    end
+
+    # The organizer enters (or corrects) the result of a league game or of a cut table: params[:result] is the
+    # winner's participant id or "draw".
+    def enter_result # rubocop:disable Metrics/AbcSize
+      @league = League.for_organizer(current_organizer).find(params[:id])
+      pod = Pod.joins(:round).where(rounds: { event_id: @league.id }).find(params[:pod_id])
+      winner = pod.event_participants.find_by(id: params[:result]) unless params[:result] == "draw"
+      Results::Apply.call(pod: pod, type: winner ? "Win" : "Draw", winner: winner, by: current_user)
+      pod.clear_report_state!
+      Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
+      redirect_to [:organizer, @league], notice: t("league_desk.n_result")
+    rescue Results::NotAllowed => e
+      redirect_to [:organizer, @league], alert: t("results.not_allowed.#{e.message}")
+    end
+
+    # Every table of the cut round has its winner: the round is closed and the next one (or the end) follows.
+    def close_cut_round # rubocop:disable Metrics/AbcSize
+      @league = League.for_organizer(current_organizer).find(params[:id])
+      round = @league.rounds.where(type: "LeagueCutRound", finished_at: nil).find(params[:round_id])
+      return redirect_to [:organizer, @league], alert: t("league_desk.e_transition") unless round.finished?
+
+      round.update!(finished_at: Time.current)
+      redirect_to [:organizer, @league], notice: t("league_desk.n_round_closed")
     end
 
     def create_pickup_pod
@@ -67,6 +117,18 @@ module Organizer
     end
 
     private
+
+    # The organizer's view of an open-tables league: the full tables still to finish (with any cancellation
+    # asked) and, once closed, who qualifies for the cut.
+    def load_desk
+      @pending_tables = @league.league_tables.filled
+        .preload(:cancel_requested_by, pod: [{ round: :results },
+                                             { seatings: { event_participant: { player: :user } } }])
+        .order(:filled_at).select(&:in_play?)
+      @cut_field = @league.cut_field if @league.closed?
+      @cut_round = LeagueCutRound.where(event: @league).order(:number)
+        .preload(:results, pods: { seatings: { event_participant: { player: :user } } }).last
+    end
 
     def league_params
       params.expect(
@@ -89,8 +151,24 @@ module Organizer
           play_mode
           circuit_id
           cover
+          starting_points
+          draw_rule
+          top_cut_size
+          min_games_for_cut
+          max_games_per_week
+          max_games_vs_same_opponent
+          round_minutes
         ]
-      )
+      ).except(*locked_params)
+    end
+
+    # State changes go through #transition; the scoring is fixed once games count.
+    def locked_params
+      league = @league
+      return [:state] unless league&.persisted?
+      return [] unless league.play_mode_open_tables?
+
+      league.playing? || league.finished? ? [:state, *SCORING, :top_cut_size] : [:state]
     end
   end
 end

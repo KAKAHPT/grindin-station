@@ -23,6 +23,10 @@
   </div>
 </div>
 
+<% if @league.play_mode_open_tables? %>
+  <%= render "organizer/leagues/desk", league: @league %>
+<% end %>
+
 <section class="col-span-full card overflow-clip">
   <h2 class="card-title"><%= t("organizer.leagues.details") %></h2>
   <table class="ctable">

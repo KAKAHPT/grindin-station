@@ -125,6 +125,6 @@ class League < Event
   def start_finals
     return Leagues::StartFinalsRoundJob.perform_now(self) unless play_mode_open_tables?
 
-    LeagueCutRound.create!(event: self, number: number_of_swiss_rounds + 1, is_finals_round: true)
+    LeagueCutRound.start!(self, number_of_swiss_rounds + 1)
   end
 end

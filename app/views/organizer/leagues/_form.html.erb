@@ -1,52 +1,67 @@
-<%= modal_form_for [:organizer, league], html: { data: { turbo: false } } do |f| %>
+<%# The league form (new and edit): Event, Scoring, Cut and limits. The scoring settings lock once the league is
+    in play. %>
+<% locked = league.persisted? && league.play_mode_open_tables? && (league.playing? || league.finished?) %>
+<%= modal_form_for [:organizer, league], html: { class: "p-[18px]", data: { turbo: false } } do |f| %>
   <% content_for :title do %>
-    <% if league.persisted? %>
-      Edit <%= league.name %>
-    <% else %>
-      New League
-    <% end %>
+    <%= league.persisted? ? t("league_desk.edit_title", name: league.name) : t("league_desk.new_title") %>
   <% end %>
 
   <% if league.errors.present? %>
-    <%= safe_join(league.errors.full_messages, tag.br) %>
+    <div class="mb-4 rounded-md border border-danger/40 bg-danger/[0.07] px-3 py-2 text-[12.5px] text-danger" role="alert">
+      <%= safe_join(league.errors.full_messages, tag.br) %>
+    </div>
   <% end %>
 
-  <%= f.text_field_with_label :name, placeholder: "A catchy league name", required: true %>
-  <%= f.file_field_with_label :cover %>
-  <%= f.text_area_with_label :prizes, rows: 4, placeholder: "- 1st place: $100\n- 2nd~3rd: Gift cards" %>
-  <%= f.text_field_with_label :address, placeholder: "123 Main St, City" %>
-  <%= f.text_field_with_label :country, maxlength: 2, placeholder: "PT", class: "uppercase" %>
-  <p class="form-help -mt-3 mb-4"><%= t("organizer.settings.country_help") %></p>
-
-  <div class="flex gap-2">
+  <h2 class="form-section"><%= t("organizer.settings.event") %></h2>
+  <%= f.text_field_with_label :name, placeholder: t("organizer.settings.name_placeholder"), required: true %>
+  <div class="grid grid-cols-1 gap-x-3 sm:grid-cols-2">
     <%= f.datetime_local_field_with_label :start_time, required: true %>
     <%= f.datetime_local_field_with_label :end_time, required: true %>
-  </div>
-
-  <div class="flex gap-2">
-    <%= f.number_field_with_label :minimum_participants, placeholder: "3" %>
-    <%= f.number_field_with_label :maximum_participants, placeholder: "No limit" %>
-  </div>
-
-  <div class="flex gap-2">
-    <%= f.number_field_with_label :price, placeholder: "Fee per player", min: 0, step: 0.01 %>
-    <%= f.select_with_label :currency, currency_options, selected: league.currency %>
-  </div>
-
-  <%= f.number_field_with_label :wager_percentage, placeholder: "Wager % (e.g. 10)", min: 0, max: 100 %>
-
-  <div class="flex gap-2">
+    <%= f.text_field_with_label :address, placeholder: t("organizer.settings.address_placeholder") %>
+    <div>
+      <%= f.text_field_with_label :country, maxlength: 2, placeholder: "PT", class: "uppercase" %>
+      <p class="form-help -mt-3 mb-4"><%= t("organizer.settings.country_help") %></p>
+    </div>
+    <div class="grid grid-cols-[1fr_88px] gap-x-3">
+      <%= f.number_field_with_label :price, placeholder: t("organizer.settings.price_placeholder"), min: 0, step: 0.01 %>
+      <%= f.select_with_label :currency, currency_options, selected: league.currency %>
+    </div>
+    <%= f.number_field_with_label :minimum_participants, placeholder: "4" %>
+    <%= f.number_field_with_label :maximum_participants, placeholder: t("organizer.settings.no_limit") %>
     <%# Only the league owner's circuits: Event refuses a circuit of another organizer. %>
-    <% circuits = (league.event_organizer || current_user.event_organizer).circuits.order(:name) %>
-    <%= f.collection_select_with_label :circuit_id, circuits, :id, :name, { include_hidden: false, include_blank: true } %>
+    <% if Features.on?(:circuits) %>
+      <% circuits = (league.event_organizer || current_user.event_organizer).circuits.order(:name) %>
+      <%= f.collection_select_with_label :circuit_id, circuits, :id, :name, { include_hidden: false, include_blank: true } %>
+    <% end %>
+  </div>
+  <%= f.file_field_with_label :cover %>
+  <%= f.text_area_with_label :prizes, rows: 3, placeholder: t("organizer.settings.prizes_placeholder") %>
+  <%= f.text_area_with_label :rules, rows: 4 %>
+  <%= f.text_area_with_label :description, rows: 3, placeholder: t("organizer.settings.description_placeholder") %>
+
+  <h2 class="form-section"><%= t("league_desk.scoring") %></h2>
+  <% if locked %><p class="form-help mb-3"><%= t("league_desk.locked") %></p><% end %>
+  <%= f.select_with_label :play_mode, [[t("league_desk.mode_open"), "open_tables"], [t("league_desk.mode_pickup"), "pickup"]],
+                          { selected: league.play_mode }, disabled: locked %>
+  <div class="grid grid-cols-1 gap-x-3 sm:grid-cols-2">
+    <%= f.number_field_with_label :starting_points, min: 1, step: 1, disabled: locked %>
+    <%= f.number_field_with_label :wager_percentage, min: 0, max: 100, step: 1, placeholder: "10", disabled: locked %>
+    <%= f.select_with_label :draw_rule, League::DRAW_RULES.map { |rule| [t("league_desk.draw_#{rule}"), rule] },
+                            { selected: league.draw_rule }, disabled: locked %>
+    <%= f.number_field_with_label :round_minutes, min: 1, step: 1 %>
   </div>
 
-  <%= f.text_area_with_label :description, rows: 4, placeholder: "Additional info about the league." %>
+  <h2 class="form-section"><%= t("league_desk.limits") %></h2>
+  <div class="grid grid-cols-1 gap-x-3 sm:grid-cols-2">
+    <%= f.select_with_label :top_cut_size, League::CUT_SIZES.reverse.map { |size| [size.zero? ? t("league_desk.no_cut") : t("league_desk.top", size: size), size] },
+                            { selected: league.top_cut_size }, disabled: locked %>
+    <%= f.number_field_with_label :min_games_for_cut, min: 0, step: 1 %>
+    <%= f.number_field_with_label :max_games_per_week, min: 1, step: 1, placeholder: t("league_desk.no_limit") %>
+    <%= f.number_field_with_label :max_games_vs_same_opponent, min: 1, step: 1, placeholder: t("league_desk.no_limit") %>
+  </div>
 
   <% content_for :footer do %>
     <%= f.submit %>
-    <%= link_to [:organizer, league], class: "ms-3 #{small_button_classes(:ghost)}" do %>
-      Cancel
-    <% end %>
+    <%= link_to t("league_desk.cancel_back", default: t("leagues.tables.cancel_back")), (league.persisted? ? [:organizer, league] : %i[organizer leagues]), class: "ms-3 #{small_button_classes(:ghost)}" %>
   <% end %>
 <% end %>

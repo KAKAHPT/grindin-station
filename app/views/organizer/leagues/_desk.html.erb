@@ -1,0 +1,105 @@
+<%# The organizer's controls of an open-tables league: where it stands and the next step, the tables still to
+    finish with the cancellations asked, and the cut. Locals: league. Uses @pending_tables, @cut_field, @cut_round. %>
+<% step = ->(to, label, kind, confirm = nil) {
+     button_to label, transition_organizer_league_path(league), method: :patch, params: { to: to }, class: button_classes(kind, size: :sm),
+               form: { data: { turbo_confirm: confirm, league_step: to } }
+   } %>
+<section class="col-span-full card overflow-clip" data-league-desk="<%= league.state %>">
+  <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+    <p class="text-[13px] text-ink" data-league-state>
+      <% case league.state %>
+      <% when "play" %><%= t("league_desk.state_play") %>
+      <% when "closing" %><%= t("league_desk.state_closing", count: @pending_tables.size) %>
+      <% when "closed" %><%= t("league_desk.state_closed") %>
+      <% when "finals" %><%= t("league_desk.state_finals") %>
+      <% when "finished" %><%= t("league_desk.state_finished") %>
+      <% else %><%= event_state_label(league, nil) %>
+      <% end %>
+    </p>
+    <div class="flex flex-wrap gap-2">
+      <% if league.registration_open? || league.registration_closed? %>
+        <%= step.("play", t("league_desk.start"), :primary) %>
+      <% elsif league.play? %>
+        <%= step.("closing", t("league_desk.close"), :primary, t("league_desk.confirm_close")) %>
+      <% elsif league.closing? %>
+        <%= step.("reopen", t("league_desk.reopen"), :secondary) %>
+      <% elsif league.closed? %>
+        <%= step.("reopen", t("league_desk.reopen"), :secondary) %>
+        <% if league.cut_size_for_field.positive? %>
+          <%= step.("finals", t("league_desk.make_cut"), :primary, t("league_desk.confirm_cut")) %>
+        <% else %>
+          <%= step.("finished", t("league_desk.finish"), :primary, t("league_desk.confirm_finish")) %>
+        <% end %>
+      <% elsif league.finals? && @cut_round&.finished? && @cut_round.finished_at.nil? %>
+        <%= button_to t("league_desk.close_round"), close_cut_round_organizer_league_path(league, round_id: @cut_round.id), method: :patch,
+                      class: button_classes(:primary, size: :sm), form: { data: { close_cut_round: true } } %>
+      <% end %>
+    </div>
+  </div>
+  <% if league.play? %><p class="border-t border-line px-4 py-2 text-[12px] text-muted"><%= t("league_desk.extend_hint") %></p><% end %>
+  <% if league.closed? %>
+    <% size = league.cut_size_for_field %>
+    <p class="border-t border-line px-4 py-2 text-[12px] text-muted" data-cut-lead>
+      <%= t("league_desk.cut_lead", qualified: @cut_field.size, games: league.min_games_for_cut,
+                                    cut: size.zero? ? t("league_desk.no_cut") : t("league_desk.top", size: size)) %>
+    </p>
+  <% end %>
+</section>
+
+<% if league.play? || league.closing? %>
+  <section class="col-span-full card overflow-clip" data-pending-tables>
+    <h2 class="card-title"><%= t("league_desk.pending_title") %></h2>
+    <% if @pending_tables.any? %>
+      <ul class="divide-y divide-line text-[13px]">
+        <% @pending_tables.each do |table| %>
+          <li class="px-4 py-3" data-pending-table="<%= table.id %>">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-ink"><%= table.pod.seatings.map { |seating| seating.event_participant.name }.join(", ") %></p>
+                <p class="mt-0.5 text-[12px] text-muted">
+                  <%= t("league_desk.pending_since", time: l(table.filled_at, format: :short)) %>
+                  <% if table.stale_notified_at %> · <%= t("league_desk.stale") %><% end %>
+                </p>
+              </div>
+              <%= render "organizer/leagues/result_form", league: league, pod: table.pod, draw: true %>
+            </div>
+            <% if table.cancel_pending? %>
+              <div class="mt-3 rounded-md border border-line bg-surface-raised px-3 py-2" data-cancel-request>
+                <p class="text-[12px] text-muted"><%= t("league_desk.asked_by", name: table.cancel_requested_by&.name) %></p>
+                <p class="mt-1 text-ink"><%= table.cancel_reason %></p>
+                <div class="mt-2 flex gap-2">
+                  <%= button_to t("league_desk.approve"), table_cancellation_organizer_league_path(league, table_id: table.id), method: :patch, params: { approve: "1" }, class: button_classes(:primary, size: :sm) %>
+                  <%= button_to t("league_desk.refuse"), table_cancellation_organizer_league_path(league, table_id: table.id), method: :patch, params: { approve: "0" }, class: button_classes(:secondary, size: :sm) %>
+                </div>
+              </div>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="px-4 py-6 text-center text-[12.5px] text-muted"><%= t("league_desk.none") %></p>
+    <% end %>
+  </section>
+<% end %>
+
+<% if league.finals? && @cut_round %>
+  <section class="col-span-full card overflow-clip" data-cut-round>
+    <h2 class="card-title"><%= t("league_desk.cut_tables", round: @cut_round.display_name) %></h2>
+    <ul class="divide-y divide-line text-[13px]">
+      <% results = @cut_round.results.index_by(&:event_participant_id) %>
+      <% @cut_round.pods.sort_by(&:number).each do |pod| %>
+        <li class="flex flex-wrap items-center justify-between gap-3 px-4 py-3" data-cut-pod="<%= pod.number %>">
+          <div class="min-w-0">
+            <p class="text-[12px] text-muted"><%= t("league_desk.table", n: pod.number) %></p>
+            <p class="text-ink">
+              <% pod.seatings.each_with_index do |seating, index| %><%= ", " unless index.zero? %><%= tag.span seating.event_participant.name, class: ("font-semibold text-accent" if results[seating.event_participant_id].is_a?(Advance)) %><% end %>
+            </p>
+          </div>
+          <% if @cut_round.finished_at.nil? %>
+            <%= render "organizer/leagues/result_form", league: league, pod: pod, draw: false %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>

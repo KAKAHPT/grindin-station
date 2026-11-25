@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class LeagueTablesControllerTest < ActionDispatch::IntegrationTest
+class LeagueTablesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
   setup do
     @league = LeagueBuilder.build(players: 5, organizer: event_organizers(:standard_organizer))
     @players = @league.event_participants.order(:created_at).to_a
@@ -92,6 +92,18 @@ class LeagueTablesControllerTest < ActionDispatch::IntegrationTest
     as(4) do
       post clock_league_table_path(@league, table)
       assert_equal I18n.t("leagues.tables.not_allowed.not_member"), flash[:alert]
+    end
+  end
+
+  test "my events shows the table I am at, leading to the league's tables" do
+    LeagueBuilder.fill_table!(@league, @players.first(4))
+    as(0) do
+      get my_events_path
+      assert_select "[data-my-league-tables] a[href=?]", league_path(@league, tab: "tables")
+    end
+    as(4) do
+      get my_events_path
+      assert_select "[data-my-league-tables]", 0
     end
   end
 
