@@ -3,9 +3,10 @@
 #
 # Launch phase 1 (2026-11-24): only the cEDH tournament is public. Players' profiles stay on.
 # 2026-11-25: the seat report (/fairness) is public too.
+# 2026-11-26: leagues are on (players open their own tables of 4).
 shared:
   feed: false          # /feed, posts, likes, Follow buttons and follower counts
-  leagues: false       # /leagues and the organizer's leagues
+  leagues: true        # /leagues and the organizer's leagues (on since 2026-11-26, phase 2)
   circuits: false      # /circuits, the organizer's circuits, featured circuits on the landing
   rankings: false      # /rankings and the admin's invitational table
   teams: false         # teams on the account page and the team tag on profiles

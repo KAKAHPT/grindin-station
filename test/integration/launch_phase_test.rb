@@ -2,16 +2,16 @@
 
 require "test_helper"
 
-# Launch phase 1: the site as production runs it (config/features.yml, `shared`), with only the cEDH tournament
-# public. Every address of a paused module is not found, whoever asks; the tournament pages still open and link
-# to nothing that is paused; players' names still open their profile. The rest of the suite runs with every
-# module on.
+# The site as production runs it (config/features.yml, `shared`): the cEDH tournament and, since 2026-11-26, the
+# leagues are public. Every address of a paused module is not found, whoever asks; the tournament pages still
+# open and link to nothing that is paused; players' names still open their profile. The rest of the suite runs
+# with every module on.
 class LaunchPhaseTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
   # Where the paused modules live. Kept apart from config/routes.rb on purpose: a route added to one of these
   # modules without its switch fails here.
-  PAUSED = %r{\A/(feed|follows|rankings|circuits|leagues|organizers|o/|teams|team_memberships|
-                  organizer/(leagues|circuits|about)|admin/(feed|circuits|invitational))(/|\z|\(|\.)}x
-  PAUSED_WITHOUT_RANKINGS = %r{\A/(feed|follows|circuits|leagues|organizers|o/|teams|team_memberships)(/|\z|\?|\.)}
+  PAUSED = %r{\A/(feed|follows|rankings|circuits|organizers|o/|teams|team_memberships|
+                  organizer/(circuits|about)|admin/(feed|circuits|invitational))(/|\z|\(|\.)}x
+  PAUSED_WITHOUT_RANKINGS = %r{\A/(feed|follows|circuits|organizers|o/|teams|team_memberships)(/|\z|\?|\.)}
   VERBS = %w[GET POST PATCH PUT DELETE].freeze
   LINKS = "a[href], form[action], [formaction], turbo-frame[src], iframe[src]"
   LINK_ATTRIBUTES = %w[href action formaction src].freeze
@@ -30,8 +30,8 @@ class LaunchPhaseTest < ActionDispatch::IntegrationTest # rubocop:disable Metric
 
   teardown { Features.settings = nil }
 
-  test "only the cEDH tournament and the seat report are on at launch" do
-    assert_equal Features::NAMES.index_with { |name| name == :fairness }, Features.launch
+  test "only the cEDH tournament, the leagues and the seat report are on" do
+    assert_equal Features::NAMES.index_with { |name| name.in?(%i[fairness leagues]) }, Features.launch
   end
 
   test "the seat report opens and the landing links to it" do
@@ -48,7 +48,7 @@ class LaunchPhaseTest < ActionDispatch::IntegrationTest # rubocop:disable Metric
 
   test "every address of a paused module is not found, even for the organizer who is also the site admin" do
     routes = paused_routes
-    assert_operator routes.size, :>=, 60
+    assert_operator routes.size, :>=, 35
 
     [nil, @owner].each do |user|
       reset!
@@ -149,14 +149,13 @@ class LaunchPhaseTest < ActionDispatch::IntegrationTest # rubocop:disable Metric
     assert_equal %w[multiplayer commander], [created.format, created.game_format]
   end
 
-  test "the events list shows tournaments only and offers no format filter" do
-    League.create!(name: "Paused league", event_organizer: event_organizers(:standard_organizer),
+  test "the events list shows tournaments and leagues" do
+    League.create!(name: "Open league", event_organizer: event_organizers(:standard_organizer),
                    start_time: 1.day.from_now, end_time: 2.days.from_now, state: :registration_open)
     get "/events"
 
     assert_response :success
-    assert_select "select[name='play']", count: 0
-    assert_no_match "Paused league", response.body
+    assert_match "Open league", response.body
   end
 
   private
