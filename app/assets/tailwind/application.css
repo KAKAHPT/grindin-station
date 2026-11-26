@@ -382,6 +382,18 @@
     border-top: 1px solid var(--color-line);
   }
 
+  /* Phones: the picture is not the last thing in the bar (the bell and the menu button follow it), so the menu
+     hangs from the bar's right edge, not from the picture. */
+  @media (max-width: 639.98px) {
+    .topbar-me {
+      position: static;
+    }
+
+    .topbar-me-menu {
+      right: 12px;
+    }
+  }
+
   /* Hovering or tapping (focus) the picture opens the menu, on every screen. */
   .topbar-me:hover .topbar-me-menu,
   .topbar-me:focus-within .topbar-me-menu {

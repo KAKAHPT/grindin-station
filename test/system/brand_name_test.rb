@@ -41,4 +41,18 @@ class BrandNameTest < ApplicationSystemTestCase
   ensure
     window&.resize_to(size.width, size.height) if size
   end
+
+  test "on a phone the viewer's menu hangs from the right edge of the bar, not from the picture" do
+    sign_in_as(users(:organizer_user))
+    use_phone_viewport(width: 375, height: 812)
+    visit events_path
+
+    find("[data-user-menu] .topbar-me-trigger").click
+    assert_selector "[data-user-menu-panel] a", visible: :visible
+    gap = page.evaluate_script(<<~JS)
+      window.innerWidth - document.querySelector(".topbar-me-menu").getBoundingClientRect().right
+    JS
+    assert_operator gap, :<=, 16, "the menu sits at the right edge"
+    assert_operator gap, :>=, 0, "and stays on the screen"
+  end
 end
