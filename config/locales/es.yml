@@ -1493,7 +1493,10 @@ es:
         - title: "Empates por la semilla."
           text: "Lo que siga igualado se sortea con la semilla del evento, fijada en la ronda 1, así que nada se elige a mano."
     featured:
-      title: "Destacados"
+      when: Cuándo
+      where: Lugar
+      prizes: Premios
+      title: "Eventos destacados"
     featured_circuits: "Circuitos destacados"
     rail:
       prev: "Anterior"

@@ -48,9 +48,9 @@
   </div>
 
   <% if @featured.any? %>
-    <section class="lp-feat" data-featured data-controller="rail">
+    <section class="lp-feat" data-featured data-controller="rail featflow">
       <%= render "pages/rail_header", title: t("landing.featured.title") %>
-      <div class="lp-rail lp-ftl" data-rail-target="track">
+      <div class="lp-rail lp-ftl" data-rail-target="track" data-featflow-target="track">
         <% @featured.each do |event| %>
           <%= render "shared/featured_ticket", event: event, enrolled: @enrolled.fetch(event.id, 0) %>
         <% end %>

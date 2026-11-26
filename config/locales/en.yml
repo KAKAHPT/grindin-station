@@ -1493,7 +1493,10 @@ en:
         - title: "Ties from the seed."
           text: "Anything still equal is drawn from the event seed, fixed in round 1, so nothing is chosen by hand."
     featured:
-      title: "Featured"
+      when: When
+      where: Where
+      prizes: Prizes
+      title: "Featured events"
     featured_circuits: "Featured circuits"
     rail:
       prev: "Previous"

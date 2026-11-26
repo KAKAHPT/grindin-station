@@ -1,7 +1,7 @@
 <%# A featured event on the landing (option 4B, the art ticket): the cover behind the whole card, the date in white
-    on the left stub behind a dotted perforation, then name, format line, organizer, enrolled count and the
-    actions. No state colours: it sits with the tickets under it. Locals: event (cover and
-    organizer preloaded), enrolled (count). Pieces from EventTicketHelper. %>
+    on the left stub behind a dotted perforation, then name, organizer, enrolled count and the actions; the
+    format line, state and the rest sit in the details underneath. No state colours: it sits with the tickets
+    under it. Locals: event (cover and organizer preloaded), enrolled (count). Pieces from EventTicketHelper. %>
 <% sold_out = event.sold_out?(enrolled) %>
 <% href = ticket_href(event) %>
 <%= tag.article class: "lp-ft", style: "background-image: url('#{ticket_banner(event, size: 960)}')",
@@ -15,10 +15,8 @@
     <div class="lp-ft-top">
       <h3 class="lp-ft-t"><%= link_to event.name, href %></h3>
     </div>
-    <p class="lp-ft-m"><%= ticket_line(event) %></p>
     <div class="lp-evr-orgrow">
       <%= ticket_organizer(event) %>
-      <%= ticket_state_line(event, sold_out) %>
     </div>
     <div class="lp-ft-row">
       <p class="lp-evr-n"><%= ticket_enrolled(event, enrolled) %></p>
@@ -26,6 +24,17 @@
         <%= link_to t("landing.upcoming.view"), href, class: button_classes(:secondary, size: :xs) %>
         <%= ticket_register_button(event, sold_out) %>
       </div>
+    </div>
+  </div>
+  <%# Opened by featflow_controller while the ticket is at the front; shut otherwise. %>
+  <div class="lp-ft-more" data-ft-more>
+    <div>
+      <p><%= ticket_line(event) %></p>
+      <%= ticket_state_line(event, sold_out) %>
+      <p><b><%= t("landing.featured.when") %></b> <%= l(event.start_time, format: "%A, %d %B · %H:%M") %></p>
+      <% if event.address.present? %><p><b><%= t("landing.featured.where") %></b> <%= event.address %></p><% end %>
+      <% if event.prizes.present? %><p><b><%= t("landing.featured.prizes") %></b> <%= truncate(event.prizes, length: 140) %></p><% end %>
+      <% if event.description.present? %><p class="lp-ft-desc"><%= truncate(event.description, length: 260) %></p><% end %>
     </div>
   </div>
 <% end %>

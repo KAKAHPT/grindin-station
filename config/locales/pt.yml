@@ -1493,7 +1493,10 @@ pt:
         - title: "Empates pela semente."
           text: "O que ainda estiver igual é sorteado com a semente do evento, fixada na ronda 1, por isso nada é escolhido à mão."
     featured:
-      title: "Em destaque"
+      when: Quando
+      where: Local
+      prizes: Prémios
+      title: "Eventos em destaque"
     featured_circuits: "Circuitos em destaque"
     rail:
       prev: "Anterior"
