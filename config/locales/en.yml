@@ -1227,7 +1227,6 @@ en:
     invite: "Invite"
     invite_again: "Send again"
     registered: "Registered"
-    clock_minutes: "A game's clock (minutes)"
     waiting: "Not registered yet"
     invited_on: "Invited"
     status: "Status"
@@ -2027,6 +2026,9 @@ en:
         registered: "You are registered: good games!"
         left: "You left the league."
   league_desk:
+    no_tables: "No tables to deal with."
+    no_tables_yet: "Tables show here once the league starts."
+    clock_minutes: "A game's clock (minutes)"
     change: "Change"
     change_lead: "New result:"
     change_locked: "After the cut is made the results of the games no longer change."

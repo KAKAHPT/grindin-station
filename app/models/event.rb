@@ -54,6 +54,8 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
   }
   scope :past, -> { where(end_time: ...Time.current) }
   scope :upcoming, -> { where(start_time: Time.current..) }
+  # Not over yet by its dates: still to start, or started and before its end (a league runs for weeks).
+  scope :not_ended, -> { where(end_time: Time.current..) }
   scope :for_player, ->(player) { joins(:event_participants).where(event_participants: { player: player }) }
   scope :with_play, lambda { |play|
     play == "multiplayer" ? where(format: "multiplayer") : where(format: "one_v_one", game_format: play)
