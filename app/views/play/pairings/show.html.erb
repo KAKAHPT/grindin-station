@@ -1,5 +1,7 @@
-<%# The bracket of a top-cut round takes the full width (a Top 40 row is nine cards). %>
-<% content_for :wide_main, @stages ? "full" : "1" %>
+<%# A top-cut bracket keeps the width of the other rounds while its widest row fits there (five cards: Top 4,
+    Top 16); a larger cut takes the full width (a Top 40 row is nine cards). %>
+<% widest = (@stages || []).map { |stage| stage.pod_count + (stage.byes.any? ? 1 : 0) }.max.to_i %>
+<% content_for :wide_main, widest > 5 ? "full" : "1" %>
 <%= render "play/shared/header", section: :pairings %>
 <%# Live: any change to the event's pods morph-refreshes this page, on whichever round it shows.
     A top-cut round shows the whole cut as a bracket (play/pairings/bracket) instead of the grid. %>
