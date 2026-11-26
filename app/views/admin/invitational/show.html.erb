@@ -29,9 +29,9 @@
           <tr data-player="<%= row.player.id %>">
             <td class="r tabular"><%= rank %></td>
             <td>
-              <div class="font-semibold"><%= row.player.name %></div>
+              <div class="max-w-56 truncate font-semibold" title="<%= row.player.name %>"><%= row.player.name %></div>
               <% if row.player.user&.handle %>
-                <div class="text-[11px] text-muted">@<%= row.player.user.handle %></div>
+                <div class="max-w-56 truncate text-[11px] text-muted">@<%= row.player.user.handle %></div>
               <% end %>
             </td>
             <td class="r tabular font-semibold" data-invitational><%= ranking_points(row.invitational_points) %></td>

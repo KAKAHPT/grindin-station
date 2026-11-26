@@ -30,10 +30,11 @@
         <% @signups.each do |signup| %>
           <% account = @accounts[signup.email] %>
           <tr data-signup="<%= signup.id %>">
-            <td class="font-semibold"><%= signup.name %></td>
-            <td class="text-muted break-all"><%= signup.email %></td>
+            <%# As on Accounts: the name keeps one line and sets the column's width; a very long one is cut with "…". %>
+            <td class="font-semibold"><span class="block max-w-56 truncate" title="<%= signup.name %>" data-signup-name><%= signup.name %></span></td>
+            <td class="whitespace-nowrap text-muted"><%= signup.email %></td>
             <td class="r whitespace-nowrap text-muted tabular"><%= l(signup.created_at.to_date) %></td>
-            <td>
+            <td class="whitespace-nowrap">
               <% if account %>
                 <%= desk_chip(:ok) { t("admin.organizers.has_account") } %>
               <% else %>
@@ -82,8 +83,13 @@
         <% @organizers.each do |organizer| %>
           <% events_count = @events_counts.fetch(organizer.id, 0) %>
           <tr data-organizer="<%= organizer.id %>">
-            <td class="font-semibold"><%= organizer.user.name %><% if organizer.suspended? %> <span class="ms-1.5 align-middle" data-suspended><%= desk_chip(:bad) { t("admin.organizers.suspended_chip") } %></span><% end %></td>
-            <td class="text-muted break-all"><%= organizer.user.email_address %></td>
+            <td class="font-semibold">
+              <div class="flex items-center gap-1.5 whitespace-nowrap">
+                <span class="block max-w-56 truncate" title="<%= organizer.user.name %>" data-organizer-name><%= organizer.user.name %></span>
+                <% if organizer.suspended? %><span data-suspended><%= desk_chip(:bad) { t("admin.organizers.suspended_chip") } %></span><% end %>
+              </div>
+            </td>
+            <td class="whitespace-nowrap text-muted"><%= organizer.user.email_address %></td>
             <td class="r tabular"><%= events_count %></td>
             <td class="r whitespace-nowrap text-muted tabular"><%= l(organizer.created_at.to_date) %></td>
             <td class="r">

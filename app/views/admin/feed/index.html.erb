@@ -29,8 +29,8 @@
         <% @posts.each do |post| %>
           <tr data-reported-post="<%= post.id %>">
             <td class="max-w-md whitespace-pre-line text-ink"><%= truncate(post.body, length: 240) %></td>
-            <td><%= post.user.display_name %></td>
-            <td><%= link_to post.event.name, play_event_path(post.event.slug), class: "hover:underline" %></td>
+            <td><span class="block max-w-56 truncate" title="<%= post.user.display_name %>"><%= post.user.display_name %></span></td>
+            <td><%= link_to post.event.name, play_event_path(post.event.slug), class: "block max-w-56 truncate hover:underline", title: post.event.name %></td>
             <td class="r tabular"><%= post.reports_count %></td>
             <td><%= post.hidden ? desk_chip(:warn) { t("admin.feed.hidden") } : desk_chip(:ok) { t("admin.feed.visible") } %></td>
             <td class="r whitespace-nowrap">
