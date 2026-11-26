@@ -848,6 +848,20 @@
     background: rgb(17 19 21 / 0.45);
   }
 
+  /* The same mosaic behind a whole page (layouts/application, content_for :mosaic): still, tilted, barely there. */
+  .mosaic-bg::before {
+    content: "";
+    position: fixed;
+    inset: -14% -12%;
+    z-index: -1;
+    pointer-events: none;
+    background-image: var(--mosaic);
+    background-repeat: repeat;
+    background-size: 1100px auto;
+    transform: rotate(-6deg);
+    opacity: 0.05;
+  }
+
   /* The feed's fixed banner: six card arts in a row, darkened towards the bottom, the title at the bottom-left. */
   .feed-hero {
     position: relative;
