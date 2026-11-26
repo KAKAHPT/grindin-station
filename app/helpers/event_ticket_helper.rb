@@ -87,10 +87,6 @@ module EventTicketHelper
     sold_out && event.registration_open?
   end
 
-  def ticket_tone(event, sold_out)
-    ticket_sold_out?(event, sold_out) ? :warn : EventsHelper::EVENT_STATE_TONES.fetch(event.state)
-  end
-
   # The state as a small outlined tag before the event name ("Sold out", "Registration open", "Swiss round 2");
   # sold out in the warn tone, everything else muted.
   # No tag while registration is simply open: the Register button already says it. Sold out, closed, running and

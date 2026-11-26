@@ -234,7 +234,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
           assert_select "a[data-register][href=?]", play_event_path(tournament.slug), text: "Join waiting list"
         end
       end
-    assert_select "[data-featured-event='#{featured.slug}'].lp-ft-warn"
+    # The featured ticket carries no state colour: the Sold out tag says it.
+    assert_select "[data-featured-event='#{featured.slug}'][class='lp-ft']"
 
     get root_path(locale: "es")
     assert_select "[data-upcoming-event='#{event.slug}'] .lp-evr-state", text: "Agotado"

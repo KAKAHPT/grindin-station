@@ -2212,8 +2212,11 @@
     padding: 0 24px;
   }
 
-  .lp-feat .lp-eyebrow {
+  /* The rail titles read like "Upcoming events". */
+  .lp-feat .lp-rail-hd h2 {
     margin-bottom: 12px;
+    font: 600 22px var(--font-display);
+    letter-spacing: -0.01em;
   }
 
   /* Rails: featured events (3 per view) and featured circuits (4 per view) scroll sideways; the header's arrows
@@ -2273,8 +2276,6 @@
   }
 
   .lp-ft {
-    --ft-tone: var(--color-accent);
-    --ft-glow: rgb(45 212 191 / 0.5);
     position: relative;
     display: grid;
     grid-template-columns: 84px 1fr;
@@ -2293,21 +2294,6 @@
     inset: 0;
     z-index: -1;
     background: linear-gradient(90deg, rgb(17 19 21 / 0.35) 0, rgb(17 19 21 / 0.82) 36%, rgb(17 19 21 / 0.94) 100%);
-  }
-
-  .lp-ft-warn {
-    --ft-tone: var(--color-warn);
-    --ft-glow: rgb(251 191 36 / 0.4);
-  }
-
-  .lp-ft-info {
-    --ft-tone: var(--color-info);
-    --ft-glow: rgb(122 162 247 / 0.5);
-  }
-
-  .lp-ft-bad {
-    --ft-tone: var(--color-danger);
-    --ft-glow: rgb(248 113 113 / 0.4);
   }
 
   .lp-ft-stub {
@@ -2336,8 +2322,7 @@
   .lp-ft-stub b {
     font: 800 34px var(--font-display);
     line-height: 1;
-    color: var(--ft-tone);
-    text-shadow: 0 0 24px var(--ft-glow);
+    color: var(--color-ink);
   }
 
   .lp-ft-stub small {
@@ -2392,15 +2377,6 @@
     gap: 8px;
     margin-top: auto;
     padding-top: 8px;
-  }
-
-  .lp-ft-edge {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--ft-tone), transparent 70%);
   }
 
   /* One ticket (option 4C): cover, body, perforated stub. */
