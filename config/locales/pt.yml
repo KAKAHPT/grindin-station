@@ -911,7 +911,6 @@ pt:
     draw: "Draw"
     score: "Resultado"
     submit: "Submeter"
-    call_judge: "Chamar um juiz"
     judge_called: "Juiz chamado"
     judge_requested: "Juiz pedido"
     confirm: "Confirmar"

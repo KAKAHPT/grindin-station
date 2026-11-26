@@ -911,7 +911,6 @@ en:
     draw: "Draw"
     score: "Score"
     submit: "Submit"
-    call_judge: "Call a judge"
     judge_called: "Judge called"
     judge_requested: "Judge requested"
     confirm: "Confirm"
