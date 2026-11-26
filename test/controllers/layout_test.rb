@@ -10,7 +10,13 @@ class LayoutTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_top_bar
+    assert_select "[data-topbar] a", text: "Sign up"
+    assert_select "[data-topbar] a", text: "Sign in", count: 0
+
+    cookies[:known_account] = "1"
+    get profile_path(users(:player_one).handle)
     assert_select "[data-topbar] a", text: "Sign in"
+    assert_select "[data-topbar] a", text: "Sign up", count: 0
   end
 
   test "the Admin chip shows for admins only, on under /admin" do

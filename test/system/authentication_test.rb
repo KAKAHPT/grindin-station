@@ -139,7 +139,7 @@ class AuthenticationTest < ApplicationSystemTestCase
   end
 
   test "forgot password modal cancel button stays inline" do
-    visit events_path
+    visit_as_returning events_path
 
     find("[data-topbar] a", text: "Sign in").click
     assert_selector "turbo-frame#modal"
@@ -155,7 +155,7 @@ class AuthenticationTest < ApplicationSystemTestCase
   end
 
   test "sign in modal cancel button closes the modal" do
-    visit events_path
+    visit_as_returning events_path
 
     assert_selector "[data-topbar] a", text: "Sign in"
     find("[data-topbar] a", text: "Sign in").click
@@ -178,7 +178,7 @@ class AuthenticationTest < ApplicationSystemTestCase
   end
 
   test "successful sign in closes modal and refreshes page" do
-    visit events_path
+    visit_as_returning events_path
 
     find("[data-topbar] a", text: "Sign in").click
     fill_in "session_email_address", with: users(:player_one).email_address
@@ -190,7 +190,7 @@ class AuthenticationTest < ApplicationSystemTestCase
   end
 
   test "sign up from the events page asks for the e-mail confirmation and keeps the visitor signed out" do
-    visit events_path
+    visit_as_returning events_path
 
     find("[data-topbar] a", text: "Sign in").click
     click_on "Create an account with any e-mail"

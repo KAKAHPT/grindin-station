@@ -78,4 +78,11 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     (@phone_sessions ||= []) << Capybara.session_name
     assert_equal width, page.evaluate_script("screen.width")
   end
+
+  # Opens the page as a visitor whose browser has signed in before: the top bar offers Sign in, not Sign up.
+  def visit_as_returning(path)
+    visit path
+    page.driver.browser.manage.add_cookie(name: "known_account", value: "1")
+    visit path
+  end
 end

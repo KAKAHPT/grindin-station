@@ -71,11 +71,14 @@
         </div>
         <%= render "notifications/bell" %>
       <% else %>
-        <%= link_to t("topbar.sign_in"), new_session_path(locale: params[:locale]),
-                    data: ({ turbo_frame: "modal" } if local_assigns[:modal_sign_in]),
-                    class: small_button_classes(:secondary) %>
-        <%# A visitor without an account: Sign up sits beside Sign in. %>
-        <%= link_to t("topbar.sign_up"), new_registration_path(locale: params[:locale]), class: small_button_classes(:primary), data: { topbar_sign_up: true } %>
+        <%# One button: Sign in on a browser that has signed in before (cookie known_account), Sign up on any
+            other. Each form links to the other one. %>
+        <% modal = ({ turbo_frame: "modal" } if local_assigns[:modal_sign_in]) %>
+        <% if cookies[:known_account].present? %>
+          <%= link_to t("topbar.sign_in"), new_session_path(locale: params[:locale]), data: modal, class: small_button_classes(:secondary) %>
+        <% else %>
+          <%= link_to t("topbar.sign_up"), new_registration_path(locale: params[:locale]), data: (modal || {}).merge(topbar_sign_up: true), class: small_button_classes(:primary) %>
+        <% end %>
       <% end %>
       <button type="button" class="topbar-burger" data-menu-target="button" data-action="menu#toggle"
               aria-controls="topbar-panel" aria-expanded="false">
