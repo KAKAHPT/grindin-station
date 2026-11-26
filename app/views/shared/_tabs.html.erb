@@ -1,6 +1,7 @@
 <%# Route tabs (underline teal). Local tabs: array of { label:, path:, active:, badge:, badge_data: } (badge optional;
-    a tab without a path shows disabled). Optional local trailing: markup for the right end of the bar. %>
-<nav class="tabs" data-tabs>
+    a tab without a path shows disabled). Optional local trailing: markup for the right end of the bar. Optional local
+    pages: true draws them as the tabs of a folder, the open one joined to the .tab-page under it. %>
+<nav class="tabs <%= "tabs-pages" if local_assigns[:pages] %>" data-tabs>
   <% tabs.each do |tab| %>
     <% if tab[:path] %>
       <%= link_to tab[:path], class: tab_classes(tab[:active]), "aria-current": ("page" if tab[:active]) do %>

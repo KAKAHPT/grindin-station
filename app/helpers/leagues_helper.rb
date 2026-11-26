@@ -10,6 +10,15 @@ module LeaguesHelper
             class: "hover:text-accent hover:underline"
   end
 
+  # "Ana won" or "Draw": the result reported at a table and still waiting for a confirmation.
+  def league_pending_text(pod)
+    pending = pod.pending_result
+    return t("leagues.tables.draw") if pending["type"] == "Draw"
+
+    winner = pod.seatings.map(&:event_participant).find { |participant| participant.id == pending["winner_id"] }
+    t("leagues.tables.won", name: winner&.name)
+  end
+
   # The tabs of an open-tables league page.
   def league_tabs(league, active)
     %w[about tables mine played standings].map do |tab|
@@ -18,12 +27,11 @@ module LeaguesHelper
     end
   end
 
-  # The organizer's league page tabs: the tables to deal with (badge: how many wait for the organizer), the
-  # players and the league's details.
-  def organizer_league_tabs(league, active, waiting: 0)
-    badges = { "tables" => (waiting if waiting.positive?), "players" => league.event_participants.count(&:enrolled?) }
-    %w[tables players details].map do |tab|
-      { label: t("league_desk.tabs.#{tab}"), active: tab == active, badge: badges[tab],
+  # The organizer's league page tabs: the tables to deal with, the players, the league's details and the form
+  # that edits them.
+  def organizer_league_tabs(league, active)
+    %w[tables players details edit].map do |tab|
+      { label: t("league_desk.tabs.#{tab}"), active: tab == active,
         path: organizer_league_path(league, tab: (tab unless tab == "tables")) }
     end
   end

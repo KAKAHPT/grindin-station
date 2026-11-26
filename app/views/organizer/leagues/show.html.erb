@@ -19,16 +19,26 @@
       <% end %>
     <% end %>
     <%= link_to t("organizer.shell.view_public"), league_path(@league), target: "_blank", rel: "noopener", class: button_classes(:secondary, size: :sm) %>
-    <%= link_to t("organizer.tournaments.edit"), edit_organizer_league_path(@league), class: button_classes(:ghost, size: :sm) %>
+    <%# An open-tables league is edited in its own tab. %>
+    <% unless @league.play_mode_open_tables? %>
+      <%= link_to t("organizer.tournaments.edit"), edit_organizer_league_path(@league), class: button_classes(:ghost, size: :sm) %>
+    <% end %>
   </div>
 </div>
 
 <% if @league.play_mode_open_tables? %>
   <%= render "organizer/leagues/desk", league: @league %>
-  <div class="col-span-full pt-2"><%= render "shared/tabs", tabs: organizer_league_tabs(@league, @tab, waiting: @pending_tables.count(&:cancel_pending?) + @corrections.size) %></div>
+  <div class="col-span-full -mb-4 pt-2"><%= render "shared/tabs", pages: true, tabs: organizer_league_tabs(@league, @tab) %></div>
 <% end %>
 
-<% if @league.play_mode_open_tables? && @tab == "tables" %>
+<%# The open tab's page, joined to its tab. %>
+<% if @league.play_mode_open_tables? %><div class="col-span-full tab-page grid gap-4" data-tab-page="<%= @tab %>"><% end %>
+<% if @league.play_mode_open_tables? && @tab == "edit" %>
+  <section class="card overflow-clip" data-league-edit>
+    <%= render "form", league: @league %>
+    <div class="flex items-center border-t border-line px-[18px] py-3"><%= content_for(:footer) %></div>
+  </section>
+<% elsif @league.play_mode_open_tables? && @tab == "tables" %>
   <%= render "organizer/leagues/desk_tables", league: @league %>
 <% elsif @league.play_mode_open_tables? && @tab == "players" %>
   <%# Who is in the league, by registration; the organizer can take a player out until the cut, or readmit one. %>
@@ -157,6 +167,7 @@
 <% end %>
 
 <% end %>
+<% if @league.play_mode_open_tables? %></div><% end %>
 
 <% if (@league.state.in?(%w[play finals]) || @league.finished?) && !@league.play_mode_open_tables? %>
   <section class="col-span-full card overflow-clip">

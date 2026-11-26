@@ -2,8 +2,9 @@
 
 module Results
   # Pending results nobody confirmed within the event's timeout go to staff for review;
-  # they are never accepted automatically. Leagues are left out: an open-tables league closes a game on the
-  # report itself. Runs every minute (config/recurring.yml).
+  # they are never accepted automatically. Leagues are left out: there the game closes on the report itself or,
+  # when the league asks for a confirmation, by itself when the window ends (Leagues::AcceptPendingJob).
+  # Runs every minute (config/recurring.yml).
   class ExpirePendingJob < ApplicationJob
     def perform
       now = Time.current

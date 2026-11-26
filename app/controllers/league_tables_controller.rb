@@ -36,23 +36,35 @@ class LeagueTablesController < ApplicationController
   end
 
   # A player reports their own win ("win") or a draw ("draw"); nobody reports a win for someone else.
+  # The game closes at once or, in a league that asks for it, waits for another player's confirmation.
   def report # rubocop:disable Metrics/AbcSize
     type = { "win" => "Win", "draw" => "Draw" }.fetch(params[:result].to_s) { raise Results::NotAllowed, "invalid_type" }
+    raise Leagues::Tables::NotAllowed, "already_reported" if pod!.pending_result
+
     Results::Report.call(pod: pod!, participant: participant!, type: type, winner: (participant! if type == "Win"))
-    # The others at the table learn it at once: a mistake is theirs to flag (Pedir correção).
+    closed = pod!.reload.finished?
+    # The others at the table learn it at once: to confirm it, or to flag a mistake (Pedir correção).
     others = pod!.users.where.not(id: current_user.id).pluck(:id)
-    Notify.create_for(others, kind: "league_result_reported", subject: pod!)
+    Notify.create_for(others, kind: closed ? "league_result_reported" : "league_confirm_result", subject: pod!)
     Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
-    # The game is closed: on to Completed rounds, where it now is (and where a correction is asked).
+    # A closed game is in Completed rounds (where a correction is asked); one to confirm stays in My round.
+    redirect_to league_path(@league, tab: closed ? "played" : "mine", locale: params[:locale]),
+                notice: t("leagues.tables.notices.#{closed ? 'reported' : 'reported_pending'}")
+  end
+
+  # Another player of the table confirms the reported result: the game closes.
+  def confirm
+    Results::Confirm.call(pod: pod!, participant: participant!)
+    Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
     redirect_to league_path(@league, tab: "played", locale: params[:locale]),
-                notice: t("leagues.tables.notices.reported")
+                notice: t("leagues.tables.notices.confirmed")
   end
 
   # The reported result is wrong: the player asks the staff to correct it.
   def correction
     Leagues::Tables::RequestCorrection.call(table: @table, participant: participant!, reason: params[:reason])
     Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
-    redirect_to league_path(@league, tab: "played", locale: params[:locale]),
+    redirect_to league_path(@league, tab: pod!.finished? ? "played" : "mine", locale: params[:locale]),
                 notice: t("leagues.tables.notices.correction_requested")
   end
 

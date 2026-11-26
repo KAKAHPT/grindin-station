@@ -10,6 +10,10 @@ class League < Event
   TABLE_SIZE = 4
   # A table that has not filled this long after it was opened closes by itself.
   TABLE_WAIT = 2.hours
+  # With result_confirmation "one": a reported result nobody confirmed or said was wrong is accepted after this.
+  CONFIRMATION_WINDOW = 24.hours
+  # none: a report closes the game at once; one: another player of the table confirms it first.
+  CONFIRMATIONS = %w[none one].freeze
   DRAW_RULES = %w[split lost].freeze
   CUT_SIZES = [0, 4, 16].freeze
   # The organizer-run modes (pickup, scheduled): three rounds and a final of the top 3, as before.
@@ -17,7 +21,8 @@ class League < Event
 
   # What a new league starts with; rows already stored keep their values.
   attribute :play_mode, default: 2
-  # A reported result closes the game at once; a mistake is fixed by a correction request to the staff.
+  # A reported result closes the game at once, unless the organizer asks for a confirmation (CONFIRMATIONS);
+  # a mistake is fixed by a correction request to the staff.
   attribute :result_confirmation, default: "none"
   attribute :top_cut_size, default: 16
   attribute :wager_percentage, default: 10

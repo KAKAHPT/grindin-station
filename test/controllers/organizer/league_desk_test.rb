@@ -13,15 +13,18 @@ module Organizer
       get new_organizer_league_path
       assert_response :success
       assert_select "select[name='league[play_mode]'] option[selected][value=open_tables]"
+      assert_select "select[name='league[result_confirmation]'] option[selected][value=none]"
 
       post organizer_leagues_path, params: { league: {
         name: "Liga de Dezembro", start_time: 1.day.from_now, end_time: 1.month.from_now, starting_points: 500,
-        wager_percentage: 20, draw_rule: "lost", top_cut_size: 4, min_games_for_cut: 3, max_games_per_week: 7
+        wager_percentage: 20, draw_rule: "lost", top_cut_size: 4, min_games_for_cut: 3, max_games_per_week: 7,
+        result_confirmation: "one"
       } }
 
       league = League.find_by!(name: "Liga de Dezembro")
       assert_redirected_to organizer_league_path(league)
       assert league.play_mode_open_tables?
+      assert_equal "one", league.result_confirmation
       assert_equal [500, 20, "lost", 4, 3, 7],
                    [league.starting_points, league.wager_percentage.to_i, league.draw_rule, league.top_cut_size,
                     league.min_games_for_cut, league.max_games_per_week]
@@ -33,9 +36,16 @@ module Organizer
 
       get organizer_league_path(league, tab: "details")
       assert_select "[data-league-step=play]"
-      assert_select "[data-tabs] a", 3
+      assert_select "[data-tabs] a", 4
+      assert_select "[data-tabs] .tab-badge", 0
       assert_select "[data-league-details] [data-detail=draw_rule]", text: I18n.t("league_desk.draw_split")
       assert_select "[data-league-details] [data-detail=registered]", text: "8"
+      get organizer_league_path(league, tab: "edit")
+      assert_select "[data-tab-page=edit] form input[name='league[name]']"
+      assert_select "[data-tab-page=edit] button[type=submit][form]"
+      patch organizer_league_path(league), params: { league: { result_confirmation: "one" } }
+      assert_equal "one", league.reload.result_confirmation
+      patch organizer_league_path(league), params: { league: { result_confirmation: "none" } }
       patch transition_organizer_league_path(league), params: { to: "play" }
       assert_predicate league.reload, :play?
 

@@ -11,6 +11,11 @@
 <% if @tab %>
   <div class="col-span-full pt-2">
     <%= render "shared/tabs", tabs: league_tabs(league, @tab), trailing: (render("leagues/me", me: @me, rank: @my_rank, players: @ranked_count) if @me) %>
+    <%# The clock of the viewer's own game, under their line at the top right. %>
+    <% if (clock = @my_table&.pod) && clock.clock_started_at && !clock.finished? %>
+      <p class="mt-2 text-end font-mono text-[15px] font-semibold text-ink" data-table-clock data-controller="big-timer"
+         data-big-timer-started-at-value="<%= clock.clock_started_at.iso8601(3) %>" data-big-timer-minutes-value="<%= league.round_minutes %>"><%= clock_text(clock.clock_started_at, league.round_minutes * 60) %></p>
+    <% end %>
   </div>
 <% end %>
 <% if @tab == "tables" %>

@@ -49,6 +49,8 @@
     <%= f.select_with_label :draw_rule, League::DRAW_RULES.map { |rule| [t("league_desk.draw_#{rule}"), rule] },
                             { selected: league.draw_rule }, disabled: locked %>
     <%= f.number_field_with_label :round_minutes, min: 1, step: 1, label: { text: t("league_desk.clock_minutes") } %>
+    <%= f.select_with_label :result_confirmation, League::CONFIRMATIONS.map { |mode| [t("league_desk.confirmation_#{mode}"), mode] },
+                            { selected: league.result_confirmation }, label: { text: t("league_desk.confirmation") } %>
   </div>
 
   <h2 class="form-section"><%= t("league_desk.limits") %></h2>

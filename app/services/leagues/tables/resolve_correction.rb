@@ -4,6 +4,7 @@ module Leagues
   module Tables
     # The staff answer a correction request: `result` is the winner's participant id, "draw", or "keep" (the
     # reported result stands). A new result rewrites the game and replays the league's scores (Results::Apply).
+    # A result that was still waiting for a confirmation closes here, either way.
     class ResolveCorrection
       def self.call(table:, by:, result:) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
         LeagueTable.transaction do
@@ -12,7 +13,7 @@ module Leagues
           raise NotAllowed, "league_over" unless table.league.state.in?(RequestCorrection::OPEN_STATES)
 
           kept = result.to_s == "keep"
-          apply(table.pod, result, by) unless kept
+          kept ? Results::AcceptPending.call(pod: table.pod) : apply(table.pod, result, by)
           table.update!(correction_state: kept ? "kept" : "corrected", correction_decided_by: by,
                         correction_decided_at: Time.current)
           Notify.participants(table.pod, kind: "league_correction_#{kept ? 'kept' : 'done'}", subject: table.pod)
@@ -26,6 +27,7 @@ module Leagues
         raise NotAllowed, "invalid_result" if winner.nil? && result.to_s != "draw"
 
         Results::Apply.call(pod: pod, type: winner ? "Win" : "Draw", winner: winner, by: by)
+        pod.clear_report_state!
       end
       private_class_method :apply
     end

@@ -371,6 +371,13 @@ class EventParticipant < ApplicationRecord
   end
 
   # #opponents, from the shared standings load when there is one.
+  # League: the average win rate of the players met at its tables, one term per shared game; nil before the
+  # first game.
+  def league_opponents_win_rate
+    rates = opponent_records.filter_map(&:win_rate)
+    rates.sum / rates.size unless rates.empty?
+  end
+
   def opponent_records
     @standings ? @standings.opponents(id) : opponents
   end

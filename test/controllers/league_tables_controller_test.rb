@@ -50,6 +50,84 @@ class LeagueTablesControllerTest < ActionDispatch::IntegrationTest # rubocop:dis
     end
   end
 
+  test "a league that asks for it waits for another player to confirm the result" do # rubocop:disable Metrics/BlockLength
+    @league.update!(result_confirmation: "one")
+    LeagueBuilder.fill_table!(@league, @players.first(4))
+    table = @league.league_tables.sole
+
+    as(1) do
+      assert_difference -> { Notification.where(kind: "league_confirm_result").count }, 3 do
+        post report_league_table_path(@league, table), params: { result: "win" }
+      end
+      assert_redirected_to league_path(@league, tab: "mine")
+    end
+    assert_not table.pod.reload.finished?
+    as(1) do
+      get league_path(@league, tab: "mine")
+      assert_select "[data-result-state=pending]"
+      assert_select "form[data-confirm-result]", 0
+    end
+    as(2) do
+      post report_league_table_path(@league, table), params: { result: "draw" }
+      assert_not table.pod.reload.disputed?
+      get league_path(@league, tab: "mine")
+      assert_select "form[data-confirm-result]"
+      assert_select "form[data-wrong-result]"
+      post confirm_league_table_path(@league, table)
+      assert_redirected_to league_path(@league, tab: "played")
+    end
+
+    assert table.pod.reload.finished?
+    assert_equal 1, @players[1].reload.number_of_wins
+  end
+
+  test "a reported result said to be wrong goes to the staff, who keep it or correct it" do
+    @league.update!(result_confirmation: "one")
+    LeagueBuilder.fill_table!(@league, @players.first(4))
+    table = @league.league_tables.sole
+    as(1) { post report_league_table_path(@league, table), params: { result: "win" } }
+    as(2) { post correction_league_table_path(@league, table), params: { reason: "I won" } }
+
+    assert table.reload.correction_pending?
+    travel_to(25.hours.from_now) { Leagues::AcceptPendingJob.perform_now }
+    assert_not table.pod.reload.finished?
+    Leagues::Tables::ResolveCorrection.call(table: table, by: @league.event_organizer.user, result: "keep")
+
+    assert table.pod.reload.finished?
+    assert_nil table.pod.pending_result
+    assert_equal 1, @players[1].reload.number_of_wins
+  end
+
+  test "a reported result nobody answers is accepted after a day" do
+    @league.update!(result_confirmation: "one")
+    LeagueBuilder.fill_table!(@league, @players.first(4))
+    table = @league.league_tables.sole
+    as(0) { post report_league_table_path(@league, table), params: { result: "draw" } }
+
+    travel_to(23.hours.from_now) { Leagues::AcceptPendingJob.perform_now }
+    assert_not table.pod.reload.finished?
+    travel_to(25.hours.from_now) { Leagues::AcceptPendingJob.perform_now }
+
+    assert table.pod.reload.finished?
+    assert_equal 1, @players[0].reload.number_of_draws
+  end
+
+  test "the running clock sits at the top of the page and the standings show the opponents' win rate" do
+    LeagueBuilder.fill_table!(@league, @players.first(4))
+    table = @league.league_tables.sole
+    as(0) do
+      post clock_league_table_path(@league, table)
+      get league_path(@league, tab: "mine")
+      assert_select "[data-my-table] [data-table-clock]", 0
+      assert_select "[data-table-clock]", 1
+      post report_league_table_path(@league, table), params: { result: "win" }
+      get league_path(@league, tab: "standings")
+      assert_select "[data-league-row='#{@players[0].id}'] [data-league-opponents-win-rate]", text: "0%"
+      assert_select "[data-league-row='#{@players[1].id}'] [data-league-opponents-win-rate]", text: "33%"
+      assert_select "[data-league-row='#{@players[4].id}'] [data-league-opponents-win-rate]", text: "–"
+    end
+  end
+
   test "four players fill a table, the winner reports and the standings follow" do # rubocop:disable Metrics/BlockLength
     as(0) { post league_tables_path(@league) }
     table = @league.league_tables.sole

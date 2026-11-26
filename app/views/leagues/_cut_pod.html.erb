@@ -28,10 +28,9 @@
     <% end %>
   </ol>
   <% if report && mine && !done && round.finished_at.nil? %>
-    <div class="mt-auto border-t border-line px-4 py-4 text-[13px]" data-cut-report>
+    <div class="mt-auto flex justify-center border-t border-line px-4 py-4 text-[13px]" data-cut-report>
       <%= button_to t("leagues.tables.i_won"), report_league_cut_pod_path(league, pod, locale: params[:locale]),
                     class: button_classes(:primary, size: :sm), form: { data: { turbo_confirm: t("leagues.tables.cut_confirm") } } %>
-      <p class="mt-2 text-[12px] text-muted"><%= t("leagues.tables.cut_report_help") %></p>
     </div>
   <% end %>
 <% end %>

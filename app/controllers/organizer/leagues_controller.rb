@@ -17,7 +17,7 @@ module Organizer
         rounds: :pods,
         event_participants: { player: :user }
       ).find(params[:id])
-      @tab = params[:tab].presence_in(%w[players details]) || "tables"
+      @tab = params[:tab].presence_in(%w[players details edit]) || "tables"
       load_desk if @league.play_mode_open_tables?
     rescue ActiveRecord::RecordNotFound
       redirect_to [:organizer, :leagues], alert: t("flash.alert.not_authorized_league")
@@ -237,6 +237,7 @@ module Organizer
           max_games_per_week
           max_games_vs_same_opponent
           round_minutes
+          result_confirmation
         ]
       ).except(*locked_params)
     end
