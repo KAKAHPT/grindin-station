@@ -103,6 +103,7 @@ Rails.application.routes.draw do
       get "events/:slug/standings", to: "events#standings", as: :event_standings
       get "events/:slug/rounds", to: "events#rounds", as: :event_rounds
       get "events/:slug/info", to: "events#info", as: :event_info
+      get "admin/summary", to: "admin_summary#show", as: :admin_summary
     end
   end
 
