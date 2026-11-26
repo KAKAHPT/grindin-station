@@ -10,6 +10,7 @@ en:
     about: "About"
     language: "Language"
     sign_in: "Sign in"
+    sign_up: "Sign up"
     logout: "Logout"
     organizer_mode: "Organizer mode"
     admin: "Admin"

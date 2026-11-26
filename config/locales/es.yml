@@ -10,6 +10,7 @@ es:
     about: "Acerca de"
     language: "Idioma"
     sign_in: "Iniciar sesión"
+    sign_up: "Crear cuenta"
     logout: "Cerrar sesión"
     organizer_mode: "Modo organizador"
     admin: "Admin"

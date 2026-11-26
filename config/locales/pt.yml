@@ -10,6 +10,7 @@ pt:
     about: "Sobre"
     language: "Idioma"
     sign_in: "Entrar"
+    sign_up: "Criar conta"
     logout: "Sair"
     organizer_mode: "Modo organizador"
     admin: "Admin"
