@@ -1,3 +1,10 @@
 <p><%= t("organizers_mailer.approved.greeting", name: @user.name) %></p>
 <p><%= t("organizers_mailer.approved.body") %></p>
-<p><%= link_to t("organizers_mailer.approved.link"), organizer_root_url %></p>
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:6px 0 4px;">
+  <tr>
+    <td style="background:#f4f5f6; border-radius:10px;">
+      <%= link_to t("organizers_mailer.approved.link"), organizer_root_url,
+                  style: "display:inline-block; padding:12px 22px; font:700 14px/1 Helvetica, Arial, sans-serif; color:#0d0f11; text-decoration:none;" %>
+    </td>
+  </tr>
+</table>
