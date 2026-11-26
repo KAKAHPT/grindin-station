@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 module Profiles
-  # Profile totals from Profiles::History rows: events, top cuts, wins (1st place), top 4, win rate
+  # Profile totals from Profiles::History rows: events, top cuts, wins (1st place), top 4 (2nd to 4th: a win is
+  # its own award, never also a top 4), win rate
   # (wins over games), conversion rate (cuts over events) in whole percents (nil without a denominator),
   # and the four most played commanders as [[name, count], ...].
   class Summary
@@ -19,7 +20,7 @@ module Profiles
                  win_rate: percent(@rows.sum(&:wins), @rows.sum(&:games)),
                  conversion_rate: percent(top_cuts, @rows.size),
                  wins: @rows.count { |row| row.position == 1 },
-                 top4: @rows.count { |row| row.position && row.position <= 4 },
+                 top4: @rows.count { |row| row.position&.between?(2, 4) },
                  commanders: commanders)
     end
 

@@ -29,7 +29,7 @@ module Play
       assert_includes response.body, "Rua do Grind 1, Lisboa"
       assert_select "a[href^='https://www.google.com/maps']"
       assert_select "[data-event-price]", text: /10,00 €/
-      assert_select "[data-registration] [data-counters]", text: /4 players enrolled.*2 on the waiting list/m
+      assert_select "[data-registration] [data-counters]", text: /4 players registered.*2 on the waiting list/m
       assert_select "[data-enrolled], [data-waitlist]", count: 0
       (@enrolled + @waiting).each { |participant| assert_not_includes response.body, participant.name }
       assert_select "[data-you]", count: 0
@@ -118,7 +118,7 @@ module Play
 
       assert_select "[data-registration]", count: 0
       assert_select "[data-you]" do
-        assert_select "[data-you-state]", text: "You are enrolled"
+        assert_select "[data-you-state]", text: "You are registered"
         assert_select "[data-checked-in]", text: "Checked in"
         assert_select "form[data-decklist-form][action=?]", tournament_event_participant_path(@tournament, me) do
           assert_select "input[name=_method][value=patch]"
@@ -175,7 +175,7 @@ module Play
       get play_event_path(@tournament.slug)
 
       assert_select "a[href=?]", organizer_tournament_path(@tournament), text: "Manage"
-      assert_select "[data-registration] [data-counters]", text: /4 players enrolled/
+      assert_select "[data-registration] [data-counters]", text: /4 players registered/
       assert_select "[data-enrolled], [data-waitlist]", count: 0
     end
 
@@ -208,7 +208,7 @@ module Play
 
       assert_select ".evhead-eyebrow", text: "Sold out · Commander / cEDH"
       assert_select "[data-registration] [data-full]", text: "Registration is full."
-      assert_select "[data-registration] [data-counters]", text: "4 players enrolled."
+      assert_select "[data-registration] [data-counters]", text: "4 players registered."
       assert_select "[data-registration] form", count: 0
       assert_select "[data-registration] button", count: 0
     end

@@ -278,6 +278,19 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     event
   end
 
+  test "the landing ends with the site footer: brand, social links, link columns and the fan-content notice" do
+    get root_path
+
+    assert_select "footer[data-site-footer]" do
+      assert_select ".sf-brand", text: /Grindin Station/
+      assert_select ".sf-soc a[target=_blank][rel=noopener]", 5
+      assert_select "a[href=?]", events_path
+      assert_select "a[href='mailto:info@cedhpt.com']"
+      assert_select "a[data-privacy-link]"
+      assert_select "[data-attribution]"
+    end
+  end
+
   test "a pasted link to the site gets a card: title, description and the landing image" do
     get root_path
 

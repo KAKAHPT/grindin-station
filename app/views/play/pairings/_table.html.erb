@@ -20,7 +20,7 @@
       <% if drawn %>
         <%= status_chip(:muted, data: { draw: true }) { t("play.draw") } %>
       <% end %>
-      <%= status_chip(pod_status_tone(status), data: { pod_status: true }) { t("rounds.status.#{status}") } %>
+      <%= status_chip(pod_status_tone(status), data: { pod_status: true }, dot: status.to_sym != :completed) { t("rounds.status.#{status}") } %>
     </div>
   </div>
   <ol class="flex flex-col divide-y divide-line/60">

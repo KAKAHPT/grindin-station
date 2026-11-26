@@ -41,6 +41,9 @@ class MyEventsControllerTest < ActionDispatch::IntegrationTest
 
     get my_events_path
     assert_select "[data-my-panel] [data-my-check-in=soon]"
+    assert_select "[data-my-events] header.evb h1", text: I18n.t("my_events.title")
+    assert_select "[data-my-events] [data-list-filter]", count: 0
+    assert_select "[data-my-panel] [data-my-state]", text: "Registered"
     assert_select "[data-my-panel] form[data-my-decklist-form] input[name='event_participant[decklist]']"
     patch tournament_event_participant_path(@mine, participant),
           params: { from: "my_events", event_participant: { decklist: "https://moxfield.com/decks/abc" } }

@@ -35,7 +35,8 @@
                   </span>
                 <% end %>
               </span>
-              <%= desk_chip({ won: :ok, draw: :neutral, lost: :bad }.fetch(outcome)) { t("leagues.tables.result_#{outcome}") } %>
+              <%# The outcome as a plain word: no chip behind it. %>
+              <span class="text-[11px] font-semibold whitespace-nowrap <%= { won: "text-ink", draw: "text-muted", lost: "text-muted" }.fetch(outcome) %>" data-my-game-outcome="<%= outcome %>"><%= t("leagues.tables.result_#{outcome}") %></span>
             </li>
           <% end %>
         </ul>

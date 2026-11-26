@@ -47,7 +47,7 @@ module Play
       assert_redirected_to play_me_path(@tournament.slug)
       assert_equal :completed, @pod.reload.report_status
       follow_redirect!
-      assert_includes response.body, "Completed"
+      assert_includes response.body, "Finished"
     end
 
     test "with one confirmation the reporter waits and another player confirms" do

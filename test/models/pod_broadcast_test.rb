@@ -51,14 +51,14 @@ class PodBroadcastTest < ActiveSupport::TestCase
     round_broadcasts = capture_turbo_stream_broadcasts(LiveBroadcasts.round_stream(@round.id, :en))
     state = round_broadcasts.find { |b| b["action"] == "replace" }
     assert_equal "pod_#{@pod.id}_state", state["target"]
-    assert_includes state.to_html, "Completed"
+    assert_includes state.to_html, "Finished"
     assert(round_broadcasts.any? { |b| b["action"] == "refresh" })
     assert_not_includes state.to_html, I18n.t("rounds.add_extra_time"), "staff buttons stay out of the stream"
 
     @seated.each do |participant|
       assert_includes capture_turbo_stream_broadcasts(table_stream(participant)).last.to_html, "data-report-status"
     end
-    assert_match(/Completed/i, capture_turbo_stream_broadcasts(table_stream(@seated.last)).last.to_html)
+    assert_match(/Finished/i, capture_turbo_stream_broadcasts(table_stream(@seated.last)).last.to_html)
   end
 
   test "a player's pending report reaches the tablemates, who can now confirm" do

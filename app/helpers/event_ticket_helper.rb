@@ -97,7 +97,7 @@ module EventTicketHelper
 
     text = sold ? t("play.events.state.sold_out") : event_state_label(event, event.latest_published_round_number)
     tag.span(text, class: "lp-evr-state",
-                   data: { state_line: (sold ? "sold_out" : event.state), tone: ("warn" if sold) })
+                   data: { state_line: (sold ? "sold_out" : event.state), tone: ("sold" if sold) })
   end
 
   # Register while a tournament's registration is open; Join waiting list once it is full (when the event keeps

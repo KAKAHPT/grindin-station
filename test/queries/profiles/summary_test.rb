@@ -4,14 +4,14 @@ require "test_helper"
 
 module Profiles
   class SummaryTest < ActiveSupport::TestCase
-    test "counts events, cuts, wins and top 4, with win and conversion rates in whole percents" do
+    test "counts events, cuts, wins and top 4 (a win is not a top 4), with win and conversion rates in percents" do
       rows = [row(position: 1, made_cut: true, wins: 2, losses: 1, draws: 0),
               row(position: 4, made_cut: true, wins: 0, losses: 2, draws: 1),
               row(position: 9, made_cut: false, wins: 0, losses: 1, draws: 1)]
 
       summary = Summary.call(rows)
 
-      assert_equal [3, 2, 1, 2], [summary.events, summary.top_cuts, summary.wins, summary.top4]
+      assert_equal [3, 2, 1, 1], [summary.events, summary.top_cuts, summary.wins, summary.top4]
       assert_equal 25, summary.win_rate
       assert_equal 67, summary.conversion_rate
     end

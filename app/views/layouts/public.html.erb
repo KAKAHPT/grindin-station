@@ -31,15 +31,20 @@
       <%= yield %>
     </main>
 
-    <footer class="<%= content_for?(:full_main) ? "max-w-5xl" : content_for?(:wide_main) ? "max-w-2xl" : "max-w-md" %> mx-auto px-4 py-6 border-t border-line text-sm text-muted">
-      <%= yield :footer_note %>
-      <% if authenticated? %>
-        <%= link_to t("accounts.nav"), account_path(locale: params[:locale]), class: "hover:text-ink" %>
-      <% else %>
-        <%= link_to t("profiles.sign_in"), new_session_path(locale: params[:locale]), class: "hover:text-ink" %>
-      <% end %>
-      <span aria-hidden="true">·</span>
-      <%= link_to t("privacy.link"), privacy_path(locale: params[:locale]), class: "hover:text-ink", data: { privacy_link: true } %>
-    </footer>
+    <%# The landing brings the full site footer; every other page keeps the short line. %>
+    <% if content_for?(:site_footer) %>
+      <%= yield :site_footer %>
+    <% else %>
+      <footer class="<%= content_for?(:full_main) ? "max-w-5xl" : content_for?(:wide_main) ? "max-w-2xl" : "max-w-md" %> mx-auto px-4 py-6 border-t border-line text-sm text-muted">
+        <%= yield :footer_note %>
+        <% if authenticated? %>
+          <%= link_to t("accounts.nav"), account_path(locale: params[:locale]), class: "hover:text-ink" %>
+        <% else %>
+          <%= link_to t("profiles.sign_in"), new_session_path(locale: params[:locale]), class: "hover:text-ink" %>
+        <% end %>
+        <span aria-hidden="true">·</span>
+        <%= link_to t("privacy.link"), privacy_path(locale: params[:locale]), class: "hover:text-ink", data: { privacy_link: true } %>
+      </footer>
+    <% end %>
   </body>
 </html>

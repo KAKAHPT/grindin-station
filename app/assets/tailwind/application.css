@@ -472,13 +472,13 @@
 
   /* League standings: a size up from the other tables. */
   .league-standings td {
-    padding-top: 11px;
-    padding-bottom: 11px;
-    font-size: 15px;
+    padding-top: 9px;
+    padding-bottom: 9px;
+    font-size: 13px;
   }
 
   .league-standings th {
-    font-size: 11.5px;
+    font-size: 10.5px;
   }
 
   /* The narrowest phones (320 px): a long "Sign in" (es "Iniciar sesión") beside the name no longer pushes the
@@ -697,14 +697,27 @@
     background: transparent;
   }
 
+  /* The open tab is told by its fill and its ink, not by a coloured edge. */
   .tabs-pages .tab-on {
+    border-color: var(--color-line);
     background: color-mix(in srgb, var(--color-surface) 45%, var(--color-ground));
-    box-shadow: inset 0 2px 0 var(--color-accent);
   }
 
+  /* A league game: set into the page, no frame or shadow of its own; the viewer's own table looks like the rest. */
+  .game-card {
+    border-color: transparent;
+    background: rgb(255 255 255 / 0.022);
+    box-shadow: none;
+  }
+
+  .game-card .band {
+    background: rgb(255 255 255 / 0.03);
+  }
+
+  /* Room under the last card of a page, before the folder's bottom edge. */
   .tab-page {
     margin-top: -1px;
-    padding: 16px;
+    padding: 16px 16px 48px;
     border: 1px solid var(--color-line);
     border-radius: 0 12px 12px;
     background: color-mix(in srgb, var(--color-surface) 45%, var(--color-ground));
@@ -861,6 +874,193 @@
 
   .org-card > * {
     position: relative;
+  }
+
+  /* Event lists banner (shared/_list_header): title, lead and the Upcoming · Past switch on the left; on the right,
+     a row of leaning commander arts, all inside the banner, that fades towards the text. */
+  .evb {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: 176px;
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    background: var(--color-surface);
+    box-shadow: 0 18px 40px -26px #000;
+  }
+
+  .evb-art {
+    position: absolute;
+    inset: 0 22px 0 0;
+    z-index: -1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 16px;
+    pointer-events: none;
+    mask-image: linear-gradient(90deg, transparent 24%, #000 62%);
+  }
+
+  .evb-art img {
+    display: block;
+    flex: none;
+    width: 156px;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 10px;
+    opacity: 0.6;
+    transform: rotate(-5deg) translateY(-10px);
+    box-shadow: 0 14px 30px -14px #000;
+    transition: opacity 0.7s ease;
+  }
+
+  .evb-art img:nth-child(even) {
+    transform: rotate(4deg) translateY(12px);
+  }
+
+  .evb-art img.evb-out {
+    opacity: 0;
+  }
+
+  .evb-in {
+    position: relative;
+    padding: 24px 28px;
+    max-width: 560px;
+  }
+
+  .evb-eye {
+    font: 600 11px var(--font-display);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .evb h1 {
+    margin-top: 4px;
+    font: 700 34px/1.05 var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    text-shadow: 0 2px 18px #000;
+  }
+
+  .evb-lead {
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--color-muted);
+  }
+
+  .evb-seg {
+    margin-top: 14px;
+  }
+
+  @media (max-width: 720px) {
+    .evb-art {
+      opacity: 0.35;
+    }
+
+    .evb h1 {
+      font-size: 28px;
+    }
+  }
+
+  /* Site footer of the landing (shared/_site_footer), after cedhpt.com's. */
+  .sf {
+    border-top: 1px solid var(--color-line);
+    background: var(--color-ground);
+    color: var(--color-muted);
+    font-size: 13.5px;
+  }
+
+  .sf-in {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 56px 24px 28px;
+  }
+
+  .sf-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 40px;
+  }
+
+  .sf-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font: 700 18px var(--font-display);
+    color: var(--color-ink);
+  }
+
+  .sf-tag {
+    margin-top: 12px;
+    max-width: 280px;
+    line-height: 1.55;
+  }
+
+  .sf-soc {
+    display: flex;
+    gap: 8px;
+    margin-top: 18px;
+  }
+
+  .sf-soc a {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 12px;
+    font-size: 18px;
+    color: var(--color-ink);
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .sf-soc a:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .sf h4 {
+    margin-bottom: 12px;
+    font: 600 11px var(--font-display);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink);
+  }
+
+  .sf li + li {
+    margin-top: 8px;
+  }
+
+  .sf li a:hover {
+    color: var(--color-ink);
+  }
+
+  .sf-legal {
+    margin-top: 44px;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-line);
+    font-size: 12px;
+    line-height: 1.6;
+    opacity: 0.8;
+  }
+
+  .sf-legal p + p {
+    margin-top: 8px;
+  }
+
+  @media (max-width: 760px) {
+    .sf-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+
+    .sf-grid > :first-child {
+      grid-column: 1 / -1;
+    }
   }
 
   /* Social feed: the cEDH PT stream's grey card mosaic behind, tilted like the kit's pod scenes, a vignette, and one
@@ -2636,14 +2836,11 @@
     color: rgb(238 240 242 / 0.82);
   }
 
-  /* State tag before the event name (sold out in the warn tone). */
+  /* State words on a ticket (Swiss round 1, Top 40…): plain text, no frame. Sold out is larger, bold and red. */
   .lp-evr-state {
     display: inline-block;
     vertical-align: 2px;
     margin-right: 8px;
-    padding: 1px 6px;
-    border: 1px solid var(--color-line-strong);
-    border-radius: 4px;
     font: 600 10px var(--font-body);
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -2695,8 +2892,10 @@
     border-top: 1px solid var(--color-line);
   }
 
-  .lp-evr-state[data-tone="warn"] {
-    color: var(--color-warn);
+  .lp-evr-state[data-tone="sold"] {
+    font-weight: 800;
+    font-size: 12px;
+    color: var(--color-danger);
   }
 
   .lp-evr-org img {

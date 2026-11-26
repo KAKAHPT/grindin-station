@@ -155,7 +155,7 @@ export default class extends Controller {
     set("[data-stat=win_rate]", percent(sum("wins"), sum("wins") + sum("losses") + sum("draws")));
     set("[data-stat=conversion]", percent(cuts, rows.length));
     set("[data-ach=wins]", positions.filter((p) => p === 1).length);
-    set("[data-ach=top4]", positions.filter((p) => p <= 4).length);
+    set("[data-ach=top4]", positions.filter((p) => p >= 2 && p <= 4).length); // a win is not also a top 4
     set("[data-ach=cuts]", cuts);
     this.renderCommanders(rows);
   }

@@ -832,6 +832,7 @@ es:
       cancel_registration: "Anular inscripción"
       cancel_confirm: "¿Anular tu inscripción en este evento?"
       you_are_enrolled: "Estás inscrito"
+      registered: "Inscrito"
       you_are_waitlisted: "Lista de espera n.º %{position}"
       state:
         draft: "Borrador"
@@ -1444,6 +1445,14 @@ es:
       AO: "Angola"
       MZ: "Mozambique"
       CV: "Cabo Verde"
+  footer:
+    tagline: "Asientos justos y mesas en directo para torneos de cEDH. Hecho por cEDH PT."
+    play: "Jugar"
+    fairness: "Cómo se mantienen justos los asientos"
+    website: "Web de cEDH PT"
+    rules: "Reglas y política"
+    patreon: "Apóyanos en Patreon"
+    contact: "Contacto"
   landing:
     description: "Software de torneos con asientos justos. Hecho para cEDH y juegos multijugador, abierto a todos los formatos, en directo en todos los móviles."
     description_cedh: "Software de torneos con asientos justos. Hecho para cEDH, en directo en todos los móviles."
@@ -1600,6 +1609,7 @@ es:
       position: "Final"
     league:
       eyebrow: "Liga"
+      ongoing: "Grindin"
       players: "Jugadores"
       players_line: "%{registered} inscritos · mínimo %{min} · máximo %{max}"
       no_limit: "sin límite"

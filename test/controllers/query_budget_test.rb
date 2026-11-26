@@ -78,7 +78,7 @@ class QueryBudgetTest < ActionDispatch::IntegrationTest
                                     waitlist_position: i + 1)
     end
     assert_queries_under(60, "event page (organizer)") { get play_event_path(@t.slug) }
-    assert_select "[data-counters]", text: /64 players enrolled.*10 on the waiting list/m
+    assert_select "[data-counters]", text: /64 players registered.*10 on the waiting list/m
 
     delete session_path
     assert_queries_under(60, "event page (visitor)") { get play_event_path(@t.slug) }

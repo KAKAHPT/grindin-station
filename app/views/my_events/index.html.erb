@@ -1,6 +1,5 @@
-<div class="col-span-full pt-2" data-my-events>
-  <h1 class="font-display text-2xl font-semibold text-ink"><%= t("my_events.title") %></h1>
-  <p class="mt-1 text-[13px] text-muted"><%= t("my_events.lead") %></p>
+<div class="col-span-full" data-my-events>
+  <%= render "shared/list_header", title: t("my_events.title"), lead: t("my_events.lead") %>
 </div>
 
 <%# The events the viewer runs or works as staff: straight into the organizer's side of each. %>

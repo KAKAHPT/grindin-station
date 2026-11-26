@@ -1,6 +1,6 @@
 <%# One league table as a pod card, the same look as a table on a tournament's pairings page: title band with the
     status, the players, and (waiting tables) the Join button. A waiting table lists who is in so far and grows as
-    players join; it has no seat order yet, so its seats show a dot. Locals: league, table, viewer (participant or nil), joinable. %>
+    players join; it has no seat order yet, so its seats show a dot. A finished game keeps only a faint trace of the accent. Locals: league, table, viewer (participant or nil), joinable. %>
 <% pod = table.pod %>
 <% seats = pod ? pod.seatings.map { |seating| [seating.order, seating.event_participant] } : table.participants.map { |seated| [nil, seated] } %>
 <% free = League::TABLE_SIZE - seats.size %>
@@ -10,26 +10,26 @@
 <% drawn = done && results.values.all? { |result| result.is_a?(Draw) } %>
 <% correctable = done && mine && league.state.in?(Leagues::Tables::RequestCorrection::OPEN_STATES) %>
 <%= tag.article data: { league_table: table.state, waiting_table: (table.id if table.waiting?), my_table: (true if mine), controller: ("dialog" if correctable) },
-                class: ["card flex flex-col overflow-clip", ("border-accent/55 ring-1 ring-accent/20" if mine)] do %>
+                class: "card game-card flex flex-col overflow-clip" do %>
   <div class="band flex items-center justify-between gap-2 px-4 py-2.5">
     <h3 class="font-display text-[15px] font-semibold leading-none tracking-tight text-ink">
       <%= pod ? pod.round.display_name : t("leagues.tables.table_of", name: table.opener.name) %>
     </h3>
     <% if pod %>
       <span class="flex flex-wrap items-center justify-end gap-x-3 gap-y-0.5">
-        <% if drawn %><%= status_chip(:muted, data: { draw: true }) { t("leagues.tables.draw") } %><% end %>
+        <% if drawn %><%= status_chip(:muted, data: { draw: true }, dot: false) { t("leagues.tables.draw") } %><% end %>
         <%= pod_status_chip(pod) %>
       </span>
     <% else %>
-      <%= status_chip(:warn, data: { seats_left: free }) { t("leagues.tables.seats_left", count: free) } %>
+      <%= status_chip(:warn, data: { seats_left: free }, dot: false) { t("leagues.tables.seats_left", count: free) } %>
     <% end %>
   </div>
   <ol class="flex flex-col divide-y divide-line/60">
     <% seats.each do |order, seated| %>
       <% you = viewer && seated.id == viewer.id %>
       <% won = done && results[seated.id].is_a?(Win) %>
-      <%= tag.li data: { seat: order, me: (true if you), winner: (true if won) }, class: ["flex items-center gap-2.5 px-4 py-1.5 min-h-9", ("bg-accent/[0.08]" if you || won)] do %>
-        <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= you || won ? "text-accent" : "text-muted" %>"><%= order || "·" %></span>
+      <%= tag.li data: { seat: order, me: (true if you), winner: (true if won) }, class: ["flex items-center gap-2.5 px-4 py-1.5 min-h-9", ((done ? "bg-accent/[0.045]" : "bg-accent/[0.08]") if you || won)] do %>
+        <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= you || won ? (done ? "text-ink" : "text-accent") : "text-muted" %>"><%= order || "·" %></span>
         <span class="flex flex-1 items-center gap-1.5 min-w-0 text-[13px]">
           <span class="truncate <%= "font-semibold text-ink" if you || won %>"><%= league_player(seated) %></span>
           <% if you %><%= desk_chip(:ok) { t("play.tables.you") } %><% end %>

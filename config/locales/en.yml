@@ -507,16 +507,16 @@ en:
       empty: "No active tournaments."
       empty_past: "No past tournaments yet."
       enrolled:
-        one: "1 enrolled"
-        other: "%{count} enrolled"
+        one: "1 registered"
+        other: "%{count} registered"
       no_rounds: "No rounds yet"
       edit: "Edit"
     overview:
       "on": "On"
       "off": "Off"
       enrolled:
-        one: "enrolled · 1 on the waitlist"
-        other: "enrolled · %{count} on the waitlist"
+        one: "registered · 1 on the waitlist"
+        other: "registered · %{count} on the waitlist"
       without_decklist: "without decklist"
       format: "Format"
       game_format: "Game format"
@@ -540,7 +540,7 @@ en:
         empty: "Nothing yet."
         judge_call: "Judge called"
         judge_call_table: "Judge called at table %{table}"
-        enrolled: "%{name} enrolled"
+        enrolled: "%{name} registered"
         checked_in: "%{name} checked in"
         dropped: "%{name} dropped"
     settings:
@@ -718,7 +718,7 @@ en:
         dropped: "Dropped"
         dropped_round: "Dropped R%{round}"
       counters:
-        enrolled: "enrolled"
+        enrolled: "registered"
         checked_in: "checked in"
         unpaid: "unpaid"
         no_decklist: "no decklist"
@@ -736,7 +736,7 @@ en:
       column_desk: "Desk"
       all: "All"
       statuses:
-        enrolled: "Enrolled"
+        enrolled: "Registered"
         checked_in: "Checked in"
         waitlisted: "Waitlist"
         dropped: "Dropped"
@@ -758,7 +758,7 @@ en:
       promote: "Promote"
       confirm_drop: "Drop %{name}?"
       confirm_no_show: "Mark %{name} as a no-show?"
-      confirm_undo_drop: "Re-enroll %{name}?"
+      confirm_undo_drop: "Re-register %{name}?"
   play:
     description: "%{event}: pairings, standings and tables, live."
     not_a_participant: "Only players in this event can open that page."
@@ -794,11 +794,11 @@ en:
       format: "Format"
       registration: "Registration"
       counts_open:
-        one: "Registration is open. 1 player enrolled."
-        other: "Registration is open. %{count} players enrolled."
+        one: "Registration is open. 1 player registered."
+        other: "Registration is open. %{count} players registered."
       counts:
-        one: "1 player enrolled."
-        other: "%{count} players enrolled."
+        one: "1 player registered."
+        other: "%{count} players registered."
       counts_waitlist:
         one: "1 on the waiting list."
         other: "%{count} on the waiting list."
@@ -831,7 +831,8 @@ en:
       decklist_placeholder_required: "Decklist link (required)"
       cancel_registration: "Cancel registration"
       cancel_confirm: "Cancel your registration for this event?"
-      you_are_enrolled: "You are enrolled"
+      you_are_enrolled: "You are registered"
+      registered: "Registered"
       you_are_waitlisted: "Waiting list #%{position}"
       state:
         draft: "Draft"
@@ -905,7 +906,7 @@ en:
       pending: "Waiting for confirmation"
       review: "Waiting for confirmation"
       disputed: "Disputed: a judge is on the way"
-      completed: "Completed"
+      completed: "Finished"
     reports:
     report_result: "Report result"
     draw: "Draw"
@@ -977,7 +978,7 @@ en:
       pending: "Pending"
       review: "Review"
       disputed: "Disputed"
-      completed: "Completed"
+      completed: "Finished"
     judge_called: "Judge called"
     reported_by: "Reported by seat %{seat} · %{time}"
     reported_by_player: "Reported by %{name} · %{time}"
@@ -1444,6 +1445,14 @@ en:
       AO: "Angola"
       MZ: "Mozambique"
       CV: "Cape Verde"
+  footer:
+    tagline: "Fair seats and live tables for cEDH tournaments. Made by cEDH PT."
+    play: "Play"
+    fairness: "How seats are kept fair"
+    website: "cEDH PT website"
+    rules: "Rules & policy"
+    patreon: "Support us on Patreon"
+    contact: "Contact"
   landing:
     description: "Tournament software with fair seats. Built for cEDH and multiplayer games, open to every format, live on every phone."
     description_cedh: "Tournament software with fair seats. Built for cEDH, live on every phone."
@@ -1510,8 +1519,8 @@ en:
         other: "%{count} open for registration"
       see_all: "See all"
       empty: "No upcoming events yet. Check back soon."
-      enrolled: "enrolled"
-      of_max: "of %{max} enrolled"
+      enrolled: "registered"
+      of_max: "of %{max} registered"
       more: "More info"
       less: "Less"
       view: "View event"
@@ -1600,6 +1609,7 @@ en:
       position: "Final"
     league:
       eyebrow: "League"
+      ongoing: "Grindin"
       players: "Players"
       players_line: "%{registered} registered · minimum %{min} · maximum %{max}"
       no_limit: "no limit"

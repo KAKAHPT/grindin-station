@@ -119,7 +119,7 @@ class OrganizerRoundFlowTest < ApplicationSystemTestCase # rubocop:disable Metri
     end
 
     within("#pod_#{pod.id}") do
-      assert_text(/completed/i)
+      assert_text(/finished/i)
       assert_selector "li[data-name='#{winner.name}']", text: /2-1/
     end
     assert_equal [2, 1, 0], Result.current.find_by!(round: round, event_participant: winner).games
@@ -139,6 +139,6 @@ class OrganizerRoundFlowTest < ApplicationSystemTestCase # rubocop:disable Metri
     winner = pod.seatings.order(:order).first.event_participant
     Results::Report.call(pod: pod, participant: winner, type: "Win", winner: winner)
     Turbo::StreamsChannel.broadcast_refresh_to(LiveBroadcasts.round_stream(round.id, :en))
-    within("#pod_#{pod.id}") { assert_text(/completed/i) }
+    within("#pod_#{pod.id}") { assert_text(/finished/i) }
   end
 end

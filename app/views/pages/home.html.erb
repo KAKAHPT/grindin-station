@@ -7,8 +7,8 @@
 <% cedh_only = !Features.on?(:one_v_one) %>
 <% content_for :description, t(cedh_only ? "landing.description_cedh" : "landing.description") %>
 <% content_for :full_main, "1" %>
-<% content_for :footer_note do %>
-  <p class="mb-3 text-xs" data-attribution><%= t("landing.attribution") %></p>
+<% content_for :site_footer do %>
+  <%= render "shared/site_footer" %>
 <% end %>
 <% url_locale = params[:locale] %>
 <% arts = (1..48).map { |n| image_path("landing/c#{n}.jpg") } %>
