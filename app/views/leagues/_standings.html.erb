@@ -1,5 +1,5 @@
 <%# Standings of an open-tables league: score, win rate, opponents' win rate, games, wins, draws, losses (narrow, centred); who has too few games for the cut
-    is marked. Locals: league, standings (League#ranked_participants). %>
+    is marked. Locals: league, standings (League#ranked_participants, one page of 16). %>
 <section class="col-span-full card overflow-clip mx-auto w-full max-w-6xl" data-league-standings>
   <h2 class="card-title"><%= t("lists.league.standings") %></h2>
   <% if standings.any? %>
@@ -19,7 +19,7 @@
           </tr>
         </thead>
         <tbody>
-          <% standings.each.with_index(1) do |participant, rank| %>
+          <% standings.each.with_index(standings.offset_value + 1) do |participant, rank| %>
             <% short = participant.league_games < league.min_games_for_cut %>
             <tr data-league-row="<%= participant.id %>">
               <td class="r font-display font-semibold text-muted"><%= league.finished? && participant.final_position ? participant.final_position : rank %></td>
@@ -36,6 +36,7 @@
         </tbody>
       </table>
     </div>
+    <% if standings.total_pages > 1 %><div class="border-t border-line px-4 py-2.5" data-standings-pages><%= paginate standings %></div><% end %>
     <% if league.min_games_for_cut.positive? && league.top_cut_size.to_i.positive? %>
       <p class="border-t border-line px-4 py-2.5 text-[12px] text-muted"><%= t("leagues.standings.min_games_note", count: league.min_games_for_cut) %></p>
     <% end %>

@@ -15,7 +15,9 @@
 
 <div class="landing">
   <section class="lp-hero">
-    <div class="lp-mosaic" aria-hidden="true">
+    <%# The backdrop fades to nothing at the bottom, so the cards rise out of the page itself. %>
+    <div class="lp-backdrop" aria-hidden="true">
+    <div class="lp-mosaic">
       <% 2.times do %>
         <div class="lp-sheet">
           <% arts.each do |src| %>
@@ -24,7 +26,8 @@
         </div>
       <% end %>
     </div>
-    <div class="lp-vig" aria-hidden="true"></div>
+    <div class="lp-vig"></div>
+    </div>
     <div class="lp-hero-in">
       <div class="lp-mark"><%= render "shared/mark", size: 84, id_suffix: "hero", rotating: true %></div>
       <p class="lp-eyebrow"><%= t("landing.eyebrow") %></p>

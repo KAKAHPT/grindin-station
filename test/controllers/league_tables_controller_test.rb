@@ -140,6 +140,18 @@ class LeagueTablesControllerTest < ActionDispatch::IntegrationTest # rubocop:dis
     end
   end
 
+  test "the standings show 16 places a page and the feed the latest 15 results" do
+    league = LeagueBuilder.build(players: 18, organizer: event_organizers(:standard_organizer))
+
+    get league_path(league, tab: "standings")
+    assert_select "[data-league-row]", 16
+    assert_select "[data-standings-pages] a[href*='page=2']"
+    get league_path(league, tab: "standings", page: 2)
+    assert_select "[data-league-row]", 2
+    assert_select "[data-league-row] td:first-child", text: "17"
+    assert_equal 15, LeaguesController::FEED_SIZE
+  end
+
   test "four players fill a table, the winner reports and the standings follow" do # rubocop:disable Metrics/BlockLength
     as(0) { post league_tables_path(@league) }
     table = @league.league_tables.sole

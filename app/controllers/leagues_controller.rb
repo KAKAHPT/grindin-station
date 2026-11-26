@@ -6,6 +6,8 @@ class LeaguesController < ApplicationController
 
   skip_before_action :require_authentication
 
+  STANDINGS_PER_PAGE = 16
+  FEED_SIZE = 15
   TABLE_PRELOAD = { participants: { player: :user },
                     pod: [{ round: :results }, { seatings: { event_participant: { player: :user } } }] }.freeze
 
@@ -41,11 +43,17 @@ class LeaguesController < ApplicationController
 
   def load_tab
     case @tab
-    when "standings" then @standings = final_order(@ranked || @league.ranked_participants)
+    when "standings" then load_standings
     when "tables", "mine" then load_tables
     when "played" then load_played
     when "feed" then load_feed
     end
+  end
+
+  # The Standings tab, 16 places a page.
+  def load_standings
+    order = final_order(@ranked || @league.ranked_participants)
+    @standings = Kaminari.paginate_array(order).page(params[:page]).per(STANDINGS_PER_PAGE)
   end
 
   # A finished league reads in its final order (the cut's champion first), not by score.
@@ -110,10 +118,10 @@ class LeaguesController < ApplicationController
       .order("rounds.finished_at DESC").preload(TABLE_PRELOAD).page(params[:page]).per(24)
   end
 
-  # The Feed tab: what happened in the league, latest first (each finished game and who won it).
+  # The Feed tab: the league's latest results (each finished game and who won it), newest first.
   def load_feed
     @feed = @league.league_tables.filled.joins(pod: :round).where.not(rounds: { finished_at: nil })
-      .order("rounds.finished_at DESC").preload(TABLE_PRELOAD).page(params[:page]).per(30)
+      .order("rounds.finished_at DESC").preload(TABLE_PRELOAD).limit(FEED_SIZE).to_a
   end
 
   # Waiting with the viewer in it, or full with the viewer seated and no final result yet.

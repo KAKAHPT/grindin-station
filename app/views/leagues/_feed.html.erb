@@ -1,5 +1,5 @@
-<%# The Feed tab: the league's finished games as a list of news, latest first: who won (or a draw), against whom
-    and when. Locals: league. Uses @feed (paginated). %>
+<%# The Feed tab: the league's latest 15 results as a list of news, newest first: who won (or a draw), against
+    whom and when. Locals: league. Uses @feed. %>
 <div class="col-span-full mx-auto w-full max-w-3xl" data-league-feed>
   <% if @feed.any? %>
     <ul class="card divide-y divide-line overflow-clip text-[14px]">
@@ -23,7 +23,6 @@
         </li>
       <% end %>
     </ul>
-    <div class="mt-4"><%= paginate @feed %></div>
   <% else %>
     <p class="card px-4 py-6 text-center text-[12.5px] text-muted"><%= t("leagues.tables.none_played") %></p>
   <% end %>

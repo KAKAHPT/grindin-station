@@ -1698,6 +1698,16 @@
     text-align: center;
   }
 
+  /* The hero's backdrop (art sheet and shade), faded out towards the bottom: no edge against the page. */
+  .lp-backdrop {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(180deg, #000 50%, transparent 96%);
+    mask-image: linear-gradient(180deg, #000 50%, transparent 96%);
+  }
+
   /* Card art sheet, tilted and scrolled up by one sheet every 90 s (two identical sheets make the loop). */
   .lp-mosaic {
     position: absolute;
@@ -1740,8 +1750,7 @@
     inset: 0;
     pointer-events: none;
     background: radial-gradient(ellipse 50% 46% at 50% 42%, rgb(17 19 21 / 0.6), rgb(17 19 21 / 0.55) 55%,
-        rgb(17 19 21 / 0.8) 100%),
-      linear-gradient(180deg, rgb(17 19 21 / 0.1) 55%, var(--color-ground) 97%);
+        rgb(17 19 21 / 0.8) 100%);
   }
 
   .lp-hero-in {
