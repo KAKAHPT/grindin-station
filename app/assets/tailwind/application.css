@@ -2046,16 +2046,9 @@
 
   .lp-lead {
     max-width: 520px;
-    margin: 0 auto 22px;
+    margin: 0 auto;
     font-size: 12px;
     color: var(--color-muted);
-  }
-
-  .lp-ctas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
   }
 
   /* Waiting-list card */
