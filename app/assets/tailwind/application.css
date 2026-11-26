@@ -2219,6 +2219,55 @@
     color: var(--color-muted);
   }
 
+  /* The landing's floating filters: a small dark box, thinly outlined, that stays at the left edge while the
+     page scrolls. Only where the page has a free margin beside its 980 px column. */
+  .lp-float {
+    display: none;
+  }
+
+  @media (min-width: 1380px) {
+    .lp-float {
+      display: block;
+      position: fixed;
+      top: 96px;
+      left: 20px;
+      z-index: 20;
+      box-sizing: border-box;
+      width: 190px;
+      padding: 2px 10px;
+      border: 1px solid rgb(255 255 255 / 0.06);
+      border-radius: 12px;
+      background: rgb(17 19 21 / 0.82);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    /* The bar's own utility classes (a row, min width, auto width) give way inside the narrow box. */
+    .lp-float form {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 6px !important;
+      margin: 8px 0 !important;
+    }
+
+    .lp-float form > label {
+      flex: none !important;
+      width: 100%;
+      min-width: 0 !important;
+      height: 32px !important;
+    }
+
+    .lp-float form select {
+      width: 100% !important;
+      height: 32px !important;
+      font-size: 12px !important;
+    }
+
+    .lp-float [data-filter-count] {
+      display: none;
+    }
+  }
+
   /* Featured events (option 4B, the art ticket): above Upcoming, two per row; an odd first one spans the row. */
   .lp-feat {
     max-width: 980px;

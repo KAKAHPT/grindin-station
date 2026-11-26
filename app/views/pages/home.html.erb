@@ -40,6 +40,13 @@
     </div>
   </section>
 
+  <%# A small filter box that floats at the left edge of wide screens while the page scrolls; it opens /events
+      with the results. %>
+  <div class="lp-float" data-home-filters>
+    <%= render "shared/filter_bar", url: events_path(locale: url_locale), count: "",
+                                    fields: event_filter_fields({}, @filter_options).select { |name, *| name.in?(%i[q country organizer play]) } %>
+  </div>
+
   <% if @featured.any? %>
     <section class="lp-feat" data-featured data-controller="rail">
       <%= render "pages/rail_header", title: t("landing.featured.title") %>

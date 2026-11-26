@@ -19,6 +19,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     assert_select "h2", text: "Seats are weighted, not drawn"
     assert_select ".lp-why li", 4
     assert_select ".lp-mosaic img", 192
+    assert_select "[data-home-filters] form[action=?][method=get] input[name=q]", events_path
     assert_select "[data-attribution]", text: /Wizards of the Coast/
   end
 

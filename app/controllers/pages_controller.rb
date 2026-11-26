@@ -4,6 +4,8 @@
 # rail, left out of Upcoming) and the next public tournaments. Also /fairness, the public seat-fairness report, and
 # /privacy, the privacy notice.
 class PagesController < ApplicationController
+  include EventTickets
+
   allow_unauthenticated_access
   layout "public"
 
@@ -56,11 +58,12 @@ class PagesController < ApplicationController
     (@rounds.values.sum { |block| block[seating]["fair_rate"] } / @rounds.size).round(1)
   end
 
-  # Up to nine admin-featured circuits (an ECL season, a championship) on a rail under the featured tournaments, and
-  # the waiting-list form.
+  # Up to nine admin-featured circuits (an ECL season, a championship) on a rail under the featured tournaments,
+  # the waiting-list form and the choices of the floating filter bar.
   def load_extras
     @featured_circuits = Features.on?(:circuits) ? featured_circuits : []
     @waitlist_signup = WaitlistSignup.new
+    @filter_options = ticket_filter_options
   end
 
   def featured_circuits
