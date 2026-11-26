@@ -36,9 +36,9 @@ class PodBroadcastTest < ActiveSupport::TestCase
     perform_enqueued_jobs { @round.update!(published: true) }
 
     pt = capture_turbo_stream_broadcasts(table_stream(@seated.first, :pt)).sole.to_html
-    assert_includes pt, I18n.t("play.call_judge", locale: :pt)
-    assert_includes pt, "locale=pt"
-    assert_not_includes capture_turbo_stream_broadcasts(table_stream(@seated.first)).sole.to_html, "locale="
+    assert_includes pt, I18n.t("play.tables.seat", locale: :pt)
+    assert_not_includes capture_turbo_stream_broadcasts(table_stream(@seated.first)).sole.to_html,
+                        I18n.t("play.tables.seat", locale: :pt)
   end
 
   test "a staff result updates the pod card's state, refreshes the round page and every seat's table" do
