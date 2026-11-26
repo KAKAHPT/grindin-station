@@ -381,15 +381,10 @@
     border-top: 1px solid var(--color-line);
   }
 
-  /* Tapping (focus) opens the menu on every screen; hovering too where there is a mouse. */
+  /* Hovering or tapping (focus) the picture opens the menu, on every screen. */
+  .topbar-me:hover .topbar-me-menu,
   .topbar-me:focus-within .topbar-me-menu {
     display: block;
-  }
-
-  @media (hover: hover) {
-    .topbar-me:hover .topbar-me-menu {
-      display: block;
-    }
   }
 
   .topbar-chip {
