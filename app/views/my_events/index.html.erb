@@ -22,7 +22,15 @@
 
 <%= render "shared/ticket_grid", events: @running, enrolled: @enrolled, heading: t("my_events.running"), dense: true, participants: @participants %>
 <%= render "shared/ticket_grid", events: @upcoming, enrolled: @enrolled, heading: t("my_events.upcoming"), dense: true, participants: @participants %>
-<%= render "shared/ticket_grid", events: @past, enrolled: @enrolled, heading: t("my_events.past"), dense: true, participants: @participants %>
+<%# Past events stay folded away: the button opens them. %>
+<% if @past.any? %>
+  <details class="col-span-full" data-my-past>
+    <summary class="<%= button_classes(:secondary, size: :sm) %> cursor-pointer list-none [&::-webkit-details-marker]:hidden"><%= t("my_events.show_past", count: @past.size) %></summary>
+    <div class="mt-4 grid">
+      <%= render "shared/ticket_grid", events: @past, enrolled: @enrolled, dense: true, participants: @participants %>
+    </div>
+  </details>
+<% end %>
 
 <% if @running.empty? && @upcoming.empty? && @past.empty? %>
   <div class="col-span-full card px-4 py-8 text-center" data-list-empty>

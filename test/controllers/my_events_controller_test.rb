@@ -64,7 +64,8 @@ class MyEventsControllerTest < ActionDispatch::IntegrationTest
     sign_in
     get my_events_path
     assert_select "h2", text: I18n.t("my_events.running")
-    assert_select "h2", text: I18n.t("my_events.past")
+    assert_select "details[data-my-past]:not([open]) summary", text: I18n.t("my_events.show_past", count: 1)
+    assert_select "details[data-my-past] [data-ticket-grid]"
     assert_select "h2", text: I18n.t("my_events.upcoming"), count: 0
   end
 

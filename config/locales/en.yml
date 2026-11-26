@@ -1194,7 +1194,7 @@ en:
     lead: "The events you are registered in."
     running: "Running now"
     upcoming: "Upcoming"
-    past: "Past"
+    show_past: "Past events (%{count})"
     empty: "You are not registered in any event yet."
     browse: "See the events"
     decklist: "Decklist"
