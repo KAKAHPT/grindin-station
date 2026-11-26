@@ -2018,11 +2018,15 @@ pt:
         registered: "Inscrição feita: bons jogos!"
         left: "Saíste da liga."
   league_desk:
+    change: "Alterar"
+    change_lead: "Novo resultado:"
+    change_locked: "Depois de feito o corte, os resultados dos jogos já não se alteram."
     tabs:
       tables: "Mesas"
       players: "Jogadores"
       details: "Detalhes"
       edit: "Editar"
+      feed: "Feed"
     players: "Jogadores (%{count})"
     no_players: "Ainda ninguém se inscreveu."
     dropped: "saiu"

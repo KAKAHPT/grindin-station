@@ -36,7 +36,7 @@ module Organizer
 
       get organizer_league_path(league, tab: "details")
       assert_select "[data-league-step=play]"
-      assert_select "[data-tabs] a", 4
+      assert_select "[data-tabs] a", 5
       assert_select "[data-tabs] .tab-badge", 0
       assert_select "[data-league-details] [data-detail=draw_rule]", text: I18n.t("league_desk.draw_split")
       assert_select "[data-league-details] [data-detail=registered]", text: "8"
@@ -119,6 +119,21 @@ module Organizer
       assert_equal([900, 900, 1300, 900], players.map { |player| player.reload.league_score.to_i })
       get organizer_league_path(league)
       assert_select "[data-corrections]", 0
+    end
+
+    test "the feed lists the finished games and the organizer changes one from it" do
+      league = LeagueBuilder.build(players: 4, organizer: @organizer)
+      players = league.event_participants.order(:created_at).to_a
+      pod = LeagueBuilder.fill_table!(league, players)
+      Results::Report.call(pod: pod, participant: players[0], type: "Win", winner: players[0])
+
+      get organizer_league_path(league, tab: "feed")
+      assert_select "[data-desk-feed] [data-feed-game='#{pod.id}']", text: /#{players[0].name} won/
+      assert_select "[data-feed-game] form[data-result-form] input[name=tab][value=feed]", visible: :all
+      patch pod_result_organizer_league_path(league, pod_id: pod.id), params: { result: players[1].id, tab: "feed" }
+
+      assert_redirected_to organizer_league_path(league, tab: "feed")
+      assert_equal [0, 1], [players[0].reload.number_of_wins, players[1].reload.number_of_wins]
     end
 
     test "a player without the organizer profile cannot create or run a league" do

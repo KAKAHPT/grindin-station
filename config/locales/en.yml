@@ -2018,11 +2018,15 @@ en:
         registered: "You are registered: good games!"
         left: "You left the league."
   league_desk:
+    change: "Change"
+    change_lead: "New result:"
+    change_locked: "After the cut is made the results of the games no longer change."
     tabs:
       tables: "Tables"
       players: "Players"
       details: "Details"
       edit: "Edit"
+      feed: "Feed"
     players: "Players (%{count})"
     no_players: "Nobody has registered yet."
     dropped: "left"

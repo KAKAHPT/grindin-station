@@ -1,0 +1,45 @@
+<%# The Feed tab of the organizer's league page: every finished game, latest first, with who won it. A game opens
+    on a click to change its result (until the cut is made). Locals: league. Uses @feed (paginated). %>
+<% open = league.state.in?(Organizer::LeaguesController::GAME_STATES) %>
+<section class="card overflow-clip" data-desk-feed>
+  <h2 class="card-title"><%= t("league_desk.tabs.feed") %></h2>
+  <% if @feed.any? %>
+    <ul class="divide-y divide-line text-[14px]">
+      <% @feed.each do |table| %>
+        <% pod = table.pod %>
+        <% results = pod.current_results.index_by(&:event_participant_id) %>
+        <% players = pod.seatings.map(&:event_participant) %>
+        <% winner = players.find { |player| results[player.id].is_a?(Win) } %>
+        <li data-feed-game="<%= pod.id %>">
+          <details>
+            <summary class="flex cursor-pointer list-none items-start gap-3 px-4 py-3 hover:bg-white/[0.03] [&::-webkit-details-marker]:hidden">
+              <span class="mt-0.5 text-[16px] <%= winner ? "text-accent" : "text-muted" %>"><%= icon(winner ? "trophy" : "handshake") %></span>
+              <span class="min-w-0 flex-1">
+                <% if winner %>
+                  <span class="text-ink"><%= t("leagues.feed.win_html", name: tag.strong(winner.name), game: pod.round.display_name) %></span>
+                  <span class="block text-[12.5px] text-muted"><%= t("leagues.feed.against", names: (players - [winner]).map(&:name).to_sentence) %></span>
+                <% else %>
+                  <span class="text-ink"><%= t("leagues.feed.draw", game: pod.round.display_name) %></span>
+                  <span class="block text-[12.5px] text-muted"><%= players.map(&:name).to_sentence %></span>
+                <% end %>
+              </span>
+              <time class="shrink-0 text-[12px] text-muted" datetime="<%= pod.round.finished_at.iso8601 %>"><%= l(pod.round.finished_at, format: :short) %></time>
+              <span class="shrink-0 text-[12px] font-semibold text-accent"><%= t("league_desk.change") %></span>
+            </summary>
+            <div class="flex flex-wrap items-center gap-3 border-t border-line/60 bg-white/[0.02] px-4 py-3 text-[13px]" data-feed-change>
+              <% if open %>
+                <span class="text-muted"><%= t("league_desk.change_lead") %></span>
+                <%= render "organizer/leagues/result_form", league: league, pod: pod, draw: true, tab: "feed" %>
+              <% else %>
+                <span class="text-muted"><%= t("league_desk.change_locked") %></span>
+              <% end %>
+            </div>
+          </details>
+        </li>
+      <% end %>
+    </ul>
+    <% if @feed.total_pages > 1 %><div class="border-t border-line px-4 py-2.5"><%= paginate @feed %></div><% end %>
+  <% else %>
+    <p class="px-4 py-6 text-center text-[12.5px] text-muted"><%= t("leagues.tables.none_played") %></p>
+  <% end %>
+</section>

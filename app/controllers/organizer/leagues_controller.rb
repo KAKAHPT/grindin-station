@@ -17,8 +17,9 @@ module Organizer
         rounds: :pods,
         event_participants: { player: :user }
       ).find(params[:id])
-      @tab = params[:tab].presence_in(%w[players details edit]) || "tables"
+      @tab = params[:tab].presence_in(%w[players feed details edit]) || "tables"
       load_desk if @league.play_mode_open_tables?
+      load_feed if @league.play_mode_open_tables? && @tab == "feed"
     rescue ActiveRecord::RecordNotFound
       redirect_to [:organizer, :leagues], alert: t("flash.alert.not_authorized_league")
     end
@@ -144,7 +145,9 @@ module Organizer
       Results::Apply.call(pod: pod, type: winner ? "Win" : "Draw", winner: winner, by: current_user)
       pod.clear_report_state!
       Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
-      redirect_to [:organizer, @league], notice: t("league_desk.n_result")
+      # A result changed from the Feed tab comes back to it.
+      redirect_to organizer_league_path(@league, tab: params[:tab].presence_in(%w[feed])),
+                  notice: t("league_desk.n_result")
     rescue Results::NotAllowed => e
       redirect_to [:organizer, @league], alert: t("results.not_allowed.#{e.message}")
     end
@@ -207,6 +210,14 @@ module Organizer
       @cut_field = @league.cut_field if @league.closed?
       @cut_round = LeagueCutRound.where(event: @league).order(:number)
         .preload(:results, pods: { seatings: { event_participant: { player: :user } } }).last
+    end
+
+    # The Feed tab: the league's finished games, latest first, 15 a page; each can be opened and changed.
+    def load_feed
+      @feed = @league.league_tables.filled.joins(pod: :round).where.not(rounds: { finished_at: nil })
+        .order("rounds.finished_at DESC")
+        .preload(pod: [{ round: :results }, { seatings: { event_participant: { player: :user } } }])
+        .page(params[:page]).per(15)
     end
 
     def league_params
