@@ -124,6 +124,7 @@ class LeagueTablesControllerTest < ActionDispatch::IntegrationTest # rubocop:dis
       post report_league_table_path(@league, table), params: { result: "win" }
       get league_path(@league, tab: "mine")
       assert_select "[data-my-games] [data-my-game=won]", 1
+      assert_select "[data-my-game] [data-my-game-seat]", 4
       assert_select "[data-league-me] [data-league-win-rate]", text: "100%"
       get league_path(@league, tab: "standings")
       assert_select "[data-league-row='#{@players[0].id}'] [data-league-opponents-win-rate]", text: "0%"

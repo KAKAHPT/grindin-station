@@ -1,5 +1,5 @@
 <%# The My round tab: the viewer's own table, where the result is reported, and beside it the games they
-    already played with how each went. Locals: league. Uses @participant, @my_table and @my_games. %>
+    already played: who sat where and how it went. Locals: league. Uses @participant, @my_table and @my_games. %>
 <%= turbo_stream_from league, :tables %>
 <div class="col-span-full grid items-start gap-4 lg:grid-cols-[minmax(0,28rem)_1fr]" data-league-mine>
   <div class="grid gap-4">
@@ -24,9 +24,16 @@
             <% result = table.pod.current_results.find { |row| row.event_participant_id == @participant.id } %>
             <% outcome = result.is_a?(Win) ? :won : result.is_a?(Draw) ? :draw : :lost %>
             <li class="flex items-center justify-between gap-3 px-4 py-2.5" data-my-game="<%= outcome %>">
-              <span class="min-w-0">
+              <span class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1.5">
                 <span class="font-semibold text-ink"><%= table.pod.round.display_name %></span>
-                <span class="block truncate text-[12px] text-muted"><%= table.pod.seatings.map(&:event_participant).reject { |seated| seated.id == @participant.id }.map(&:name).join(", ") %></span>
+                <%# The four players in front, each with the seat they had. %>
+                <% table.pod.seatings.sort_by(&:order).each do |seating| %>
+                  <% you = seating.event_participant_id == @participant.id %>
+                  <span class="flex items-center gap-1.5" data-my-game-seat="<%= seating.order %>">
+                    <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= you ? "text-accent" : "text-muted" %>"><%= seating.order %></span>
+                    <span class="<%= you ? "font-semibold text-ink" : "text-muted" %>"><%= seating.event_participant.name %></span>
+                  </span>
+                <% end %>
               </span>
               <%= desk_chip({ won: :ok, draw: :neutral, lost: :bad }.fetch(outcome)) { t("leagues.tables.result_#{outcome}") } %>
             </li>
