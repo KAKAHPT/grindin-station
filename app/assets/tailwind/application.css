@@ -393,17 +393,13 @@
     border-top: 1px solid var(--color-line);
   }
 
-  .topbar-account {
-    display: contents;
+  /* Tapping (focus) opens the menu on every screen; hovering too where there is a mouse. */
+  .topbar-me:focus-within .topbar-me-menu {
+    display: block;
   }
 
-  @media (min-width: 768px) {
-    .topbar-account {
-      display: none;
-    }
-
-    .topbar-me:hover .topbar-me-menu,
-    .topbar-me:focus-within .topbar-me-menu {
+  @media (hover: hover) {
+    .topbar-me:hover .topbar-me-menu {
       display: block;
     }
   }
@@ -458,6 +454,11 @@
 
     .topbar-burger {
       display: inline-flex;
+    }
+
+    /* Phones show the viewer's picture only; tapping it opens their menu. */
+    .topbar-me .topbar-user {
+      display: none;
     }
 
     .topbar-panel {
@@ -524,10 +525,6 @@
       gap: 6px;
     }
 
-    /* A long name is cut sooner, so it leaves room for the mark and the site name. */
-    .topbar-user {
-      max-width: 7rem;
-    }
   }
 
   /* Language switch */
