@@ -273,4 +273,13 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     event.update_column(:state, state) # rubocop:disable Rails/SkipsModelValidations
     event
   end
+
+  test "a pasted link to the site gets a card: title, description and the landing image" do
+    get root_path
+
+    assert_select "meta[property='og:title'][content=?]", "Grindin Station"
+    assert_select "meta[property='og:image'][content=?]", "http://www.example.com/og.jpg"
+    assert_select "meta[name='twitter:card'][content=summary_large_image]"
+    assert_predicate Rails.public_path.join("og.jpg"), :exist?
+  end
 end

@@ -88,6 +88,16 @@ module Play
       end
     end
 
+    test "a small cut keeps the width of the other rounds; a large one takes the full width" do
+      get play_pairings_path(@tournament.slug)
+      assert_select "main.max-w-6xl, .max-w-6xl [data-bracket]"
+      assert_select ".max-w-\\[2000px\\]", count: 0
+
+      @tournament.update_columns(top_cut_size: 40) # rubocop:disable Rails/SkipsModelValidations
+      get play_pairings_path(@tournament.slug)
+      assert_select ".max-w-\\[2000px\\] [data-bracket]"
+    end
+
     test "a swiss round keeps the plain grid" do
       get play_pairings_path(@tournament.slug, round: 1)
 
