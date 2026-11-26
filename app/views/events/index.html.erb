@@ -7,7 +7,9 @@
 <%= render "featured", events: @featured, enrolled: @enrolled %>
 
 <div class="col-span-full">
-  <div class="flex flex-wrap items-center gap-x-3 [&>form]:flex-1 [&>form]:min-w-0">
+  <%# On a phone the filters take the whole row and the Grid · List switch drops under them, at the right;
+      from sm up they share one row. %>
+  <div class="flex flex-wrap items-center gap-x-3 [&>form]:min-w-0 [&>form]:grow [&>form]:basis-full sm:[&>form]:basis-0 max-sm:[&>form]:mb-1 max-sm:[&>[data-view-switch]]:mb-3">
     <%= render "shared/filter_bar", url: events_path, fields: event_filter_fields(@filters, @filter_options), hidden: base,
                                     count: t("lists.events_count", count: @tournaments.total_count + @leagues.total_count) %>
     <span class="seg ml-auto" role="group" aria-label="<%= t("events.view.label") %>" data-view-switch>

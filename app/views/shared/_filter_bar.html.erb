@@ -30,7 +30,7 @@
       </span>
     <% when :select %>
       <%= select_tag name, options_for_select(options, selected), id: nil, "aria-label": label,
-                     class: "field-input w-auto h-9 pr-8 text-[12.5px]",
+                     class: "field-input w-auto h-9 pr-8 text-[12.5px] max-sm:flex-1 max-sm:min-w-[9rem]",
                      data: { controller: "submit-on-change", action: "change->submit-on-change#submit" } %>
     <% end %>
   <% end %>
