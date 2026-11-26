@@ -249,8 +249,9 @@
     overflow: visible;
   }
 
+  /* Each layer of the wheel sits in a group moved to its centre, so it turns about its own origin. */
   .gslogo .gear {
-    transform-origin: 50px 58px;
+    transform-origin: 0 0;
   }
 
   .gslogo[data-rotating] .gear {
@@ -326,19 +327,7 @@
     min-width: 0;
   }
 
-  .topbar-user {
-    max-width: 14rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding: 3px 8px;
-    border-radius: 4px;
-    background: var(--color-surface-raised);
-    font-size: 12.5px;
-    font-weight: 600;
-  }
-
-  /* The viewer's picture and name; from 768 px up their menu opens on hover or focus. */
+  /* The viewer's picture; their menu opens on hover or focus. */
   .topbar-me {
     position: relative;
     min-width: 0;
@@ -393,19 +382,10 @@
     border-top: 1px solid var(--color-line);
   }
 
-  .topbar-account {
-    display: contents;
-  }
-
-  @media (min-width: 768px) {
-    .topbar-account {
-      display: none;
-    }
-
-    .topbar-me:hover .topbar-me-menu,
-    .topbar-me:focus-within .topbar-me-menu {
-      display: block;
-    }
+  /* Hovering or tapping (focus) the picture opens the menu, on every screen. */
+  .topbar-me:hover .topbar-me-menu,
+  .topbar-me:focus-within .topbar-me-menu {
+    display: block;
   }
 
   .topbar-chip {
@@ -459,6 +439,7 @@
     .topbar-burger {
       display: inline-flex;
     }
+
 
     .topbar-panel {
       display: none;
@@ -524,10 +505,6 @@
       gap: 6px;
     }
 
-    /* A long name is cut sooner, so it leaves room for the mark and the site name. */
-    .topbar-user {
-      max-width: 7rem;
-    }
   }
 
   /* Language switch */

@@ -31,7 +31,7 @@ class LayoutTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_top_bar
-    assert_select "[data-topbar] [data-play-player]", text: users(:player_one).name
+    assert_select "[data-topbar] [data-play-player] .sr-only", text: users(:player_one).name
     assert_select "[data-topbar] [data-notifications-bell]"
     assert_select "[data-topbar]", text: /#{tournament.name}/, count: 0
     assert_select "[data-event-header] h1", text: "#{tournament.name} · Standings"
@@ -85,8 +85,8 @@ class LayoutTest < ActionDispatch::IntegrationTest
       end
 
     assert_equal ids.first, ids.last
-    assert_includes ids.first, "gsT-topbar"
-    assert_includes ids.first, "gsT-evhead"
+    assert_includes ids.first, "gsF-topbar"
+    assert_includes ids.first, "gsF-evhead"
     assert_equal ids.first.uniq, ids.first
   end
 

@@ -1,5 +1,6 @@
 pt:
   topbar:
+    home: "Início"
     events: "Eventos"
     my_events: "Os meus eventos"
     rankings: "Rankings"
@@ -9,6 +10,7 @@ pt:
     about: "Sobre"
     language: "Idioma"
     sign_in: "Entrar"
+    sign_up: "Criar conta"
     logout: "Sair"
     organizer_mode: "Modo organizador"
     admin: "Admin"
@@ -1450,8 +1452,8 @@ pt:
     eyebrow: "Grindin Station"
     headline: "O grind nunca pára."
     tagline_html: "O software de torneios com <em>lugares justos</em>."
-    lead: "Feito para cEDH e jogos multiplayer, mas aberto a todos os formatos. Emparelhamentos, classificações e mesas atualizam ao vivo em todos os telemóveis da sala."
-    lead_cedh: "Feito para cEDH. Emparelhamentos, classificações e mesas atualizam ao vivo em todos os telemóveis da sala."
+    lead: "Feito para cEDH e jogos multiplayer, mas aberto a todos os formatos. Emparelhamentos, classificações e mesas atualizam ao vivo em todos os telemóveis."
+    lead_cedh: "Feito para cEDH. Emparelhamentos, classificações e mesas atualizam ao vivo em todos os telemóveis."
     cta_events: "Próximos eventos"
     attribution: "As ilustrações das cartas são Fan Content não oficial, permitido pela Fan Content Policy. Não aprovado nem apoiado pela Wizards. Partes dos materiais usados são propriedade da Wizards of the Coast. ©Wizards of the Coast LLC."
     signup:

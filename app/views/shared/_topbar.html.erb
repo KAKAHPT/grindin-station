@@ -1,9 +1,11 @@
-<%# Top bar of every page layout (application, play, public). Phones keep the mark, the viewer and the
-    bell in the bar; the nav links, language switch (EN / PT / ES) and account links fold under the hamburger (Stimulus menu).
+<%# Top bar of every page layout (application, play, public). The mark alone leads home (Home is also the first
+    nav link) and the viewer is their picture alone. Phones keep the mark, that picture and the bell in the bar;
+    the nav links and the language switch (EN / PT / ES) fold under the hamburger (Stimulus menu).
     Local modal_sign_in: true opens Sign in in the modal frame (only the application layout has one). %>
 <% here = ->(path) { request.path == path || request.path.start_with?("#{path}/") } %>
 <%# A paused module (config/features.yml) has no link. %>
-<% links = [[t("topbar.events"), events_path(locale: params[:locale]), here.(events_path)],
+<% links = [[t("topbar.home"), root_path(locale: params[:locale]), request.path == root_path],
+            [t("topbar.events"), events_path(locale: params[:locale]), here.(events_path)],
             ([t("topbar.my_events"), my_events_path(locale: params[:locale]), here.(my_events_path)] if authenticated?),
             ([t("topbar.rankings"), rankings_path(locale: params[:locale]), here.(rankings_path)] if Features.on?(:rankings)),
             ([t("topbar.circuits"), circuits_path(locale: params[:locale]), here.(circuits_path)] if Features.on?(:circuits)),
@@ -13,7 +15,7 @@
   <div class="topbar-in">
     <%= link_to root_path(locale: params[:locale]), class: "topbar-brand" do %>
       <%= render "shared/mark", size: 30, rotating: true, id_suffix: "topbar" %>
-      <span data-brand-name><%= t("app.name") %></span>
+      <span class="sr-only"><%= t("app.name") %></span>
     <% end %>
 
     <div id="topbar-panel" class="topbar-panel" data-menu-target="panel" data-open="false">
@@ -31,41 +33,23 @@
                         class: ("on" if on), lang: code, data: { locale: code }, "aria-pressed": on.to_s %>
         <% end %>
       </span>
-      <% if authenticated? %>
-        <%# Phones only (under the hamburger): from 768 px up these live in the menu under the viewer's name. %>
-        <span class="topbar-account">
-          <% if current_user.staff? %>
-            <%= link_to organizer_path_builder, class: ["topbar-chip", ("on" if organizer_mode?)], data: { organizer_mode: true } do %>
-              <i aria-hidden="true"></i><%= t("topbar.organizer_mode") %>
-            <% end %>
-          <% end %>
-          <% if current_user.admin? %>
-            <%= link_to admin_root_path, class: ["topbar-chip", ("on" if admin_mode?)], data: { admin_mode: true } do %>
-              <i aria-hidden="true"></i><%= t("topbar.admin") %>
-            <% end %>
-          <% end %>
-          <%= link_to t("accounts.nav"), account_path(locale: params[:locale]), class: "topbar-link" %>
-          <%= link_to t("topbar.logout"), session_path(Current.session), data: { turbo_method: :delete }, class: "topbar-link" %>
-        </span>
-      <% end %>
     </div>
 
     <div class="topbar-end">
       <% if authenticated? %>
-        <%# The viewer: picture and name; from 768 px up, hovering (or focusing) them opens their menu: profile,
-            account, log out and, under a rule, Organizer mode and Admin. %>
+        <%# The viewer: their picture alone (or initials), no name beside it; hovering or tapping it opens their
+            menu: profile, events, account, log out and, under a rule, Organizer mode and Admin. %>
         <% unsaved = current_user.handle_changed? %>
         <% profile = current_user.handle.present? && !unsaved && current_user.profile_visible_to?(nil) %>
         <div class="topbar-me" data-user-menu>
-          <span class="topbar-me-trigger" tabindex="0">
+          <span class="topbar-me-trigger" tabindex="0" data-play-player title="<%= current_user.display_name %>">
+            <span class="sr-only"><%= current_user.display_name %></span>
             <%# A picture just refused by the account form is not stored: it has nothing to show. %>
             <% if current_user.avatar.attached? && current_user.avatar.blob.persisted? && !current_user.attachment_changes.key?("avatar") %>
               <%= image_tag url_for(current_user.avatar.variant(:thumb)), alt: "", width: 28, height: 28, class: "size-7 shrink-0 rounded-full object-cover border border-line" %>
             <% else %>
               <span class="inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-line bg-surface-raised text-[11px] font-semibold text-muted" aria-hidden="true"><%= current_user.display_name.split.first(2).pluck(0).join.upcase %></span>
             <% end %>
-            <%# A rejected handle edit (account form re-rendered) must not build a profile link from the unsaved handle. %>
-            <span data-play-player class="topbar-user"><%= unsaved ? current_user.display_name : profile_link(current_user) %></span>
           </span>
           <div class="topbar-me-menu" data-user-menu-panel>
             <div class="topbar-me-card">
@@ -90,6 +74,8 @@
         <%= link_to t("topbar.sign_in"), new_session_path(locale: params[:locale]),
                     data: ({ turbo_frame: "modal" } if local_assigns[:modal_sign_in]),
                     class: small_button_classes(:secondary) %>
+        <%# A visitor without an account: Sign up sits beside Sign in. %>
+        <%= link_to t("topbar.sign_up"), new_registration_path(locale: params[:locale]), class: small_button_classes(:primary), data: { topbar_sign_up: true } %>
       <% end %>
       <button type="button" class="topbar-burger" data-menu-target="button" data-action="menu#toggle"
               aria-controls="topbar-panel" aria-expanded="false">
