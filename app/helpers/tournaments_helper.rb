@@ -22,7 +22,7 @@ module TournamentsHelper # rubocop:disable Metrics/ModuleLength
   }.with_indifferent_access.freeze
 
   POD_STATUS_TONES = {
-    playing: :ink, waiting: :muted, pending: :muted, review: :muted, disputed: :danger, completed: :accent
+    playing: :ink, waiting: :muted, pending: :muted, review: :muted, disputed: :danger, completed: :ink
   }.freeze
 
   def pod_status_tone(status)
@@ -37,7 +37,7 @@ module TournamentsHelper # rubocop:disable Metrics/ModuleLength
 
   def pod_status_chip(pod)
     status = pod_display_status(pod)
-    status_chip(pod_status_tone(status)) { t("rounds.status.#{status}") }
+    status_chip(pod_status_tone(status), dot: false) { t("rounds.status.#{status}") }
   end
 
   # Seat (seating order) of each participant at the pod, by participant id.

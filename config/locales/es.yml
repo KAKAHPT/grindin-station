@@ -1601,6 +1601,7 @@ es:
       position: "Final"
     league:
       eyebrow: "Liga"
+      ongoing: "Grindin"
       players: "Jugadores"
       players_line: "%{registered} inscritos · mínimo %{min} · máximo %{max}"
       no_limit: "sin límite"

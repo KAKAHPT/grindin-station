@@ -100,6 +100,6 @@ class CloseRoundAndCutTest < ApplicationSystemTestCase
   end
 
   def assert_pod_completed(pod)
-    within(pod_card(pod)) { assert_text(/completed/i) }
+    within(pod_card(pod)) { assert_text(/finished/i) }
   end
 end
