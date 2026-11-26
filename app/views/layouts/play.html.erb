@@ -7,7 +7,8 @@
     <%= csp_meta_tag %>
     <link rel="icon" type="image/svg+xml" href="<%= asset_path("mark.svg") %>">
     <%= yield :head %>
-    <%= render "layouts/phone_head", description: t("play.description", event: current_event.name) %>
+    <%= render "layouts/phone_head", description: t("play.description", event: current_event.name),
+                                     title: "#{current_event.name} · #{t("app.name")}" %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
