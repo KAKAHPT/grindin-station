@@ -110,7 +110,8 @@
     <section class="lp-why">
       <h2><%= t("landing.why.title") %></h2>
       <p><%= t("landing.why.intro") %></p>
-      <ol>
+      <%# The four steps come in one at a time when the list scrolls into view (reveal controller). %>
+      <ol data-controller="reveal">
         <% t("landing.why.steps").each_with_index do |step, index| %>
           <li><b><%= index + 1 %></b><span><strong><%= step[:title] %></strong> <%= step[:text] %></span></li>
         <% end %>

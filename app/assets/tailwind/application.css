@@ -1987,6 +1987,20 @@
     font-size: 12.5px;
   }
 
+  /* Reveal (reveal_controller): the items wait unseen and come in one after the other. */
+  .reveal-ready > * {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  /* The transition lives on the way in only: hiding the items at load is instant. */
+  .reveal-ready.reveal-in > * {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transition-delay: calc(var(--reveal-i, 0) * 0.25s);
+  }
+
   .lp-why li b {
     min-width: 18px;
     font: 700 12.5px var(--font-display);
