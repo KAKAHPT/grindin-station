@@ -1,11 +1,10 @@
-<%# Sign in / sign up / forgot / reset (spec §5): one centred card with the mark and "Grindin Station" above the
+<%# Sign in / sign up / forgot / reset (spec §5): one centred card with the logo above the
     title. In the modal frame when the page asked for it (the application layout's Sign in), else a full page in the
     application layout. The card shows the flash itself, so the layout's toasts are skipped. %>
 <% card = capture do %>
   <div class="auth-card card" data-auth-card>
     <div class="auth-mark">
-      <%= render "shared/mark", size: 64, id_suffix: "auth" %>
-      <div class="lp-eyebrow"><%= t("app.name") %></div>
+      <%= render "shared/logo", size: 26 %>
     </div>
     <h2><%= yield :title %></h2>
     <% flash.each do |key, message| %>
