@@ -6,7 +6,7 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <link rel="icon" type="image/svg+xml" href="<%= asset_path("mark.svg") %>">
-    <%= render "layouts/phone_head", description: t("app.description") %>
+    <%= render "layouts/phone_head", description: t("app.description"), title: [content_for(:title), t("app.name")].compact_blank.join(" · ") %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
