@@ -17,9 +17,8 @@ module Organizer
         rounds: :pods,
         event_participants: { player: :user }
       ).find(params[:id])
-      @tab = params[:tab].presence_in(%w[players feed details edit]) || "tables"
-      load_desk if @league.play_mode_open_tables?
-      load_feed if @league.play_mode_open_tables? && @tab == "feed"
+      @tab = params[:tab].presence_in(%w[players feed standings details edit]) || "tables"
+      load_tab if @league.play_mode_open_tables?
     rescue ActiveRecord::RecordNotFound
       redirect_to [:organizer, :leagues], alert: t("flash.alert.not_authorized_league")
     end
@@ -212,12 +211,25 @@ module Organizer
         .preload(:results, pods: { seatings: { event_participant: { player: :user } } }).last
     end
 
+    # What the open tab of an open-tables league needs, on top of the desk's own lists.
+    def load_tab
+      load_desk
+      load_feed if @tab == "feed"
+      load_standings if @tab == "standings"
+    end
+
     # The Feed tab: the league's finished games, latest first, 15 a page; each can be opened and changed.
     def load_feed
       @feed = @league.league_tables.filled.joins(pod: :round).where.not(rounds: { finished_at: nil })
         .order("rounds.finished_at DESC")
         .preload(pod: [{ round: :results }, { seatings: { event_participant: { player: :user } } }])
         .page(params[:page]).per(15)
+    end
+
+    # The Standings tab: the same table the players see, 16 places a page.
+    def load_standings
+      @standings = Kaminari.paginate_array(@league.standings_order).page(params[:page])
+        .per(::LeaguesController::STANDINGS_PER_PAGE)
     end
 
     def league_params

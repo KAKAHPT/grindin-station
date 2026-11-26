@@ -52,15 +52,7 @@ class LeaguesController < ApplicationController
 
   # The Standings tab, 16 places a page.
   def load_standings
-    order = final_order(@ranked || @league.ranked_participants)
-    @standings = Kaminari.paginate_array(order).page(params[:page]).per(STANDINGS_PER_PAGE)
-  end
-
-  # A finished league reads in its final order (the cut's champion first), not by score.
-  def final_order(ranked)
-    return ranked unless @league.finished?
-
-    ranked.sort_by.with_index { |participant, index| [participant.final_position || Float::INFINITY, index] }
+    @standings = Kaminari.paginate_array(@league.standings_order).page(params[:page]).per(STANDINGS_PER_PAGE)
   end
 
   # The viewer's registration (enrolled, waitlisted or dropped), for the sign-up card.

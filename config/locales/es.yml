@@ -2024,6 +2024,7 @@ es:
     tabs:
       tables: "Mesas"
       players: "Jugadores"
+      standings: "Clasificación"
       details: "Detalles"
       edit: "Editar"
       feed: "Feed"

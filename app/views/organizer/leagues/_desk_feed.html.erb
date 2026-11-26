@@ -12,7 +12,7 @@
         <% winner = players.find { |player| results[player.id].is_a?(Win) } %>
         <li data-feed-game="<%= pod.id %>">
           <details>
-            <summary class="flex cursor-pointer list-none items-start gap-3 px-4 py-3 hover:bg-white/[0.03] [&::-webkit-details-marker]:hidden">
+            <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-3 hover:bg-white/[0.03] [&::-webkit-details-marker]:hidden">
               <span class="mt-0.5 text-[16px] <%= winner ? "text-accent" : "text-muted" %>"><%= icon(winner ? "trophy" : "handshake") %></span>
               <span class="min-w-0 flex-1">
                 <% if winner %>
@@ -24,7 +24,7 @@
                 <% end %>
               </span>
               <time class="shrink-0 text-[12px] text-muted" datetime="<%= pod.round.finished_at.iso8601 %>"><%= l(pod.round.finished_at, format: :short) %></time>
-              <span class="shrink-0 text-[12px] font-semibold text-accent"><%= t("league_desk.change") %></span>
+              <span class="shrink-0 <%= button_classes(:primary, size: :xs) %>" data-feed-change-button><%= t("league_desk.change") %></span>
             </summary>
             <div class="flex flex-wrap items-center gap-3 border-t border-line/60 bg-white/[0.02] px-4 py-3 text-[13px]" data-feed-change>
               <% if open %>

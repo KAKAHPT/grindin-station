@@ -27,10 +27,10 @@ module LeaguesHelper
     end
   end
 
-  # The organizer's league page tabs: the tables to deal with, the players, the feed of results, the league's
-  # details and the form that edits them.
+  # The organizer's league page tabs: the tables to deal with, the players, the feed of results, the standings, the
+  # league's details and the form that edits them.
   def organizer_league_tabs(league, active)
-    %w[tables players feed details edit].map do |tab|
+    %w[tables players feed standings details edit].map do |tab|
       { label: t("league_desk.tabs.#{tab}"), active: tab == active,
         path: organizer_league_path(league, tab: (tab unless tab == "tables")) }
     end

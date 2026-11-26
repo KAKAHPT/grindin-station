@@ -42,6 +42,8 @@
   <%= render "organizer/leagues/desk_tables", league: @league %>
 <% elsif @league.play_mode_open_tables? && @tab == "feed" %>
   <%= render "organizer/leagues/desk_feed", league: @league %>
+<% elsif @league.play_mode_open_tables? && @tab == "standings" %>
+  <%= render "leagues/standings", league: @league, standings: @standings %>
 <% elsif @league.play_mode_open_tables? && @tab == "players" %>
   <%# Who is in the league, by registration; the organizer can take a player out until the cut, or readmit one. %>
   <% roster = @league.event_participants.sort_by(&:created_at) %>

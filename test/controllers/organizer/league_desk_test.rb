@@ -36,7 +36,7 @@ module Organizer
 
       get organizer_league_path(league, tab: "details")
       assert_select "[data-league-step=play]"
-      assert_select "[data-tabs] a", 5
+      assert_select "[data-tabs] a", 6
       assert_select "[data-tabs] .tab-badge", 0
       assert_select "[data-league-details] [data-detail=draw_rule]", text: I18n.t("league_desk.draw_split")
       assert_select "[data-league-details] [data-detail=registered]", text: "8"
@@ -133,6 +133,8 @@ module Organizer
       patch pod_result_organizer_league_path(league, pod_id: pod.id), params: { result: players[1].id, tab: "feed" }
 
       assert_redirected_to organizer_league_path(league, tab: "feed")
+      get organizer_league_path(league, tab: "standings")
+      assert_select "[data-tab-page=standings] [data-league-row]", 4
       assert_equal [0, 1], [players[0].reload.number_of_wins, players[1].reload.number_of_wins]
     end
 

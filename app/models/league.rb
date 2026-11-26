@@ -113,6 +113,15 @@ class League < Event
     end
   end
 
+  # The standings as they are read: by score while it is played, in the final order (the cut's champion first)
+  # once it is finished.
+  def standings_order
+    ranked = ranked_participants
+    return ranked unless finished?
+
+    ranked.sort_by.with_index { |participant, index| [participant.final_position || Float::INFINITY, index] }
+  end
+
   # Who can make the cut, in standings order: enrolled, with at least min_games_for_cut league games.
   def cut_field
     ranked_participants.select { |participant| participant.enrolled? && participant.league_games >= min_games_for_cut }
