@@ -4,7 +4,7 @@ require "test_helper"
 
 module Organizer
   # Staff on a league: the owner names them, and each role reaches what it may on the organizer's league page.
-  class LeagueStaffTest < ActionDispatch::IntegrationTest
+  class LeagueStaffTest < ActionDispatch::IntegrationTest # rubocop:disable Metrics/ClassLength
     setup do
       @organizer = event_organizers(:standard_organizer)
       @league = LeagueBuilder.build(players: 5, organizer: @organizer)
@@ -114,6 +114,17 @@ module Organizer
       assert_response :success
       assert_select "h1", text: /Liga por criar/
       assert_equal 0, League.where(name: "Liga por criar").count
+    end
+
+    test "before the league starts the Tables tab says so, and the public count leaves out who left" do
+      sign_in @organizer.user
+      @league.update_columns(state: League.states[:registration_open]) # rubocop:disable Rails/SkipsModelValidations
+      get organizer_league_path(@league)
+      assert_select "[data-no-tables]", text: I18n.t("league_desk.no_tables_yet")
+
+      @players.first.update_columns(dropped: true) # rubocop:disable Rails/SkipsModelValidations
+      get league_path(@league)
+      assert_match "4 registered", response.body
     end
 
     private

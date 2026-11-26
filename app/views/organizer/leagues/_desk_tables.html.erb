@@ -118,3 +118,10 @@
     </ul>
   </section>
 <% end %>
+
+<%# Nothing to deal with outside play: before the league starts, between the close and the cut, once it is over. %>
+<% unless @corrections.any? || league.play? || league.closing? || (league.finals? && @cut_round) %>
+  <section class="col-span-full card" data-no-tables>
+    <p class="px-4 py-8 text-center text-[13px] text-muted"><%= t(league.playing? || league.finished? ? "league_desk.no_tables" : "league_desk.no_tables_yet") %></p>
+  </section>
+<% end %>

@@ -61,7 +61,7 @@
         <dd><%= tournament_price(league) %></dd>
         <dt class="text-muted"><%= t("lists.league.players") %></dt>
         <dd>
-          <%= t("lists.league.players_line", registered: league.event_participants_count, min: league.minimum_participants,
+          <%= t("lists.league.players_line", registered: playing.size, min: league.minimum_participants,
                                              max: league.maximum_participants.infinite? ? t("lists.league.no_limit") : league.maximum_participants) %>
         </dd>
       </dl>

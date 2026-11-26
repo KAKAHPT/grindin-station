@@ -2026,6 +2026,8 @@ es:
         registered: "Inscripción hecha: ¡buenas partidas!"
         left: "Has salido de la liga."
   league_desk:
+    no_tables: "No hay mesas que tratar."
+    no_tables_yet: "Las mesas aparecen aquí cuando empiece la liga."
     clock_minutes: "Reloj de cada partida (minutos)"
     change: "Cambiar"
     change_lead: "Nuevo resultado:"
