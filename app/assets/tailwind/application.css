@@ -2301,6 +2301,104 @@
     padding-bottom: 4px;
   }
 
+  /* Featured tickets in motion (featflow_controller): each ticket is placed by its animation. */
+  .lp-rail.lp-flow {
+    position: relative;
+    margin-top: 40px;
+    display: block;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  .lp-rail.lp-flow > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: 50% 0;
+    will-change: transform, opacity;
+  }
+
+  /* In motion the ticket keeps its resting layout whatever its width: the text columns are fixed, the width it
+     gains at the front shows more of the cover, and the details are laid out at the wide size from the start. */
+  .lp-flow .lp-ft {
+    grid-template-columns: 84px calc(var(--ftw) - 86px) 1fr;
+    background-position: left top;
+    background-repeat: no-repeat;
+    background-size: var(--ftwide) auto;
+  }
+
+  .lp-flow .lp-ft::before {
+    background: linear-gradient(
+      90deg,
+      rgb(17 19 21 / 0.35) 0,
+      rgb(17 19 21 / 0.82) calc(var(--ftw) * 0.36),
+      rgb(17 19 21 / 0.92) calc(var(--ftw) * 0.8),
+      rgb(17 19 21 / 0.15) calc(var(--ftw) * 1.12)
+    );
+  }
+
+  /* Shut until the ticket is at the front (the animation opens it); open where nothing moves. */
+  .lp-flow .lp-ft-more {
+    max-height: 0;
+    opacity: 0;
+  }
+
+  /* The streak of light that crosses the front ticket (moved by featflow_controller). */
+  .lp-flow .lp-ft::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 1;
+    width: 45%;
+    background: linear-gradient(90deg, transparent, rgb(255 244 214 / 0.1), transparent);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .lp-flow .lp-ft-more > div {
+    width: calc(var(--ftwide) - 2px);
+  }
+
+  /* The featured title sits in the middle; the arrows (phones) stay at the right edge. */
+  .lp-feat .lp-rail-hd {
+    position: relative;
+    justify-content: center;
+  }
+
+  .lp-feat .lp-rail-nav {
+    position: absolute;
+    right: 0;
+  }
+
+  /* The arrows page a rail; a row in motion has nothing to page. */
+  .lp-feat:has(.lp-flow) .lp-rail-nav {
+    display: none;
+  }
+
+  .lp-ft-more {
+    grid-column: 1 / -1;
+    overflow: hidden;
+    border-top: 1px dashed var(--color-line);
+    background: rgb(17 19 21 / 0.96);
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--color-muted, #a8b0b6);
+  }
+
+  .lp-ft-more > div {
+    padding: 10px 14px 12px;
+  }
+
+  .lp-ft-desc {
+    margin-top: 6px;
+  }
+
+  .lp-ft-more b {
+    margin-right: 6px;
+    color: #fff;
+    font-weight: 600;
+  }
+
   .lp-rail::-webkit-scrollbar {
     display: none;
   }

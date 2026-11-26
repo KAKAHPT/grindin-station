@@ -201,7 +201,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     get root_path
 
     assert_select "section.lp-feat[data-featured] ~ section[data-upcoming]"
-    assert_select "[data-featured] h2", text: "Featured"
+    assert_select "[data-featured] h2", text: "Featured events"
     assert_select "[data-featured] [data-rail-target=prev]"
     assert_select "[data-featured] [data-rail-target=next]"
     assert_select "[data-featured-event]", 9
@@ -209,7 +209,11 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
       assert_select ".lp-ft-stub b", text: l_day(featured.first)
       assert_select "a[data-register][href=?]", play_event_path(featured.first.slug), text: "Register"
       assert_select ".lp-evr-org", text: /#{@organizer.name}/
+      # The body is name, organizer, enrolled and actions; the format line sits in the details underneath.
+      assert_select ".lp-ft-bd .lp-ft-m", count: 0
+      assert_select "[data-ft-more] p", text: /Commander/
     end
+    assert_select "[data-featured][data-controller~=featflow] [data-featflow-target=track]"
     assert_select "[data-featured-event='#{featured.last.slug}']", count: 0
     assert_select "[data-featured-event='#{hidden.slug}']", count: 0
     assert_select "[data-upcoming] [data-upcoming-event='#{plain.slug}']"
