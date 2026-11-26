@@ -1,7 +1,7 @@
 <%# The My round tab: the viewer's own table, where the result is reported. Locals: league.
     Uses @participant and @my_table. %>
 <%= turbo_stream_from league, :tables %>
-<div class="col-span-full grid gap-4 pt-4" data-league-mine>
+<div class="col-span-full grid gap-4" data-league-mine>
   <% if @my_table %>
     <%= render "leagues/my_table", league: league, table: @my_table, participant: @participant %>
   <% elsif @my_cut_pod %>

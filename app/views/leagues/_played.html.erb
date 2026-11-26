@@ -1,6 +1,6 @@
 <%# The Completed rounds tab: the league's games with a final result, latest first, as pod cards with the winner.
     Locals: league. Uses @played (paginated) and @participant. %>
-<div class="col-span-full pt-4" data-league-played>
+<div class="col-span-full" data-league-played>
   <% if @played.any? %>
     <div class="grid grid-cols-1 gap-3 content-start sm:grid-cols-2 lg:grid-cols-3">
       <%= render partial: "leagues/table_card", collection: @played, as: :table, locals: { league: league, viewer: @participant, joinable: false } %>

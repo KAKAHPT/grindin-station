@@ -1,7 +1,7 @@
 <%# The Tables tab of an open-tables league: opening a table (or the way to "My round" when the viewer sits at
     one), the tables waiting for players and the ones being played, as pod cards. Locals: league. Uses @participant, @my_table, @waiting, @in_play. %>
 <%= turbo_stream_from league, :tables %>
-<div class="col-span-full grid gap-4 pt-4" data-league-tables>
+<div class="col-span-full grid gap-4" data-league-tables>
   <% if @my_table || @my_cut_pod %>
     <div class="card flex flex-wrap items-center justify-between gap-3 px-4 py-4" data-go-to-mine>
       <p class="text-[13px] text-muted"><%= t("leagues.tables.at_a_table") %></p>
