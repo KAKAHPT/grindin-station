@@ -1,0 +1,105 @@
+<%# The viewer's own league table. Waiting: who is in, Leave or Close. Full: the seats, the result (I won / It was a draw),
+    the clock and asking the organizer to cancel. Locals: league, table, participant. %>
+<% locale = params[:locale] %>
+<section class="card overflow-clip border-accent/55 ring-1 ring-accent/20 sm:max-w-md" data-my-table="<%= table.state %>" data-controller="dialog">
+  <div class="band flex items-center justify-between gap-2 px-4 py-2.5">
+    <h2 class="flex items-center gap-2 font-display text-[15px] font-semibold leading-none tracking-tight text-ink">
+      <%= table.pod ? table.pod.round.display_name : t("leagues.tables.my_table") %>
+      <%= desk_chip(:ok) { t("play.pairings.your_table") } %>
+    </h2>
+    <% if table.pod %><%= pod_status_chip(table.pod) %><% end %>
+  </div>
+  <% if table.waiting? %>
+    <ol class="flex flex-col divide-y divide-line/60">
+      <% table.participants.each do |seated| %>
+        <% you = seated.id == participant.id %>
+        <%= tag.li class: ["flex items-center gap-3 px-4 py-2.5", ("bg-accent/[0.08]" if you)] do %>
+          <span class="<%= PaletteHelper::SEAT_SQUARE %> <%= you ? "text-accent" : "text-muted" %>">·</span>
+          <span class="flex-1 min-w-0 truncate text-[15px] <%= "font-semibold text-ink" if you %>"><%= league_player(seated) %></span>
+          <% if you %><%= desk_chip(:ok) { t("play.tables.you") } %><% end %>
+        <% end %>
+      <% end %>
+    </ol>
+    <div class="border-t border-line px-4 py-3 text-[13px]">
+      <p class="text-muted">
+        <%= t("leagues.tables.seats_left", count: League::TABLE_SIZE - table.participants.size) %> ·
+        <%= t("leagues.tables.closes_at", time: l(table.expires_at, format: :short)) %>
+      </p>
+      <div class="mt-3">
+        <% if table.opener_id == participant.id %>
+          <%= button_to t("leagues.tables.close"), close_league_table_path(league, table, locale: locale), class: button_classes(:secondary, size: :sm) %>
+        <% else %>
+          <%= button_to t("leagues.tables.leave"), leave_league_table_path(league, table, locale: locale), class: button_classes(:secondary, size: :sm) %>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <% pod = table.pod %>
+    <ol class="flex flex-col divide-y divide-line/60">
+      <% pod.seatings.each do |seating| %>
+        <% you = seating.event_participant_id == participant.id %>
+        <%= tag.li data: { seat: seating.order }, class: ["flex items-center gap-3 px-4 py-2.5", ("bg-accent/[0.08]" if you)] do %>
+          <span class="<%= PaletteHelper::SEAT_SQUARE %> <%= you ? "text-accent" : "text-muted" %>"><%= seating.order %></span>
+          <span class="flex-1 min-w-0 truncate text-[15px] <%= "font-semibold text-ink" if you %>"><%= league_player(seating.event_participant) %></span>
+          <% if you %><%= desk_chip(:ok) { t("play.tables.you") } %><% end %>
+        <% end %>
+      <% end %>
+    </ol>
+
+    <div class="border-t border-line px-4 py-4 text-center text-[13px]" data-table-result>
+      <% if pod.pending_result %>
+        <%# Reported, waiting for another player of the table (leagues that ask for a confirmation). %>
+        <p class="text-ink" data-result-state="pending"><%= t("leagues.tables.reported", result: league_pending_text(pod)) %></p>
+        <% if table.correction_pending? %>
+          <p class="mt-1 text-[12px] text-muted"><%= t("leagues.tables.correction_pending") %></p>
+        <% else %>
+          <p class="mt-1 text-[12px] text-muted"><%= t("leagues.tables.accepted_at", time: l(pod.reported_at + League::CONFIRMATION_WINDOW, format: :short)) %></p>
+          <% unless pod.confirmations.key?(participant.id) %>
+            <div class="mt-3 flex flex-wrap justify-center gap-2">
+              <%= button_to t("leagues.tables.confirm"), confirm_league_table_path(league, table, locale: locale), class: button_classes(:primary, size: :sm), form: { data: { confirm_result: true } } %>
+            </div>
+            <% unless table.correction_requested_by_id == participant.id %>
+              <%= form_with url: correction_league_table_path(league, table, locale: locale), class: "mt-3 flex flex-wrap justify-center gap-2", data: { wrong_result: true } do |form| %>
+                <%= form.text_field :reason, required: true, maxlength: 300, placeholder: t("leagues.tables.wrong_reason"), class: "field-input w-56 max-w-full", "aria-label": t("leagues.tables.wrong_reason") %>
+                <%= form.submit t("leagues.tables.wrong"), class: button_classes(:secondary, size: :sm) %>
+              <% end %>
+            <% end %>
+          <% end %>
+        <% end %>
+      <% else %>
+        <% how = league.result_confirmation == "none" ? "" : "_pending" %>
+        <div class="flex flex-wrap justify-center gap-2" data-report-form>
+          <%= button_to t("leagues.tables.i_won"), report_league_table_path(league, table, locale: locale), params: { result: "win" },
+                        class: button_classes(:primary, size: :sm), form: { data: { report: "win", turbo_confirm: t("leagues.tables.confirm_win#{how}") } } %>
+          <%= button_to t("leagues.tables.was_draw"), report_league_table_path(league, table, locale: locale), params: { result: "draw" },
+                        class: button_classes(:secondary, size: :sm), form: { data: { report: "draw", turbo_confirm: t("leagues.tables.confirm_draw#{how}") } } %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2 border-t border-line px-4 py-3 text-[13px]">
+      <%# Once started, the clock runs at the top right of the page (leagues/show). %>
+      <% unless pod.clock_started_at %>
+        <%= button_to t("leagues.tables.open_clock"), clock_league_table_path(league, table, locale: locale), class: button_classes(:secondary, size: :sm) %>
+      <% end %>
+      <% if table.cancel_pending? %>
+        <span class="text-muted" data-cancel-state="pending"><%= t("leagues.tables.cancel_pending") %></span>
+      <% else %>
+        <% if table.cancel_state == "refused" %><span class="text-muted" data-cancel-state="refused"><%= t("leagues.tables.cancel_refused") %></span><% end %>
+        <button type="button" class="<%= button_classes(:ghost, size: :sm) %>" data-action="dialog#open" data-cancel-open><%= t("leagues.tables.cancel") %></button>
+      <% end %>
+    </div>
+
+    <dialog data-dialog-target="dialog" data-action="click->dialog#backdrop" class="card w-[min(28rem,92vw)] p-0 text-ink">
+      <%= form_with url: cancel_league_table_path(league, table, locale: locale), class: "p-4" do |form| %>
+        <h3 class="font-display text-[15px] font-semibold"><%= t("leagues.tables.cancel_title") %></h3>
+        <p class="mt-1 text-[12.5px] text-muted"><%= t("leagues.tables.cancel_lead") %></p>
+        <%= form.text_area :reason, required: true, rows: 3, maxlength: 500, class: "field mt-3 w-full", "aria-label": t("leagues.tables.cancel_reason") %>
+        <div class="mt-3 flex justify-end gap-2">
+          <button type="button" class="<%= button_classes(:ghost, size: :sm) %>" data-action="dialog#close"><%= t("leagues.tables.cancel_back") %></button>
+          <%= form.submit t("leagues.tables.cancel_send"), class: button_classes(:primary, size: :sm) %>
+        </div>
+      <% end %>
+    </dialog>
+  <% end %>
+</section>

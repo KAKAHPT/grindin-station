@@ -1,0 +1,47 @@
+<%# The My round tab: the viewer's own table, where the result is reported, and beside it the games they
+    already played: who sat where and how it went. Locals: league. Uses @participant, @my_table and @my_games. %>
+<%= turbo_stream_from league, :tables %>
+<div class="col-span-full grid items-start gap-4 lg:grid-cols-[minmax(0,28rem)_1fr]" data-league-mine>
+  <div class="grid gap-4">
+    <% if @my_table %>
+      <%= render "leagues/my_table", league: league, table: @my_table, participant: @participant %>
+    <% elsif @my_cut_pod %>
+      <%= render "leagues/cut_pod", league: league, round: @my_cut_round, pod: @my_cut_pod, viewer: @participant, report: true,
+                 results: @my_cut_round.results.index_by(&:event_participant_id) %>
+    <% else %>
+      <div class="card flex flex-wrap items-center justify-between gap-3 px-4 py-4" data-no-table>
+        <p class="text-[13px] text-muted"><%= t(@participant&.enrolled? ? "leagues.tables.no_table" : "leagues.tables.enrol_first") %></p>
+        <%= link_to t("leagues.tabs.tables"), league_path(league, tab: "tables", locale: params[:locale]), class: button_classes(:secondary) %>
+      </div>
+    <% end %>
+  </div>
+  <% if @participant %>
+    <section class="card overflow-clip" data-my-games>
+      <h2 class="card-title"><%= t("leagues.tables.my_games") %></h2>
+      <% if @my_games.present? %>
+        <ul class="divide-y divide-line text-[13px]">
+          <% @my_games.each do |table| %>
+            <% result = table.pod.current_results.find { |row| row.event_participant_id == @participant.id } %>
+            <% outcome = result.is_a?(Win) ? :won : result.is_a?(Draw) ? :draw : :lost %>
+            <li class="flex items-center justify-between gap-3 px-4 py-2.5" data-my-game="<%= outcome %>">
+              <span class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1.5">
+                <span class="font-semibold text-ink"><%= table.pod.round.display_name %></span>
+                <%# The four players in front, each with the seat they had. %>
+                <% table.pod.seatings.sort_by(&:order).each do |seating| %>
+                  <% you = seating.event_participant_id == @participant.id %>
+                  <span class="flex items-center gap-1.5" data-my-game-seat="<%= seating.order %>">
+                    <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= you ? "text-accent" : "text-muted" %>"><%= seating.order %></span>
+                    <span class="<%= you ? "font-semibold text-ink" : "text-muted" %>"><%= seating.event_participant.name %></span>
+                  </span>
+                <% end %>
+              </span>
+              <%= desk_chip({ won: :ok, draw: :neutral, lost: :bad }.fetch(outcome)) { t("leagues.tables.result_#{outcome}") } %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="px-4 py-6 text-center text-[12.5px] text-muted"><%= t("leagues.tables.my_games_none") %></p>
+      <% end %>
+    </section>
+  <% end %>
+</div>

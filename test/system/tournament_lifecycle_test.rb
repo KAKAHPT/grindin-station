@@ -9,6 +9,7 @@ class TournamentLifecycleTest < ApplicationSystemTestCase
 
     # Create tournament - starts as registration_open by default
     visit organizer_tournaments_path
+    find("[data-create-menu] summary").click
     click_link "New tournament"
 
     fill_in "Name", with: "Test Championship"

@@ -1,0 +1,36 @@
+<%# One table of a league's top cut as a pod card: the seats, who advanced, and for the viewer's own unfinished
+    table the "I won" button. Locals: league, round, pod, results (the round's, by participant id), viewer
+    (participant or nil), report (true on the My round tab). %>
+<% seats = pod.seatings.sort_by(&:order) %>
+<% mine = viewer && seats.any? { |seating| seating.event_participant_id == viewer.id } %>
+<% done = seats.all? { |seating| results.key?(seating.event_participant_id) } %>
+<%= tag.article data: { cut_pod: pod.number, my_table: (true if mine), cut_done: done },
+                class: ["card flex flex-col overflow-clip", ("border-accent/55 ring-1 ring-accent/20" if mine)] do %>
+  <div class="band flex items-center justify-between gap-2 px-4 py-2.5">
+    <h3 class="font-display text-[15px] font-semibold leading-none tracking-tight text-ink">
+      <%= round.display_name %> · <%= t("league_desk.table", n: pod.number) %>
+    </h3>
+    <% status = done ? :completed : :playing %>
+    <%= status_chip(pod_status_tone(status)) { t("rounds.status.#{status}") } %>
+  </div>
+  <ol class="flex flex-col divide-y divide-line/60">
+    <% seats.each do |seating| %>
+      <% you = viewer && seating.event_participant_id == viewer.id %>
+      <% won = results[seating.event_participant_id].is_a?(Advance) %>
+      <%= tag.li data: { seat: seating.order, winner: (true if won) }, class: ["flex items-center gap-2.5 px-4 py-1.5 min-h-9", ("bg-accent/[0.08]" if you || won)] do %>
+        <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= you || won ? "text-accent" : "text-muted" %>"><%= seating.order %></span>
+        <span class="flex flex-1 items-center gap-1.5 min-w-0 text-[13px]">
+          <span class="truncate <%= "font-semibold text-ink" if you || won %>"><%= league_player(seating.event_participant) %></span>
+          <% if you %><%= desk_chip(:ok) { t("play.tables.you") } %><% end %>
+        </span>
+        <% if won %><%= icon("trophy", class: "text-[14px] text-muted") %><span class="sr-only"><%= t("play.pairings.winner") %></span><% end %>
+      <% end %>
+    <% end %>
+  </ol>
+  <% if report && mine && !done && round.finished_at.nil? %>
+    <div class="mt-auto flex justify-center border-t border-line px-4 py-4 text-[13px]" data-cut-report>
+      <%= button_to t("leagues.tables.i_won"), report_league_cut_pod_path(league, pod, locale: params[:locale]),
+                    class: button_classes(:primary, size: :sm), form: { data: { turbo_confirm: t("leagues.tables.cut_confirm") } } %>
+    </div>
+  <% end %>
+<% end %>

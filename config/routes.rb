@@ -63,6 +63,15 @@ Rails.application.routes.draw do
   constraints(Features.constraint(:leagues)) do
     resources :leagues, only: %i[index show] do
       resources :rounds, only: :show
+      resources :tables, only: :create, controller: "league_tables" do
+        member do
+          %i[join leave close report confirm correction cancel clock].each { |action| post action }
+        end
+      end
+      resources :cut_pods, only: [], controller: "league_cut_pods" do
+        member { post :report }
+      end
+      resource :registration, only: %i[create destroy], controller: "league_registrations"
 
       resources :event_participants do
         collection do
@@ -195,7 +204,18 @@ Rails.application.routes.draw do
 
     constraints(Features.constraint(:leagues)) do
       resources :leagues do
+        get :preview, on: :collection, to: "previews#league"
         member do
+          patch :transition
+          patch "tables/:table_id/cancellation", action: :decide_cancel, as: :table_cancellation
+          patch "pods/:pod_id/result", action: :enter_result, as: :pod_result
+          patch "tables/:table_id/correction", action: :decide_correction, as: :table_correction
+          patch "cut_rounds/:round_id/close", action: :close_cut_round, as: :close_cut_round
+          patch "tables/:table_id/cancel", action: :cancel_table, as: :cancel_table
+          patch "participants/:participant_id/drop", action: :drop_participant, as: :drop_participant
+          patch "participants/:participant_id/readmit", action: :readmit_participant, as: :readmit_participant
+          post "staff", action: :add_staff, as: :staff
+          delete "staff/:staff_id", action: :remove_staff, as: :remove_staff
           %w[players melee standings rounds].each do |kind|
             get "export/#{kind}", to: "exports##{kind}", as: "export_#{kind}"
           end

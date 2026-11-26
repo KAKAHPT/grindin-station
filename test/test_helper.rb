@@ -17,6 +17,7 @@ require_relative "../config/environment"
 require "rails/test_help"
 require "webmock/minitest"
 require_relative "support/tournament_builder"
+require_relative "support/league_builder"
 require_relative "support/feed_tournament"
 require_relative "support/rate_limit_store"
 

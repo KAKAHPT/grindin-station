@@ -5,8 +5,12 @@ module Organizer
   # for a tournament not created yet (new) or one being edited (show). Nothing is saved. Shown in an iframe, so
   # the page may be framed by its own origin.
   class PreviewsController < OrganizerController
-    require_organizer only: :new
+    require_organizer only: %i[new league]
     allow_roles :organizer, only: :show
+
+    LEAGUE_ATTRIBUTES = %i[name description start_time end_time minimum_participants maximum_participants prizes
+                           address country schedule rules price currency wager_percentage starting_points
+                           draw_rule top_cut_size min_games_for_cut round_minutes].freeze
 
     layout "play"
     helper_method :current_event, :current_participant, :current_round
@@ -20,6 +24,16 @@ module Organizer
     def new
       @tournament = Tournament.new(event_organizer: current_organizer)
       render_preview
+    end
+
+    # The public league page from the New league form's values (About only: no tabs before it exists).
+    def league
+      @league = League.new(event_organizer: current_organizer, slug: "preview", id: SecureRandom.uuid)
+      @league.assign_attributes(params.fetch(:league, {}).permit(*LEAGUE_ATTRIBUTES))
+      # The page needs dates; nothing is saved.
+      @league.start_time ||= Time.current
+      @league.end_time ||= @league.start_time + 1.month
+      render "leagues/show"
     end
 
     private
@@ -46,7 +60,7 @@ module Organizer
       params.fetch(:tournament, {}).permit(*(Tournament::SETTINGS_ATTRIBUTES - %i[cover state format]))
     end
 
-    def current_event = @tournament
+    def current_event = @tournament || @league
     def current_participant = nil
     def current_round = nil
   end

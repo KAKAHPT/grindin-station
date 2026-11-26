@@ -1,1 +1,19 @@
-<%= render "form", league: @league %>
+<%# New league: the form in a card and, on wide screens, the public league page beside it as it is typed. %>
+<div class="col-span-full grid gap-4 lg:grid-cols-[minmax(0,640px)_minmax(320px,1fr)]"
+     data-controller="live-preview" data-live-preview-url-value="<%= preview_organizer_leagues_path %>">
+  <div class="w-full max-w-[720px]">
+    <h1 class="mb-3.5 font-display text-2xl font-semibold text-ink"><%= t("league_desk.new_title") %></h1>
+    <div class="card">
+      <%= render "form", league: @league %>
+      <div class="flex items-center border-t border-line p-[18px]"><%= content_for(:footer) %></div>
+    </div>
+  </div>
+  <aside class="hidden lg:block sticky top-4 self-start" data-live-preview-pane>
+    <div class="mb-2 flex items-baseline justify-between gap-3">
+      <h2 class="form-section mb-0"><%= t("organizer.preview.title") %></h2>
+      <p class="form-help"><%= t("organizer.preview.help") %></p>
+    </div>
+    <iframe data-live-preview-target="frame" title="<%= t("organizer.preview.title") %>"
+            class="w-full rounded-xl border border-line bg-black" style="height: calc(100vh - 7rem)"></iframe>
+  </aside>
+</div>

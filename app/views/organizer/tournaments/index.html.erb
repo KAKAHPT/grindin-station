@@ -9,7 +9,16 @@
       <% if Features.on?(:organizers) %>
         <%= link_to t("organizer.about.title"), edit_organizer_about_path, class: button_classes(:secondary, size: :xs), data: { organizer_about: true } %>
       <% end %>
-      <%= link_to t("organizer.tournaments.new"), new_organizer_tournament_path, class: button_classes(:primary, size: :xs) %>
+      <%# Create: opens the kinds of event the organizer can start. %>
+      <details class="relative" data-create-menu>
+        <summary class="<%= button_classes(:primary, size: :xs) %> cursor-pointer list-none [&::-webkit-details-marker]:hidden"><%= t("organizer.tournaments.create") %></summary>
+        <div class="card absolute end-0 z-20 mt-1.5 flex min-w-44 flex-col overflow-clip py-1 text-[13px] shadow-card">
+          <%= link_to t("organizer.tournaments.new"), new_organizer_tournament_path, class: "px-3 py-2 text-ink hover:bg-white/[0.05]" %>
+          <% if Features.on?(:leagues) %>
+            <%= link_to t("organizer.leagues.new"), new_organizer_league_path, class: "px-3 py-2 text-ink hover:bg-white/[0.05]" %>
+          <% end %>
+        </div>
+      </details>
     <% end %>
   </div>
 </div>

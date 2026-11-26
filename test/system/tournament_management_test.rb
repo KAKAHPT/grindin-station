@@ -8,6 +8,7 @@ class TournamentManagementTest < ApplicationSystemTestCase # rubocop:disable Met
     sign_in_as(organizer)
 
     visit organizer_tournaments_path
+    find("[data-create-menu] summary").click
     click_link "New tournament"
 
     fill_in "Name", with: "Grand Championship 2024"

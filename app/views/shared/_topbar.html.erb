@@ -32,25 +32,59 @@
         <% end %>
       </span>
       <% if authenticated? %>
-        <% if current_user.staff? %>
-          <%= link_to organizer_path_builder, class: ["topbar-chip", ("on" if organizer_mode?)], data: { organizer_mode: true } do %>
-            <i aria-hidden="true"></i><%= t("topbar.organizer_mode") %>
+        <%# Phones only (under the hamburger): from 768 px up these live in the menu under the viewer's name. %>
+        <span class="topbar-account">
+          <% if current_user.staff? %>
+            <%= link_to organizer_path_builder, class: ["topbar-chip", ("on" if organizer_mode?)], data: { organizer_mode: true } do %>
+              <i aria-hidden="true"></i><%= t("topbar.organizer_mode") %>
+            <% end %>
           <% end %>
-        <% end %>
-        <% if current_user.admin? %>
-          <%= link_to admin_root_path, class: ["topbar-chip", ("on" if admin_mode?)], data: { admin_mode: true } do %>
-            <i aria-hidden="true"></i><%= t("topbar.admin") %>
+          <% if current_user.admin? %>
+            <%= link_to admin_root_path, class: ["topbar-chip", ("on" if admin_mode?)], data: { admin_mode: true } do %>
+              <i aria-hidden="true"></i><%= t("topbar.admin") %>
+            <% end %>
           <% end %>
-        <% end %>
-        <%= link_to t("accounts.nav"), account_path(locale: params[:locale]), class: "topbar-link" %>
-        <%= link_to t("topbar.logout"), session_path(Current.session), data: { turbo_method: :delete }, class: "topbar-link" %>
+          <%= link_to t("accounts.nav"), account_path(locale: params[:locale]), class: "topbar-link" %>
+          <%= link_to t("topbar.logout"), session_path(Current.session), data: { turbo_method: :delete }, class: "topbar-link" %>
+        </span>
       <% end %>
     </div>
 
     <div class="topbar-end">
       <% if authenticated? %>
-        <%# A rejected handle edit (account form re-rendered) must not build a profile link from the unsaved handle. %>
-        <span data-play-player class="topbar-user"><%= current_user.handle_changed? ? current_user.display_name : profile_link(current_user) %></span>
+        <%# The viewer: picture and name; from 768 px up, hovering (or focusing) them opens their menu: profile,
+            account, log out and, under a rule, Organizer mode and Admin. %>
+        <% unsaved = current_user.handle_changed? %>
+        <% profile = current_user.handle.present? && !unsaved && current_user.profile_visible_to?(nil) %>
+        <div class="topbar-me" data-user-menu>
+          <span class="topbar-me-trigger" tabindex="0">
+            <%# A picture just refused by the account form is not stored: it has nothing to show. %>
+            <% if current_user.avatar.attached? && current_user.avatar.blob.persisted? && !current_user.attachment_changes.key?("avatar") %>
+              <%= image_tag url_for(current_user.avatar.variant(:thumb)), alt: "", width: 28, height: 28, class: "size-7 shrink-0 rounded-full object-cover border border-line" %>
+            <% else %>
+              <span class="inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-line bg-surface-raised text-[11px] font-semibold text-muted" aria-hidden="true"><%= current_user.display_name.split.first(2).pluck(0).join.upcase %></span>
+            <% end %>
+            <%# A rejected handle edit (account form re-rendered) must not build a profile link from the unsaved handle. %>
+            <span data-play-player class="topbar-user"><%= unsaved ? current_user.display_name : profile_link(current_user) %></span>
+          </span>
+          <div class="topbar-me-menu" data-user-menu-panel>
+            <div class="topbar-me-card">
+              <% if profile %><%= link_to t("topbar.my_profile"), profile_path(current_user.handle, locale: params[:locale]) %><% end %>
+              <%= link_to t("topbar.my_events"), my_events_path(locale: params[:locale]) %>
+              <%= link_to t("accounts.nav"), account_path(locale: params[:locale]) %>
+              <%= link_to t("topbar.logout"), session_path(Current.session), data: { turbo_method: :delete } %>
+              <% if current_user.staff? || current_user.admin? %>
+                <hr>
+                <% if current_user.staff? %>
+                  <%= link_to t("topbar.organizer_mode"), organizer_path_builder, class: ("on" if organizer_mode?), data: { organizer_mode: true } %>
+                <% end %>
+                <% if current_user.admin? %>
+                  <%= link_to t("topbar.admin"), admin_root_path, class: ("on" if admin_mode?), data: { admin_mode: true } %>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
         <%= render "notifications/bell" %>
       <% else %>
         <%= link_to t("topbar.sign_in"), new_session_path(locale: params[:locale]),

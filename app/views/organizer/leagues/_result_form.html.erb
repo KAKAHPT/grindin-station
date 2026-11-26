@@ -1,0 +1,9 @@
+<%# The organizer enters a table's result: pick the winner (or a draw) and submit. Locals: league, pod, draw;
+    optional tab (the tab to come back to). %>
+<%= form_with url: pod_result_organizer_league_path(league, pod_id: pod.id), method: :patch, class: "flex items-center gap-2", data: { result_form: pod.id } do |form| %>
+  <%= hidden_field_tag :tab, local_assigns[:tab] if local_assigns[:tab] %>
+  <% choices = pod.seatings.map { |seating| [seating.event_participant.name, seating.event_participant_id] } %>
+  <% choices << [t("league_desk.draw"), "draw"] if draw %>
+  <%= form.select :result, choices, { prompt: t("league_desk.winner") }, required: true, class: "field-input w-44", "aria-label": t("league_desk.winner") %>
+  <%= form.submit t("league_desk.enter"), class: button_classes(:secondary, size: :sm) %>
+<% end %>

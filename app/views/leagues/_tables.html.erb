@@ -1,0 +1,58 @@
+<%# The Tables tab of an open-tables league: opening a table (or the way to "My round" when the viewer sits at
+    one), the tables waiting for players and the ones being played, as pod cards. Locals: league. Uses @participant, @my_table, @waiting, @in_play. %>
+<%= turbo_stream_from league, :tables %>
+<div class="col-span-full grid gap-4" data-league-tables>
+  <% if @my_table || @my_cut_pod %>
+    <div class="card flex flex-wrap items-center justify-between gap-3 px-4 py-4" data-go-to-mine>
+      <p class="text-[13px] text-muted"><%= t("leagues.tables.at_a_table") %></p>
+      <%= link_to t("leagues.tabs.mine"), league_path(league, tab: "mine", locale: params[:locale]), class: button_classes(:primary) %>
+    </div>
+  <% elsif league.tables_open? && @participant&.enrolled? %>
+    <div class="card flex flex-wrap items-center justify-between gap-3 px-4 py-4" data-open-table>
+      <p class="text-[13px] text-muted"><%= t("leagues.tables.open_lead") %></p>
+      <%= button_to t("leagues.tables.open"), league_tables_path(league, locale: params[:locale]), class: button_classes(:primary) %>
+    </div>
+  <% else %>
+    <% unless league.tables_open? %>
+      <p class="card px-4 py-4 text-[13px] text-muted" data-tables-closed><%= t("leagues.tables.closed_#{league.play? ? "date" : "state"}") %></p>
+    <% end %>
+    <% unless @participant&.enrolled? %>
+      <div data-tables-visitor><%= render "leagues/registration", league: league, registration: @registration %></div>
+    <% end %>
+  <% end %>
+
+  <% (@cut_rounds || []).each do |round| %>
+    <section data-cut-round="<%= round.number %>">
+      <h2 class="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted"><%= round.display_name %></h2>
+      <div class="grid grid-cols-1 gap-3 content-start sm:grid-cols-2 lg:grid-cols-3">
+        <% results = round.results.index_by(&:event_participant_id) %>
+        <% round.pods.sort_by(&:number).each do |pod| %>
+          <%= render "leagues/cut_pod", league: league, round: round, pod: pod, results: results, viewer: @participant, report: false %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <% if league.tables_open? || @waiting.any? %>
+  <section data-waiting-tables>
+    <h2 class="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted"><%= t("leagues.tables.waiting_title") %></h2>
+    <% if @waiting.any? %>
+      <div class="grid grid-cols-1 gap-3 content-start sm:grid-cols-2 lg:grid-cols-3">
+        <% joinable = @participant&.enrolled? && @my_table.nil? && league.tables_open? %>
+        <%= render partial: "leagues/table_card", collection: @waiting, as: :table, locals: { league: league, viewer: @participant, joinable: joinable } %>
+      </div>
+    <% else %>
+      <p class="card px-4 py-6 text-center text-[12.5px] text-muted"><%= t("leagues.tables.none_waiting") %></p>
+    <% end %>
+  </section>
+  <% end %>
+
+  <% if @in_play.any? %>
+    <section data-tables-in-play>
+      <h2 class="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted"><%= t("leagues.tables.in_play_title") %></h2>
+      <div class="grid grid-cols-1 gap-3 content-start sm:grid-cols-2 lg:grid-cols-3">
+        <%= render partial: "leagues/table_card", collection: @in_play, as: :table, locals: { league: league, viewer: @participant, joinable: false } %>
+      </div>
+    </section>
+  <% end %>
+</div>

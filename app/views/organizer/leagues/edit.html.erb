@@ -1,1 +1,7 @@
-<%= render "form", league: @league %>
+<div class="col-span-full w-full max-w-[720px]">
+  <h1 class="mb-3.5 font-display text-2xl font-semibold text-ink"><%= t("league_desk.edit_title", name: @league.name) %></h1>
+  <div class="card">
+    <%= render "form", league: @league %>
+    <div class="flex items-center border-t border-line p-[18px]"><%= content_for(:footer) %></div>
+  </div>
+</div>

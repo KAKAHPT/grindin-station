@@ -1,0 +1,51 @@
+<%# The Staff tab of the organizer's league page (the owner only): who works the league and in which role, a row
+    to add someone by the e-mail of their account, and Remove. Locals: league. Uses @staff. %>
+<% role_tones = { "organizer" => :ok, "judge" => :info, "scorekeeper" => :warn, "caster" => :neutral } %>
+<section class="card overflow-clip" data-league-staff>
+  <h2 class="card-title"><%= t("organizer.staff.link") %></h2>
+  <table class="ctable">
+    <thead>
+      <tr>
+        <th><%= t("organizer.staff.name") %></th>
+        <th><%= t("organizer.staff.email") %></th>
+        <th><%= t("organizer.staff.role") %></th>
+        <th class="r"><span class="sr-only"><%= t("organizer.staff.remove") %></span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="font-semibold"><%= league.event_organizer.name %></td>
+        <td class="text-muted"><%= league.event_organizer.user&.email_address %></td>
+        <td><%= desk_chip(:ok) { t("organizer.staff.owner") } %></td>
+        <td class="r"></td>
+      </tr>
+      <% @staff.each do |staff| %>
+        <tr data-staff-row="<%= staff.id %>">
+          <td class="font-semibold"><%= staff.user.name %></td>
+          <td class="text-muted"><%= staff.user.email_address %></td>
+          <td><%= desk_chip(role_tones.fetch(staff.role, :info)) { t("organizer.staff.roles.#{staff.role}") } %></td>
+          <td class="r">
+            <%= button_to t("organizer.staff.remove"), remove_staff_organizer_league_path(league, staff_id: staff.id), method: :delete,
+                          data: { turbo_confirm: t("organizer.staff.confirm_remove", name: staff.user.name) }, class: button_classes(:ghost, size: :sm) %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <% if @staff.empty? %>
+    <p class="border-t border-line px-4 py-3 text-[12px] text-muted"><%= t("organizer.staff.empty") %></p>
+  <% end %>
+  <p class="border-t border-line px-4 py-2.5 text-[12px] text-muted"><%= t("league_desk.staff_help") %></p>
+
+  <%= form_with scope: :event_staff, url: staff_organizer_league_path(league), class: "flex flex-wrap items-end gap-2 border-t border-line px-3.5 py-3" do |f| %>
+    <label class="field w-full sm:w-64">
+      <%= t("organizer.staff.email") %>
+      <%= f.email_field :email_address, required: true, class: "field-input" %>
+    </label>
+    <label class="field">
+      <%= t("organizer.staff.role") %>
+      <%= f.select :role, EventStaff::ROLES.map { |role| [t("organizer.staff.roles.#{role}"), role] }, {}, class: "field-input" %>
+    </label>
+    <%= f.submit t("organizer.staff.add"), class: button_classes(:primary, size: :xs) %>
+  <% end %>
+</section>

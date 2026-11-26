@@ -1,10 +1,10 @@
-<%# A featured event on the landing (option 4B, the art ticket): the cover behind the whole card, the date glowing
-    in the state colour on the left stub behind a dotted perforation, then name, format line,
-    organizer, enrolled count and the actions; a bottom edge in the state colour. Locals: event (cover and
+<%# A featured event on the landing (option 4B, the art ticket): the cover behind the whole card, the date in white
+    on the left stub behind a dotted perforation, then name, format line, organizer, enrolled count and the
+    actions. No state colours: it sits with the tickets under it. Locals: event (cover and
     organizer preloaded), enrolled (count). Pieces from EventTicketHelper. %>
 <% sold_out = event.sold_out?(enrolled) %>
 <% href = ticket_href(event) %>
-<%= tag.article class: "lp-ft lp-ft-#{ticket_tone(event, sold_out)}", style: "background-image: url('#{ticket_banner(event, size: 960)}')",
+<%= tag.article class: "lp-ft", style: "background-image: url('#{ticket_banner(event, size: 960)}')",
                 data: { featured_event: event.slug, sold_out: ticket_sold_out?(event, sold_out) || nil } do %>
   <div class="lp-ft-stub">
     <b><%= l(event.start_time, format: "%d") %></b>
@@ -28,5 +28,4 @@
       </div>
     </div>
   </div>
-  <div class="lp-ft-edge" aria-hidden="true"></div>
 <% end %>

@@ -15,7 +15,9 @@
 
 <div class="landing">
   <section class="lp-hero">
-    <div class="lp-mosaic" aria-hidden="true">
+    <%# The backdrop fades to nothing at the bottom, so the cards rise out of the page itself. %>
+    <div class="lp-backdrop" aria-hidden="true">
+    <div class="lp-mosaic">
       <% 2.times do %>
         <div class="lp-sheet">
           <% arts.each do |src| %>
@@ -24,7 +26,8 @@
         </div>
       <% end %>
     </div>
-    <div class="lp-vig" aria-hidden="true"></div>
+    <div class="lp-vig"></div>
+    </div>
     <div class="lp-hero-in">
       <div class="lp-mark"><%= render "shared/mark", size: 84, id_suffix: "hero", rotating: true %></div>
       <p class="lp-eyebrow"><%= t("landing.eyebrow") %></p>
@@ -36,6 +39,13 @@
       </div>
     </div>
   </section>
+
+  <%# A small filter box that floats at the left edge of wide screens while the page scrolls; it opens /events
+      with the results. %>
+  <div class="lp-float" data-home-filters>
+    <%= render "shared/filter_bar", url: events_path(locale: url_locale), count: "",
+                                    fields: event_filter_fields({}, @filter_options, search: t("filters.search")).select { |name, *| name.in?(%i[q country organizer play]) } %>
+  </div>
 
   <% if @featured.any? %>
     <section class="lp-feat" data-featured data-controller="rail">
@@ -104,10 +114,11 @@
   </section>
 
   <div class="lp-fair" id="about">
-    <section class="card lp-why lp-tex">
+    <section class="lp-why">
       <h2><%= t("landing.why.title") %></h2>
       <p><%= t("landing.why.intro") %></p>
-      <ol>
+      <%# The four steps come in one at a time when the list scrolls into view (reveal controller). %>
+      <ol data-controller="reveal">
         <% t("landing.why.steps").each_with_index do |step, index| %>
           <li><b><%= index + 1 %></b><span><strong><%= step[:title] %></strong> <%= step[:text] %></span></li>
         <% end %>
@@ -120,8 +131,23 @@
   </div>
 
   <%# Last on the page: players looking for a tournament were filling it in by mistake when it sat under the hero. %>
-  <section class="lp-org" data-organizers-box>
-    <h2 class="lp-org-t"><%= t("landing.waitlist.heading") %></h2>
-    <%= render "pages/waitlist", signup: @waitlist_signup, state: nil %>
-  </section>
+  <%# The page ends as it began: the card wall behind, here rising out of nothing and sinking off the bottom. %>
+  <div class="lp-end">
+    <div class="lp-backdrop lp-backdrop-end" aria-hidden="true">
+      <div class="lp-mosaic">
+        <% 2.times do %>
+          <div class="lp-sheet">
+            <% arts.each do |src| %>
+              <img src="<%= src %>" alt="" width="240" height="175" loading="lazy" decoding="async">
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      <div class="lp-vig"></div>
+    </div>
+    <section class="lp-org" data-organizers-box>
+      <h2 class="lp-org-t"><%= t("landing.waitlist.heading") %></h2>
+      <%= render "pages/waitlist", signup: @waitlist_signup, state: nil %>
+    </section>
+  </div>
 </div>

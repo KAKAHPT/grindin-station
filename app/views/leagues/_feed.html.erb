@@ -1,0 +1,29 @@
+<%# The Feed tab: the league's latest 15 results as a list of news, newest first: who won (or a draw), against
+    whom and when. Locals: league. Uses @feed. %>
+<div class="col-span-full mx-auto w-full max-w-3xl" data-league-feed>
+  <% if @feed.any? %>
+    <ul class="card divide-y divide-line overflow-clip text-[14px]">
+      <% @feed.each do |table| %>
+        <% pod = table.pod %>
+        <% results = pod.current_results.index_by(&:event_participant_id) %>
+        <% players = pod.seatings.map(&:event_participant) %>
+        <% winner = players.find { |player| results[player.id].is_a?(Win) } %>
+        <li class="flex items-start gap-3 px-4 py-3" data-feed-game="<%= winner ? "win" : "draw" %>">
+          <span class="mt-0.5 text-[16px] <%= winner ? "text-accent" : "text-muted" %>"><%= icon(winner ? "trophy" : "handshake") %></span>
+          <span class="min-w-0 flex-1">
+            <% if winner %>
+              <span class="text-ink"><%= t("leagues.feed.win_html", name: tag.strong(league_player(winner)), game: pod.round.display_name) %></span>
+              <span class="block text-[12.5px] text-muted"><%= t("leagues.feed.against", names: (players - [winner]).map(&:name).to_sentence) %></span>
+            <% else %>
+              <span class="text-ink"><%= t("leagues.feed.draw", game: pod.round.display_name) %></span>
+              <span class="block text-[12.5px] text-muted"><%= players.map(&:name).to_sentence %></span>
+            <% end %>
+          </span>
+          <time class="shrink-0 text-[12px] text-muted" datetime="<%= pod.round.finished_at.iso8601 %>"><%= l(pod.round.finished_at, format: :short) %></time>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="card px-4 py-6 text-center text-[12.5px] text-muted"><%= t("leagues.tables.none_played") %></p>
+  <% end %>
+</div>

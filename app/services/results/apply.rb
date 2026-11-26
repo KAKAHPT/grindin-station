@@ -95,6 +95,7 @@ module Results
         end
       corrected if closed
       ::Standings::Snapshot.refresh(@round)
+      Leagues::SettlePod.call(@pod) if @round.is_a?(LeagueGameRound)
       Outcome.new(results: results, warning: self.class.warning_for(@pod))
     end
 

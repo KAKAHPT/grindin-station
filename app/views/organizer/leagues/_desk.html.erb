@@ -1,0 +1,49 @@
+<%# The organizer's controls of an open-tables league, above the tabs: where it stands and the next step.
+    Locals: league. Uses @pending_tables, @cut_field, @cut_round. %>
+<% step = ->(to, label, kind, confirm = nil) {
+     button_to label, transition_organizer_league_path(league), method: :patch, params: { to: to }, class: button_classes(kind, size: :sm),
+               form: { data: { turbo_confirm: confirm, league_step: to } }
+   } %>
+<section class="col-span-full card overflow-clip" data-league-desk="<%= league.state %>">
+  <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+    <p class="text-[13px] text-ink" data-league-state>
+      <% if league.state == "closing" %>
+        <%= t("league_desk.state_closing", count: @pending_tables.size) %>
+      <% elsif league.state.in?(%w[play closed finals finished]) %>
+        <%= t("league_desk.state_#{league.state}") %>
+      <% else %>
+        <%= event_state_label(league, nil) %>
+      <% end %>
+    </p>
+    <%# The steps are the organizer's; closing a cut round is also the scorekeeper's and the judge's. %>
+    <% if league_desk_can?(league.finals? ? :score : :run) %>
+    <div class="flex flex-wrap gap-2">
+      <% if league.registration_open? || league.registration_closed? %>
+        <%= step.("play", t("league_desk.start"), :primary) %>
+      <% elsif league.play? %>
+        <%= step.("closing", t("league_desk.close"), :primary, t("league_desk.confirm_close")) %>
+      <% elsif league.closing? %>
+        <%= step.("reopen", t("league_desk.reopen"), :secondary) %>
+      <% elsif league.closed? %>
+        <%= step.("reopen", t("league_desk.reopen"), :secondary) %>
+        <% if league.cut_size_for_field.positive? %>
+          <%= step.("finals", t("league_desk.make_cut"), :primary, t("league_desk.confirm_cut")) %>
+        <% else %>
+          <%= step.("finished", t("league_desk.finish"), :primary, t("league_desk.confirm_finish")) %>
+        <% end %>
+      <% elsif league.finals? && @cut_round&.finished? && @cut_round.finished_at.nil? %>
+        <%= button_to t("league_desk.close_round"), close_cut_round_organizer_league_path(league, round_id: @cut_round.id), method: :patch,
+                      class: button_classes(:primary, size: :sm), form: { data: { close_cut_round: true } } %>
+      <% end %>
+    </div>
+    <% end %>
+  </div>
+  <% if league.play? %><p class="border-t border-line px-4 py-2 text-[12px] text-muted"><%= t("league_desk.extend_hint") %></p><% end %>
+  <% if league.closed? %>
+    <% size = league.cut_size_for_field %>
+    <p class="border-t border-line px-4 py-2 text-[12px] text-muted" data-cut-lead>
+      <%= t("league_desk.cut_lead", qualified: @cut_field.size, games: league.min_games_for_cut,
+                                    cut: size.zero? ? t("league_desk.no_cut") : t("league_desk.top", size: size)) %>
+    </p>
+  <% end %>
+</section>

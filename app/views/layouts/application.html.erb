@@ -17,7 +17,8 @@
     <%= javascript_importmap_tags "organizer" %>
     <%= yield :head %>
   </head>
-  <body class="bg-ground text-ink font-body antialiased">
+  <%# The grey card mosaic, still and very faint, behind the page (.mosaic-bg). %>
+  <%= tag.body class: "mosaic-bg bg-ground text-ink font-body antialiased", style: mosaic_style do %>
     <%= render "shared/topbar", modal_sign_in: true %>
     <% if flash.present? %>
       <% flash.keys.each do |key| %>
@@ -27,11 +28,10 @@
     <% if content_for?(:event_header) %>
       <div class="max-w-screen-2xl mx-auto px-4 pt-6"><%= yield :event_header %></div>
     <% end %>
-    <div class="flex <%= content_for?(:event_header) ? "pt-0" : "pt-4" %> overflow-hidden bg-ground">
+    <div class="flex <%= content_for?(:event_header) ? "pt-0" : "pt-4" %> overflow-hidden">
       <div
         class="
           relative w-full max-w-screen-2xl mx-auto h-full overflow-y-auto
-          bg-ground
         "
       >
         <main>
@@ -64,5 +64,5 @@
         </footer>
       </div>
     </div>
-  </body>
+  <% end %>
 </html>

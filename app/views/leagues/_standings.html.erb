@@ -1,0 +1,46 @@
+<%# Standings of an open-tables league: score, win rate, opponents' win rate, games, wins, draws, losses (narrow, centred); who has too few games for the cut
+    is marked. Locals: league, standings (League#ranked_participants, one page of 16). %>
+<section class="col-span-full card overflow-clip mx-auto w-full max-w-6xl" data-league-standings>
+  <h2 class="card-title"><%= t("lists.league.standings") %></h2>
+  <% if standings.any? %>
+    <div class="overflow-x-auto">
+      <table class="ctable league-standings">
+        <thead>
+          <tr>
+            <th class="r w-12"><%= t("lists.columns.rank") %></th>
+            <th><%= t("lists.columns.player") %></th>
+            <th class="r"><%= t("lists.columns.score") %></th>
+            <th class="r w-24"><%= t("leagues.standings.win_rate") %></th>
+            <th class="r w-28"><%= t("leagues.standings.opponents_win_rate") %></th>
+            <th class="r w-14"><%= t("leagues.standings.games") %></th>
+            <th class="r w-14"><%= t("lists.columns.wins") %></th>
+            <th class="r w-14"><%= t("lists.columns.draws") %></th>
+            <th class="r w-14"><%= t("lists.columns.losses") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% standings.each.with_index(standings.offset_value + 1) do |participant, rank| %>
+            <% short = participant.league_games < league.min_games_for_cut %>
+            <tr data-league-row="<%= participant.id %>">
+              <td class="r font-display font-semibold text-muted"><%= league.finished? && participant.final_position ? participant.final_position : rank %></td>
+              <td class="text-ink"><%= league_player(participant) %></td>
+              <td class="r font-mono"><%= number_with_precision(participant.league_score, precision: 0, delimiter: " ") %></td>
+              <td class="r" data-league-win-rate><%= (rate = participant.win_rate) ? number_to_percentage(rate * 100, precision: 0) : "–" %></td>
+              <td class="r" data-league-opponents-win-rate><%= (opponents = participant.league_opponents_win_rate) ? number_to_percentage(opponents * 100, precision: 0) : "–" %></td>
+              <td class="r <%= "text-muted" if short %>" data-league-games><%= participant.league_games %><% if short %>*<% end %></td>
+              <td class="r"><%= participant.number_of_wins %></td>
+              <td class="r"><%= participant.number_of_draws %></td>
+              <td class="r"><%= participant.number_of_losses %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <% if standings.total_pages > 1 %><div class="border-t border-line px-4 py-2.5" data-standings-pages><%= paginate standings %></div><% end %>
+    <% if league.min_games_for_cut.positive? && league.top_cut_size.to_i.positive? %>
+      <p class="border-t border-line px-4 py-2.5 text-[12px] text-muted"><%= t("leagues.standings.min_games_note", count: league.min_games_for_cut) %></p>
+    <% end %>
+  <% else %>
+    <p class="px-4 py-6 text-center text-[12.5px] text-muted"><%= t("lists.league.standings_empty") %></p>
+  <% end %>
+</section>

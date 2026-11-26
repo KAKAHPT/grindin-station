@@ -11,7 +11,8 @@
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
-  <body class="min-h-screen bg-ground text-ink font-body antialiased">
+  <%# The grey card mosaic, still and very faint, behind the page (.mosaic-bg). %>
+  <%= tag.body class: "mosaic-bg min-h-screen bg-ground text-ink font-body antialiased", style: mosaic_style do %>
     <%= render "shared/topbar" %>
 
     <%# Pages give their own event header (play/shared/header, with the segmented nav from 640 px up); a page
@@ -56,5 +57,5 @@
         <% end %>
       </ul>
     </nav>
-  </body>
+  <% end %>
 </html>

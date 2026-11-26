@@ -138,6 +138,9 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
     user.present? && event_invitations.exists?(user_id: user.id)
   end
 
+  # Players can sign themselves up (Registrations::Enroll).
+  def accepts_registrations? = registration_open?
+
   def points_locked?
     UNLOCKED_POINTS_STATES.exclude?(state) || (persisted? && UNLOCKED_POINTS_STATES.exclude?(state_was))
   end

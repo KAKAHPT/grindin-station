@@ -8,7 +8,36 @@
                                     line: play_info_line(league, playing.size) %>
 <% end %>
 
-<div class="col-span-full grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr] items-start pt-4">
+<% if @tab %>
+  <div class="col-span-full -mb-4 pt-2">
+    <%= render "shared/tabs", pages: true, tabs: league_tabs(league, @tab), trailing: (render("leagues/me", me: @me, rank: @my_rank, players: @ranked_count) if @me) %>
+  </div>
+<% end %>
+<%# The open tab's page, joined to its tab. %>
+<% if @tab %><div class="col-span-full tab-page grid gap-4" data-tab-page="<%= @tab %>"><% end %>
+<%# The clock of the viewer's own game, at the top right under their line. %>
+<% if (clock = @my_table&.pod) && clock.clock_started_at && !clock.finished? %>
+  <p class="text-end font-mono text-[15px] font-semibold text-ink" data-table-clock data-controller="big-timer"
+     data-big-timer-started-at-value="<%= clock.clock_started_at.iso8601(3) %>" data-big-timer-minutes-value="<%= league.round_minutes %>"><%= clock_text(clock.clock_started_at, league.round_minutes * 60) %></p>
+<% end %>
+<% if @tab == "tables" %>
+  <%= render "leagues/tables", league: league %>
+<% elsif @tab == "mine" %>
+  <%= render "leagues/mine", league: league %>
+<% elsif @tab == "played" %>
+  <%= render "leagues/played", league: league %>
+<% elsif @tab == "feed" %>
+  <%= render "leagues/feed", league: league %>
+<% elsif @tab == "standings" %>
+  <%= render "leagues/standings", league: league, standings: @standings %>
+<% end %>
+
+<% if @tab.nil? || @tab == "about" %>
+<%# Someone not in the league yet finds the way in first; a player's own registration sits beside About. %>
+<% if @tab && @registration.nil? %>
+  <div class="col-span-full"><%= render "leagues/registration", league: league, registration: nil %></div>
+<% end %>
+<div class="col-span-full grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr] items-start <%= "pt-4" unless @tab %>">
   <section data-about class="card">
     <h2 class="card-title"><%= t("play.events.about") %></h2>
     <div class="p-4">
@@ -49,17 +78,20 @@
   </section>
 
   <div class="grid gap-4">
+    <% if @tab && @registration %><%= render "leagues/registration", league: league, registration: @registration %><% end %>
     <% if league.wager_percentage.present? %>
       <section class="card" data-league-wager>
         <h2 class="card-title"><%= t("lists.league.wager") %></h2>
         <div class="p-4">
-          <p class="font-display text-2xl font-semibold text-ink"><%= league.wager_percentage %>%</p>
-          <p class="mt-1 text-[12.5px] text-muted"><%= t("lists.league.wager_line", percent: league.wager_percentage) %></p>
+          <% wager = number_with_precision(league.wager_percentage, precision: 2, strip_insignificant_zeros: true) %>
+          <p class="font-display text-2xl font-semibold text-ink"><%= wager %>%</p>
+          <p class="mt-1 text-[12.5px] text-muted"><%= t("lists.league.wager_line", percent: wager) %></p>
         </div>
       </section>
     <% end %>
 
-    <% if league.rounds.any? %>
+    <%# An open-tables league has one "round" per game: they live in the Completed rounds tab, not here. %>
+    <% if league.rounds.any? && !league.play_mode_open_tables? %>
       <section class="card overflow-clip" data-league-rounds>
         <h2 class="card-title"><%= t("lists.league.rounds") %></h2>
         <ul class="divide-y divide-line text-[13px]">
@@ -79,7 +111,10 @@
   </div>
 </div>
 
-<% if league.finished? || league.playing? %>
+<% end %>
+<% if @tab %></div><% end %>
+
+<% if @tab.nil? && (league.finished? || league.playing?) %>
   <section class="col-span-full card overflow-clip" data-league-standings>
     <h2 class="card-title"><%= t("lists.league.standings") %></h2>
     <% standings = playing.sort_by { |ep| -(ep.league_score || 0) } %>

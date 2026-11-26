@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_25_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_25_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -188,6 +188,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_25_120000) do
     t.integer "currency"
     t.boolean "decklist_required", default: false, null: false
     t.text "description"
+    t.string "draw_rule", default: "split", null: false
     t.datetime "end_time"
     t.uuid "event_organizer_id"
     t.integer "event_participants_count", default: 0, null: false
@@ -197,6 +198,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_25_120000) do
     t.boolean "hide_standings_until_finished", default: false, null: false
     t.geography "location", limit: {srid: 4326, type: "st_point", geographic: true}
     t.integer "match_games", default: 3, null: false
+    t.integer "max_games_per_week"
+    t.integer "max_games_vs_same_opponent"
+    t.integer "min_games_for_cut", default: 10, null: false
     t.string "name", null: false
     t.string "pairing_mode", default: "swiss", null: false
     t.int4range "participants_range"
@@ -221,6 +225,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_25_120000) do
     t.boolean "show_unique_in_standings", default: false, null: false
     t.string "slug", null: false
     t.datetime "start_time"
+    t.integer "starting_points", default: 1000, null: false
     t.integer "state", default: 0, null: false
     t.integer "swiss_rounds_count"
     t.string "tier", default: "none", null: false
@@ -293,6 +298,46 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_25_120000) do
     t.index ["pod_id"], name: "index_judge_calls_one_open_per_pod", unique: true, where: "(((status)::text = 'open'::text) AND (pod_id IS NOT NULL))"
   end
 
+  create_table "league_table_seats", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.uuid "event_participant_id", null: false
+    t.uuid "league_table_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_participant_id"], name: "index_league_table_seats_one_active", unique: true, where: "active"
+    t.index ["league_table_id", "event_participant_id"], name: "idx_on_league_table_id_event_participant_id_d33aca4c73", unique: true
+  end
+
+  create_table "league_tables", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "cancel_decided_at"
+    t.uuid "cancel_decided_by_id"
+    t.text "cancel_reason"
+    t.datetime "cancel_requested_at"
+    t.uuid "cancel_requested_by_id"
+    t.string "cancel_state"
+    t.datetime "correction_decided_at"
+    t.uuid "correction_decided_by_id"
+    t.text "correction_reason"
+    t.datetime "correction_requested_at"
+    t.uuid "correction_requested_by_id"
+    t.string "correction_state"
+    t.datetime "created_at", null: false
+    t.uuid "event_id", null: false
+    t.datetime "filled_at"
+    t.uuid "opener_id", null: false
+    t.uuid "pod_id"
+    t.datetime "stale_notified_at"
+    t.string "state", default: "waiting", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cancel_decided_by_id"], name: "index_league_tables_on_cancel_decided_by_id"
+    t.index ["cancel_requested_by_id"], name: "index_league_tables_on_cancel_requested_by_id"
+    t.index ["correction_decided_by_id"], name: "index_league_tables_on_correction_decided_by_id"
+    t.index ["correction_requested_by_id"], name: "index_league_tables_on_correction_requested_by_id"
+    t.index ["event_id", "state"], name: "index_league_tables_on_event_id_and_state"
+    t.index ["opener_id"], name: "index_league_tables_on_opener_id"
+    t.index ["pod_id"], name: "index_league_tables_on_pod_id"
+  end
+
   create_table "notifications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "kind", null: false
@@ -317,6 +362,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_25_120000) do
   end
 
   create_table "pods", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "clock_started_at"
     t.jsonb "confirmations", default: {}, null: false
     t.datetime "created_at", null: false
     t.boolean "disputed", default: false, null: false
@@ -559,6 +605,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_25_120000) do
   add_foreign_key "judge_calls", "events"
   add_foreign_key "judge_calls", "pods", on_delete: :nullify
   add_foreign_key "judge_calls", "users", column: "acknowledged_by_user_id", on_delete: :nullify
+  add_foreign_key "league_table_seats", "event_participants", on_delete: :cascade
+  add_foreign_key "league_table_seats", "league_tables", on_delete: :cascade
+  add_foreign_key "league_tables", "event_participants", column: "cancel_requested_by_id", on_delete: :nullify
+  add_foreign_key "league_tables", "event_participants", column: "correction_requested_by_id", on_delete: :nullify
+  add_foreign_key "league_tables", "event_participants", column: "opener_id", on_delete: :cascade
+  add_foreign_key "league_tables", "events", on_delete: :cascade
+  add_foreign_key "league_tables", "pods", on_delete: :nullify
+  add_foreign_key "league_tables", "users", column: "cancel_decided_by_id", on_delete: :nullify
+  add_foreign_key "league_tables", "users", column: "correction_decided_by_id", on_delete: :nullify
   add_foreign_key "notifications", "users"
   add_foreign_key "players", "users"
   add_foreign_key "pods", "event_participants", column: "reported_by_participant_id", on_delete: :nullify

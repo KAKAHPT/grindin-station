@@ -60,7 +60,7 @@ class EventParticipantsController < ApplicationController # rubocop:disable Metr
 
     @event_participant.update(event_participant_params)
 
-    redirect_to @event_participant.event, notice: t("flash.notice.update_successful")
+    redirect_to back_to(@event), notice: t("flash.notice.update_successful")
   end
 
   # M16: the player's own check-in, from the event page, while the window is open (Event#check_in_open?).
@@ -72,7 +72,7 @@ class EventParticipantsController < ApplicationController # rubocop:disable Metr
     end
 
     participant.update!(checked_in: true) unless participant.checked_in?
-    redirect_to @event, notice: t("flash.notice.checked_in")
+    redirect_to back_to(@event), notice: t("flash.notice.checked_in")
   end
 
   def destroy
@@ -84,11 +84,13 @@ class EventParticipantsController < ApplicationController # rubocop:disable Metr
     @event_participant = EventParticipant.new
 
     # Dropped from a /my-events ticket: back to that list, where the ticket now reads Dropped.
-    back = params[:from] == "my_events" ? my_events_path(locale: params[:locale]) : @event
-    redirect_to back, notice: t("flash.notice.registration_canceled")
+    redirect_to back_to(@event), notice: t("flash.notice.registration_canceled")
   end
 
   private
+
+  # What is done from a /my-events ticket (check-in, decklist, drop) comes back to that list.
+  def back_to(event) = params[:from] == "my_events" ? my_events_path(locale: params[:locale]) : event
 
   # Before the swiss the registration is removed and the waitlist moves up; afterwards it is a drop.
   def cancel_registration(participant)

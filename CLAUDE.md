@@ -38,7 +38,7 @@ Event (abstract base)
 
 - **Event**: Base class for Tournament/League; handles rounds, event_participants, infractions, rooms
 - **Tournament**: Extends Event with Swiss + single-elimination tournament logic
-- **League**: Extends Event with play/finals states, scheduled or pickup play modes, wagers
+- **League**: Extends Event: players open their own tables of four, point wagers, top cut (see Leagues)
 - **Circuit**: Container for multiple events with player standings
 - **EventParticipant**: Player's registration and tracking within an event (Tournament or League)
 - **Player**: A user's gaming identity (linked to User, has a unique key)
@@ -89,13 +89,19 @@ States can transition to `canceled` from most states. Defined in `Tournament::TR
 
 Closing the last round finishes the tournament on its own (`SingleEliminationRound#advance_tournament!` after the final; `SwissRound#advance_tournament!` after the last swiss round when there is no cut; with a cut the organizer clicks "Make cut"), which runs `FinishTournamentJob` (final positions, circuit points, rankings rebuild). The public standings then follow the final positions and show a trophy on the winner. **Reopen** (`PATCH /organizer/tournaments/:id/reopen`, organizer role, header button on a finished tournament): back to `single_elimination`/`swiss` via `update_columns`, final positions cleared, the last round reopened (and its snapshot discarded if swiss), audited `event_state_changed`; closing the round again finishes. A result corrected on a closed round of a finished tournament re-runs `FinishTournamentJob` (positions, win bonus) before the rebuild.
 
-### League State Machine
+### Leagues (open tables, 2026-11-25; paused: `leagues: false`)
 
 ```
-draft → registration_open → registration_closed → play → finals → finished
+draft → registration_open → registration_closed → play → closing → closed → finals → finished
 ```
 
-States can transition to `canceled` from most states. Play mode can be `scheduled` or `pickup`.
+- **Default mode** `play_mode: open_tables` (the older `scheduled` / `pickup` modes still exist, untouched). Players open a table on the league page, others join, the 4th seat turns it into a pod that counts. Design `docs/superpowers/specs/2026-11-25-league-open-tables-design.md` (read its two addenda at the end: the owner's later changes override the text above them, and the second lists the gaps closed after an audit)
+- **Registration**: `LeagueRegistrationsController` (sign up from the league page, also while in play: `League#accepts_registrations?`) and `Leagues::Leave` (removed before the start, a drop afterwards; refused at a full table still to finish). The tournament `EventParticipantsController` does not serve leagues.
+- **Tables**: `league_tables` (state `waiting|filled|closed|expired|canceled`, opener, pod once full, cancel_* and correction_* fields) and `league_table_seats` (one active seat per participant, partial unique index). Services in `app/services/leagues/tables/`: `Open`, `Join` (row lock on the table; the 4th seat calls `Fill`), `Leave` (joiners), `Close` (opener), `Expire` (not full 2 h after opening, `Leagues::ExpireTablesJob` every minute), `RequestCancel` / `DecideCancel` (full table, reason required, the organizer approves), `RequestCorrection` / `ResolveCorrection`. Exactly 4 players (`League::TABLE_SIZE`), one table per player at a time, optional limits per week and against the same opponent
+- **Games**: every game is one pod of the league's single `LeagueGameRound`. Reporting (`LeagueTablesController#report`): "I won" (only the winner) or "It was a draw" (anyone seated); `result_confirmation` is `"none"`, so the report closes the game at once. A mistake: "Ask for a correction" on the finished game (Completed rounds tab), answered by the staff (correct or keep). A pending correction keeps a closing league from closing and blocks the cut. A full table without a result after 7 days notifies the organizer (`Leagues::FlagStaleTablesJob`), never cancels by itself
+- **Scoring** `Scoring::PointWager`: everyone starts at `starting_points` (default 1000); each game, in the order it finished, every player stakes `wager_percentage` of their score (whole points) and the winner takes the pot; a draw splits it or the stakes are lost (`draw_rule` `split|lost`). `Leagues::SettlePod` runs from `Results::Apply`
+- **Lifecycle** `Leagues::Lifecycle` (`Organizer::LeaguesController#transition`): `start`, `close` (no new tables; full ones play on, the league is `closed` with the last result), `reopen`, `make_cut` (top 16 → final, or top 4, from `League#cut_field`: the standings' players with `min_games_for_cut` games, default 10), `finish`. Cut rounds are `LeagueCutRound`s: a seated winner reports "I won" on the league page (`LeagueCutPodsController`, applied at once), the organizer can correct a table and closes each round (`close_cut_round`); closing the final finishes the league (`Leagues::FinishLeagueJob`)
+- **Pages**: `/leagues/:id` tabs About · Tables · My round · Completed rounds · Standings (`?tab=tables|mine|played|standings`), live through `turbo_stream_from league, :tables`; the viewer's picture, place, record and win rate beside the tabs. `/organizer/leagues/:id`: state and step buttons, correction requests, cancellation requests, unfinished tables, cut tables, Details. Only organizer accounts create and manage leagues
 
 ### Circuit System
 
@@ -134,8 +140,7 @@ Infractions have a hierarchical enum structure:
 
 - **Match Points**: wins, draws, losses and byes times the event's points
 - **Rank Score**: top cut advancements, then match points, then the fixed tiebreakers in order: opponents' win rate (each opponent floored at a draw), opponents beaten, unique opponents, and last a seeded salt (`tiebreak_salt`, from the event seed)
-- **League Scores (wagers)**: `Scoring::PointWager` starts all participants at 1000 points, calculates forward and reverse through rounds, and averages the two for the final `league_score`
-- Wager percentage per event determines what portion of each player's score is at risk
+- **League scores (wagers)**: see Leagues (`Scoring::PointWager`)
 
 ### Authentication & Authorization
 
@@ -190,7 +195,7 @@ Infractions have a hierarchical enum structure:
 
 Uses Solid Queue for job processing:
 - **Tournaments**: `StartSwissRoundJob`, `StartSingleEliminationRoundJob`, `FinishTournamentJob`, `CreatePodsJob`, `CreateSingleEliminationPodsJob`, `FinishRoundJob`
-- **Leagues**: `StartPlayRoundJob`, `StartFinalsRoundJob`, `FinishLeagueJob`, `CreatePickupPodJob`
+- **Leagues**: `StartPlayRoundJob`, `StartFinalsRoundJob`, `FinishLeagueJob`, `CreatePickupPodJob`; open tables: `ExpireTablesJob` (every minute), `FlagStaleTablesJob` (daily), `CreateCutPodsJob`
 - **Events**: `GeocodeJob`, `SubmitResultJob`
 - **Results**: `Results::ExpirePendingJob` (recurring, every minute): pending results unconfirmed after `confirmation_timeout_minutes` go to staff review, never auto-accepted
 - **Circuits**: `UpdateStandingsJob`

@@ -76,6 +76,9 @@ class EventParticipant < ApplicationRecord
 
   validate :guest_name_free, on: :create
 
+  # A league's player starts with the league's starting points (the column default is 1000).
+  before_create { self.league_score = event.starting_points if event.is_a?(League) && event.play_mode_open_tables? }
+
   delegate :name, to: :player
 
   # Names the next manual player in this event ("Manual player 1", 2, ...).
@@ -251,6 +254,11 @@ class EventParticipant < ApplicationRecord
   end
 
   # Advance results in single-elimination rounds (byes into the next cut round).
+  # Settled games of a league (not its cut).
+  def league_games
+    results.count { |result| result.round.is_play_round? }
+  end
+
   def number_of_advancements
     results.count { |result| result.is_a?(Advance) && result.round.is_a?(SingleEliminationRound) }
   end
@@ -363,6 +371,13 @@ class EventParticipant < ApplicationRecord
   end
 
   # #opponents, from the shared standings load when there is one.
+  # League: the average win rate of the players met at its tables, one term per shared game; nil before the
+  # first game.
+  def league_opponents_win_rate
+    rates = opponent_records.filter_map(&:win_rate)
+    rates.sum / rates.size unless rates.empty?
+  end
+
   def opponent_records
     @standings ? @standings.opponents(id) : opponents
   end
@@ -416,7 +431,7 @@ class EventParticipant < ApplicationRecord
 
   def rebuild_round
     latest = event.rounds.max_by(&:number)
-    return unless event.swiss? && latest && !latest.published
+    return unless event.is_a?(Tournament) && event.swiss? && latest && !latest.published
 
     latest.destroy
     Tournaments::StartSwissRoundJob.perform_now(event.reload)
