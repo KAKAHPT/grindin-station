@@ -634,6 +634,7 @@
 
   /* Folder tabs: each one a page; the open one is joined to the .tab-page under the bar. */
   .tabs-pages {
+    align-items: flex-end;
     position: relative;
     z-index: 1;
     gap: 4px;

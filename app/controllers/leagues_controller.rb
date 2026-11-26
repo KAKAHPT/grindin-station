@@ -77,7 +77,15 @@ class LeaguesController < ApplicationController
     @my_table = @participant && tables.find { |table| mine?(table) }
     @waiting = tables.select { |table| table.waiting? && !table.overdue? }
     @in_play = tables.select(&:in_play?)
+    load_my_games if @tab == "mine" && @participant
     load_cut if @league.finals? || @league.finished?
+  end
+
+  # My round: the viewer's own finished league games, latest first.
+  def load_my_games
+    @my_games = @league.league_tables.filled.joins(:seats, pod: :round)
+      .where(league_table_seats: { event_participant_id: @participant.id }).where.not(rounds: { finished_at: nil })
+      .order("rounds.finished_at DESC").preload(TABLE_PRELOAD).limit(20).to_a
   end
 
   # The top cut's rounds, latest first, and the viewer's own table still to finish in the round being played.
