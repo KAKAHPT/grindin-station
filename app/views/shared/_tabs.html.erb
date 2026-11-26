@@ -14,5 +14,5 @@
       <span class="tab tab-off" aria-disabled="true"><%= tab[:label] %></span>
     <% end %>
   <% end %>
-  <% if local_assigns[:trailing].present? %><span class="ms-auto self-center ps-3 pb-1.5 shrink-0"><%= trailing %></span><% end %>
+  <% if local_assigns[:trailing].present? %><span class="ms-auto self-center shrink-0 ps-3 <%= local_assigns[:pages] ? "pe-8 py-3" : "pb-1.5" %>"><%= trailing %></span><% end %>
 </nav>

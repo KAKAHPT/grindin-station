@@ -91,7 +91,7 @@ module Play
       get play_pairings_path(@tournament.slug)
 
       assert_select "[data-pod-number='1']" do
-        assert_select "[data-pod-status]", text: /Completed/
+        assert_select "[data-pod-status]", text: /Finished/
         assert_select "li[data-winner]", count: 1
         assert_select "li[data-winner][data-participant-id=?]", winner.id
       end

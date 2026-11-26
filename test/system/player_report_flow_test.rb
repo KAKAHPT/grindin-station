@@ -24,7 +24,7 @@ class PlayerReportFlowTest < ApplicationSystemTestCase
       click_button "Submit"
 
       assert_text I18n.t("play.notices.reported")
-      assert_selector "[data-report-status]", text: /completed/i
+      assert_selector "[data-report-status]", text: /finished/i
     end
     assert_equal :completed, @pod.reload.report_status
     assert_equal "Win", Result.current.find_by(round: @round, event_participant_id: @reporter.event_participant_id).type

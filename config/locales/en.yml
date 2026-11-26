@@ -906,7 +906,7 @@ en:
       pending: "Waiting for confirmation"
       review: "Waiting for confirmation"
       disputed: "Disputed: a judge is on the way"
-      completed: "Completed"
+      completed: "Finished"
     reports:
     report_result: "Report result"
     draw: "Draw"
@@ -978,7 +978,7 @@ en:
       pending: "Pending"
       review: "Review"
       disputed: "Disputed"
-      completed: "Completed"
+      completed: "Finished"
     judge_called: "Judge called"
     reported_by: "Reported by seat %{seat} · %{time}"
     reported_by_player: "Reported by %{name} · %{time}"
@@ -1609,6 +1609,7 @@ en:
       position: "Final"
     league:
       eyebrow: "League"
+      ongoing: "Grindin"
       players: "Players"
       players_line: "%{registered} registered · minimum %{min} · maximum %{max}"
       no_limit: "no limit"

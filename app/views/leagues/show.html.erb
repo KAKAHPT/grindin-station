@@ -4,7 +4,7 @@
 <% playing = league.event_participants.reject(&:dropped) %>
 <% content_for :event_header do %>
   <%= render "shared/event_header", event: league,
-                                    eyebrow: [t("lists.league.eyebrow"), event_state_label(league, nil)].join(" · "),
+                                    eyebrow: (league.play? ? t("lists.league.ongoing") : event_state_label(league, nil)),
                                     line: play_info_line(league, playing.size) %>
 <% end %>
 

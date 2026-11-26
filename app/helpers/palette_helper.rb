@@ -64,10 +64,10 @@ module PaletteHelper
   end
 
   # Status chip: small dot plus uppercase label, coloured by tone (see CHIP_TONES).
-  def status_chip(tone, data: nil, &block)
+  def status_chip(tone, data: nil, dot: true, &block)
     tag.span(class: "inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide " \
                     "#{CHIP_TONES.fetch(tone)}", data: data) do
-      concat tag.span(class: "size-1.5 rounded-full bg-current", "aria-hidden": true)
+      concat tag.span(class: "size-1.5 rounded-full bg-current", "aria-hidden": true) if dot
       concat capture(&block)
     end
   end

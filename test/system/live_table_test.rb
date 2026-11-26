@@ -33,7 +33,7 @@ class LiveTableTest < ApplicationSystemTestCase
     perform_enqueued_jobs
 
     in_player_session do
-      assert_selector "[data-report-status]", text: /completed/i
+      assert_selector "[data-report-status]", text: /finished/i
       assert_no_link "Report result"
       assert_page_kept
     end
@@ -43,7 +43,7 @@ class LiveTableTest < ApplicationSystemTestCase
     perform_enqueued_jobs
 
     in_organizer_session do
-      within("#pod_#{@other_pod.id}") { assert_text(/completed/i) }
+      within("#pod_#{@other_pod.id}") { assert_text(/finished/i) }
       assert_page_kept
     end
   end
@@ -69,7 +69,7 @@ class LiveTableTest < ApplicationSystemTestCase
 
     Capybara.using_session(:visitor) do
       within("[data-pairings] [data-pod-number='#{@pod.number}']") do
-        assert_selector "[data-pod-status]", text: /completed/i
+        assert_selector "[data-pod-status]", text: /finished/i
         assert_selector "li[data-winner][data-participant-id='#{@player.id}']"
       end
       assert_selector "[data-round-number='1']"

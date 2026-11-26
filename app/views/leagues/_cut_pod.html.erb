@@ -5,20 +5,20 @@
 <% mine = viewer && seats.any? { |seating| seating.event_participant_id == viewer.id } %>
 <% done = seats.all? { |seating| results.key?(seating.event_participant_id) } %>
 <%= tag.article data: { cut_pod: pod.number, my_table: (true if mine), cut_done: done },
-                class: ["card flex flex-col overflow-clip", ("border-accent/55 ring-1 ring-accent/20" if mine)] do %>
+                class: "card game-card flex flex-col overflow-clip" do %>
   <div class="band flex items-center justify-between gap-2 px-4 py-2.5">
     <h3 class="font-display text-[15px] font-semibold leading-none tracking-tight text-ink">
       <%= round.display_name %> · <%= t("league_desk.table", n: pod.number) %>
     </h3>
     <% status = done ? :completed : :playing %>
-    <%= status_chip(pod_status_tone(status)) { t("rounds.status.#{status}") } %>
+    <%= status_chip(pod_status_tone(status), dot: false) { t("rounds.status.#{status}") } %>
   </div>
   <ol class="flex flex-col divide-y divide-line/60">
     <% seats.each do |seating| %>
       <% you = viewer && seating.event_participant_id == viewer.id %>
       <% won = results[seating.event_participant_id].is_a?(Advance) %>
-      <%= tag.li data: { seat: seating.order, winner: (true if won) }, class: ["flex items-center gap-2.5 px-4 py-1.5 min-h-9", ("bg-accent/[0.08]" if you || won)] do %>
-        <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= you || won ? "text-accent" : "text-muted" %>"><%= seating.order %></span>
+      <%= tag.li data: { seat: seating.order, winner: (true if won) }, class: ["flex items-center gap-2.5 px-4 py-1.5 min-h-9", ((done ? "bg-accent/[0.045]" : "bg-accent/[0.08]") if you || won)] do %>
+        <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> <%= you || won ? (done ? "text-ink" : "text-accent") : "text-muted" %>"><%= seating.order %></span>
         <span class="flex flex-1 items-center gap-1.5 min-w-0 text-[13px]">
           <span class="truncate <%= "font-semibold text-ink" if you || won %>"><%= league_player(seating.event_participant) %></span>
           <% if you %><%= desk_chip(:ok) { t("play.tables.you") } %><% end %>
