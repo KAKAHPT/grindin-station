@@ -54,6 +54,7 @@ env:
     - SMTP_USER_NAME
     - SMTP_PASSWORD
     - MAIL_FROM
+    - JARVIS_API_TOKEN
   clear:
     # Run the Solid Queue supervisor inside Puma (single server).
     SOLID_QUEUE_IN_PUMA: true

@@ -14,10 +14,23 @@ module Admin
 
     def self.call = new.call
 
+    # The starts of the last `size` weeks or months, oldest first.
+    def self.period_starts(unit, size)
+      (0...size).map { |ago| (Time.current - ago.public_send(unit)).public_send(:"beginning_of_#{unit}") }.reverse
+    end
+
     def call
       Result.new(people: cached(:people) { people }, events: cached(:events) { events },
                  health: cached(:health) { Health.call }, errors: cached(:errors) { errors },
                  recent_audit: cached(:recent_audit) { AuditEvent.recent.includes(:actor_user, :event).limit(10).to_a })
+    end
+
+    # Counts per week or month for the last `size` periods, oldest first (empty periods are 0).
+    # Admin::Summary (the JARVIS feed) reads the same buckets.
+    def buckets(model, column, unit, size)
+      starts = self.class.period_starts(unit, size)
+      counts = period_counts(model.where(column => starts.first..), "#{model.table_name}.#{column}", unit)
+      starts.map { |start| counts.fetch(start, 0) }
     end
 
     private
@@ -44,13 +57,6 @@ module Admin
                  last_day: ErrorEvent.where(created_at: 24.hours.ago..).count,
                  csp_week: CspReport.where(created_at: week).count,
                  rate_limited_week: AuditEvent.for_action("rate_limited").where(created_at: week).count)
-    end
-
-    # Counts per week or month for the last `size` periods, oldest first (empty periods are 0).
-    def buckets(model, column, unit, size)
-      starts = (0...size).map { |ago| period_start(Time.current - ago.public_send(unit), unit) }.reverse
-      counts = period_counts(model.where(column => starts.first..), "#{model.table_name}.#{column}", unit)
-      starts.map { |start| counts.fetch(start, 0) }
     end
 
     def period_counts(scope, column, unit)

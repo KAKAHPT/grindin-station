@@ -92,6 +92,8 @@ jobs:
       SMTP_USER_NAME: ${{ secrets.SMTP_USER_NAME }}
       SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
       MAIL_FROM: ${{ secrets.MAIL_FROM }}
+      # Optional (GET /api/v1/admin/summary is 404 without it); an unset secret is an empty string here.
+      JARVIS_API_TOKEN: ${{ secrets.JARVIS_API_TOKEN }}
 
     steps:
       - name: Checkout the commit CI tested
