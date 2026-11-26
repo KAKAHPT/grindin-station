@@ -1,0 +1,59 @@
+<%# The site footer of the landing, after cedhpt.com's: brand, tagline and cEDH PT's social links, three columns
+    of links, then the fan-content notice and the copyright line. %>
+<% socials = { "facebook" => "https://www.facebook.com/cedhpt", "instagram" => "https://www.instagram.com/cedhpt",
+               "x-logo" => "https://x.com/cedhpt", "youtube" => "https://www.youtube.com/cedhpt",
+               "discord" => "https://discord.gg/Vb3GTrHPsW" } %>
+<% names = { "facebook" => "Facebook", "instagram" => "Instagram", "x-logo" => "X", "youtube" => "YouTube", "discord" => "Discord" } %>
+<footer class="sf" data-site-footer>
+  <div class="sf-in">
+    <div class="sf-grid">
+      <div>
+        <%= link_to root_path(locale: params[:locale]), class: "sf-brand" do %>
+          <%= render "shared/mark", size: 38, id_suffix: "footer" %><span><%= t("app.name") %></span>
+        <% end %>
+        <p class="sf-tag"><%= t("footer.tagline") %></p>
+        <div class="sf-soc">
+          <% socials.each do |name, url| %>
+            <a href="<%= url %>" target="_blank" rel="noopener" aria-label="<%= names.fetch(name) %>"><%= icon(name) %></a>
+          <% end %>
+        </div>
+      </div>
+      <div>
+        <h4><%= t("footer.play") %></h4>
+        <ul>
+          <li><%= link_to t("topbar.events"), events_path(locale: params[:locale]) %></li>
+          <% if authenticated? %>
+            <li><%= link_to t("topbar.my_events"), my_events_path(locale: params[:locale]) %></li>
+            <li><%= link_to t("accounts.nav"), account_path(locale: params[:locale]) %></li>
+          <% else %>
+            <li><%= link_to t("topbar.sign_up"), new_registration_path(locale: params[:locale]) %></li>
+            <li><%= link_to t("profiles.sign_in"), new_session_path(locale: params[:locale]) %></li>
+          <% end %>
+          <% if Features.on?(:fairness) %>
+            <li><%= link_to t("footer.fairness"), fairness_path(locale: params[:locale]) %></li>
+          <% end %>
+        </ul>
+      </div>
+      <div>
+        <h4>cEDH PT</h4>
+        <ul>
+          <li><a href="https://cedhpt.com" target="_blank" rel="noopener"><%= t("footer.website") %></a></li>
+          <li><a href="https://docs.google.com/document/d/10Sf3yDoIZmVr0PQ8f9vVwqJnXkiqL9UnVJsq2cPWuIw/edit?usp=sharing" target="_blank" rel="noopener"><%= t("footer.rules") %></a></li>
+          <li><a href="https://www.patreon.com/cedhpt" target="_blank" rel="noopener"><%= t("footer.patreon") %></a></li>
+        </ul>
+      </div>
+      <div>
+        <h4><%= t("footer.contact") %></h4>
+        <ul>
+          <li><a href="mailto:info@cedhpt.com">info@cedhpt.com</a></li>
+          <li><a href="https://discord.gg/Vb3GTrHPsW" target="_blank" rel="noopener">Discord</a></li>
+          <li><%= link_to t("privacy.link"), privacy_path(locale: params[:locale]), data: { privacy_link: true } %></li>
+        </ul>
+      </div>
+    </div>
+    <div class="sf-legal">
+      <p data-attribution><%= t("landing.attribution") %></p>
+      <p>© <%= Date.current.year %> <%= t("app.name") %> · cEDH PT</p>
+    </div>
+  </div>
+</footer>

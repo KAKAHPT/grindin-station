@@ -4,13 +4,16 @@
     Locals: event, participant. %>
 <% if event.is_a?(Tournament) && participant.playing? && !event.finished? %>
   <div class="flex flex-col gap-2.5 border-t border-line px-3.5 py-3 text-[12.5px]" data-my-panel>
-    <div class="flex flex-wrap items-center gap-1.5">
+    <%# Where the viewer stands, at the right, as plain words behind a tick: no chip, no colour. %>
+    <div class="flex flex-wrap items-center justify-end gap-x-3 gap-y-1 text-[12px] font-semibold text-ink" data-my-state>
       <% if participant.waitlisted? %>
         <%= desk_chip(:info) { t("play.events.you_are_waitlisted", position: participant.waitlist_position) } %>
       <% else %>
-        <%= desk_chip(:ok) { t("play.events.you_are_enrolled") } %>
+        <span class="inline-flex items-center gap-1"><%= icon("check") %><%= t("play.events.registered") %></span>
       <% end %>
-      <% if participant.checked_in? %><span data-my-checked-in><%= desk_chip(:ok) { t("play.events.checked_in") } %></span><% end %>
+      <% if participant.checked_in? %>
+        <span class="inline-flex items-center gap-1" data-my-checked-in><%= icon("check") %><%= t("play.events.checked_in") %></span>
+      <% end %>
     </div>
     <% unless event.points_locked? %>
       <p class="text-muted" data-my-starts><%= t("my_events.starts_at", time: l(event.start_time, format: :short)) %></p>

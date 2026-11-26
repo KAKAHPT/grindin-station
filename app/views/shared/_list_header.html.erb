@@ -1,12 +1,23 @@
-<%# Head of a public event list (/events, /tournaments, /leagues): title, lead and the Upcoming · Past switch.
-    Locals: title, lead, path (a lambda taking the filter, nil or "past"), past (bool). %>
-<div class="col-span-full flex flex-wrap items-end justify-between gap-3 pt-2" data-list-header>
-  <div class="min-w-0">
-    <h1 class="font-display text-2xl font-semibold text-ink"><%= title %></h1>
-    <p class="mt-1 text-[13px] text-muted"><%= lead %></p>
+<%# Head of an event list (/events, /tournaments, /leagues, /my-events): a banner with the title, the lead and,
+    when path is given, the Upcoming · Past switch beside a row of leaning commander arts; one art changes every few
+    seconds, each card in turn (artswap_controller). Locals: title, lead; optional path (a lambda taking the
+    filter, nil or "past") with past (bool). %>
+<% arts = (1..48).map { |n| image_path("landing/c#{n}.jpg") } %>
+<header class="evb col-span-full" data-list-header>
+  <div class="evb-art" aria-hidden="true" data-controller="artswap" data-artswap-urls-value="<%= arts.to_json %>">
+    <% arts.rotate(3).first(6).each do |src| %>
+      <img src="<%= src %>" alt="" width="240" height="175" decoding="async" data-artswap-target="card">
+    <% end %>
   </div>
-  <span class="seg" data-list-filter>
-    <%= link_to t("lists.upcoming"), path.(nil), class: ("seg-on" unless past), "aria-current": ("page" unless past) %>
-    <%= link_to t("lists.past"), path.("past"), class: ("seg-on" if past), "aria-current": ("page" if past) %>
-  </span>
-</div>
+  <div class="evb-in">
+    <p class="evb-eye"><%= t("app.name") %></p>
+    <h1><%= title %></h1>
+    <p class="evb-lead"><%= lead %></p>
+    <% if (path = local_assigns[:path]) %>
+      <span class="seg evb-seg" data-list-filter>
+        <%= link_to t("lists.upcoming"), path.(nil), class: ("seg-on" unless past), "aria-current": ("page" unless past) %>
+        <%= link_to t("lists.past"), path.("past"), class: ("seg-on" if past), "aria-current": ("page" if past) %>
+      </span>
+    <% end %>
+  </div>
+</header>
