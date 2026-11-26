@@ -25,10 +25,13 @@
 
 <% if @league.play_mode_open_tables? %>
   <%= render "organizer/leagues/desk", league: @league %>
+  <div class="col-span-full pt-2"><%= render "shared/tabs", tabs: organizer_league_tabs(@league, @tab, waiting: @pending_tables.count(&:cancel_pending?) + @corrections.size) %></div>
 <% end %>
 
-<% if @league.play_mode_open_tables? %>
-  <%# Who is in the league, by registration; the organizer can take a player out until the cut. %>
+<% if @league.play_mode_open_tables? && @tab == "tables" %>
+  <%= render "organizer/leagues/desk_tables", league: @league %>
+<% elsif @league.play_mode_open_tables? && @tab == "players" %>
+  <%# Who is in the league, by registration; the organizer can take a player out until the cut, or readmit one. %>
   <% roster = @league.event_participants.sort_by(&:created_at) %>
   <section class="col-span-full card overflow-clip" data-league-roster>
     <h2 class="card-title"><%= t("league_desk.players", count: roster.count(&:enrolled?)) %></h2>
@@ -43,6 +46,10 @@
               <% elsif participant.waitlisted? %>
                 <span class="text-[12px] text-muted"><%= t("league_desk.waitlisted", position: participant.waitlist_position) %></span>
               <% end %>
+              <% if participant.dropped? && !@league.finals? && !@league.finished? %>
+                <%= button_to t("league_desk.readmit"), readmit_participant_organizer_league_path(@league, participant_id: participant.id), method: :patch,
+                              class: button_classes(:ghost, size: :xs), form: { data: { turbo_confirm: t("league_desk.confirm_readmit", name: participant.name) } } %>
+              <% end %>
               <% unless participant.dropped? || @league.finals? || @league.finished? %>
                 <%= button_to t("league_desk.drop"), drop_participant_organizer_league_path(@league, participant_id: participant.id), method: :patch,
                               class: button_classes(:ghost, size: :xs), form: { data: { turbo_confirm: t("league_desk.confirm_drop", name: participant.name) } } %>
@@ -55,7 +62,7 @@
       <p class="px-4 py-6 text-center text-[12.5px] text-muted"><%= t("league_desk.no_players") %></p>
     <% end %>
   </section>
-
+<% elsif @league.play_mode_open_tables? %>
   <%# The league's settings as the organizer set them, in the viewer's language. %>
   <% label = ->(attribute) { Event.human_attribute_name(attribute) } %>
   <% limit = ->(value) { value.presence || t("league_desk.no_limit") } %>

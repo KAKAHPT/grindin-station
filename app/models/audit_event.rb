@@ -8,7 +8,7 @@ class AuditEvent < ApplicationRecord
     email_confirmed confirmation_resent
     identity_linked identity_unlinked
     staff_added staff_removed
-    result_corrected round_undone round_closed participant_dropped event_state_changed
+    result_corrected round_undone round_closed participant_dropped participant_readmitted event_state_changed
     league_table_cancel_decided league_end_changed
     infraction_added infraction_removed featured_changed tier_changed
     rate_limited

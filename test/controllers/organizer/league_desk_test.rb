@@ -31,8 +31,9 @@ module Organizer
       league = LeagueBuilder.build(players: 8, organizer: @organizer, state: :registration_open, min_games_for_cut: 1)
       players = league.event_participants.order(:created_at).to_a
 
-      get organizer_league_path(league)
+      get organizer_league_path(league, tab: "details")
       assert_select "[data-league-step=play]"
+      assert_select "[data-tabs] a", 3
       assert_select "[data-league-details] [data-detail=draw_rule]", text: I18n.t("league_desk.draw_split")
       assert_select "[data-league-details] [data-detail=registered]", text: "8"
       patch transition_organizer_league_path(league), params: { to: "play" }

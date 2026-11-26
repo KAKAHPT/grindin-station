@@ -30,7 +30,7 @@ module Organizer
     test "the organizer takes a player out; one at a full table stays until it is finished" do
       pod = LeagueBuilder.fill_table!(@league, @players.first(4))
 
-      get organizer_league_path(@league)
+      get organizer_league_path(@league, tab: "players")
       assert_select "[data-league-roster] [data-roster-player]", 5
       patch drop_participant_organizer_league_path(@league, participant_id: @players[0].id)
       assert_not @players[0].reload.dropped?
@@ -39,6 +39,23 @@ module Organizer
       patch drop_participant_organizer_league_path(@league, participant_id: @players[4].id)
       assert_predicate @players[4].reload, :dropped?
       assert_not pod.reload.finished?
+    end
+
+    test "the organizer readmits a player who left, with the points they had" do
+      player = @players[4]
+      player.update!(league_score: 870)
+      patch drop_participant_organizer_league_path(@league, participant_id: player.id)
+      assert_predicate player.reload, :dropped?
+
+      get organizer_league_path(@league, tab: "players")
+      readmit = readmit_participant_organizer_league_path(@league, participant_id: player.id)
+      assert_select "[data-roster-player='#{player.id}'] form[action='#{readmit}']"
+      patch readmit
+
+      assert_not player.reload.dropped?
+      assert_nil player.dropped_at
+      assert_equal 870, player.league_score
+      assert_equal "participant_readmitted", AuditEvent.order(:created_at).last.action
     end
 
     test "a result needs a winner of the table or a draw" do

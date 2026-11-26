@@ -12,6 +12,7 @@ class AuditEventTest < ActiveSupport::TestCase
     expected = %w[sign_in sign_in_failed sign_out sign_up oauth_sign_in oauth_failed password_reset_requested
                   password_reset password_changed email_changed account_deleted identity_linked identity_unlinked
                   staff_added staff_removed result_corrected round_undone round_closed participant_dropped
+                  participant_readmitted
                   event_state_changed infraction_added infraction_removed featured_changed rate_limited
                   admin_granted admin_revoked error_resolved data_exported tier_changed
                   organizer_approved organizer_declined organizer_revoked organizer_suspended organizer_restored

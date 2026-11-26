@@ -212,6 +212,7 @@ Rails.application.routes.draw do
           patch "cut_rounds/:round_id/close", action: :close_cut_round, as: :close_cut_round
           patch "tables/:table_id/cancel", action: :cancel_table, as: :cancel_table
           patch "participants/:participant_id/drop", action: :drop_participant, as: :drop_participant
+          patch "participants/:participant_id/readmit", action: :readmit_participant, as: :readmit_participant
           %w[players melee standings rounds].each do |kind|
             get "export/#{kind}", to: "exports##{kind}", as: "export_#{kind}"
           end

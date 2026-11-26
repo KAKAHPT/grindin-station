@@ -17,6 +17,7 @@ module Organizer
         rounds: :pods,
         event_participants: { player: :user }
       ).find(params[:id])
+      @tab = params[:tab].presence_in(%w[players details]) || "tables"
       load_desk if @league.play_mode_open_tables?
     rescue ActiveRecord::RecordNotFound
       redirect_to [:organizer, :leagues], alert: t("flash.alert.not_authorized_league")
@@ -101,9 +102,26 @@ module Organizer
       participant = @league.event_participants.where(dropped: false).find(params[:participant_id])
       Leagues::Leave.call(league: @league, participant: participant, by: current_user)
       Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
-      redirect_to [:organizer, @league], notice: t("league_desk.n_dropped", name: participant.name)
+      redirect_to organizer_league_path(@league, tab: "players"),
+                  notice: t("league_desk.n_dropped", name: participant.name)
     rescue Leagues::Tables::NotAllowed => e
       redirect_to [:organizer, @league], alert: t("leagues.tables.not_allowed.#{e.message}")
+    end
+
+    # A player who left (or was taken out) asks the organization to come back: the organizer readmits them, with the
+    # points and games they had. Not once the cut is made.
+    def readmit_participant # rubocop:disable Metrics/AbcSize
+      @league = League.for_organizer(current_organizer).find(params[:id])
+      participant = @league.event_participants.where(dropped: true).find(params[:participant_id])
+      over = @league.finals? || @league.finished?
+      return redirect_to [:organizer, @league], alert: t("league_desk.e_transition") if over
+
+      participant.update!(dropped: false, drop_reason: nil)
+      Audit.record(:participant_readmitted, actor: current_user, subject: participant, event: @league,
+                                            participant_id: participant.id)
+      Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
+      redirect_to organizer_league_path(@league, tab: "players"),
+                  notice: t("league_desk.n_readmitted", name: participant.name)
     end
 
     GAME_STATES = %w[play closing closed].freeze
