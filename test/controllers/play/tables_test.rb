@@ -23,7 +23,7 @@ module Play
       assert_select "li[data-me]", text: /#{@me.name}.*You/m
       @seats.each { |seat| assert_includes response.body, seat.name }
       assert_select "a", text: "Report result"
-      assert_select "button", text: "Call a judge"
+      assert_select "button", text: "Call a judge", count: 0
       assert_select "nav[data-play-nav]"
     end
 
@@ -129,7 +129,7 @@ module Play
       assert_response :success
       assert_select "html[lang=pt]"
       assert_select "a", text: "Reportar resultado"
-      assert_select "button", text: "Chamar um juiz"
+      assert_select "p", text: "Lugar"
 
       get play_pod_report_new_path(@tournament.slug, @pod, locale: "pt")
       assert_response :success

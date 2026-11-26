@@ -912,7 +912,6 @@ es:
     draw: "Draw"
     score: "Resultado"
     submit: "Enviar"
-    call_judge: "Llamar a un juez"
     judge_called: "Juez llamado"
     judge_requested: "Juez solicitado"
     confirm: "Confirmar"
