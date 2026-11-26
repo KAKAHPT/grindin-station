@@ -134,6 +134,9 @@ class LeagueTablesControllerTest < ActionDispatch::IntegrationTest # rubocop:dis
     as(1) do
       get league_path(@league, tab: "mine")
       assert_select "[data-my-games] [data-my-game=lost]", 1
+      get league_path(@league, tab: "feed")
+      assert_select "[data-league-feed] [data-feed-game=win]", text: /#{@players[0].name} won Game 1/
+      assert_select "[data-topbar] [data-user-menu] [data-user-menu-panel] a", text: "Logout"
     end
   end
 

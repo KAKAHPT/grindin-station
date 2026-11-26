@@ -13,6 +13,7 @@ en:
     organizer_mode: "Organizer mode"
     admin: "Admin"
     menu: "Menu"
+    my_profile: "My profile"
   admin:
     title: "Admin"
     nav:
@@ -1893,10 +1894,15 @@ en:
       record_title: "Wins · losses · draws"
       win_rate: "Win rate"
     game: "Game %{n}"
+    feed:
+      win_html: "%{name} won %{game}"
+      draw: "%{game} ended in a draw"
+      against: "against %{names}"
     tabs:
       mine: "My round"
       played: "Completed rounds"
       about: "About"
+      feed: "Feed"
       tables: "Tables"
       standings: "Standings"
     standings:

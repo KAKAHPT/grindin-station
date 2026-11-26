@@ -338,6 +338,76 @@
     font-weight: 600;
   }
 
+  /* The viewer's picture and name; from 768 px up their menu opens on hover or focus. */
+  .topbar-me {
+    position: relative;
+    min-width: 0;
+  }
+
+  .topbar-me-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    cursor: pointer;
+  }
+
+  .topbar-me-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 40;
+    padding-top: 8px;
+  }
+
+  .topbar-me-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 12rem;
+    padding: 6px 0;
+    border: 1px solid var(--color-line);
+    border-radius: 10px;
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+    font-size: 13.5px;
+  }
+
+  .topbar-me-card a {
+    padding: 8px 14px;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+
+  .topbar-me-card a:hover {
+    background: rgb(255 255 255 / 0.05);
+  }
+
+  .topbar-me-card a.on {
+    color: var(--color-accent);
+  }
+
+  .topbar-me-card hr {
+    margin: 6px 0;
+    border: 0;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .topbar-account {
+    display: contents;
+  }
+
+  @media (min-width: 768px) {
+    .topbar-account {
+      display: none;
+    }
+
+    .topbar-me:hover .topbar-me-menu,
+    .topbar-me:focus-within .topbar-me-menu {
+      display: block;
+    }
+  }
+
   .topbar-chip {
     display: inline-flex;
     align-items: center;

@@ -31,7 +31,7 @@ class AuthenticationTest < ApplicationSystemTestCase
     visit confirmation_path(user.generate_token_for(:email_confirmation))
     assert_current_path root_path
     assert_text "Your e-mail is confirmed"
-    assert_text "Logout"
+    assert_selector "[data-topbar] [data-user-menu]"
   end
 
   test "the sign-up form offers no organizer role: organizing is granted by an admin" do
@@ -97,6 +97,8 @@ class AuthenticationTest < ApplicationSystemTestCase
     sign_in_as(user)
 
     # Verify user is signed in
+    # Log out lives in the menu under the viewer's name
+    find("[data-user-menu]").hover
     assert_text "Logout"
 
     # Find and click the logout link using turbo-method delete
@@ -184,7 +186,7 @@ class AuthenticationTest < ApplicationSystemTestCase
     click_button "Sign in"
 
     assert_no_selector "[data-topbar] a", text: "Sign in"
-    assert_text "Logout"
+    assert_selector "[data-topbar] [data-user-menu]"
   end
 
   test "sign up from the events page asks for the e-mail confirmation and keeps the visitor signed out" do

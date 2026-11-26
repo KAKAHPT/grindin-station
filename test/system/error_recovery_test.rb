@@ -30,6 +30,7 @@ class ErrorRecoveryTest < ApplicationSystemTestCase
     sign_in_as(organizer)
 
     visit organizer_tournaments_path
+    find("[data-create-menu] summary").click
     click_link "New tournament"
 
     # Submit form with missing required fields

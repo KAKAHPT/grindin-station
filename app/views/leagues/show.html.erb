@@ -26,6 +26,8 @@
   <%= render "leagues/mine", league: league %>
 <% elsif @tab == "played" %>
   <%= render "leagues/played", league: league %>
+<% elsif @tab == "feed" %>
+  <%= render "leagues/feed", league: league %>
 <% elsif @tab == "standings" %>
   <%= render "leagues/standings", league: league, standings: @standings %>
 <% end %>

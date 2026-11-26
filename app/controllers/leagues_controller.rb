@@ -22,7 +22,7 @@ class LeaguesController < ApplicationController
     @league = ensure_public!(scope.find(params[:id]))
     return unless @league.play_mode_open_tables?
 
-    @tab = params[:tab].presence_in(%w[tables mine played standings]) || "about"
+    @tab = params[:tab].presence_in(%w[tables mine played standings feed]) || "about"
     load_me
     load_registration
     load_tab
@@ -44,6 +44,7 @@ class LeaguesController < ApplicationController
     when "standings" then @standings = final_order(@ranked || @league.ranked_participants)
     when "tables", "mine" then load_tables
     when "played" then load_played
+    when "feed" then load_feed
     end
   end
 
@@ -107,6 +108,12 @@ class LeaguesController < ApplicationController
     @participant = current_user&.player && @league.event_participants.find_by(player: current_user.player)
     @played = @league.league_tables.filled.joins(pod: :round).where.not(rounds: { finished_at: nil })
       .order("rounds.finished_at DESC").preload(TABLE_PRELOAD).page(params[:page]).per(24)
+  end
+
+  # The Feed tab: what happened in the league, latest first (each finished game and who won it).
+  def load_feed
+    @feed = @league.league_tables.filled.joins(pod: :round).where.not(rounds: { finished_at: nil })
+      .order("rounds.finished_at DESC").preload(TABLE_PRELOAD).page(params[:page]).per(30)
   end
 
   # Waiting with the viewer in it, or full with the viewer seated and no final result yet.

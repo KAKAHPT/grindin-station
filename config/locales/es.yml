@@ -13,6 +13,7 @@ es:
     organizer_mode: "Modo organizador"
     admin: "Admin"
     menu: "Menú"
+    my_profile: "Mi perfil"
   admin:
     title: "Admin"
     nav:
@@ -1893,10 +1894,15 @@ es:
       record_title: "Victorias · derrotas · empates"
       win_rate: "Tasa de victoria"
     game: "Partida %{n}"
+    feed:
+      win_html: "%{name} ganó la %{game}"
+      draw: "La %{game} terminó en empate"
+      against: "contra %{names}"
     tabs:
       mine: "Mi ronda"
       played: "Rondas completas"
       about: "Información"
+      feed: "Feed"
       tables: "Mesas"
       standings: "Clasificación"
     standings:

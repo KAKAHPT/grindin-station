@@ -198,7 +198,7 @@ class RankingsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
     end
   end
 
-  test "a signed-in viewer on the leaderboard, with an avatar listed, runs in at most 12 queries" do
+  test "a signed-in viewer on the leaderboard, with an avatar listed, runs in at most 14 queries" do
     @ana.avatar.attach(io: file_fixture("cover1.jpg").open, filename: "ana.jpg", content_type: "image/jpeg")
     sign_in(@bruno)
 
@@ -206,7 +206,8 @@ class RankingsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
 
     assert_response :success
     assert_select "tr[data-player] img[src*='ana.jpg']"
-    assert_operator count, :<=, 12, "signed-in elo ran #{count} queries"
+    # Two of them look for the viewer's own picture, shown beside their name in the top bar.
+    assert_operator count, :<=, 14, "signed-in elo ran #{count} queries"
   end
 
   private
