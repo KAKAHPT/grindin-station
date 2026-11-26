@@ -20,7 +20,7 @@
     <% end %>
     <%= link_to t("organizer.shell.view_public"), league_path(@league), target: "_blank", rel: "noopener", class: button_classes(:secondary, size: :sm) %>
     <%# An open-tables league is edited in its own tab. %>
-    <% unless @league.play_mode_open_tables? %>
+    <% if !@league.play_mode_open_tables? && league_desk_can?(:run) %>
       <%= link_to t("organizer.tournaments.edit"), edit_organizer_league_path(@league), class: button_classes(:ghost, size: :sm) %>
     <% end %>
   </div>
@@ -28,12 +28,14 @@
 
 <% if @league.play_mode_open_tables? %>
   <%= render "organizer/leagues/desk", league: @league %>
-  <div class="col-span-full -mb-4 pt-2"><%= render "shared/tabs", pages: true, tabs: organizer_league_tabs(@league, @tab) %></div>
+  <div class="col-span-full -mb-4 pt-2"><%= render "shared/tabs", pages: true, tabs: organizer_league_tabs(@league, @tab, owner: @owner) %></div>
 <% end %>
 
 <%# The open tab's page, joined to its tab. %>
 <% if @league.play_mode_open_tables? %><div class="col-span-full tab-page grid gap-4" data-tab-page="<%= @tab %>"><% end %>
-<% if @league.play_mode_open_tables? && @tab == "edit" %>
+<% if @league.play_mode_open_tables? && @tab == "staff" && @owner %>
+  <%= render "organizer/leagues/desk_staff", league: @league %>
+<% elsif @league.play_mode_open_tables? && @tab == "edit" && league_desk_can?(:run) %>
   <section class="card overflow-clip" data-league-edit>
     <%= render "form", league: @league %>
     <div class="flex items-center border-t border-line px-[18px] py-3"><%= content_for(:footer) %></div>
@@ -60,11 +62,11 @@
               <% elsif participant.waitlisted? %>
                 <span class="text-[12px] text-muted"><%= t("league_desk.waitlisted", position: participant.waitlist_position) %></span>
               <% end %>
-              <% if participant.dropped? && !@league.finals? && !@league.finished? %>
+              <% if league_desk_can?(:roster) && participant.dropped? && !@league.finals? && !@league.finished? %>
                 <%= button_to t("league_desk.readmit"), readmit_participant_organizer_league_path(@league, participant_id: participant.id), method: :patch,
                               class: button_classes(:ghost, size: :xs), form: { data: { turbo_confirm: t("league_desk.confirm_readmit", name: participant.name) } } %>
               <% end %>
-              <% unless participant.dropped? || @league.finals? || @league.finished? %>
+              <% if league_desk_can?(:roster) && !(participant.dropped? || @league.finals? || @league.finished?) %>
                 <%= button_to t("league_desk.drop"), drop_participant_organizer_league_path(@league, participant_id: participant.id), method: :patch,
                               class: button_classes(:ghost, size: :xs), form: { data: { turbo_confirm: t("league_desk.confirm_drop", name: participant.name) } } %>
               <% end %>

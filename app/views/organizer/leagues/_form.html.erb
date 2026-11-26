@@ -1,7 +1,7 @@
 <%# The league form (new and edit): Event, Scoring, Cut and limits. The scoring settings lock once the league is
     in play. %>
 <% locked = league.persisted? && league.play_mode_open_tables? && (league.playing? || league.finished?) %>
-<%= modal_form_for [:organizer, league], html: { class: "p-[18px]", data: { turbo: false } } do |f| %>
+<%= modal_form_for [:organizer, league], html: { class: "p-[18px]", data: { turbo: false, live_preview_target: "form" } } do |f| %>
   <% content_for :title do %>
     <%= league.persisted? ? t("league_desk.edit_title", name: league.name) : t("league_desk.new_title") %>
   <% end %>

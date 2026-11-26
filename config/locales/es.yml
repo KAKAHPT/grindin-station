@@ -2028,6 +2028,8 @@ es:
     change: "Cambiar"
     change_lead: "Nuevo resultado:"
     change_locked: "Una vez hecho el corte, los resultados de las partidas ya no se cambian."
+    read_only: "Estás aquí para seguir la liga: los resultados los introduce el organizador, el juez o el scorekeeper."
+    staff_help: "Organizador: todo menos esta lista. Juez: resultados, correcciones, cancelaciones y los jugadores. Scorekeeper: resultados, correcciones y cancelaciones. Caster: solo ve."
     tabs:
       tables: "Mesas"
       players: "Jugadores"
@@ -2035,6 +2037,7 @@ es:
       details: "Detalles"
       edit: "Editar"
       feed: "Feed"
+      staff: "Staff"
     players: "Jugadores (%{count})"
     no_players: "Todavía no se ha inscrito nadie."
     dropped: "salió"

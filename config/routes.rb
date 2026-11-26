@@ -204,6 +204,7 @@ Rails.application.routes.draw do
 
     constraints(Features.constraint(:leagues)) do
       resources :leagues do
+        get :preview, on: :collection, to: "previews#league"
         member do
           patch :transition
           patch "tables/:table_id/cancellation", action: :decide_cancel, as: :table_cancellation
@@ -213,6 +214,8 @@ Rails.application.routes.draw do
           patch "tables/:table_id/cancel", action: :cancel_table, as: :cancel_table
           patch "participants/:participant_id/drop", action: :drop_participant, as: :drop_participant
           patch "participants/:participant_id/readmit", action: :readmit_participant, as: :readmit_participant
+          post "staff", action: :add_staff, as: :staff
+          delete "staff/:staff_id", action: :remove_staff, as: :remove_staff
           %w[players melee standings rounds].each do |kind|
             get "export/#{kind}", to: "exports##{kind}", as: "export_#{kind}"
           end

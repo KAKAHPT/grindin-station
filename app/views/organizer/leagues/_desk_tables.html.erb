@@ -14,7 +14,7 @@
           <% if table.pod.pending_result %><p class="mt-1 text-[12px] text-muted" data-correction-unconfirmed><%= t("league_desk.correction_unconfirmed", result: league_pending_text(table.pod)) %></p><% end %>
           <p class="mt-2 text-[12px] text-muted"><%= t("league_desk.correction_by", name: table.correction_requested_by&.name) %></p>
           <p class="mt-1 text-ink"><%= table.correction_reason %></p>
-          <div class="mt-2 flex flex-wrap items-center gap-2">
+          <div class="mt-2 flex flex-wrap items-center gap-2 <%= "hidden" unless league_desk_can?(:score) %>">
             <%= form_with url: table_correction_organizer_league_path(league, table_id: table.id), method: :patch, class: "flex items-center gap-2" do |form| %>
               <% choices = table.pod.seatings.map { |seating| [seating.event_participant.name, seating.event_participant_id] } << [t("league_desk.draw"), "draw"] %>
               <%= form.select :result, choices, { prompt: t("league_desk.winner") }, required: true, class: "field-input w-44", "aria-label": t("league_desk.winner") %>
@@ -48,9 +48,11 @@
                 <li class="flex items-center gap-2.5 px-4 py-1.5 min-h-10" data-seat="<%= seating.order %>">
                   <span class="<%= PaletteHelper::SEAT_SQUARE_SM %> text-muted"><%= seating.order %></span>
                   <span class="min-w-0 flex-1 truncate text-[13px] text-ink"><%= seated.name %></span>
-                  <%= button_to t("league_desk.mark_winner"), pod_result_organizer_league_path(league, pod_id: pod.id), method: :patch, params: { result: seated.id },
-                                class: button_classes(:ghost, size: :xs),
-                                form: { data: { result_form: pod.id, turbo_confirm: t("league_desk.confirm_winner", name: seated.name, game: pod.round.display_name) } } %>
+                  <% if league_desk_can?(:score) %>
+                    <%= button_to t("league_desk.mark_winner"), pod_result_organizer_league_path(league, pod_id: pod.id), method: :patch, params: { result: seated.id },
+                                  class: button_classes(:ghost, size: :xs),
+                                  form: { data: { result_form: pod.id, turbo_confirm: t("league_desk.confirm_winner", name: seated.name, game: pod.round.display_name) } } %>
+                  <% end %>
                 </li>
               <% end %>
             </ol>
@@ -59,9 +61,11 @@
                 <%= t("league_desk.pending_since", time: l(table.filled_at, format: :short)) %>
                 <% if table.stale_notified_at %> · <%= t("league_desk.stale") %><% end %>
               </span>
-              <%= button_to t("league_desk.draw"), pod_result_organizer_league_path(league, pod_id: pod.id), method: :patch, params: { result: "draw" },
-                            class: button_classes(:secondary, size: :xs),
-                            form: { data: { result_draw: pod.id, turbo_confirm: t("league_desk.confirm_draw", game: pod.round.display_name) } } %>
+              <% if league_desk_can?(:score) %>
+                <%= button_to t("league_desk.draw"), pod_result_organizer_league_path(league, pod_id: pod.id), method: :patch, params: { result: "draw" },
+                              class: button_classes(:secondary, size: :xs),
+                              form: { data: { result_draw: pod.id, turbo_confirm: t("league_desk.confirm_draw", game: pod.round.display_name) } } %>
+              <% end %>
             </div>
             <% if pod.pending_result %>
               <p class="border-t border-line px-4 py-2 text-[12px] text-muted" data-table-unconfirmed><%= t("league_desk.correction_unconfirmed", result: league_pending_text(pod)) %></p>
@@ -70,12 +74,12 @@
               <div class="border-t border-line bg-surface-raised px-4 py-2.5 text-[13px]" data-cancel-request>
                 <p class="text-[12px] text-muted"><%= t("league_desk.asked_by", name: table.cancel_requested_by&.name) %></p>
                 <p class="mt-1 text-ink"><%= table.cancel_reason %></p>
-                <div class="mt-2 flex gap-2">
+                <div class="mt-2 flex gap-2 <%= "hidden" unless league_desk_can?(:score) %>">
                   <%= button_to t("league_desk.approve"), table_cancellation_organizer_league_path(league, table_id: table.id), method: :patch, params: { approve: "1" }, class: button_classes(:primary, size: :sm) %>
                   <%= button_to t("league_desk.refuse"), table_cancellation_organizer_league_path(league, table_id: table.id), method: :patch, params: { approve: "0" }, class: button_classes(:secondary, size: :sm) %>
                 </div>
               </div>
-            <% else %>
+            <% elsif league_desk_can?(:score) %>
               <details class="border-t border-line px-4 py-2 text-[12px]" data-cancel-table>
                 <summary class="cursor-pointer text-muted hover:text-ink"><%= t("league_desk.cancel_table") %></summary>
                 <%= form_with url: cancel_table_organizer_league_path(league, table_id: table.id), method: :patch, class: "mt-2 flex flex-wrap items-center gap-2" do |form| %>
@@ -106,7 +110,7 @@
               <% pod.seatings.each_with_index do |seating, index| %><%= ", " unless index.zero? %><%= tag.span seating.event_participant.name, class: ("font-semibold text-accent" if results[seating.event_participant_id].is_a?(Advance)) %><% end %>
             </p>
           </div>
-          <% if @cut_round.finished_at.nil? %>
+          <% if @cut_round.finished_at.nil? && league_desk_can?(:score) %>
             <%= render "organizer/leagues/result_form", league: league, pod: pod, draw: false %>
           <% end %>
         </li>

@@ -2,22 +2,31 @@
 
 module Organizer
   class LeaguesController < OrganizerController # rubocop:disable Metrics/ClassLength -- the league and its desk
-    require_organizer
+    # Creating a league takes an organizer profile; the rest goes by the role on that league: its owner and the
+    # staff they named (EventStaff). organizer: everything but the staff list; judge: results, corrections,
+    # cancellations and the roster; scorekeeper: results, corrections and cancellations; caster: reads only.
+    SCORERS = %i[organizer judge scorekeeper].freeze
+
+    require_organizer only: %i[new create]
+    public_actions :index
+    allow_roles :organizer, :judge, :scorekeeper, :caster, only: :show
+    allow_roles :organizer, only: %i[edit update transition create_pickup_pod]
+    allow_roles(*SCORERS, only: %i[decide_cancel cancel_table enter_result decide_correction close_cut_round])
+    allow_roles :organizer, :judge, only: %i[drop_participant readmit_participant]
+    require_owner only: %i[add_staff remove_staff]
+
+    layout "application"
 
     def index
-      @leagues = League
-        .with_attached_cover
-        .where.not(state: :canceled)
-        .for_organizer(current_organizer)
-        .preload(:rounds)
+      @leagues = League.with_attached_cover.where.not(state: :canceled).staffed_by(current_user).preload(:rounds)
     end
 
     def show
-      @league = League.for_organizer(current_organizer).preload(
+      @league = League.staffed_by(current_user).preload(
         rounds: :pods,
         event_participants: { player: :user }
       ).find(params[:id])
-      @tab = params[:tab].presence_in(%w[players feed standings details edit]) || "tables"
+      @tab = params[:tab].presence_in(%w[players feed standings details edit staff]) || "tables"
       load_tab if @league.play_mode_open_tables?
     rescue ActiveRecord::RecordNotFound
       redirect_to [:organizer, :leagues], alert: t("flash.alert.not_authorized_league")
@@ -28,7 +37,7 @@ module Organizer
     end
 
     def edit
-      @league = League.for_organizer(current_organizer).find params[:id]
+      @league = League.staffed_by(current_user).find params[:id]
     end
 
     def create
@@ -44,7 +53,7 @@ module Organizer
     end
 
     def update
-      @league = League.for_organizer(current_organizer).find(params[:id])
+      @league = League.staffed_by(current_user).find(params[:id])
       @league.attributes = league_params
 
       if @league.save
@@ -62,7 +71,7 @@ module Organizer
 
     # The league's steps: start, close, reopen, make the cut, finish (Leagues::Lifecycle).
     def transition # rubocop:disable Metrics/AbcSize
-      @league = League.for_organizer(current_organizer).find(params[:id])
+      @league = League.staffed_by(current_user).find(params[:id])
       step = STEPS.fetch(params[:to].to_s) { raise Leagues::Lifecycle::NotAllowed, "unknown" }
       Leagues::Lifecycle.public_send(step, @league, by: current_user)
       Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
@@ -75,7 +84,7 @@ module Organizer
 
     # Approves or refuses a table's cancellation request.
     def decide_cancel # rubocop:disable Metrics/AbcSize
-      @league = League.for_organizer(current_organizer).find(params[:id])
+      @league = League.staffed_by(current_user).find(params[:id])
       table = @league.league_tables.find(params[:table_id])
       approve = params[:approve] == "1"
       Leagues::Tables::DecideCancel.call(table: table, by: current_user, approve: approve)
@@ -87,7 +96,7 @@ module Organizer
 
     # The organizer cancels a full table still to finish, with a reason: the game counts for nothing.
     def cancel_table # rubocop:disable Metrics/AbcSize
-      @league = League.for_organizer(current_organizer).find(params[:id])
+      @league = League.staffed_by(current_user).find(params[:id])
       table = @league.league_tables.find(params[:table_id])
       Leagues::Tables::DecideCancel.void(table: table, by: current_user, reason: params[:reason])
       Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
@@ -98,7 +107,7 @@ module Organizer
 
     # The organizer takes a player out of the league (Leagues::Leave).
     def drop_participant # rubocop:disable Metrics/AbcSize
-      @league = League.for_organizer(current_organizer).find(params[:id])
+      @league = League.staffed_by(current_user).find(params[:id])
       participant = @league.event_participants.where(dropped: false).find(params[:participant_id])
       Leagues::Leave.call(league: @league, participant: participant, by: current_user)
       Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
@@ -111,7 +120,7 @@ module Organizer
     # A player who left (or was taken out) asks the organization to come back: the organizer readmits them, with the
     # points and games they had. Not once the cut is made.
     def readmit_participant # rubocop:disable Metrics/AbcSize
-      @league = League.for_organizer(current_organizer).find(params[:id])
+      @league = League.staffed_by(current_user).find(params[:id])
       participant = @league.event_participants.where(dropped: true).find(params[:participant_id])
       over = @league.finals? || @league.finished?
       return redirect_to [:organizer, @league], alert: t("league_desk.e_transition") if over
@@ -130,7 +139,7 @@ module Organizer
     # winner's participant id or "draw". A league game only until the cut is made (it would change who made
     # it); a cut table only while its round is open.
     def enter_result # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-      @league = League.for_organizer(current_organizer).find(params[:id])
+      @league = League.staffed_by(current_user).find(params[:id])
       pod = Pod.joins(:round).where(rounds: { event_id: @league.id }).find(params[:pod_id])
       cut = pod.round.is_a?(LeagueCutRound)
       open = cut ? @league.finals? && pod.round.finished_at.nil? : @league.state.in?(GAME_STATES)
@@ -153,7 +162,7 @@ module Organizer
 
     # Answers a correction request: params[:result] is the winner's participant id, "draw" or "keep".
     def decide_correction # rubocop:disable Metrics/AbcSize
-      @league = League.for_organizer(current_organizer).find(params[:id])
+      @league = League.staffed_by(current_user).find(params[:id])
       table = @league.league_tables.find(params[:table_id])
       Leagues::Tables::ResolveCorrection.call(table: table, by: current_user, result: params[:result])
       Turbo::StreamsChannel.broadcast_refresh_later_to(@league, :tables)
@@ -164,7 +173,7 @@ module Organizer
 
     # Every table of the cut round has its winner: the round is closed and the next one (or the end) follows.
     def close_cut_round # rubocop:disable Metrics/AbcSize
-      @league = League.for_organizer(current_organizer).find(params[:id])
+      @league = League.staffed_by(current_user).find(params[:id])
       round = @league.rounds.where(type: "LeagueCutRound", finished_at: nil).find(params[:round_id])
       return redirect_to [:organizer, @league], alert: t("league_desk.e_transition") unless round.finished?
 
@@ -172,8 +181,30 @@ module Organizer
       redirect_to [:organizer, @league], notice: t("league_desk.n_round_closed")
     end
 
-    def create_pickup_pod
+    # The owner names who works the league and in which role (by the e-mail of their account).
+    def add_staff # rubocop:disable Metrics/AbcSize
       @league = League.for_organizer(current_organizer).find(params[:id])
+      back = organizer_league_path(@league, tab: "staff")
+      user = User.find_by(email_address: params.expect(event_staff: %i[email_address role])[:email_address])
+      return redirect_to(back, alert: t("flash.alert.staff_user_not_found")) unless user
+
+      staff = @league.event_staff.new(user: user, role: params[:event_staff][:role])
+      return redirect_to(back, alert: staff.errors.full_messages.to_sentence) unless staff.save
+
+      Audit.record(:staff_added, subject: staff, event: @league, user_id: staff.user_id, role: staff.role)
+      redirect_to back, notice: t("flash.notice.staff_added", name: user.name)
+    end
+
+    def remove_staff
+      @league = League.for_organizer(current_organizer).find(params[:id])
+      staff = @league.event_staff.find(params.expect(:staff_id))
+      staff.destroy!
+      Audit.record(:staff_removed, subject: staff, event: @league, user_id: staff.user_id, role: staff.role)
+      redirect_to organizer_league_path(@league, tab: "staff"), notice: t("flash.notice.staff_removed")
+    end
+
+    def create_pickup_pod
+      @league = League.staffed_by(current_user).find(params[:id])
       Leagues::CreatePickupPodJob.perform_now(@league)
       redirect_to [:organizer, @league], notice: t("flash.notice.pickup_pod_created")
     rescue ActiveRecord::RecordNotFound
@@ -213,8 +244,10 @@ module Organizer
 
     # What the open tab of an open-tables league needs, on top of the desk's own lists.
     def load_tab
+      @owner = @league.event_organizer_id == current_organizer&.id
       load_desk
       load_feed if @tab == "feed"
+      @staff = @league.event_staff.includes(:user).order(:created_at) if @tab == "staff" && @owner
       load_standings if @tab == "standings"
     end
 

@@ -95,13 +95,13 @@ module Organizer
       post session_path, params: { session: { email_address: other.email_address, password: "password123" } }
 
       patch cancel_table_organizer_league_path(@league, table_id: table.id), params: { reason: "x" }
-      assert_response :not_found
+      assert_redirected_to organizer_root_url
       patch drop_participant_organizer_league_path(@league, participant_id: @players[4].id)
-      assert_response :not_found
+      assert_redirected_to organizer_root_url
       patch transition_organizer_league_path(@league), params: { to: "closing" }
-      assert_response :not_found
+      assert_redirected_to organizer_root_url
       patch pod_result_organizer_league_path(@league, pod_id: pod.id), params: { result: "draw" }
-      assert_response :not_found
+      assert_redirected_to organizer_root_url
 
       assert_predicate table.reload, :filled?
       assert_predicate @league.reload, :play?

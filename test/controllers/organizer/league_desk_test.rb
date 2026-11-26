@@ -36,7 +36,7 @@ module Organizer
 
       get organizer_league_path(league, tab: "details")
       assert_select "[data-league-step=play]"
-      assert_select "[data-tabs] a", 6
+      assert_select "[data-tabs] a", 7
       assert_select "[data-tabs] .tab-badge", 0
       assert_select "[data-league-details] [data-detail=draw_rule]", text: I18n.t("league_desk.draw_split")
       assert_select "[data-league-details] [data-detail=registered]", text: "8"

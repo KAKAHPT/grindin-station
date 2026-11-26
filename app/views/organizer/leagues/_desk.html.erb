@@ -15,6 +15,8 @@
         <%= event_state_label(league, nil) %>
       <% end %>
     </p>
+    <%# The steps are the organizer's; closing a cut round is also the scorekeeper's and the judge's. %>
+    <% if league_desk_can?(league.finals? ? :score : :run) %>
     <div class="flex flex-wrap gap-2">
       <% if league.registration_open? || league.registration_closed? %>
         <%= step.("play", t("league_desk.start"), :primary) %>
@@ -34,6 +36,7 @@
                       class: button_classes(:primary, size: :sm), form: { data: { close_cut_round: true } } %>
       <% end %>
     </div>
+    <% end %>
   </div>
   <% if league.play? %><p class="border-t border-line px-4 py-2 text-[12px] text-muted"><%= t("league_desk.extend_hint") %></p><% end %>
   <% if league.closed? %>

@@ -2028,6 +2028,8 @@ en:
     change: "Change"
     change_lead: "New result:"
     change_locked: "After the cut is made the results of the games no longer change."
+    read_only: "You are here to follow the league: results are entered by the organizer, the judge or the scorekeeper."
+    staff_help: "Organizer: everything except this list. Judge: results, corrections, cancellations and the players. Scorekeeper: results, corrections and cancellations. Caster: reads only."
     tabs:
       tables: "Tables"
       players: "Players"
@@ -2035,6 +2037,7 @@ en:
       details: "Details"
       edit: "Edit"
       feed: "Feed"
+      staff: "Staff"
     players: "Players (%{count})"
     no_players: "Nobody has registered yet."
     dropped: "left"

@@ -1,6 +1,7 @@
 <%# The Feed tab of the organizer's league page: every finished game, latest first, with who won it. A game opens
     on a click to change its result (until the cut is made). Locals: league. Uses @feed (paginated). %>
 <% open = league.state.in?(Organizer::LeaguesController::GAME_STATES) %>
+<% scorer = league_desk_can?(:score) %>
 <section class="card overflow-clip" data-desk-feed>
   <h2 class="card-title"><%= t("league_desk.tabs.feed") %></h2>
   <% if @feed.any? %>
@@ -24,10 +25,12 @@
                 <% end %>
               </span>
               <time class="shrink-0 text-[12px] text-muted" datetime="<%= pod.round.finished_at.iso8601 %>"><%= l(pod.round.finished_at, format: :short) %></time>
-              <span class="shrink-0 <%= button_classes(:primary, size: :xs) %>" data-feed-change-button><%= t("league_desk.change") %></span>
+              <% if scorer %><span class="shrink-0 <%= button_classes(:primary, size: :xs) %>" data-feed-change-button><%= t("league_desk.change") %></span><% end %>
             </summary>
             <div class="flex flex-wrap items-center gap-3 border-t border-line/60 bg-white/[0.02] px-4 py-3 text-[13px]" data-feed-change>
-              <% if open %>
+              <% if !scorer %>
+                <span class="text-muted"><%= t("league_desk.read_only") %></span>
+              <% elsif open %>
                 <span class="text-muted"><%= t("league_desk.change_lead") %></span>
                 <%= render "organizer/leagues/result_form", league: league, pod: pod, draw: true, tab: "feed" %>
               <% else %>
