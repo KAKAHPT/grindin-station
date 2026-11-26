@@ -57,6 +57,8 @@ module Authentication
       Current.session = session
       cookies.signed[:session_id] = { value: session.id, httponly: true, same_site: :lax,
                                       expires: Session::LIFETIME }
+      # This browser has an account: signed out, the top bar offers Sign in instead of Sign up.
+      cookies.permanent[:known_account] = { value: "1", httponly: true, same_site: :lax }
     end
   end
 
