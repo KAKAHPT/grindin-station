@@ -1854,18 +1854,33 @@
     position: relative;
     z-index: 1;
     max-width: 680px;
-    margin: 36px auto 0;
-    padding: 14px 16px 16px;
-    background: var(--color-surface-raised);
-    border: 1px solid var(--color-line);
-    border-radius: 14px;
+    margin: 0 auto;
   }
 
   .lp-org-t {
     font: 600 12px var(--font-display);
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    text-align: center;
     color: var(--color-muted);
+  }
+
+  /* The end of the landing: the waiting list over the card wall, which scrolls down: the cards come out of
+     nothing at the top and sink into nothing at the bottom. */
+  .lp-end {
+    position: relative;
+    overflow: hidden;
+    margin-top: 36px;
+    padding: 96px 24px 120px;
+  }
+
+  .lp-backdrop-end {
+    -webkit-mask-image: linear-gradient(180deg, transparent 4%, #000 45%, #000 62%, transparent 97%);
+    mask-image: linear-gradient(180deg, transparent 4%, #000 45%, #000 62%, transparent 97%);
+  }
+
+  .lp-backdrop-end .lp-mosaic {
+    animation-direction: reverse;
   }
 
   .lp-org .lp-wl {

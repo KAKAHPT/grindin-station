@@ -123,8 +123,23 @@
   </div>
 
   <%# Last on the page: players looking for a tournament were filling it in by mistake when it sat under the hero. %>
-  <section class="lp-org" data-organizers-box>
-    <h2 class="lp-org-t"><%= t("landing.waitlist.heading") %></h2>
-    <%= render "pages/waitlist", signup: @waitlist_signup, state: nil %>
-  </section>
+  <%# The page ends as it began: the card wall behind, here rising out of nothing and sinking off the bottom. %>
+  <div class="lp-end">
+    <div class="lp-backdrop lp-backdrop-end" aria-hidden="true">
+      <div class="lp-mosaic">
+        <% 2.times do %>
+          <div class="lp-sheet">
+            <% arts.each do |src| %>
+              <img src="<%= src %>" alt="" width="240" height="175" loading="lazy" decoding="async">
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      <div class="lp-vig"></div>
+    </div>
+    <section class="lp-org" data-organizers-box>
+      <h2 class="lp-org-t"><%= t("landing.waitlist.heading") %></h2>
+      <%= render "pages/waitlist", signup: @waitlist_signup, state: nil %>
+    </section>
+  </div>
 </div>

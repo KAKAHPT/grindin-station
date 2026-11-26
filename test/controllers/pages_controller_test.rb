@@ -18,7 +18,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     assert_select "[data-seat-board]", count: 0
     assert_select "h2", text: "Seats are weighted, not drawn"
     assert_select ".lp-why li", 4
-    assert_select ".lp-mosaic img", 96
+    assert_select ".lp-mosaic img", 192
     assert_select "[data-attribution]", text: /Wizards of the Coast/
   end
 
