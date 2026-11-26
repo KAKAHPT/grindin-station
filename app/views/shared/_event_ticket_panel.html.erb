@@ -1,0 +1,40 @@
+<%# The viewer's own registration on a /my-events ticket, in plain sight: where they stand (enrolled, waiting list,
+    checked in), when the event starts, the check-in (the button once it is open, else when it opens) and the
+    decklist field (until the swiss starts). Tournaments only, while the player is in and the event is not over.
+    Locals: event, participant. %>
+<% if event.is_a?(Tournament) && participant.playing? && !event.finished? %>
+  <div class="flex flex-col gap-2.5 border-t border-line px-3.5 py-3 text-[12.5px]" data-my-panel>
+    <div class="flex flex-wrap items-center gap-1.5">
+      <% if participant.waitlisted? %>
+        <%= desk_chip(:info) { t("play.events.you_are_waitlisted", position: participant.waitlist_position) } %>
+      <% else %>
+        <%= desk_chip(:ok) { t("play.events.you_are_enrolled") } %>
+      <% end %>
+      <% if participant.checked_in? %><span data-my-checked-in><%= desk_chip(:ok) { t("play.events.checked_in") } %></span><% end %>
+    </div>
+    <% unless event.points_locked? %>
+      <p class="text-muted" data-my-starts><%= t("my_events.starts_at", time: l(event.start_time, format: :short)) %></p>
+      <% if participant.enrolled? && !participant.checked_in? %>
+        <% if !event.self_check_in_enabled %>
+          <p class="text-muted" data-my-check-in="desk"><%= t("my_events.check_in_desk") %></p>
+        <% elsif event.check_in_open? %>
+          <%= button_to t("play.events.check_in"), check_in_tournament_event_participants_path(event, locale: params[:locale]),
+                        method: :patch, params: { from: "my_events" }, form: { class: "self-start", data: { my_check_in: "open" } },
+                        class: button_classes(:primary, size: :sm) %>
+        <% elsif event.check_in_opens_at %>
+          <p class="font-semibold text-ink" data-my-check-in="soon"><%= t("play.events.check_in_opens_at", time: l(event.check_in_opens_at, format: :short)) %></p>
+        <% end %>
+      <% end %>
+      <%= form_with model: participant, url: tournament_event_participant_path(event, participant, locale: params[:locale]),
+                    method: :patch, data: { my_decklist_form: true }, class: "flex flex-col gap-1.5" do |f| %>
+        <%= hidden_field_tag :from, "my_events", id: nil %>
+        <%= f.label :decklist, t(participant.decklist.blank? ? "my_events.add_decklist" : "my_events.decklist"),
+                    for: "decklist_#{participant.id}", class: "text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted", data: { my_decklist: true } %>
+        <span class="flex gap-2">
+          <%= f.text_field :decklist, id: "decklist_#{participant.id}", placeholder: t("play.events.decklist_placeholder"), class: "field-input min-w-0 flex-1" %>
+          <%= f.button t("play.events.save"), class: button_classes(:primary, size: :sm) %>
+        </span>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>

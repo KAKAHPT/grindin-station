@@ -1202,6 +1202,8 @@ en:
     drop: "Drop"
     drop_confirm: "Drop from this event? You will not be paired in the next rounds."
     dropped: "Dropped"
+    starts_at: "Starts %{time}."
+    check_in_desk: "Check-in is done at the organizer's desk."
   invitations:
     chip: "Invitation only"
     setting_help: "Only the accounts you invite can register themselves; you invite them in the Invitations tab. You can still add anyone from the roster."

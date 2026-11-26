@@ -30,6 +30,7 @@
       <%= ticket_state_line(event, sold_out) %>
     </div>
   </div>
+  <% if local_assigns[:participant] %><%= render "shared/event_ticket_panel", event: event, participant: participant %><% end %>
   <div class="lp-evr-stub">
     <p class="lp-evr-n"><%= ticket_enrolled(event, enrolled) %></p>
     <div class="lp-evr-act">

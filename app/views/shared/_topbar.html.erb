@@ -70,6 +70,7 @@
           <div class="topbar-me-menu" data-user-menu-panel>
             <div class="topbar-me-card">
               <% if profile %><%= link_to t("topbar.my_profile"), profile_path(current_user.handle, locale: params[:locale]) %><% end %>
+              <%= link_to t("topbar.my_events"), my_events_path(locale: params[:locale]) %>
               <%= link_to t("accounts.nav"), account_path(locale: params[:locale]) %>
               <%= link_to t("topbar.logout"), session_path(Current.session), data: { turbo_method: :delete } %>
               <% if current_user.staff? || current_user.admin? %>

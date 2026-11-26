@@ -33,6 +33,30 @@ class MyEventsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".topbar-links a.on[href=?]", my_events_path, text: I18n.t("topbar.my_events")
   end
 
+  test "the ticket shows the check-in, takes the decklist and comes back to the list" do
+    @mine.update!(self_check_in_enabled: true, check_in_opens_hours_before: 1, start_time: 3.days.from_now,
+                  end_time: 4.days.from_now)
+    participant = @mine.event_participants.find_by!(player: @user.player)
+    sign_in
+
+    get my_events_path
+    assert_select "[data-my-panel] [data-my-check-in=soon]"
+    assert_select "[data-my-panel] form[data-my-decklist-form] input[name='event_participant[decklist]']"
+    patch tournament_event_participant_path(@mine, participant),
+          params: { from: "my_events", event_participant: { decklist: "https://moxfield.com/decks/abc" } }
+    assert_redirected_to my_events_path
+    assert_equal "https://moxfield.com/decks/abc", participant.reload.decklist
+
+    @mine.update!(check_in_opens_hours_before: 100)
+    get my_events_path
+    assert_select "[data-my-panel] form[data-my-check-in=open]"
+    patch check_in_tournament_event_participants_path(@mine), params: { from: "my_events" }
+    assert_redirected_to my_events_path
+    get my_events_path
+    assert_select "[data-my-panel] [data-my-checked-in]"
+    assert_select "[data-user-menu-panel] a[href=?]", my_events_path
+  end
+
   test "events are sorted into running now, upcoming and past" do
     running = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer), state: :swiss)
     running.event_participants.first.update!(player: @user.player)

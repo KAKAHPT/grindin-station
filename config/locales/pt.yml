@@ -1202,6 +1202,8 @@ pt:
     drop: "Drop"
     drop_confirm: "Sair deste evento? Não serás emparelhado nas próximas rondas."
     dropped: "Saíste"
+    starts_at: "Começa em %{time}."
+    check_in_desk: "O check-in é feito na mesa do organizador."
   invitations:
     chip: "Só por convite"
     setting_help: "Só as contas que convidares se podem inscrever sozinhas; convidas no separador Convites. Podes sempre adicionar qualquer pessoa na lista de jogadores."

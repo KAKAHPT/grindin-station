@@ -47,5 +47,10 @@ class LeagueRegistrationsController < ApplicationController
     @league = ensure_public!(League.find(params.expect(:league_id)))
   end
 
-  def back = league_path(@league, locale: params[:locale])
+  # Leaving from a /my-events ticket comes back to that list.
+  def back
+    return my_events_path(locale: params[:locale]) if params[:from] == "my_events"
+
+    league_path(@league, locale: params[:locale])
+  end
 end
