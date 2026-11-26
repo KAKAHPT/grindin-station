@@ -11,7 +11,7 @@ class EventHeaderTest < ActionView::TestCase
     render "shared/event_header", event: @event, eyebrow: "Tournament · Draft", title: "Demo Cup",
                                   line: "4 Nov 2026 · Lisboa", actions: tag.a("View public page", href: "#")
 
-    assert_select ".evhead .evhead-corner .gslogo[data-rotating]", count: 1
+    assert_select ".evhead .evhead-corner .gslogo", count: 1
     assert_select ".evhead-ban[style*=?]", "/assets/landing/c" # the same art the event's ticket shows
     assert_select ".evhead-shade"
     assert_select ".evhead-eyebrow", text: "Tournament · Draft"

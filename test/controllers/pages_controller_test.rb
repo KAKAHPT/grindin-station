@@ -18,6 +18,10 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     assert_select "[data-seat-board]", count: 0
     assert_select "h2", text: "Seats are weighted, not drawn"
     assert_select ".lp-why li", 4
+    assert_select ".lp-mark .gsl-full[data-controller=logo][aria-label=?]", "Grindin Station", count: 1
+    assert_select ".lp-mark [data-logo-target=letter]", 7
+    assert_select ".lp-hero .lp-eyebrow", count: 0
+    assert_select ".lp-why li b", count: 0
     assert_select ".lp-mosaic img", 192
     assert_select "[data-home-filters] form[action=?][method=get] input[name=q]", events_path
     assert_select "[data-attribution]", text: /Wizards of the Coast/
@@ -282,7 +286,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     get root_path
 
     assert_select "footer[data-site-footer]" do
-      assert_select ".sf-brand", text: /Grindin Station/
+      assert_select ".sf-brand .gsl-full[aria-label=?]", "Grindin Station"
       assert_select ".sf-soc a[target=_blank][rel=noopener]", 5
       assert_select "a[href=?]", events_path
       assert_select "a[href='mailto:info@cedhpt.com']"

@@ -18,7 +18,7 @@
 <div class="screen-stage group/stage grid grid-cols-[minmax(0,5fr)_minmax(0,8fr)] data-[upright=true]:grid-cols-1 data-[upright=true]:grid-rows-[auto_minmax(0,1fr)] gap-6 p-8" data-screen data-screen-fit-target="stage">
   <aside class="card flex flex-col gap-6 p-10 min-h-0 group-data-[upright=true]/stage:h-[600px]">
     <div class="flex items-center gap-3 min-w-0">
-      <%= render "shared/mark", size: 44, rotating: true, id_suffix: "screen" %>
+      <%= render "shared/mark", size: 44 %>
       <div class="min-w-0">
         <p class="truncate font-display text-2xl font-semibold tracking-tight text-ink"><%= @event.name %></p>
         <p class="text-[13px] font-semibold uppercase tracking-[0.08em] text-muted" data-screen-round><%= round_name %><% if @round.is_a?(SwissRound) %> / <%= @event.number_of_swiss_rounds %><% end %></p>

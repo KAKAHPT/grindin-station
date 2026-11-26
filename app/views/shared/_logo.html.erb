@@ -1,0 +1,9 @@
+<%# The Grindin Station logo: GRINDIN on the seven tiles of a departures board, STATION under it in a light
+    weight, its O a gear. One colour (the text's). Locals: size (one tile's width in px; without it the size comes
+    from the CSS of the place), animated (the landing only: the board flaps to words of the game and back, and the
+    gear turns; see logo_controller). The small places use the G tile alone (shared/_mark). %>
+<% animated = local_assigns[:animated] %>
+<span class="gsl gsl-full" role="img" aria-label="<%= t("app.name") %>"<% if local_assigns[:size] %> style="font-size: <%= local_assigns[:size] %>px"<% end %><% if animated %> data-controller="logo"<% end %>>
+  <span class="gsl-flaps" aria-hidden="true"><% "GRINDIN".each_char do |letter| %><span class="gsl-flap"><span<% if animated %> data-logo-target="letter"<% end %>><%= letter %></span></span><% end %></span>
+  <span class="gsl-station" aria-hidden="true"><span>S</span><span>T</span><span>A</span><span>T</span><span>I</span><svg class="gsl-gear" viewBox="0 0 100 100" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M42.1 11.8L42.0 1.7L58.0 1.7L57.9 11.8A39 39 0 0 1 71.4 17.4L78.6 10.2L89.8 21.4L82.6 28.6A39 39 0 0 1 88.2 42.1L98.3 42.0L98.3 58.0L88.2 57.9A39 39 0 0 1 82.6 71.4L89.8 78.6L78.6 89.8L71.4 82.6A39 39 0 0 1 57.9 88.2L58.0 98.3L42.0 98.3L42.1 88.2A39 39 0 0 1 28.6 82.6L21.4 89.8L10.2 78.6L17.4 71.4A39 39 0 0 1 11.8 57.9L1.7 58.0L1.7 42.0L11.8 42.1A39 39 0 0 1 17.4 28.6L10.2 21.4L21.4 10.2L28.6 17.4A39 39 0 0 1 42.1 11.8ZM50 22A28 28 0 1 0 50.01 22Z"/></svg><span>N</span></span>
+</span>

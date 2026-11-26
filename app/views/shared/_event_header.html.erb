@@ -8,7 +8,7 @@
     by CSS. %>
 <% title = local_assigns[:title].presence || event.name %>
 <section class="evhead" data-event-header>
-  <div class="evhead-corner"><%= render "shared/mark", size: 62, rotating: true, id_suffix: "evhead" %></div>
+  <div class="evhead-corner"><%= render "shared/mark", size: 62 %></div>
   <div class="evhead-bg" aria-hidden="true">
     <div class="evhead-ban" style="background-image: url('<%= event.cover.attached? && !event.cover.representable? ? rails_blob_path(event.cover, only_path: true) : ticket_banner(event, size: 960) %>')"></div>
     <div class="evhead-shade"></div>

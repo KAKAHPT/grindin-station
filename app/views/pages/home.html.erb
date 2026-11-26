@@ -29,8 +29,7 @@
     <div class="lp-vig"></div>
     </div>
     <div class="lp-hero-in">
-      <div class="lp-mark"><%= render "shared/mark", size: 84, id_suffix: "hero", rotating: true %></div>
-      <p class="lp-eyebrow"><%= t("landing.eyebrow") %></p>
+      <div class="lp-mark"><%= render "shared/logo", animated: true %></div>
       <h1><%= t("landing.headline") %></h1>
       <p class="lp-sub"><%= t("landing.tagline_html") %> <% if Features.on?(:fairness) %><%= link_to t("landing.why.tests"), fairness_path(locale: url_locale), class: "lp-sub-a", data: { tests: true } %><% end %></p>
       <p class="lp-lead"><%= t(cedh_only ? "landing.lead_cedh" : "landing.lead") %></p>
@@ -119,8 +118,8 @@
       <p><%= t("landing.why.intro") %></p>
       <%# The four steps come in one at a time when the list scrolls into view (reveal controller). %>
       <ol data-controller="reveal">
-        <% t("landing.why.steps").each_with_index do |step, index| %>
-          <li><b><%= index + 1 %></b><span><strong><%= step[:title] %></strong> <%= step[:text] %></span></li>
+        <% t("landing.why.steps").each do |step| %>
+          <li><span><strong><%= step[:title] %></strong> <%= step[:text] %></span></li>
         <% end %>
       </ol>
       <p><%= t("landing.why.audit") %></p>
