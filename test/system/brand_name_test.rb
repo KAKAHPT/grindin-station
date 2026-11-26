@@ -28,7 +28,7 @@ class BrandNameTest < ApplicationSystemTestCase
     window.resize_to(375, 800)
     visit events_path
 
-    assert_selector "[data-user-menu] .topbar-user", visible: :hidden
+    assert_selector "[data-user-menu] .topbar-me-trigger", visible: :visible
     assert_no_selector "[data-user-menu-panel] a", visible: :visible
     find("[data-user-menu] .topbar-me-trigger").click
     within "[data-user-menu-panel]" do

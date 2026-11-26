@@ -37,17 +37,17 @@ module Play
       assert_select "#my_table [data-time-left]", count: 0
     end
 
-    test "the header links the player's own name to a public profile only" do
+    test "the header shows the player as their picture; My profile is offered for a public profile only" do
       user = @me.player.user
       sign_in(@me)
 
       get play_me_path(@tournament.slug)
-      assert_select "[data-play-player] a[href=?]", profile_path(user.handle), text: user.name
+      assert_select "[data-topbar] [data-play-player] .sr-only", text: user.name
+      assert_select "[data-user-menu-panel] a[href=?]", profile_path(user.handle)
 
       user.update!(visibility: "private")
       get play_me_path(@tournament.slug)
-      assert_select "[data-play-player] a", count: 0
-      assert_select "[data-play-player]", text: user.name
+      assert_select "[data-user-menu-panel] a[href=?]", profile_path(user.handle), count: 0
     end
 
     test "commanders show only when the event allows it" do
