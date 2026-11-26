@@ -1012,9 +1012,21 @@
     margin-top: 14px;
   }
 
+  /* Phones: the arts keep to the right edge, clear of the text, which takes the left two thirds. */
   @media (max-width: 720px) {
     .evb-art {
-      opacity: 0.35;
+      inset: 0 12px 0 0;
+      gap: 10px;
+      mask-image: linear-gradient(90deg, transparent 60%, #000 82%);
+    }
+
+    .evb-art img {
+      width: 112px;
+    }
+
+    .evb-in {
+      max-width: 66%;
+      padding: 20px 0 20px 20px;
     }
 
     .evb h1 {
