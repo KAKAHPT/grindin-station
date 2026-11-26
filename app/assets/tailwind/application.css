@@ -2237,9 +2237,16 @@
       padding: 2px 10px;
       border: 1px solid rgb(255 255 255 / 0.06);
       border-radius: 12px;
-      background: rgb(17 19 21 / 0.82);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: rgb(17 19 21 / 0.3);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    /* The fields are see-through too, so the box does not read as a black block. */
+    .lp-float form > label,
+    .lp-float form select {
+      border-color: rgb(255 255 255 / 0.08) !important;
+      background-color: rgb(17 19 21 / 0.25) !important;
     }
 
     /* The bar's own utility classes (a row, min width, auto width) give way inside the narrow box. */
