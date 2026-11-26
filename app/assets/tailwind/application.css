@@ -2304,6 +2304,7 @@
   /* Featured tickets in motion (featflow_controller): each ticket is placed by its animation. */
   .lp-rail.lp-flow {
     position: relative;
+    margin-top: 40px;
     display: block;
     overflow: visible;
     scroll-snap-type: none;
@@ -2340,6 +2341,18 @@
   .lp-flow .lp-ft-more {
     max-height: 0;
     opacity: 0;
+  }
+
+  /* The streak of light that crosses the front ticket (moved by featflow_controller). */
+  .lp-flow .lp-ft::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 1;
+    width: 45%;
+    background: linear-gradient(90deg, transparent, rgb(255 244 214 / 0.1), transparent);
+    opacity: 0;
+    pointer-events: none;
   }
 
   .lp-flow .lp-ft-more > div {
