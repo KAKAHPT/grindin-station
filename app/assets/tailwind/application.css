@@ -249,8 +249,9 @@
     overflow: visible;
   }
 
+  /* Each layer of the wheel sits in a group moved to its centre, so it turns about its own origin. */
   .gslogo .gear {
-    transform-origin: 50px 58px;
+    transform-origin: 0 0;
   }
 
   .gslogo[data-rotating] .gear {

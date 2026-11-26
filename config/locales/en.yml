@@ -1,5 +1,6 @@
 en:
   topbar:
+    home: "Home"
     events: "Events"
     my_events: "My events"
     rankings: "Rankings"
@@ -1450,8 +1451,8 @@ en:
     eyebrow: "Grindin Station"
     headline: "The grind never stops."
     tagline_html: "The tournament software with <em>fair seats</em>."
-    lead: "Built for cEDH and multiplayer games, but open to every format. Pairings, standings and tables update live on every phone in the room."
-    lead_cedh: "Built for cEDH. Pairings, standings and tables update live on every phone in the room."
+    lead: "Built for cEDH and multiplayer games, but open to every format. Pairings, standings and tables update live on every phone."
+    lead_cedh: "Built for cEDH. Pairings, standings and tables update live on every phone."
     cta_events: "Upcoming events"
     attribution: "Card art is unofficial Fan Content permitted under the Fan Content Policy. Not approved or endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC."
     signup:

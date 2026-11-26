@@ -2,16 +2,18 @@
 
 require "application_system_test_case"
 
-# The site's name sits beside the mark in the top bar and leads home; it fits a phone without pushing the bar wider.
+# The mark alone sits at the start of the top bar and leads home; Home is the first link beside it, in the same
+# type as the other links. It fits a phone without pushing the bar wider.
 class BrandNameTest < ApplicationSystemTestCase
-  test "the name shows beside the mark, links home and fits a phone" do
+  test "the mark leads home, Home is the first link and the bar fits a phone" do
     visit events_path
-    assert_selector ".topbar-brand [data-brand-name]", text: I18n.t("app.name"), visible: :visible
+    assert_selector ".topbar-brand .gslogo", visible: :visible
+    assert_equal "Home", first(".topbar-links a").text
 
     window = page.driver.browser.manage.window
     size = window.size
     window.resize_to(375, 800)
-    assert_selector ".topbar-brand [data-brand-name]", visible: :visible
+    assert_selector ".topbar-brand .gslogo", visible: :visible
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")
 
     find(".topbar-brand").click

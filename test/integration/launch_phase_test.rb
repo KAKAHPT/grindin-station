@@ -114,10 +114,11 @@ class LaunchPhaseTest < ActionDispatch::IntegrationTest # rubocop:disable Metric
     assert_select "[data-team-card], #user_feed_scope", count: 0
   end
 
-  test "the menu has Events only" do
+  test "the menu has Home and Events only" do
     get "/"
 
-    assert_select ".topbar-links a", count: 1
+    assert_select ".topbar-links a", count: 2
+    assert_select ".topbar-links a.on[href='/']", text: "Home"
     assert_select ".topbar-links a[href^='/events']"
   end
 

@@ -1,9 +1,11 @@
-<%# Top bar of every page layout (application, play, public). The viewer is their picture alone. Phones keep the mark, that picture and the
-    bell in the bar; the nav links and the language switch (EN / PT / ES) fold under the hamburger (Stimulus menu).
+<%# Top bar of every page layout (application, play, public). The mark alone leads home (Home is also the first
+    nav link) and the viewer is their picture alone. Phones keep the mark, that picture and the bell in the bar;
+    the nav links and the language switch (EN / PT / ES) fold under the hamburger (Stimulus menu).
     Local modal_sign_in: true opens Sign in in the modal frame (only the application layout has one). %>
 <% here = ->(path) { request.path == path || request.path.start_with?("#{path}/") } %>
 <%# A paused module (config/features.yml) has no link. %>
-<% links = [[t("topbar.events"), events_path(locale: params[:locale]), here.(events_path)],
+<% links = [[t("topbar.home"), root_path(locale: params[:locale]), request.path == root_path],
+            [t("topbar.events"), events_path(locale: params[:locale]), here.(events_path)],
             ([t("topbar.my_events"), my_events_path(locale: params[:locale]), here.(my_events_path)] if authenticated?),
             ([t("topbar.rankings"), rankings_path(locale: params[:locale]), here.(rankings_path)] if Features.on?(:rankings)),
             ([t("topbar.circuits"), circuits_path(locale: params[:locale]), here.(circuits_path)] if Features.on?(:circuits)),
@@ -13,7 +15,7 @@
   <div class="topbar-in">
     <%= link_to root_path(locale: params[:locale]), class: "topbar-brand" do %>
       <%= render "shared/mark", size: 30, rotating: true, id_suffix: "topbar" %>
-      <span data-brand-name><%= t("app.name") %></span>
+      <span class="sr-only"><%= t("app.name") %></span>
     <% end %>
 
     <div id="topbar-panel" class="topbar-panel" data-menu-target="panel" data-open="false">

@@ -85,8 +85,8 @@ class LayoutTest < ActionDispatch::IntegrationTest
       end
 
     assert_equal ids.first, ids.last
-    assert_includes ids.first, "gsT-topbar"
-    assert_includes ids.first, "gsT-evhead"
+    assert_includes ids.first, "gsF-topbar"
+    assert_includes ids.first, "gsF-evhead"
     assert_equal ids.first.uniq, ids.first
   end
 
