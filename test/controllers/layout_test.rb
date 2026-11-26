@@ -82,25 +82,19 @@ class LayoutTest < ActionDispatch::IntegrationTest
     assert_select "link[rel=icon][type='image/svg+xml'][href*=mark]"
   end
 
-  test "the mark ids are the same on every render, so a morph refresh keeps the gear turning" do
+  test "the mark is the G tile and carries no ids, so several can share a page" do
     tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
-    ids =
-      Array.new(2) do
-        get play_standings_path(tournament.slug)
-        css_select(".gslogo [id]").map { |node| node["id"] }
-      end
+    get play_standings_path(tournament.slug)
 
-    assert_equal ids.first, ids.last
-    assert_includes ids.first, "gsF-topbar"
-    assert_includes ids.first, "gsF-evhead"
-    assert_equal ids.first.uniq, ids.first
+    assert_select ".gslogo .gsl-flap", text: "G", minimum: 2
+    assert_select ".gslogo [id]", count: 0
   end
 
   private
 
   def assert_top_bar # rubocop:disable Metrics/MethodLength -- one assertion per link
     assert_select "[data-topbar]", count: 1
-    assert_select "[data-topbar] .gslogo[data-rotating]", count: 1
+    assert_select "[data-topbar] .gslogo", count: 1
     assert_select "[data-topbar] nav a[href^=?]", events_path, text: "Events"
     assert_select "[data-topbar] nav a[href^=?]", rankings_path, text: "Rankings"
     assert_select "[data-topbar] nav a[href^=?]", circuits_path, text: "Circuits"

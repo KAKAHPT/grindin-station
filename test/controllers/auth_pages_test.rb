@@ -114,8 +114,7 @@ class AuthPagesTest < ActionDispatch::IntegrationTest
   private
 
   def assert_auth_card
-    assert_select "[data-auth-card] .auth-mark .gslogo", count: 1
-    assert_select "[data-auth-card] .auth-mark", text: /Grindin Station/
+    assert_select "[data-auth-card] .auth-mark .gsl-full[aria-label=?]", "Grindin Station", count: 1
     assert_select "[data-auth-card] h2", count: 1
     assert_select "[data-auth-card] [data-sign-up-copy]",
                   text: /No Google or Discord needed\. You can link them later from your account\./

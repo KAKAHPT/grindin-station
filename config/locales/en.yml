@@ -1456,7 +1456,6 @@ en:
   landing:
     description: "Tournament software with fair seats. Built for cEDH and multiplayer games, open to every format, live on every phone."
     description_cedh: "Tournament software with fair seats. Built for cEDH, live on every phone."
-    eyebrow: "Grindin Station"
     headline: "The grind never stops."
     tagline_html: "The tournament software with <em>fair seats</em>."
     lead: "Built for cEDH and multiplayer games, but open to every format. Pairings, standings and tables update live on every phone."

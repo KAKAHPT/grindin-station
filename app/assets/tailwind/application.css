@@ -242,19 +242,64 @@
     border-top-right-radius: inherit;
   }
 
-  /* The mark. The gear turns only where the mark is rendered with rotating: true (top bar, event-header corner). */
-  .gslogo {
-    display: inline-block;
+  /* The logo (shared/_logo) and its G tile (shared/_mark). Everything is in em of one tile's width, the font-size
+     of .gsl; the letters and the cut line take the colour behind the tiles (--gsl-paper). */
+  .gsl {
+    --gsl-paper: var(--color-ground);
+    display: inline-grid;
     flex-shrink: 0;
-    overflow: visible;
+    gap: 0.34em;
+    justify-items: stretch;
+    line-height: 1;
+    color: var(--color-ink);
   }
 
-  /* Each layer of the wheel sits in a group moved to its centre, so it turns about its own origin. */
-  .gslogo .gear {
-    transform-origin: 0 0;
+  .gsl-flaps {
+    display: flex;
+    gap: 0.12em;
   }
 
-  .gslogo[data-rotating] .gear {
+  .gsl-flap {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 1em;
+    height: 1.3em;
+    border-radius: 0.14em;
+    background: currentColor;
+  }
+
+  .gsl-flap > span {
+    display: block;
+    font: 800 0.74em/1 "Sora", "Sora fallback", sans-serif;
+    color: var(--gsl-paper);
+  }
+
+  .gsl-flap::after {
+    content: "";
+    position: absolute;
+    inset: 50% 0 auto;
+    height: max(1px, 0.045em);
+    transform: translateY(-50%);
+    background: var(--gsl-paper);
+  }
+
+  .gsl-station {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0.1em;
+    font: 300 0.62em/1 "Sora", "Sora fallback", sans-serif;
+  }
+
+  .gsl-gear {
+    display: block;
+    width: 0.97em;
+    height: 0.97em;
+  }
+
+  /* The gear turns only on the landing's logo (logo controller). */
+  .gsl[data-controller~="logo"] .gsl-gear {
     animation: gearspin 14s linear infinite;
   }
 
@@ -637,8 +682,7 @@
     }
 
     .evhead-corner .gslogo {
-      width: 48px;
-      height: 48px;
+      font-size: 37px !important;
     }
   }
 
@@ -1569,16 +1613,6 @@
     line-height: 0;
   }
 
-  .auth-mark .gslogo {
-    display: inline-block;
-    filter: drop-shadow(0 10px 18px rgb(0 0 0 / 0.55));
-  }
-
-  .auth-mark .lp-eyebrow {
-    margin-top: 6px;
-    line-height: 1.4;
-  }
-
   .auth-card h2 {
     margin: 0 0 18px;
     font: 600 22px var(--font-display);
@@ -1849,7 +1883,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .gslogo[data-rotating] .gear {
+  .gsl[data-controller~="logo"] .gsl-gear {
     animation: none;
   }
 }
@@ -1950,12 +1984,9 @@
   }
 
   .lp-mark {
-    margin: 0 auto 4px;
+    margin: 0 auto 22px;
     line-height: 0;
-  }
-
-  .lp-mark .gslogo {
-    filter: drop-shadow(0 14px 24px rgb(0 0 0 / 0.6));
+    font-size: 56px;
   }
 
   .lp-eyebrow {
@@ -1965,13 +1996,9 @@
     color: var(--color-accent);
   }
 
-  .lp-hero .lp-eyebrow {
-    margin-bottom: 14px;
-  }
-
   .lp-hero h1 {
     margin: 0 0 12px;
-    font: 700 68px/1.08 "Sora", "Sora fallback", sans-serif;
+    font: 700 38px/1.08 "Sora", "Sora fallback", sans-serif;
     letter-spacing: -0.02em;
   }
 
@@ -1983,7 +2010,7 @@
   /* The tagline under the headline, one line; the lead below it, smaller still. */
   .lp-sub {
     margin: 0 0 10px;
-    font: 600 20px/1.25 var(--font-display);
+    font: 600 16px/1.25 var(--font-display);
     color: var(--color-ink);
   }
 
@@ -2008,7 +2035,7 @@
   .lp-lead {
     max-width: 520px;
     margin: 0 auto 22px;
-    font-size: 13.5px;
+    font-size: 12px;
     color: var(--color-muted);
   }
 
@@ -2141,7 +2168,7 @@
     position: relative;
     z-index: 1;
     max-width: 980px;
-    margin: 36px auto 0;
+    margin: 72px auto 0;
     padding: 0 24px 8px;
   }
 
@@ -2188,12 +2215,6 @@
     transform: none;
     transition: opacity 0.5s ease, transform 0.5s ease;
     transition-delay: calc(var(--reveal-i, 0) * 0.25s);
-  }
-
-  .lp-why li b {
-    min-width: 18px;
-    font: 700 12.5px var(--font-display);
-    color: var(--color-accent);
   }
 
   .lp-why li strong {
@@ -2987,12 +3008,16 @@
       min-height: 0;
     }
 
+    .lp-mark {
+      font-size: 40px;
+    }
+
     .lp-hero h1 {
-      font-size: 38px;
+      font-size: 28px;
     }
 
     .lp-lead {
-      font-size: 15px;
+      font-size: 13px;
     }
 
     .lp-wl-form {
