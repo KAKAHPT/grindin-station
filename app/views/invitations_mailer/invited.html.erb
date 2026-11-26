@@ -1,5 +1,12 @@
 <p><%= t("invitations_mailer.invited.greeting", name: @user.name) %></p>
 <p><%= t("invitations_mailer.invited.body", organizer: @event.event_organizer&.name, event: @event.name) %></p>
 <% if @event.start_time %><p><%= l(@event.start_time, format: t("play.events.time_format")) %><% if @event.address.present? %> · <%= @event.address %><% end %></p><% end %>
-<p><%= link_to t("invitations_mailer.invited.link"), play_event_url(@event.slug) %></p>
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:6px 0 16px;">
+  <tr>
+    <td style="background:#f4f5f6; border-radius:10px;">
+      <%= link_to t("invitations_mailer.invited.link"), play_event_url(@event.slug),
+                  style: "display:inline-block; padding:12px 22px; font:700 14px/1 Helvetica, Arial, sans-serif; color:#0d0f11; text-decoration:none;" %>
+    </td>
+  </tr>
+</table>
 <p><%= t("invitations_mailer.invited.account") %></p>
