@@ -73,6 +73,9 @@ module ApplicationHelper
     url_for(organizer_mode? ? :tournaments : %i[organizer tournaments])
   end
 
+  # The body style that hands .mosaic-bg its picture (the upright card mosaic).
+  def mosaic_style = "--mosaic: url('#{image_path('mosaic.jpg')}')"
+
   def modal_form_for(record, options = {}, &block)
     options[:builder] = ModalFormBuilder
     form_for(record, options, &block)

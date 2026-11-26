@@ -1,7 +1,6 @@
 <%# Public league page: the event header card, About (when, where, price, players, description, schedule, prizes,
     rules), the wager, the rounds and the standings by league score. %>
 <% league = @league %>
-<% content_for :mosaic, "1" %>
 <% playing = league.event_participants.reject(&:dropped) %>
 <% content_for :event_header do %>
   <%= render "shared/event_header", event: league,

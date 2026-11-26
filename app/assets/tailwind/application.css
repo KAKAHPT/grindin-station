@@ -848,7 +848,8 @@
     background: rgb(17 19 21 / 0.45);
   }
 
-  /* The same mosaic behind a whole page (layouts/application, content_for :mosaic): still, tilted, barely there. */
+  /* The card mosaic, every art upright, behind a whole page (the application and play layouts): still, tilted,
+     barely there. */
   .mosaic-bg::before {
     content: "";
     position: fixed;
