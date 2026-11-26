@@ -11,6 +11,24 @@ class EventsControllerTest < ActionDispatch::IntegrationTest # rubocop:disable M
     @other = EventOrganizer.create!(user: other_user)
   end
 
+  test "an event past its start and before its end stays listed: a league open for weeks, a late tournament" do
+    late = upcoming("Late Cup", start: 1.hour.ago)
+    league = League.create!(name: "Running league", event_organizer: @organizer, state: :registration_open,
+                            start_time: 2.days.ago, end_time: 5.days.from_now)
+    over = upcoming("Over Cup", start: 3.days.ago)
+
+    get events_path
+    assert_listed late, league
+    assert_not_listed over
+
+    get leagues_path
+    assert_listed league
+
+    get events_path(filter: "past")
+    assert_listed over
+    assert_not_listed late, league
+  end
+
   test "country=PT lists only the Portuguese events" do
     pt = upcoming("Lisbon Cup", country: "PT")
     es = upcoming("Madrid Cup", country: "ES")

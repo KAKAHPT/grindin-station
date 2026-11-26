@@ -13,9 +13,9 @@ class PagesController < ApplicationController
   FEATURED_LIMIT = 9
   FEATURED_CIRCUITS_LIMIT = 9
 
-  # Not started yet, or running now (a live swiss or cut); finished, draft and canceled ones are left out.
+  # Not over yet by its dates, or running now (a live swiss or cut); finished, draft and canceled ones are left out.
   def self.listed_tournaments
-    Tournament.visible.where.not(state: :finished).merge(Tournament.upcoming.or(Tournament.ongoing))
+    Tournament.visible.where.not(state: :finished).merge(Tournament.not_ended.or(Tournament.ongoing))
   end
 
   def home

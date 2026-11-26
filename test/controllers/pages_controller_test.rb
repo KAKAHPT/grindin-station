@@ -171,7 +171,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
   test "draft, canceled and past events are not listed; soonest first, at most six" do
     draft = upcoming(:draft, "Hidden Draft Cup", 1.minute)
     canceled = upcoming(:canceled, "Hidden Canceled Cup", 1.minute)
-    past = upcoming(:registration_open, "Past Cup", -1.hour)
+    past = upcoming(:registration_open, "Past Cup", -2.days)
     soonest = upcoming(:registration_open, "Soonest Cup", 5.minutes)
 
     get root_path

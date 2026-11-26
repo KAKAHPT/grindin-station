@@ -13,8 +13,10 @@ module EventTickets
   private
 
   # Visible (not draft or canceled) events of a type, upcoming soonest first or past latest first, one page.
-  # An event running now (a live swiss or cut, whatever its dates say) stays with the upcoming ones for everyone
-  # until it finishes, as on the landing; a finished one is past at once, even before its end date.
+  # "Upcoming" is everything not over yet: still to start, or past its start and before its end (a league with
+  # registration open for weeks, a tournament whose first round is late). An event running now (a live swiss or
+  # cut, whatever its dates say) stays there too until it finishes, as on the landing; a finished one is past at
+  # once, even before its end date.
   # except: events already shown elsewhere on the page (the viewer's running now); filters: from ticket_filters.
   def ticket_scope(klass, past:, except: [], filters: {})
     scope = filter_tickets(klass.visible.where.not(id: except.map(&:id)), filters)
@@ -22,7 +24,7 @@ module EventTickets
     ticket_preload(sort_tickets(scope, past: past)).page(params[:page]).load
   end
 
-  def listed_now(klass) = klass.upcoming.or(klass.ongoing).where.not(state: :finished)
+  def listed_now(klass) = klass.not_ended.or(klass.ongoing).where.not(state: :finished)
 
   def listed_past(klass) = klass.past.or(klass.where(state: :finished)).where.not(id: klass.ongoing.select(:id))
 
