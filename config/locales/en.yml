@@ -1610,6 +1610,7 @@ en:
       standings_empty: "No standings yet."
   filters:
     apply: "Apply filters"
+    search: "Search"
     remove: "Remove %{label}"
     clear_all: "Clear all"
   rankings:
