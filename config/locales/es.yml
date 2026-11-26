@@ -1227,7 +1227,6 @@ es:
     invite: "Invitar"
     invite_again: "Enviar otra vez"
     registered: "Inscrito"
-    clock_minutes: "Reloj de cada partida (minutos)"
     waiting: "Aún no inscrito"
     invited_on: "Invitado"
     status: "Estado"
@@ -2027,6 +2026,7 @@ es:
         registered: "Inscripción hecha: ¡buenas partidas!"
         left: "Has salido de la liga."
   league_desk:
+    clock_minutes: "Reloj de cada partida (minutos)"
     change: "Cambiar"
     change_lead: "Nuevo resultado:"
     change_locked: "Una vez hecho el corte, los resultados de las partidas ya no se cambian."
