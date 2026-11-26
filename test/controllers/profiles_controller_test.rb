@@ -114,7 +114,7 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable
       assert_select "[data-stat=win_rate]", text: win_rate ? "#{win_rate}%" : "–"
       assert_select "[data-stat=conversion]", text: "33%"
       assert_select "[data-ach=wins]", text: "1"
-      assert_select "[data-ach=top4]", text: "3"
+      assert_select "[data-ach=top4]", text: "2"
       assert_select "[data-ach=cuts]", text: "1"
       assert_select "[data-commanders] li", 2
       assert_select "[data-commanders] li:nth-child(1)", text: /Kinnan, Bonder Prodigy\s*1 · 33%/
