@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 # /my-events: the events the signed-in player is registered in, as the same tickets as /events: running now,
-# upcoming, then past (latest first). Each ticket carries the player's own actions: decklist and drop.
+# upcoming, then past (latest first). Each ticket carries the player's own actions: decklist and drop. Above them,
+# the events the user runs or works as staff, with the way into the organizer's side.
 class MyEventsController < ApplicationController
   include EventTickets
 
@@ -14,10 +15,31 @@ class MyEventsController < ApplicationController
     @upcoming.reverse!
     @enrolled = enrolled_counts(events)
     @participants = my_registrations(events)
-    @league_tables = my_league_tables if Features.on?(:leagues)
+    load_extras
   end
 
   private
+
+  # Beside the tickets: the league tables the player sits at and the events they run or work as staff.
+  def load_extras
+    @league_tables = my_league_tables if Features.on?(:leagues)
+    @staffed = staffed_events
+  end
+
+  # The events the user runs or works as staff (owner, organizer, judge, scorekeeper, caster) and that are not
+  # over, soonest first, each with their role: the way into the organizer's side of each.
+  def staffed_events
+    return [] unless current_user.staff?
+
+    events = staffed_scope.order(:start_time).limit(LIMIT).to_a
+    roles = current_user.event_staff.where(event_id: events.map(&:id)).pluck(:event_id, :role).to_h
+    events.map { |event| [event, roles[event.id] || "organizer"] }
+  end
+
+  def staffed_scope
+    over = Tournament.states.values_at("finished", "canceled")
+    (Features.on?(:leagues) ? Event : Tournament).staffed_by(current_user).where.not(state: over)
+  end
 
   # The league tables the player sits at right now (waiting for players, or full and not settled).
   def my_league_tables

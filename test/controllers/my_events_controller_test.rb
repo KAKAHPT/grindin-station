@@ -57,6 +57,18 @@ class MyEventsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-user-menu-panel] a[href=?]", my_events_path
   end
 
+  test "a player added as staff finds the event with the way into its organizer side" do
+    EventStaff.create!(event: @other, user: @user, role: "scorekeeper")
+    sign_in
+
+    get my_events_path
+    assert_select "[data-my-staffed] [data-staffed-event='#{@other.id}']", text: /Scorekeeper/ do
+      assert_select "a[href=?]", organizer_tournament_path(@other)
+    end
+    get organizer_tournament_path(@other)
+    assert_response :success
+  end
+
   test "events are sorted into running now, upcoming and past" do
     running = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer), state: :swiss)
     running.event_participants.first.update!(player: @user.player)

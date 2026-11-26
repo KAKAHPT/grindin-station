@@ -842,6 +842,8 @@ en:
         canceled: "Canceled"
         play: "Playing"
         finals: "Finals"
+        closing: "Closing"
+        closed: "Closed"
     standings:
       final_title: "Final standings"
       movement: "Movement since the last round"
@@ -1204,6 +1206,8 @@ en:
     dropped: "Dropped"
     starts_at: "Starts %{time}."
     check_in_desk: "Check-in is done at the organizer's desk."
+    staffed: "Events I run or work at"
+    manage: "Manage event"
   invitations:
     chip: "Invitation only"
     setting_help: "Only the accounts you invite can register themselves; you invite them in the Invitations tab. You can still add anyone from the roster."

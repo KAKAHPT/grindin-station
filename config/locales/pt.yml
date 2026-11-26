@@ -842,6 +842,8 @@ pt:
         canceled: "Cancelado"
         play: "A decorrer"
         finals: "Finais"
+        closing: "A fechar"
+        closed: "Fechada"
     standings:
       final_title: "Classificação final"
       movement: "Movimento desde a última ronda"
@@ -1204,6 +1206,8 @@ pt:
     dropped: "Saíste"
     starts_at: "Começa em %{time}."
     check_in_desk: "O check-in é feito na mesa do organizador."
+    staffed: "Eventos que organizo ou onde sou staff"
+    manage: "Gerir evento"
   invitations:
     chip: "Só por convite"
     setting_help: "Só as contas que convidares se podem inscrever sozinhas; convidas no separador Convites. Podes sempre adicionar qualquer pessoa na lista de jogadores."

@@ -3,6 +3,27 @@
   <p class="mt-1 text-[13px] text-muted"><%= t("my_events.lead") %></p>
 </div>
 
+<%# The events the viewer runs or works as staff: straight into the organizer's side of each. %>
+<% if @staffed.any? %>
+  <section class="col-span-full card overflow-clip" data-my-staffed>
+    <h2 class="card-title"><%= t("my_events.staffed") %></h2>
+    <ul class="divide-y divide-line text-[13px]">
+      <% @staffed.each do |event, role| %>
+        <li class="flex flex-wrap items-center justify-between gap-3 px-4 py-3" data-staffed-event="<%= event.id %>">
+          <div class="min-w-0">
+            <p class="flex flex-wrap items-center gap-2 text-[14px] font-semibold text-ink">
+              <%= event.name %>
+              <%= desk_chip(:info) { t("organizer.staff.roles.#{role}") } %>
+            </p>
+            <p class="mt-0.5 text-[12px] text-muted"><%= l(event.start_time, format: :short) %> · <%= event_state_label(event, nil) %></p>
+          </div>
+          <%= link_to t("my_events.manage"), (event.is_a?(League) ? organizer_league_path(event) : organizer_tournament_path(event)), class: button_classes(:primary, size: :sm) %>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>
+
 <% if @league_tables.present? %>
   <section class="col-span-full card overflow-clip" data-my-league-tables>
     <h2 class="card-title"><%= t("my_events.league_tables") %></h2>
@@ -32,7 +53,7 @@
   </details>
 <% end %>
 
-<% if @running.empty? && @upcoming.empty? && @past.empty? %>
+<% if @running.empty? && @upcoming.empty? && @past.empty? && @staffed.empty? %>
   <div class="col-span-full card px-4 py-8 text-center" data-list-empty>
     <p class="text-[13px] text-muted"><%= t("my_events.empty") %></p>
     <%= link_to t("my_events.browse"), events_path(locale: params[:locale]), class: button_classes(:secondary, "mt-4") %>
