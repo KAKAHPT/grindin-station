@@ -39,4 +39,25 @@ class LandingTest < ApplicationSystemTestCase
     assert_equal 1, open, "exactly the front ticket shows its details"
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")
   end
+
+  test "a single featured event stays at the front, lifted, floating and with its details open" do
+    event = Tournament.create!(name: "Lone Star", event_organizer: event_organizers(:standard_organizer), state: :draft,
+                               start_time: 1.day.from_now, end_time: 2.days.from_now)
+    event.update_columns(state: Tournament.states[:registration_open], featured: true) # rubocop:disable Rails/SkipsModelValidations
+    visit root_path
+
+    assert_selector "[data-featured] .lp-rail.lp-flow [data-featured-event]", count: 1
+    front = page.evaluate_script(<<~JS)
+      (() => {
+        const ticket = document.querySelector("[data-featured-event]");
+        const box = ticket.getBoundingClientRect();
+        const off = Math.abs(box.left + box.width / 2 - window.innerWidth / 2);
+        return { centred: off < 4, floating: ticket.getAnimations().length === 1, open: getComputedStyle(ticket.querySelector("[data-ft-more]")).opacity > 0.9 };
+      })()
+    JS
+    assert front["centred"], "the ticket sits in the middle of the row"
+    assert front["floating"], "it floats"
+    assert front["open"], "its details are open"
+    assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")
+  end
 end
