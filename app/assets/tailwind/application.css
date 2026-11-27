@@ -948,8 +948,8 @@
     position: relative;
   }
 
-  /* Event lists banner (shared/_list_header): title, lead and the Upcoming · Past switch on the left; on the right,
-     a row of leaning commander arts, all inside the banner, that fades towards the text. */
+  /* Event lists banner (shared/_list_header): title, lead and the Upcoming · Past switch on the left; behind
+     them a leaning black-and-white mosaic of commander arts that fades towards the text. */
   .evb {
     position: relative;
     isolation: isolate;
@@ -965,36 +965,26 @@
 
   .evb-art {
     position: absolute;
-    inset: 0 22px 0 0;
+    inset: -40% -6% -40% 30%;
     z-index: -1;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 16px;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    align-content: center;
+    gap: 8px;
+    opacity: 0.5;
+    transform: rotate(-8deg);
     pointer-events: none;
-    mask-image: linear-gradient(90deg, transparent 24%, #000 62%);
+    mask-image: linear-gradient(90deg, transparent 4%, #000 46%);
   }
 
   .evb-art img {
     display: block;
-    flex: none;
-    width: 156px;
+    width: 100%;
     height: auto;
     aspect-ratio: 4 / 3;
     object-fit: cover;
-    border-radius: 10px;
-    opacity: 0.6;
-    transform: rotate(-5deg) translateY(-10px);
-    box-shadow: 0 14px 30px -14px #000;
-    transition: opacity 0.7s ease;
-  }
-
-  .evb-art img:nth-child(even) {
-    transform: rotate(4deg) translateY(12px);
-  }
-
-  .evb-art img.evb-out {
-    opacity: 0;
+    border-radius: 6px;
+    filter: grayscale(1) contrast(1.05);
   }
 
   .evb-in {
@@ -1003,15 +993,7 @@
     max-width: 560px;
   }
 
-  .evb-eye {
-    font: 600 11px var(--font-display);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-accent);
-  }
-
   .evb h1 {
-    margin-top: 4px;
     font: 700 34px/1.05 var(--font-display);
     letter-spacing: -0.02em;
     color: var(--color-ink);
@@ -1028,16 +1010,12 @@
     margin-top: 14px;
   }
 
-  /* Phones: the arts keep to the right edge, clear of the text, which takes the left two thirds. */
+  /* Phones: fewer, larger arts on the right, clear of the text, which takes the left two thirds. */
   @media (max-width: 720px) {
     .evb-art {
-      inset: 0 12px 0 0;
-      gap: 10px;
-      mask-image: linear-gradient(90deg, transparent 60%, #000 82%);
-    }
-
-    .evb-art img {
-      width: 112px;
+      inset: -40% -40% -40% 30%;
+      grid-template-columns: repeat(6, 1fr);
+      mask-image: linear-gradient(90deg, transparent 10%, #000 62%);
     }
 
     .evb-in {
@@ -1180,7 +1158,7 @@
   }
 
   /* The card mosaic, every art upright, behind a whole page (the application and play layouts): still, tilted,
-     barely there. */
+     out of focus, barely there. */
   .mosaic-bg::before {
     content: "";
     position: fixed;
@@ -1191,7 +1169,8 @@
     background-repeat: repeat;
     background-size: 1100px auto;
     transform: rotate(-6deg);
-    opacity: 0.05;
+    opacity: 0.035;
+    filter: blur(2px);
   }
 
   /* The feed's fixed banner: six card arts in a row, darkened towards the bottom, the title at the bottom-left. */
