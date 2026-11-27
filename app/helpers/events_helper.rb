@@ -3,7 +3,7 @@
 # The public event pages (/t/:slug, /pairings, /standings, /me): state chip and the event header card.
 module EventsHelper
   EVENT_STATE_TONES = {
-    draft: :warn, registration_open: :ok, registration_closed: :warn, swiss: :info,
+    draft: :warn, registration_open: :plain, registration_closed: :warn, swiss: :info,
     single_elimination: :info, finished: :info, canceled: :bad, play: :info, finals: :info
   }.with_indifferent_access.freeze
 

@@ -8,6 +8,8 @@ module RosterHelper
     bad: "text-danger bg-danger/[0.07]",
     info: "text-info bg-info/[0.07]",
     neutral: "text-muted bg-white/[0.05]",
+    # A label that is not a warning or a count: white, no colour (event state, roles, "Registered").
+    plain: "text-ink bg-white/[0.08]",
     missing: "text-[#a3adb8] bg-[#a3adb8]/10 border border-dashed border-[#a3adb8]/45"
   }.freeze
 

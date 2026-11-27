@@ -24,7 +24,7 @@
             <td class="text-muted break-all"><%= row[:email] %></td>
             <td class="r">
               <% if row[:in_event] %>
-                <%= desk_chip(:ok) { t("invitations.registered") } %>
+                <%= desk_chip(:plain) { t("invitations.registered") } %>
               <% else %>
                 <%= button_to t(invited[user_id] ? "invitations.invite_again" : "invitations.invite"), organizer_tournament_invitations_path(@tournament, q: @q),
                               params: { player_id: row[:player_id] }, class: button_classes(invited[user_id] ? :secondary : :light, size: :sm) %>
@@ -60,7 +60,7 @@
           <td class="whitespace-nowrap text-muted tabular"><%= l(invitation.updated_at, format: :short) %></td>
           <td>
             <% if @registered.include?(invitation.user_id) %>
-              <%= desk_chip(:ok) { t("invitations.registered") } %>
+              <%= desk_chip(:plain) { t("invitations.registered") } %>
             <% else %>
               <%= desk_chip(:missing) { t("invitations.waiting") } %>
             <% end %>
