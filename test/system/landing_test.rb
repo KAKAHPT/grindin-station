@@ -51,7 +51,8 @@ class LandingTest < ApplicationSystemTestCase
       (() => {
         const ticket = document.querySelector("[data-featured-event]");
         const box = ticket.getBoundingClientRect();
-        const off = Math.abs(box.left + box.width / 2 - window.innerWidth / 2);
+        const row = ticket.parentElement.getBoundingClientRect();
+        const off = Math.abs(box.left + box.width / 2 - (row.left + row.width / 2));
         return { centred: off < 4, floating: ticket.getAnimations().length === 1, open: getComputedStyle(ticket.querySelector("[data-ft-more]")).opacity > 0.9 };
       })()
     JS
