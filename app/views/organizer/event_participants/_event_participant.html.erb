@@ -27,7 +27,7 @@
       <%= truncate(event_participant.name, length: 22) %>
     </th>
     <% columns = event_participant.standing_columns %>
-    <td class="px-2.5 py-1 tabular text-right font-display font-semibold text-accent"><%= columns[:points] %></td>
+    <td class="px-2.5 py-1 tabular text-right font-display font-semibold text-ink"><%= columns[:points] %></td>
     <% if @event.one_v_one? %>
       <% %i[omw gw ogw].each do |column| %>
         <td class="px-2.5 py-1 tabular text-right"><%= rate_label(columns[column]) %></td>
