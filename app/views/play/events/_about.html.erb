@@ -19,7 +19,7 @@
         <dd>
           <%= event.address %> ·
           <%= link_to t("play.events.open_map"), "https://www.google.com/maps/search/?api=1&query=#{ERB::Util.url_encode(event.address)}",
-                      target: "_blank", rel: "noopener", class: "text-accent hover:underline" %>
+                      target: "_blank", rel: "noopener", class: "text-[11px] text-ink underline-offset-2 hover:underline" %>
         </dd>
       <% end %>
       <% if (organizer = event.event_organizer&.user)&.name %>
