@@ -395,7 +395,7 @@ es:
         waitlist_enabled: "Lista de espera cuando está lleno"
         featured: "Destacar en la portada"
         show_commanders_in_standings: "Mostrar comandantes en la clasificación"
-        show_decklists: "Mostrar decklists en los perfiles de los jugadores"
+        show_decklists: "Mostrar decklists en los perfiles de los jugadores y en la clasificación final"
         show_beaten_in_standings: "Mostrar la columna Vencidos"
         show_unique_in_standings: "Mostrar la columna Únicos"
         hide_standings_until_finished: "Ocultar la clasificación hasta que termine el torneo"
@@ -854,6 +854,7 @@ es:
         closed: "Cerrada"
     standings:
       final_title: "Clasificación final"
+      decklist: "Ver decklist"
       page: "Página %{page} de %{pages}"
       movement: "Movimiento desde la última ronda"
       moved_up:
