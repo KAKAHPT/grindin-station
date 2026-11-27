@@ -61,7 +61,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-ink);
     outline-offset: 2px;
   }
 }
@@ -84,7 +84,7 @@
   }
 
   .btn:focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-ink);
     outline-offset: 2px;
   }
 
@@ -1536,8 +1536,8 @@
   }
 
   .file-field:focus-within {
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 2px var(--color-accent);
+    border-color: var(--color-ink);
+    box-shadow: 0 0 0 2px var(--color-ink);
   }
 
   .file-field-input {
@@ -1567,8 +1567,8 @@
 
   .field-input:focus {
     outline: none;
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 2px var(--color-accent);
+    border-color: var(--color-ink);
+    box-shadow: 0 0 0 2px var(--color-ink);
   }
 
   .field-input:disabled {
@@ -1592,7 +1592,7 @@
   }
 
   .field-check:focus {
-    box-shadow: 0 0 0 1px var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-ink);
   }
 
   .form-section {
@@ -2028,7 +2028,10 @@
 
   .lp-sub em {
     font-style: normal;
-    color: var(--color-accent);
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
   }
 
   .lp-sub-a {
@@ -2943,12 +2946,12 @@
     color: var(--color-ink);
   }
 
+  /* The count on its own line, the actions under it across the whole width: the same shape with one button or
+     two, however long their labels are ("Entrar na lista de espera"). */
   .lp-evr-stub {
     position: relative;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
     gap: 8px;
     margin-top: auto;
     padding: 10px 14px;
@@ -2979,6 +2982,15 @@
     display: flex;
     gap: 6px;
     margin-left: auto;
+  }
+
+  .lp-evr-stub > .lp-evr-act {
+    flex-wrap: wrap;
+    margin-left: 0;
+  }
+
+  .lp-evr-stub > .lp-evr-act > * {
+    flex: 1 1 auto;
   }
 
   @media (max-width: 760px) {
