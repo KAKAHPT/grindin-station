@@ -115,10 +115,10 @@
             <tr>
               <th scope="col" class="px-2.5 py-2 whitespace-nowrap">#</th>
               <th scope="col" class="px-2.5 py-2 whitespace-nowrap">Player</th>
-              <th scope="col" class="px-2.5 py-2 whitespace-nowrap text-right"><%= t("standings.columns.points") %></th>
-              <th scope="col" class="px-2.5 py-2 whitespace-nowrap text-right"><%= t(@event.one_v_one? ? "standings.columns.omw" : "standings.columns.owr") %></th>
-              <th scope="col" class="px-2.5 py-2 whitespace-nowrap text-right">W-L-D</th>
-              <th scope="col" class="px-2.5 py-2 whitespace-nowrap"><%= t("organizer.roster.column_desk") %></th>
+              <th scope="col" class="hidden px-2.5 py-2 whitespace-nowrap text-right sm:table-cell"><%= t("standings.columns.points") %></th>
+              <th scope="col" class="hidden px-2.5 py-2 whitespace-nowrap text-right sm:table-cell"><%= t(@event.one_v_one? ? "standings.columns.omw" : "standings.columns.owr") %></th>
+              <th scope="col" class="hidden px-2.5 py-2 whitespace-nowrap text-right sm:table-cell">W-L-D</th>
+              <th scope="col" class="hidden px-2.5 py-2 whitespace-nowrap sm:table-cell"><%= t("organizer.roster.column_desk") %></th>
               <th scope="col" class="px-1 py-2"><span class="sr-only"><%= t("organizer.roster.stats.show") %></span></th>
               <th scope="col" class="px-2.5 py-2 text-right"><%= t("organizer.roster.actions") %></th>
             </tr>
