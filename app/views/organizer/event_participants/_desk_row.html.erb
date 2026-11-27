@@ -9,17 +9,23 @@
   <th
     scope="row"
     data-tooltip-target="tooltip-<%= participant.id %>"
-    class="px-2.5 font-semibold whitespace-nowrap <%= participant.playing? ? "text-ink" : "text-muted line-through" %>"
+    class="px-2.5 py-1.5 font-semibold break-words sm:py-0 sm:whitespace-nowrap <%= participant.playing? ? "text-ink" : "text-muted line-through" %>"
   >
     <%= truncate(participant.name, length: 26) %>
+    <% columns = participant.standing_columns if standings %>
+    <% record = "#{participant.number_of_wins}-#{participant.number_of_losses}-#{participant.number_of_draws}" if standings %>
+    <%# Phones: the standing and the desk chips sit under the name, their columns are hidden. %>
+    <span class="block font-normal sm:hidden" data-row-phone>
+      <% if standings %>
+        <span class="block tabular text-[11px] text-muted"><%= columns[:points] %> <%= t("standings.columns.points") %> · <%= rate_label(columns[@event.one_v_one? ? :omw : :owr]) %> · <%= record %></span>
+      <% end %>
+      <span class="mt-1 flex flex-wrap gap-1"><%= desk_chips(participant, @event) %></span>
+    </span>
   </th>
-  <% columns = participant.standing_columns if standings %>
-  <td class="px-2.5 tabular text-right font-display font-semibold <%= participant.playing? ? "text-ink" : "text-muted" %>"><%= standings ? columns[:points] : "–" %></td>
-  <td class="px-2.5 tabular text-right"><%= standings ? rate_label(columns[@event.one_v_one? ? :omw : :owr]) : "–" %></td>
-  <td class="px-2.5 tabular text-right whitespace-nowrap">
-    <%= standings ? "#{participant.number_of_wins}-#{participant.number_of_losses}-#{participant.number_of_draws}" : "–" %>
-  </td>
-  <td class="px-2.5 whitespace-nowrap"><%= desk_chips(participant, @event) %></td>
+  <td class="hidden px-2.5 tabular text-right font-display font-semibold sm:table-cell <%= participant.playing? ? "text-ink" : "text-muted" %>"><%= standings ? columns[:points] : "–" %></td>
+  <td class="hidden px-2.5 tabular text-right sm:table-cell"><%= standings ? rate_label(columns[@event.one_v_one? ? :omw : :owr]) : "–" %></td>
+  <td class="hidden px-2.5 tabular text-right whitespace-nowrap sm:table-cell"><%= standings ? record : "–" %></td>
+  <td class="hidden px-2.5 whitespace-nowrap sm:table-cell"><%= desk_chips(participant, @event) %></td>
   <td class="px-1">
     <button type="button" data-action="row-expander#toggle" aria-controls="<%= stats_id %>" aria-expanded="false"
             title="<%= t("organizer.roster.stats.show") %>"

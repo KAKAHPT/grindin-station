@@ -5,6 +5,12 @@ module Organizer
     layout "modal"
     DESK_ACTIONS = %i[update check_in undo_check_in check_in_all mark_paid mark_unpaid].freeze
     STATUSES = %w[enrolled checked_in waitlisted dropped].freeze
+    # Roster filters on what the desk still has to do; each lists enrolled players only.
+    DESK_FILTERS = {
+      "not_checked_in" => ->(p) { !p.checked_in? },
+      "no_decklist" => ->(p) { p.decklist.blank? },
+      "unpaid" => ->(p) { !p.paid? }
+    }.freeze
 
     allow_roles :organizer, :judge, :scorekeeper, :caster, only: :index
     allow_roles :organizer, :judge, :scorekeeper, only: DESK_ACTIONS
@@ -173,8 +179,16 @@ module Organizer
       redirect_to roster_path(@event), notice: t("flash.notice.update_successful")
     end
 
+    # Back to the roster as the organizer was reading it: the same filter, search and page.
     def roster_path(event)
-      [:organizer, event, :event_participants, { layout: "application" }]
+      [:organizer, event, :event_participants, { layout: "application", **roster_view }]
+    end
+
+    def roster_view
+      query = URI.parse(request.referer.to_s).query
+      Rack::Utils.parse_query(query).slice("status", "query", "page").compact_blank.symbolize_keys
+    rescue URI::InvalidURIError
+      {}
     end
 
     # Every participant with what the roster rows read (standings, infractions) preloaded.
@@ -199,6 +213,8 @@ module Organizer
     end
 
     def filter_by_status(participants)
+      desk = DESK_FILTERS[params[:status]]
+      return participants.select { |p| p.enrolled? && desk.call(p) } if desk
       return participants unless STATUSES.include?(params[:status])
 
       participants.select { |p| p.roster_status?(params[:status]) }

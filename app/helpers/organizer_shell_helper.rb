@@ -89,6 +89,7 @@ module OrganizerShellHelper # rubocop:disable Metrics/ModuleLength
     left_out = starting ? tournament.no_show_participants : []
     return t("organizer.shell.confirm_state") if left_out.empty?
 
+    ActiveRecord::Associations::Preloader.new(records: left_out.to_a, associations: { player: :user }).call
     t("organizer.shell.confirm_start_no_shows", count: left_out.size, names: left_out.map(&:name).sort.to_sentence)
   end
 
