@@ -714,6 +714,22 @@
     border-bottom: 1px solid var(--color-line);
   }
 
+  /* More tabs beyond an edge (tabscroll controller): the bar fades there. */
+  .tabs {
+    --tabs-before: #000;
+    --tabs-after: #000;
+    scrollbar-width: none;
+    mask-image: linear-gradient(90deg, var(--tabs-before), #000 36px, #000 calc(100% - 36px), var(--tabs-after));
+  }
+
+  .tabs[data-more-before] {
+    --tabs-before: transparent;
+  }
+
+  .tabs[data-more-after] {
+    --tabs-after: transparent;
+  }
+
   .tab {
     display: inline-flex;
     align-items: center;
@@ -1377,14 +1393,15 @@
     z-index: -2;
     background-size: cover;
     background-position: center;
-    filter: saturate(0.85) brightness(0.8);
+    filter: saturate(0.85) brightness(0.6);
   }
 
   .evc-shade {
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: linear-gradient(180deg, rgb(27 30 34 / 0.2), rgb(27 30 34 / 0.92) 58%);
+    /* Dark from where the name starts, so a cover full of text does not fight it. */
+    background: linear-gradient(180deg, rgb(27 30 34 / 0.35), rgb(27 30 34 / 0.94) 34%);
   }
 
   .evc-in {
@@ -1477,6 +1494,11 @@
     .kpi {
       grid-auto-flow: row;
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* An odd one out takes the whole row instead of leaving a hole beside it. */
+    .kpi > div:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
     }
   }
 
