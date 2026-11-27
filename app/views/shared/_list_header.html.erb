@@ -1,16 +1,14 @@
 <%# Head of an event list (/events, /tournaments, /leagues, /my-events): a banner with the title, the lead and,
-    when path is given, the Upcoming · Past switch beside a row of leaning commander arts; one art changes every few
-    seconds, each card in turn (artswap_controller). Locals: title, lead; optional path (a lambda taking the
-    filter, nil or "past") with past (bool). %>
-<% arts = (1..48).map { |n| image_path("landing/c#{n}.jpg") } %>
+    when path is given, the Upcoming · Past switch; behind them, on the right, a leaning black-and-white mosaic of
+    the 48 commander arts, each one once. Locals: title, lead; optional path (a lambda taking the filter, nil or
+    "past") with past (bool). %>
 <header class="evb col-span-full" data-list-header>
-  <div class="evb-art" aria-hidden="true" data-controller="artswap" data-artswap-urls-value="<%= arts.to_json %>">
-    <% arts.rotate(3).first(6).each do |src| %>
-      <img src="<%= src %>" alt="" width="240" height="175" decoding="async" data-artswap-target="card">
+  <div class="evb-art" aria-hidden="true">
+    <% (1..48).each do |n| %>
+      <img src="<%= image_path("landing/c#{n}.jpg") %>" alt="" width="240" height="175" decoding="async">
     <% end %>
   </div>
   <div class="evb-in">
-    <p class="evb-eye"><%= t("app.name") %></p>
     <h1><%= title %></h1>
     <p class="evb-lead"><%= lead %></p>
     <% if (path = local_assigns[:path]) %>

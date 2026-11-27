@@ -17,10 +17,13 @@ class PublicListsTest < ActionDispatch::IntegrationTest
     assert_select "[data-upcoming-event=?] a[href=?]", league.slug, league_path(league), text: "View event"
     assert_select "[data-upcoming-event=?] a[data-register]", league.slug, count: 0
     assert_select "[data-list-filter] a.seg-on", text: "Upcoming"
-    # The banner: title, the switch inside it and six commander arts that take turns changing.
+    # The banner: title, the switch inside it and the mosaic of the 48 commander arts, each one once.
     assert_select "header.evb[data-list-header] h1", text: "Events"
     assert_select "header.evb [data-list-filter]"
-    assert_select "header.evb [data-controller=artswap] img[data-artswap-target=card]", 6
+    srcs = css_select("header.evb .evb-art img").pluck("src")
+    assert_equal 48, srcs.size
+    assert_equal srcs.uniq, srcs, "no art twice in the banner"
+    assert_select "header.evb .evb-eye", 0
   end
 
   # A browser would ask for the resized variant, which needs libvips (not on CI); the markup is checked here.
