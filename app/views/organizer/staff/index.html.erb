@@ -7,22 +7,22 @@
     <thead>
       <tr>
         <th><%= t("organizer.staff.name") %></th>
-        <th><%= t("organizer.staff.email") %></th>
+        <th class="hidden sm:table-cell"><%= t("organizer.staff.email") %></th>
         <th><%= t("organizer.staff.role") %></th>
         <th class="r"><span class="sr-only"><%= t("organizer.staff.remove") %></span></th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td class="font-semibold"><%= @tournament.event_organizer.name %></td>
-        <td class="text-muted"><%= @tournament.event_organizer.user&.email_address %></td>
+        <td class="font-semibold"><%= @tournament.event_organizer.name %><span class="block break-all text-[11.5px] font-normal text-muted sm:hidden"><%= @tournament.event_organizer.user&.email_address %></span></td>
+        <td class="hidden text-muted break-all sm:table-cell"><%= @tournament.event_organizer.user&.email_address %></td>
         <td><%= desk_chip(:plain) { t("organizer.staff.owner") } %></td>
         <td class="r"></td>
       </tr>
       <% @staff.each do |staff| %>
         <tr>
-          <td class="font-semibold"><%= staff.user.name %></td>
-          <td class="text-muted"><%= staff.user.email_address %></td>
+          <td class="font-semibold"><%= staff.user.name %><span class="block break-all text-[11.5px] font-normal text-muted sm:hidden"><%= staff.user.email_address %></span></td>
+          <td class="hidden text-muted break-all sm:table-cell"><%= staff.user.email_address %></td>
           <td><%= desk_chip(role_tones.fetch(staff.role, :info)) { t("organizer.staff.roles.#{staff.role}") } %></td>
           <td class="r">
             <%= button_to t("organizer.staff.remove"), organizer_tournament_staff_path(@tournament, staff), method: :delete, data: { turbo_confirm: t("organizer.staff.confirm_remove", name: staff.user.name) }, class: button_classes(:ghost, size: :sm) %>
