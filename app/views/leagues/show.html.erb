@@ -54,7 +54,7 @@
           <dd>
             <%= league.address %> ·
             <%= link_to t("play.events.open_map"), "https://www.google.com/maps/search/?api=1&query=#{ERB::Util.url_encode(league.address)}",
-                        target: "_blank", rel: "noopener", class: "text-accent hover:underline" %>
+                        target: "_blank", rel: "noopener", class: "text-[11px] text-ink underline-offset-2 hover:underline" %>
           </dd>
         <% end %>
         <dt class="text-muted"><%= t("play.events.price") %></dt>
