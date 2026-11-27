@@ -1408,13 +1408,69 @@
 
   .kpi b {
     display: block;
-    font: 700 26px var(--font-display);
+    font: 700 32px/1.1 var(--font-display);
     color: var(--color-ink);
   }
 
-  .kpi span {
-    font-size: 12px;
+  /* "/ 40" after the count. */
+  .kpi b small {
+    font: 600 14px var(--font-display);
     color: var(--color-muted);
+  }
+
+  .kpi span {
+    display: block;
+    margin-top: 4px;
+    font-size: 12.5px;
+    color: var(--color-muted);
+  }
+
+  /* Overview: the next step, the first thing on the page. */
+  .nextstep {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px 20px;
+    padding: 18px 20px;
+    border-color: var(--color-line-strong);
+  }
+
+  .nextstep-k {
+    font: 600 10px var(--font-body);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .nextstep-t {
+    margin-top: 4px;
+    font: 600 18px var(--font-display);
+    color: var(--color-ink);
+  }
+
+  .nextstep-h {
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--color-muted);
+  }
+
+  /* A table to read rather than scan: larger type, taller rows, the value in ink. */
+  .ctable-lg {
+    font-size: 14px;
+  }
+
+  .ctable-lg td {
+    height: 44px;
+    padding: 6px 16px;
+  }
+
+  .ctable-lg td:first-child {
+    color: var(--color-muted);
+  }
+
+  .ctable-lg td.r {
+    font-weight: 600;
   }
 
   @media (max-width: 767.98px) {

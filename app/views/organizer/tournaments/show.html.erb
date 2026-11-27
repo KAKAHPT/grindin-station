@@ -3,9 +3,23 @@
 <% structure = tournament_structure(@tournament) %>
 <% yes_no = ->(on) { on ? t("organizer.overview.on") : t("organizer.overview.off") } %>
 
+<%# What to do next, then the counters, then the format and the latest activity in larger type. %>
+<% next_step = overview_next_step(@tournament, counters, manager: %w[organizer judge].include?(staff_role(@tournament))) %>
+<% if next_step %>
+  <section class="col-span-full card nextstep" data-overview-next>
+    <div class="min-w-0">
+      <p class="nextstep-k"><%= t("organizer.overview.next.label") %></p>
+      <h2 class="nextstep-t"><%= next_step[:title] %></h2>
+      <p class="nextstep-h"><%= next_step[:hint] %></p>
+    </div>
+    <% if next_step[:action] %><div class="shrink-0"><%= next_step[:action] %></div><% end %>
+  </section>
+<% end %>
+
+<% seats = @tournament.maximum_participants %>
 <div class="col-span-full kpi" data-overview-counters>
-  <div class="card"><b class="tabular"><%= counters[:enrolled] %></b><span><%= t("organizer.overview.enrolled", count: counters[:waitlist]) %></span></div>
-  <div class="card"><b class="tabular"><%= counters[:checked_in] %></b><span><%= t("organizer.roster.counters.checked_in") %></span></div>
+  <div class="card"><b class="tabular"><%= counters[:enrolled] %><% if seats.finite? %> <small>/ <%= seats.to_i %></small><% end %></b><span><%= t("organizer.overview.enrolled", count: counters[:waitlist]) %></span></div>
+  <div class="card"><b class="tabular"><%= counters[:checked_in] %> <small>/ <%= counters[:enrolled] %></small></b><span><%= t("organizer.roster.counters.checked_in") %></span></div>
   <% unless @tournament.free? %>
     <div class="card"><b class="tabular"><%= counters[:unpaid] %></b><span><%= t("organizer.roster.counters.unpaid") %></span></div>
   <% end %>
@@ -15,7 +29,7 @@
 <div class="col-span-full grid grid-cols-1 gap-3.5 lg:grid-cols-2">
   <section class="card overflow-clip" data-overview-format>
     <h2 class="card-title"><%= t("organizer.overview.format") %></h2>
-    <table class="ctable">
+    <table class="ctable ctable-lg">
       <tbody>
         <% if @tournament.one_v_one? %>
           <tr>
@@ -50,16 +64,12 @@
         <tr>
           <td><%= t("organizer.overview.self_report") %></td>
           <td class="r">
-            <% if @tournament.self_report_enabled %>
-              <%= desk_chip(:ok) { t("organizer.overview.self_report_on", confirmation: t("organizer.overview.confirmation.#{@tournament.result_confirmation}")) } %>
-            <% else %>
-              <%= desk_chip(:missing) { yes_no.(false) } %>
-            <% end %>
+            <%= @tournament.self_report_enabled ? t("organizer.overview.self_report_on", confirmation: t("organizer.overview.confirmation.#{@tournament.result_confirmation}")) : yes_no.(false) %>
           </td>
         </tr>
         <tr>
           <td><%= t("organizer.overview.commanders") %></td>
-          <td class="r"><%= desk_chip(@tournament.show_commanders_in_standings ? :ok : :missing) { yes_no.(@tournament.show_commanders_in_standings) } %></td>
+          <td class="r"><%= yes_no.(@tournament.show_commanders_in_standings) %></td>
         </tr>
       </tbody>
     </table>
@@ -69,7 +79,7 @@
     <h2 class="card-title"><%= t("organizer.overview.lately.title") %></h2>
     <% lately = tournament_lately(@tournament) %>
     <% if lately.any? %>
-      <table class="ctable">
+      <table class="ctable ctable-lg">
         <tbody>
           <% lately.each do |text, time| %>
             <tr>

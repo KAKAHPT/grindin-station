@@ -33,7 +33,7 @@ class TournamentLifecycleTest < ApplicationSystemTestCase
     # Close registration (requires confirm dialog)
     visit organizer_tournament_path(tournament)
     # Find the button first and click it - Turbo will show confirm
-    accept_confirm { click_button "Close Registrations" }
+    accept_confirm { within("[data-overview-next]") { click_button "Close Registrations" } }
     # Wait for redirect
     assert_text "Tournament updated successfully"
 
@@ -52,7 +52,7 @@ class TournamentLifecycleTest < ApplicationSystemTestCase
 
     # Navigate back to tournament page to click Move to Swiss stage
     visit organizer_tournament_path(tournament)
-    accept_confirm { click_button "Move to Swiss stage" }
+    accept_confirm { within("[data-overview-next]") { click_button "Move to Swiss stage" } }
     assert_text "Tournament updated successfully"
 
     tournament.reload

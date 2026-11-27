@@ -515,6 +515,28 @@ pt:
     overview:
       "on": "Sim"
       "off": "Não"
+      next:
+        label: "Próximo passo"
+        rounds: "Ir para as rondas"
+        draft:
+          title: "Abre as inscrições quando o evento estiver pronto"
+          hint: "Enquanto for rascunho, os jogadores não veem o evento nem se podem inscrever."
+        registration_open:
+          title: "Fecha as inscrições quando estiveres pronto"
+          hint: "%{enrolled} inscritos · %{checked_in} com check-in · %{no_decklist} sem decklist."
+        registration_closed:
+          title: "Começa o torneio"
+          hint: "%{checked_in} de %{enrolled} jogadores fizeram check-in."
+        swiss:
+          title: "As rondas suíças estão a decorrer"
+          hint: "Emparelhamentos, resultados e a próxima ronda estão no separador Rondas."
+        single_elimination:
+          title: "O top cut está a decorrer"
+          hint: "Emparelhamentos, resultados e a próxima ronda estão no separador Rondas."
+        finished:
+          title: "O torneio terminou"
+          hint: "A classificação final está pública. Os ficheiros para reportar estão mais abaixo."
+          action: "Ver classificação final"
       enrolled:
         one: "inscritos · 1 em lista de espera"
         other: "inscritos · %{count} em lista de espera"
