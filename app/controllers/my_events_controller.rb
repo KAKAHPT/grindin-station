@@ -31,7 +31,7 @@ class MyEventsController < ApplicationController
   def staffed_events
     return [] unless current_user.staff?
 
-    events = staffed_scope.order(:start_time).limit(LIMIT).to_a
+    events = ticket_preload(staffed_scope).order(:start_time).limit(LIMIT).to_a
     roles = current_user.event_staff.where(event_id: events.map(&:id)).pluck(:event_id, :role).to_h
     events.map { |event| [event, roles[event.id] || "organizer"] }
   end
@@ -45,7 +45,7 @@ class MyEventsController < ApplicationController
   def my_league_tables
     seats = LeagueTableSeat.active.where(event_participant_id: @participants.values.map(&:id))
     LeagueTable.where(id: seats.select(:league_table_id), state: %w[waiting filled])
-      .preload(:league, participants: { player: :user }).to_a
+      .preload(league: { cover_attachment: :blob }, participants: { player: :user }).to_a
   end
 
   def my_registrations(events)
