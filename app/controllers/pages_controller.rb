@@ -22,7 +22,8 @@ class PagesController < ApplicationController
     listed = self.class.listed_tournaments
     @open_count = listed.registration_open.count
     @featured = listed.where(featured: true).order(:start_time).limit(FEATURED_LIMIT).to_a
-    @upcoming = upcoming_scope(listed).excluding(@featured).order(:start_time).limit(UPCOMING_LIMIT).to_a
+    # A featured tournament keeps its place in Upcoming too.
+    @upcoming = upcoming_scope(listed).order(:start_time).limit(UPCOMING_LIMIT).to_a
     @enrolled = ticket_counts(@featured + @upcoming)
     load_extras
   end
