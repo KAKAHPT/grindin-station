@@ -40,7 +40,8 @@ module Feeds
 
     def place_keys(event)
       address = event.address.to_s.squish.presence
-      { address: address, city: address&.split(",")&.last&.strip.presence, country: event.country }
+      city = address.to_s.split(",").last.to_s.strip.presence
+      { address: address, city: city, country: event.country }
     end
 
     def entry_keys(event, players)
@@ -55,11 +56,12 @@ module Feeds
     end
 
     def cover_url(event)
-      path = if event.cover.attached? && event.cover.representable?
-               rails_representation_path(event.cover.representation(resize_to_limit: [960, 960]), only_path: true)
-             else
-               ActionController::Base.helpers.image_path("landing/c#{(Zlib.crc32(event.slug) % 48) + 1}.jpg")
-             end
+      path =
+        if event.cover.attached? && event.cover.representable?
+          rails_representation_path(event.cover.representation(resize_to_limit: [960, 960]), only_path: true)
+        else
+          ActionController::Base.helpers.image_path("landing/c#{(Zlib.crc32(event.slug) % 48) + 1}.jpg")
+        end
       @base_url + path
     end
   end

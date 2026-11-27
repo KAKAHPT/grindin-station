@@ -42,9 +42,10 @@ module Api
       end
 
       test "leaves out drafts, canceled, finished and past events" do
-        hidden = %i[draft canceled finished].map do |state|
-          TournamentBuilder.build(players: 0, organizer: @organizer, state: state)
-        end
+        hidden =
+          %i[draft canceled finished].map do |state|
+            TournamentBuilder.build(players: 0, organizer: @organizer, state: state)
+          end
         past = TournamentBuilder.build(players: 0, organizer: @organizer, state: :registration_open)
         past.update_columns(start_time: 3.days.ago, end_time: 2.days.ago) # rubocop:disable Rails/SkipsModelValidations
 

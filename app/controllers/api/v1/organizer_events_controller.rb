@@ -22,10 +22,13 @@ module Api
       # Not draft or canceled, not finished, and not over by its dates or still running (as /events lists them).
       def upcoming(organizer)
         klasses = Features.on?(:leagues) ? [Tournament, League] : [Tournament]
-        klasses.flat_map { |klass|
-          klass.visible.for_organizer(organizer).merge(klass.not_ended.or(klass.ongoing)).where.not(state: :finished)
-            .preload(cover_attachment: :blob).order(:start_time).limit(LIMIT).to_a
-        }.sort_by(&:start_time).first(LIMIT)
+        events = klasses.flat_map { |klass| upcoming_of(klass, organizer) }
+        events.sort_by(&:start_time).first(LIMIT)
+      end
+
+      def upcoming_of(klass, organizer)
+        klass.visible.for_organizer(organizer).merge(klass.not_ended.or(klass.ongoing)).where.not(state: :finished)
+          .preload(cover_attachment: :blob).order(:start_time).limit(LIMIT).to_a
       end
     end
   end
