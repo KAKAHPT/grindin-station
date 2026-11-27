@@ -3,7 +3,8 @@ import { Controller } from "@hotwired/stimulus";
 // Landing, featured tickets in motion: each ticket comes in from the top right, small and soft, rests on the
 // right, moves to the front (larger, with its details open underneath), rests on the left and leaves.
 // Hovering the row pauses it. Nothing moves with fewer than three tickets, on a row too narrow for three
-// (phones keep the swipe rail), or for a visitor who asked for reduced motion.
+// (phones keep the swipe rail), or for a visitor who asked for reduced motion. A single ticket stays
+// at the front, lifted and with its details open, floating gently (still under reduced motion).
 const STEP_MS = 6200;
 const MIN_ITEMS = 6;
 
@@ -11,10 +12,15 @@ export default class extends Controller {
   static targets = ["track"];
 
   connect() {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     this.track = this.trackTarget;
     this.items = [...this.track.children];
-    if (this.items.length < 3 || this.items[0].offsetWidth * 2 > this.track.clientWidth) return;
+    this.solo = this.items.length === 1;
+    if (this.items[0].offsetWidth * 2 > this.track.clientWidth) return;
+    this.reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!this.solo && (this.reduced || this.items.length < 3)) return;
+    this.layout = this.layout.bind(this);
+    window.addEventListener("resize", this.layout);
+    if (this.solo) return this.layout();
     while (this.items.length < MIN_ITEMS) {
       for (const item of [...this.track.children]) {
         const copy = item.cloneNode(true);
@@ -24,12 +30,10 @@ export default class extends Controller {
         this.items.push(copy);
       }
     }
-    this.layout = this.layout.bind(this);
     this.pause = () => this.animations.forEach((a) => a.pause());
     this.play = () => this.animations.forEach((a) => a.play());
     this.track.addEventListener("mouseenter", this.pause);
     this.track.addEventListener("mouseleave", this.play);
-    window.addEventListener("resize", this.layout);
     this.layout();
   }
 
@@ -42,6 +46,11 @@ export default class extends Controller {
     this.animations?.forEach((a) => a.cancel());
     const track = this.track;
     track.classList.add("lp-flow");
+    const only = this.solo && this.items[0];
+    const onlyPanel = only && only.querySelector("[data-ft-more]");
+    // A ticket on its own was sized by hand: back to its resting size before measuring again.
+    if (only) only.style.width = "";
+    if (onlyPanel) onlyPanel.style.maxHeight = "";
     const W = track.clientWidth;
     const w = this.items[0].offsetWidth;
     const wide = w * 1.3;
@@ -78,6 +87,13 @@ export default class extends Controller {
     const front = { ...at(right / 2, 0, 1, 1, 0, 2), ...LIT, transform: place(right / 2, 0, 1, 16) };
     const frontWide = { ...front, ...LIFTED, transform: place((W - wide) / 2, -22, 1.36), width: `${wide}px` };
     const frontFloat = { ...frontWide, transform: place((W - wide) / 2, -32, 1.38) };
+    if (only) {
+      Object.assign(only.style, frontWide);
+      if (onlyPanel) Object.assign(onlyPanel.style, { maxHeight: `${P}px`, opacity: 1 });
+      const float = { duration: STEP_MS / 2, iterations: Infinity, direction: "alternate", easing: "ease-in-out" };
+      this.animations = this.reduced ? [] : [only.animate([frontWide, frontFloat], float)];
+      return;
+    }
     const onLeft = at(-w * 0.04, 0, 0.88, 0.55);
     const leftOut = at(-w * 0.04 - push, 0, 0.78, 0.32, 1.5);
     const gone = at(-w * 0.8, 0.1 * H, 0.6, 0, 4);

@@ -195,7 +195,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     assert_select "[data-featured-event]", count: 0
   end
 
-  test "up to nine featured tournaments sit on a rail above Upcoming as art tickets and leave the Upcoming list" do
+  test "up to nine featured tournaments sit on a rail above Upcoming as art tickets and stay in the Upcoming list" do
     featured = Array.new(10) { |index| upcoming(:registration_open, "Star #{index}", (index + 1).minutes) }
     Tournament.where(id: featured.map(&:id)).update_all(featured: true) # rubocop:disable Rails/SkipsModelValidations
     hidden = upcoming(:draft, "Hidden Star", 1.minute)
@@ -221,8 +221,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
     assert_select "[data-featured-event='#{featured.last.slug}']", count: 0
     assert_select "[data-featured-event='#{hidden.slug}']", count: 0
     assert_select "[data-upcoming] [data-upcoming-event='#{plain.slug}']"
-    featured.first(9).each { |event| assert_select "[data-upcoming] [data-upcoming-event='#{event.slug}']", count: 0 }
-    assert_select "[data-upcoming] [data-upcoming-event='#{featured.last.slug}']"
+    # Upcoming is the next six by date, featured or not.
+    featured.first(5).each { |event| assert_select "[data-upcoming] [data-upcoming-event='#{event.slug}']" }
+    assert_select "[data-upcoming-event]", 6
   end
 
   test "a sold-out tournament shows the Sold out line and Join waiting list, on both tickets" do
