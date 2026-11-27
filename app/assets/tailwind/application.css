@@ -646,10 +646,10 @@
   }
 
   .evhead-eyebrow {
-    font: 600 10.5px var(--font-body);
+    font: 600 9.5px var(--font-body);
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--color-accent);
+    color: var(--color-ink);
   }
 
   .evhead-title {

@@ -50,6 +50,12 @@
     <%= t("standings.hidden_until_finished") %>
   </section>
 <% elsif @standings.any? %>
+  <%# Before the start: who is in, by name. From the start on: the feed's order (Feeds::Standings.ranked), final
+      positions once finished, then playing, rank score, name. The page shows 20 players at a time (the modal all). %>
+  <% ranked = !@tournament.state.in?(%w[registration_open registration_closed]) %>
+  <% rows = ranked ? Feeds::Standings.ranked(@tournament, @standings) : @standings.reject(&:waitlisted?).sort_by(&:name) %>
+  <% rows = Kaminari.paginate_array(rows).page(params[:page]).per(20) unless @standings_in_modal %>
+  <% rank_offset = @standings_in_modal ? 0 : rows.offset_value %>
   <div class="<%= @standings_in_modal ? "-m-4 md:-m-5 overflow-x-auto" : "-mx-4 sm:mx-0 rounded-none sm:rounded-xl bg-surface border-y sm:border border-line shadow-card overflow-clip" %>">
   <%# In the narrow play column (a container) OWR, Beaten and Unique (1v1: GW% and OGW%) show only from 32rem up; the modal shows all. %>
   <% wide_only = @standings_in_modal ? "" : "hidden @lg:table-cell" %>
@@ -196,17 +202,17 @@
     </thead>
     <tbody id="<%= dom_id(@tournament, :event_participants) %>" class="divide-y divide-line/60">
       <!-- TODO updated by turbo stream -->
-      <% case @tournament.state %>
-      <% when 'registration_open', 'registration_closed' %>
-        <%= render partial: "event_participants/event_participant", collection: @standings.reject(&:waitlisted?).sort_by(&:name), locals: { wide_only: wide_only, pad: pad, me_id: me_id, show_beaten: show_beaten, show_unique: show_unique, avatars: avatars } %>
-      <% else %>
-        <%# The feed's order (Feeds::Standings.ranked): final positions once finished, then playing, rank score, name. %>
-        <%= render partial: "event_participants/event_participant", collection: Feeds::Standings.ranked(@tournament, @standings), locals: { wide_only: wide_only, pad: pad, final: @tournament.finished?, path_dialog: path_dialog, me_id: me_id, show_beaten: show_beaten, show_unique: show_unique, avatars: avatars } %>
-      <% end %>
+      <%= render partial: "event_participants/event_participant", collection: rows, locals: { wide_only: wide_only, pad: pad, final: ranked && @tournament.finished?, path_dialog: ranked && path_dialog, me_id: me_id, show_beaten: show_beaten, show_unique: show_unique, avatars: avatars, rank_offset: rank_offset } %>
     </tbody>
   </table>
   </div>
   </div>
+  <% unless @standings_in_modal || rows.total_pages < 2 %>
+    <div class="mt-3 flex items-center justify-between gap-3" data-standings-pages>
+      <p class="text-xs text-muted"><%= t("play.standings.page", page: rows.current_page, pages: rows.total_pages) %></p>
+      <%= paginate rows %>
+    </div>
+  <% end %>
   <% if path_dialog %>
     <p class="mt-3 text-xs text-muted" data-path-hint><%= t("play.path.hint") %></p>
     <div data-controller="player-path">

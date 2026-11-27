@@ -822,7 +822,7 @@ es:
       where: "Dónde"
       price: "Precio"
       free: "Entrada gratuita"
-      open_map: "Abrir en Google Maps"
+      open_map: "Abrir ubicación"
       time_format: "%d %b %Y, %H:%M"
       date_tba: "Fecha por anunciar"
       date_tba_short: "TBA"
@@ -854,6 +854,7 @@ es:
         closed: "Cerrada"
     standings:
       final_title: "Clasificación final"
+      page: "Página %{page} de %{pages}"
       movement: "Movimiento desde la última ronda"
       moved_up:
         one: "Subió 1 puesto desde la última ronda"
