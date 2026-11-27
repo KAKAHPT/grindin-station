@@ -395,7 +395,7 @@ en:
         waitlist_enabled: "Waitlist when full"
         featured: "Feature on the landing"
         show_commanders_in_standings: "Show commanders in standings"
-        show_decklists: "Show decklists on player profiles"
+        show_decklists: "Show decklists on player profiles and in the final standings"
         show_beaten_in_standings: "Show the Beaten column"
         show_unique_in_standings: "Show the Unique column"
         hide_standings_until_finished: "Hide standings until the tournament ends"
@@ -854,6 +854,7 @@ en:
         closed: "Closed"
     standings:
       final_title: "Final standings"
+      decklist: "View decklist"
       page: "Page %{page} of %{pages}"
       movement: "Movement since the last round"
       moved_up:

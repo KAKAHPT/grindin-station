@@ -20,6 +20,8 @@
 <% me_id = (current_participant&.id unless @standings_in_modal) %>
 <%# Final standings page: a name opens that player's path (rounds, seats, opponents) in a dialog. %>
 <% path_dialog = @tournament.finished? && !@standings_in_modal %>
+<%# Final standings with "show decklists" on: an icon beside the name opens the link the player gave. %>
+<% decklists = path_dialog && @tournament.show_decklists %>
 <%# A picture slot before every name as soon as one listed player has a picture, so the names stay aligned. %>
 <% avatars = @standings.any? { |participant| participant.player.user&.avatar&.attached? } %>
 <% content_for :close do %>
@@ -204,7 +206,7 @@
     </thead>
     <tbody id="<%= dom_id(@tournament, :event_participants) %>" class="divide-y divide-line/60">
       <!-- TODO updated by turbo stream -->
-      <%= render partial: "event_participants/event_participant", collection: rows, locals: { wide_only: wide_only, pad: pad, final: ranked && @tournament.finished?, path_dialog: ranked && path_dialog, me_id: me_id, show_beaten: show_beaten, show_unique: show_unique, avatars: avatars, rank_offset: rank_offset } %>
+      <%= render partial: "event_participants/event_participant", collection: rows, locals: { wide_only: wide_only, pad: pad, final: ranked && @tournament.finished?, path_dialog: ranked && path_dialog, me_id: me_id, show_beaten: show_beaten, show_unique: show_unique, avatars: avatars, rank_offset: rank_offset, decklists: decklists } %>
     </tbody>
   </table>
   </div>
