@@ -19,15 +19,15 @@ module Api
 
       private
 
-      # Not draft or canceled, not finished, and not over by its dates or still running (as /events lists them).
+      # Not draft, canceled or finished, and not over by its dates or still running (as /events lists them).
+      # Tournaments and leagues in one query: both state enums map these states to the same integers
+      # (draft 0, swiss/play 3, single_elimination/finals 4, finished 5, canceled 6), so Event filters them by value.
       def upcoming(organizer)
-        klasses = Features.on?(:leagues) ? [Tournament, League] : [Tournament]
-        events = klasses.flat_map { |klass| upcoming_of(klass, organizer) }
-        events.sort_by(&:start_time).first(LIMIT)
-      end
-
-      def upcoming_of(klass, organizer)
-        klass.visible.for_organizer(organizer).merge(klass.not_ended.or(klass.ongoing)).where.not(state: :finished)
+        states = Tournament.states
+        types = Features.on?(:leagues) ? %w[Tournament League] : %w[Tournament]
+        base = Event.where(type: types, event_organizer: organizer)
+          .where.not(state: states.values_at(*Event::HIDDEN_STATES, "finished"))
+        base.where(end_time: Time.current..).or(base.where(state: states.values_at("swiss", "single_elimination")))
           .preload(cover_attachment: :blob).order(:start_time).limit(LIMIT).to_a
       end
     end
