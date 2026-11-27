@@ -2,41 +2,65 @@
   <%= render "shared/list_header", title: t("my_events.title"), lead: t("my_events.lead") %>
 </div>
 
-<%# The events the viewer runs or works as staff: straight into the organizer's side of each. %>
+<%# The events the viewer runs or works as staff, as tiles like the event tickets: the role on the cover and one
+    button straight into the organizer's side. %>
 <% if @staffed.any? %>
-  <section class="col-span-full card overflow-clip" data-my-staffed>
-    <h2 class="card-title"><%= t("my_events.staffed") %></h2>
-    <ul class="divide-y divide-line text-[13px]">
+  <section class="col-span-full" data-my-staffed>
+    <h2 class="mb-3 font-display text-[17px] font-semibold text-ink"><%= t("my_events.staffed") %></h2>
+    <div class="lp-evl lp-evl-dense lp-evl-mine">
       <% @staffed.each do |event, role| %>
-        <li class="flex flex-wrap items-center justify-between gap-3 px-4 py-3" data-staffed-event="<%= event.id %>">
-          <div class="min-w-0">
-            <p class="flex flex-wrap items-center gap-2 text-[14px] font-semibold text-ink">
-              <%= event.name %>
-              <%= desk_chip(:info) { t("organizer.staff.roles.#{role}") } %>
-            </p>
-            <p class="mt-0.5 text-[12px] text-muted"><%= l(event.start_time, format: :short) %> · <%= event_state_label(event, nil) %></p>
+        <% manage = event.is_a?(League) ? organizer_league_path(event) : organizer_tournament_path(event) %>
+        <article class="card lp-evr" data-staffed-event="<%= event.id %>">
+          <div class="lp-evr-cov">
+            <div class="lp-evr-ban" style="background-image: url('<%= ticket_banner(event) %>')" aria-hidden="true"></div>
+            <div class="lp-evr-shade" aria-hidden="true"></div>
+            <span class="lp-evr-tag"><%= t("organizer.staff.roles.#{role}") %></span>
+            <div class="lp-evr-date">
+              <% if event.date_tba %>
+                <b data-date-tba><%= t("play.events.date_tba_short") %></b>
+                <span><%= t("play.events.date_tba") %></span>
+              <% else %>
+                <b><%= l(event.start_time, format: "%d") %></b>
+                <span><%= l(event.start_time, format: "%b · %a") %></span>
+              <% end %>
+            </div>
           </div>
-          <%= link_to t("my_events.manage"), (event.is_a?(League) ? organizer_league_path(event) : organizer_tournament_path(event)), class: button_classes(:primary, size: :sm) %>
-        </li>
+          <div class="lp-evr-bd">
+            <h3 class="lp-evr-t"><%= link_to event.name, manage %></h3>
+            <p class="lp-evr-m"><%= event_state_label(event, nil) %></p>
+          </div>
+          <div class="lp-evr-stub">
+            <div class="lp-evr-act"><%= link_to t("my_events.manage"), manage, class: button_classes(:primary, size: :xs) %></div>
+          </div>
+        </article>
       <% end %>
-    </ul>
+    </div>
   </section>
 <% end %>
 
+<%# The league tables the viewer sits at, the same way: the league's cover, who is at the table, one button. %>
 <% if @league_tables.present? %>
-  <section class="col-span-full card overflow-clip" data-my-league-tables>
-    <h2 class="card-title"><%= t("my_events.league_tables") %></h2>
-    <ul class="divide-y divide-line text-[13px]">
+  <section class="col-span-full" data-my-league-tables>
+    <h2 class="mb-3 font-display text-[17px] font-semibold text-ink"><%= t("my_events.league_tables") %></h2>
+    <div class="lp-evl lp-evl-dense lp-evl-mine">
       <% @league_tables.each do |table| %>
-        <li class="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <div class="min-w-0">
-            <p class="text-[12px] text-muted"><%= table.league.name %> · <%= t("my_events.league_table_#{table.state}") %></p>
-            <p class="text-ink"><%= table.participants.map(&:name).join(", ") %></p>
+        <% open = league_path(table.league, tab: "mine", locale: params[:locale]) %>
+        <article class="card lp-evr" data-my-league-table="<%= table.id %>">
+          <div class="lp-evr-cov">
+            <div class="lp-evr-ban" style="background-image: url('<%= ticket_banner(table.league) %>')" aria-hidden="true"></div>
+            <div class="lp-evr-shade" aria-hidden="true"></div>
+            <span class="lp-evr-tag"><%= t("my_events.league_table_#{table.state}") %></span>
           </div>
-          <%= link_to t("my_events.league_table_open"), league_path(table.league, tab: "mine", locale: params[:locale]), class: button_classes(:primary, size: :sm) %>
-        </li>
+          <div class="lp-evr-bd">
+            <h3 class="lp-evr-t"><%= link_to table.league.name, open %></h3>
+            <p class="lp-evr-m"><%= table.participants.map(&:name).join(", ") %></p>
+          </div>
+          <div class="lp-evr-stub">
+            <div class="lp-evr-act"><%= link_to t("my_events.league_table_open"), open, class: button_classes(:primary, size: :xs) %></div>
+          </div>
+        </article>
       <% end %>
-    </ul>
+    </div>
   </section>
 <% end %>
 
