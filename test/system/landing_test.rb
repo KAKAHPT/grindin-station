@@ -39,4 +39,11 @@ class LandingTest < ApplicationSystemTestCase
     assert_equal 1, open, "exactly the front ticket shows its details"
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")
   end
+
+  test "the signed-in notice beside the account menu leaves on its own" do
+    sign_in_as users(:organizer_user)
+
+    assert_selector "[data-toasts] [data-flash=notice][data-controller=flash][data-flash-after-value='2000']"
+    assert_no_selector "[data-flash=notice]", wait: 5
+  end
 end
