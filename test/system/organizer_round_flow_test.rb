@@ -14,11 +14,11 @@ class OrganizerRoundFlowTest < ApplicationSystemTestCase # rubocop:disable Metri
     sign_in_as(users(:organizer_user))
     visit organizer_tournament_path(@tournament)
 
-    accept_confirm { click_button "Close Registrations" }
+    accept_confirm { within("[data-overview-next]") { click_button "Close Registrations" } }
     assert_text I18n.t("flash.notice.tournament_updated")
     assert_predicate @tournament.reload, :registration_closed?
 
-    accept_confirm { click_button "Move to Swiss stage" }
+    accept_confirm { within("[data-overview-next]") { click_button "Move to Swiss stage" } }
     # The notice of the step before reads the same and may still be on screen: wait for the button to go.
     assert_no_button "Move to Swiss stage"
     assert_text I18n.t("flash.notice.tournament_updated")
