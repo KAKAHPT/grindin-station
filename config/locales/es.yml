@@ -693,6 +693,7 @@ es:
     roster:
       actions: "Acciones"
       legend: "Acciones de la fila"
+      filter: "Filtrar"
       infraction: "Registrar infracción"
       add_player: "Añadir jugador"
       check_in_all: "Check-in a todos"
@@ -745,6 +746,7 @@ es:
       counters:
         enrolled: "inscritos"
         checked_in: "con check-in"
+        not_checked_in: "sin check-in"
         unpaid: "por pagar"
         no_decklist: "sin decklist"
         waitlisted: "en espera"
