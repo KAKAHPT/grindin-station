@@ -11,7 +11,7 @@
     <p class="truncate text-xs text-muted"><%= ticket_line(event) %></p>
   </div>
   <div class="col-span-2 min-w-0 text-xs text-muted md:col-span-1" data-row-when>
-    <p class="text-ink"><%= l(event.start_time, format: "%d %b %Y · %H:%M") %></p>
+    <p class="text-ink"><%= event_date(event, "%d %b %Y · %H:%M") %></p>
   </div>
   <div class="col-span-2 min-w-0 md:col-span-1">
     <%= ticket_organizer(event) %>

@@ -149,7 +149,7 @@ class Event < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   # M16: players check themselves in from `check_in_opens_at` until the swiss starts, when the organizer allows it.
   def check_in_opens_at
-    start_time - check_in_opens_hours_before.hours if start_time
+    start_time - check_in_opens_hours_before.hours if start_time && !date_tba
   end
 
   def check_in_open?

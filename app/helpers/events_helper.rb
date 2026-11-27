@@ -48,10 +48,15 @@ module EventsHelper
     parts.join(" · ")
   end
 
+  # The event's start in the given format, or "Date to be announced" while the organizer keeps it unannounced.
+  def event_date(event, format)
+    event.date_tba ? t("play.events.date_tba") : l(event.start_time, format: format)
+  end
+
   # Header line: "4 Nov 2026 · Lisboa · 16 players" (the city is the last part of the address).
   def play_info_line(event, players)
     city = event.address.to_s.split(",").last.to_s.strip.presence
-    [(l(event.start_time, format: "%-d %b %Y") if event.start_time), city, t("play.header.players", count: players)]
+    [(event_date(event, "%-d %b %Y") if event.start_time), city, t("play.header.players", count: players)]
       .compact.join(" · ")
   end
 

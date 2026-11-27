@@ -14,12 +14,18 @@ module Feeds
 
     def to_h(updated)
       round = @event.rounds.published.order(:number).includes(:results, pods: :seatings).last
-      { tid: @event.slug, name: @event.name, updated: Feeds.epoch(updated), state: @event.state,
-        starts_at: Feeds.iso(@event.start_time), ends_at: Feeds.iso(@event.end_time) }
-        .merge(round_keys(round), format_keys)
+      { tid: @event.slug, name: @event.name, updated: Feeds.epoch(updated), state: @event.state }
+        .merge(date_keys, round_keys(round), format_keys)
     end
 
     private
+
+    # A date still to be announced stays out of the feed.
+    def date_keys
+      return { starts_at: nil, ends_at: nil } if @event.date_tba
+
+      { starts_at: Feeds.iso(@event.start_time), ends_at: Feeds.iso(@event.end_time) }
+    end
 
     def format_keys
       { format: @event.format, matchGames: @event.match_games,

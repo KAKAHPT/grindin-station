@@ -40,7 +40,7 @@
           </p>
           <% if next_event %>
             <p class="mt-1 text-[12px] text-ink truncate" data-organizer-next>
-              <%= t("organizers.next_event", name: link_to(next_event.name, play_event_path(next_event.slug, locale: url_locale), class: "hover:text-accent hover:underline"), date: l(next_event.start_time, format: :short)).html_safe %>
+              <%= t("organizers.next_event", name: link_to(next_event.name, play_event_path(next_event.slug, locale: url_locale), class: "hover:text-accent hover:underline"), date: event_date(next_event, :short)).html_safe %>
             </p>
           <% end %>
         </div>

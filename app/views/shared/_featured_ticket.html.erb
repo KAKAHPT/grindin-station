@@ -7,9 +7,14 @@
 <%= tag.article class: "lp-ft", style: "background-image: url('#{ticket_banner(event, size: 960)}')",
                 data: { featured_event: event.slug, sold_out: ticket_sold_out?(event, sold_out) || nil } do %>
   <div class="lp-ft-stub">
-    <b><%= l(event.start_time, format: "%d") %></b>
-    <small><%= l(event.start_time, format: "%b") %></small>
-    <span><%= l(event.start_time, format: "%A · %H:%M") %></span>
+    <% if event.date_tba %>
+      <b class="lp-ft-tba" data-date-tba><%= t("play.events.date_tba_short") %></b>
+      <span><%= t("play.events.date_tba") %></span>
+    <% else %>
+      <b><%= l(event.start_time, format: "%d") %></b>
+      <small><%= l(event.start_time, format: "%b") %></small>
+      <span><%= l(event.start_time, format: "%A · %H:%M") %></span>
+    <% end %>
   </div>
   <div class="lp-ft-bd">
     <div class="lp-ft-top">
@@ -31,7 +36,7 @@
     <div>
       <p><%= ticket_line(event) %></p>
       <%= ticket_state_line(event, sold_out) %>
-      <p><b><%= t("landing.featured.when") %></b> <%= l(event.start_time, format: "%A, %d %B · %H:%M") %></p>
+      <p><b><%= t("landing.featured.when") %></b> <%= event_date(event, "%A, %d %B · %H:%M") %></p>
       <% if event.address.present? %><p><b><%= t("landing.featured.where") %></b> <%= event.address %></p><% end %>
       <% if event.prizes.present? %><p><b><%= t("landing.featured.prizes") %></b> <%= truncate(event.prizes, length: 140) %></p><% end %>
       <% if event.description.present? %><p class="lp-ft-desc"><%= truncate(event.description, length: 260) %></p><% end %>

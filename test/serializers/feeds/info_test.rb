@@ -8,6 +8,14 @@ module Feeds
 
     setup { build_feed_tournament }
 
+    test "a date to be announced stays out of the feed" do
+      @t.date_tba = true
+      feed = Feeds::Info.call(@t)
+
+      assert_nil feed[:starts_at]
+      assert_nil feed[:ends_at]
+    end
+
     test "describes the event and the running round" do
       feed = Feeds::Info.call(@t)
 

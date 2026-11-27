@@ -10,7 +10,7 @@
           <div class="min-w-0">
             <h3 class="truncate text-[13px] font-semibold text-ink"><%= link_to event.name, ticket_href(event), class: "hover:underline" %></h3>
             <p class="truncate text-xs text-muted">
-              <%= safe_join([l(event.start_time, format: "%d %b %Y"), ticket_city(event)].compact, " · ") %>
+              <%= safe_join([event_date(event, "%d %b %Y"), ticket_city(event)].compact, " · ") %>
             </p>
             <%= ticket_state_line(event, event.sold_out?(enrolled.fetch(event.id, 0))) %>
           </div>

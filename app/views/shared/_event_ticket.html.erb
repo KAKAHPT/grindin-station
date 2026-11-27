@@ -12,8 +12,13 @@
     <div class="lp-evr-ban" style="background-image: url('<%= ticket_banner(event) %>')" aria-hidden="true"></div>
     <div class="lp-evr-shade" aria-hidden="true"></div>
     <div class="lp-evr-date">
-      <b><%= l(event.start_time, format: "%d") %></b>
-      <span><%= l(event.start_time, format: "%b · %a") %></span>
+      <% if event.date_tba %>
+        <b data-date-tba><%= t("play.events.date_tba_short") %></b>
+        <span><%= t("play.events.date_tba") %></span>
+      <% else %>
+        <b><%= l(event.start_time, format: "%d") %></b>
+        <span><%= l(event.start_time, format: "%b · %a") %></span>
+      <% end %>
     </div>
   </div>
   <div class="lp-evr-bd">

@@ -5,7 +5,9 @@
     <dl class="grid grid-cols-[4.5rem_1fr] gap-x-3 gap-y-1.5 text-[13px]">
       <dt class="text-muted"><%= t("play.events.when") %></dt>
       <dd>
-        <% if event.start_time %>
+        <% if event.date_tba %>
+          <span data-date-tba><%= t("play.events.date_tba") %></span>
+        <% elsif event.start_time %>
           <%= time_tag event.start_time, l(event.start_time, format: t("play.events.time_format")) %>
           <% if event.end_time && event.end_time.to_date != event.start_time.to_date %>
             – <%= time_tag event.end_time, l(event.end_time, format: t("play.events.time_format")) %>

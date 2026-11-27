@@ -66,7 +66,7 @@ module EventTicketHelper
 
   # Large tickets (the organizer page /o/:handle): the start time and the full address on one line.
   def ticket_when_where(event)
-    safe_join([l(event.start_time, format: t("play.events.time_format")), event.address.presence].compact, " · ")
+    safe_join([event_date(event, t("play.events.time_format")), event.address.presence].compact, " · ")
   end
 
   # Large tickets: the first 160 characters of the description, markdown marks stripped; nil without one.
