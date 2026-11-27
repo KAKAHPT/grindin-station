@@ -16,7 +16,7 @@
         <% @notifications.each do |notification| %>
           <%= tag.li data: { notification: true, unread: (true if notification.read_at.nil?) },
                      class: ["px-4 py-3 flex items-start gap-3 text-sm", ("font-semibold" if notification.read_at.nil?)] do %>
-            <span class="mt-1.5 size-1.5 shrink-0 rounded-full <%= notification.read_at.nil? ? "bg-accent" : "bg-transparent" %>" aria-hidden="true"></span>
+            <span class="mt-1.5 size-1.5 shrink-0 rounded-full <%= notification.read_at.nil? ? "bg-ink" : "bg-transparent" %>" aria-hidden="true"></span>
             <span class="flex-1 min-w-0">
               <%= notification_line(notification) %>
               <%= time_tag notification.created_at, l(notification.created_at, format: :short), class: "block text-xs font-normal text-muted" %>
