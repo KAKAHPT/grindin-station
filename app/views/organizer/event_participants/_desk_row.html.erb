@@ -14,7 +14,7 @@
     <%= truncate(participant.name, length: 26) %>
   </th>
   <% columns = participant.standing_columns if standings %>
-  <td class="px-2.5 tabular text-right font-display font-semibold <%= participant.playing? ? "text-accent" : "text-muted" %>"><%= standings ? columns[:points] : "–" %></td>
+  <td class="px-2.5 tabular text-right font-display font-semibold <%= participant.playing? ? "text-ink" : "text-muted" %>"><%= standings ? columns[:points] : "–" %></td>
   <td class="px-2.5 tabular text-right"><%= standings ? rate_label(columns[@event.one_v_one? ? :omw : :owr]) : "–" %></td>
   <td class="px-2.5 tabular text-right whitespace-nowrap">
     <%= standings ? "#{participant.number_of_wins}-#{participant.number_of_losses}-#{participant.number_of_draws}" : "–" %>
@@ -80,7 +80,7 @@
     </td>
 </tr>
 <tr id="<%= stats_id %>" hidden class="h-8 bg-surface-raised text-[12px] text-muted">
-  <td class="shadow-[inset_2px_0_0_var(--color-accent)]"></td>
+  <td class="shadow-[inset_2px_0_0_var(--color-line-strong)]"></td>
   <td colspan="7" class="px-2.5">
     <% columns ||= participant.standing_columns %>
     <span class="inline-flex flex-wrap items-center gap-x-2 gap-y-1">

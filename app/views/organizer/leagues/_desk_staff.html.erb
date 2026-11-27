@@ -16,7 +16,7 @@
       <tr>
         <td class="font-semibold"><%= league.event_organizer.name %></td>
         <td class="text-muted"><%= league.event_organizer.user&.email_address %></td>
-        <td><%= desk_chip(:ok) { t("organizer.staff.owner") } %></td>
+        <td><%= desk_chip(:plain) { t("organizer.staff.owner") } %></td>
         <td class="r"></td>
       </tr>
       <% @staff.each do |staff| %>
