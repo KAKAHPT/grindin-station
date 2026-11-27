@@ -206,15 +206,17 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
 
     assert_select "section.lp-feat[data-featured] ~ section[data-upcoming]"
     assert_select "[data-featured] h2", text: "Featured events"
-    assert_select "[data-featured] [data-rail-target=prev]"
-    assert_select "[data-featured] [data-rail-target=next]"
+    assert_select "[data-featured] [data-rail-target=prev], [data-featured] [data-rail-target=next]", 2
     assert_select "[data-featured-event]", 9
     assert_select "[data-featured-event]:first-child[data-featured-event='#{featured.first.slug}']" do
       assert_select ".lp-ft-stub b", text: l_day(featured.first)
       assert_select "a[data-register][href=?]", play_event_path(featured.first.slug), text: "Register"
       assert_select ".lp-evr-org", text: /#{@organizer.name}/
-      # The body is name, organizer, enrolled and actions; the format line sits in the details underneath.
-      assert_select ".lp-ft-bd .lp-ft-m", count: 0
+      # The cover sits whole on top with nothing over it; the body is name, organizer and enrolled; the format
+      # line sits in the details underneath; the actions sit outside the box.
+      assert_select "article.lp-ft > a > img.lp-ft-cover"
+      assert_select "article.lp-ft a[data-register]", count: 0
+      assert_select "> .lp-ft-acts a[data-register]"
       assert_select "[data-ft-more] p", text: /Commander/
     end
     assert_select "[data-featured][data-controller~=featflow] [data-featflow-target=track]"
@@ -245,7 +247,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest # rubocop:disable Me
         end
       end
     # The featured ticket carries no state colour: the Sold out tag says it.
-    assert_select "[data-featured-event='#{featured.slug}'][class='lp-ft']"
+    assert_select "[data-featured-event='#{featured.slug}'] > article[class='lp-ft']"
 
     get root_path(locale: "es")
     assert_select "[data-upcoming-event='#{event.slug}'] .lp-evr-state", text: "Agotado"

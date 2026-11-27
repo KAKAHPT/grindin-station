@@ -37,6 +37,7 @@ class LandingTest < ApplicationSystemTestCase
       [...document.querySelectorAll("[data-ft-more]")].filter((el) => getComputedStyle(el).opacity > 0.9).length
     JS
     assert_equal 1, open, "exactly the front ticket shows its details"
+    assert_selector "[data-ft-acts]", count: 1
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")
   end
 
@@ -59,6 +60,29 @@ class LandingTest < ApplicationSystemTestCase
     assert front["centred"], "the ticket sits in the middle of the row"
     assert front["floating"], "it floats"
     assert front["open"], "its details are open"
+    assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")
+  end
+
+  test "two featured events stand side by side at the front, both open with their actions under them" do
+    organizer = event_organizers(:standard_organizer)
+    2.times do |index|
+      event = Tournament.create!(name: "Twin #{index}", event_organizer: organizer, state: :draft,
+                                 start_time: (index + 1).days.from_now, end_time: (index + 2).days.from_now)
+      event.update_columns(state: Tournament.states[:registration_open], featured: true) # rubocop:disable Rails/SkipsModelValidations
+    end
+    visit root_path
+
+    assert_selector "[data-featured] .lp-rail.lp-flow [data-featured-event]", count: 2
+    assert_selector "[data-ft-acts]", count: 2
+    pair = page.evaluate_script(<<~JS)
+      (() => {
+        const [a, b] = [...document.querySelectorAll("[data-featured-event]")].map((el) => el.getBoundingClientRect());
+        const row = document.querySelector("[data-featured] .lp-rail").getBoundingClientRect();
+        return { apart: a.right < b.left, centred: Math.abs((a.left + b.right) / 2 - (row.left + row.width / 2)) < 4 };
+      })()
+    JS
+    assert pair["apart"], "the two tickets do not overlap"
+    assert pair["centred"], "the pair sits in the middle of the row"
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")
   end
 

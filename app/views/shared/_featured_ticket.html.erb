@@ -1,45 +1,49 @@
-<%# A featured event on the landing (option 4B, the art ticket): the cover behind the whole card, the date in white
-    on the left stub behind a dotted perforation, then name, organizer, enrolled count and the actions; the
-    format line, state and the rest sit in the details underneath. No state colours: it sits with the tickets
-    under it. Locals: event (cover and organizer preloaded), enrolled (count). Pieces from EventTicketHelper. %>
+<%# A featured event on the landing (the art ticket): the cover whole and clean on top, with nothing over it; under
+    it the date stub behind a dotted perforation, then name, organizer and enrolled count; the format line, state
+    and the rest sit in the details underneath. The actions sit outside the box, under it. No state colours: it
+    sits with the tickets under it. Locals: event (cover and organizer preloaded), enrolled (count). Pieces from
+    EventTicketHelper. %>
 <% sold_out = event.sold_out?(enrolled) %>
 <% href = ticket_href(event) %>
-<%= tag.article class: "lp-ft", style: "background-image: url('#{ticket_banner(event, size: 960)}')",
-                data: { featured_event: event.slug, sold_out: ticket_sold_out?(event, sold_out) || nil } do %>
-  <div class="lp-ft-stub">
-    <% if event.date_tba %>
-      <b class="lp-ft-tba" data-date-tba><%= t("play.events.date_tba_short") %></b>
-      <span><%= t("play.events.date_tba") %></span>
-    <% else %>
-      <b><%= l(event.start_time, format: "%d") %></b>
-      <small><%= l(event.start_time, format: "%b") %></small>
-      <span><%= l(event.start_time, format: "%A · %H:%M") %></span>
+<%= tag.div class: "lp-fw", data: { featured_event: event.slug, sold_out: ticket_sold_out?(event, sold_out) || nil } do %>
+  <article class="lp-ft">
+    <%= link_to href, tabindex: -1, aria: { hidden: true } do %>
+      <img src="<%= ticket_banner(event, size: 960) %>" alt="" class="lp-ft-cover">
     <% end %>
-  </div>
-  <div class="lp-ft-bd">
-    <div class="lp-ft-top">
-      <h3 class="lp-ft-t"><%= link_to event.name, href %></h3>
-    </div>
-    <div class="lp-evr-orgrow">
-      <%= ticket_organizer(event) %>
-    </div>
-    <div class="lp-ft-row">
-      <p class="lp-evr-n"><%= ticket_enrolled(event, enrolled) %></p>
-      <div class="lp-evr-act">
-        <%= link_to t("landing.upcoming.view"), href, class: button_classes(:secondary, size: :xs) %>
-        <%= ticket_register_button(event, sold_out) %>
+    <div class="lp-ft-info">
+      <div class="lp-ft-stub">
+        <% if event.date_tba %>
+          <b class="lp-ft-tba" data-date-tba><%= t("play.events.date_tba_short") %></b>
+          <span><%= t("play.events.date_tba") %></span>
+        <% else %>
+          <b><%= l(event.start_time, format: "%d") %></b>
+          <small><%= l(event.start_time, format: "%b") %></small>
+          <span><%= l(event.start_time, format: "%A · %H:%M") %></span>
+        <% end %>
+      </div>
+      <div class="lp-ft-bd">
+        <h3 class="lp-ft-t"><%= link_to event.name, href %></h3>
+        <div class="lp-evr-orgrow">
+          <%= ticket_organizer(event) %>
+        </div>
+        <p class="lp-evr-n"><%= ticket_enrolled(event, enrolled) %></p>
       </div>
     </div>
-  </div>
-  <%# Opened by featflow_controller while the ticket is at the front; shut otherwise. %>
-  <div class="lp-ft-more" data-ft-more>
-    <div>
-      <p><%= ticket_line(event) %></p>
-      <%= ticket_state_line(event, sold_out) %>
-      <p><b><%= t("landing.featured.when") %></b> <%= event_date(event, "%A, %d %B · %H:%M") %></p>
-      <% if event.address.present? %><p><b><%= t("landing.featured.where") %></b> <%= event.address %></p><% end %>
-      <% if event.prizes.present? %><p><b><%= t("landing.featured.prizes") %></b> <%= truncate(event.prizes, length: 140) %></p><% end %>
-      <% if event.description.present? %><p class="lp-ft-desc"><%= truncate(event.description, length: 260) %></p><% end %>
+    <%# Opened by featflow_controller while the ticket is at the front; shut otherwise. %>
+    <div class="lp-ft-more" data-ft-more>
+      <div>
+        <p><%= ticket_line(event) %></p>
+        <%= ticket_state_line(event, sold_out) %>
+        <p><b><%= t("landing.featured.when") %></b> <%= event_date(event, "%A, %d %B · %H:%M") %></p>
+        <% if event.address.present? %><p><b><%= t("landing.featured.where") %></b> <%= event.address %></p><% end %>
+        <% if event.prizes.present? %><p><b><%= t("landing.featured.prizes") %></b> <%= truncate(event.prizes, length: 140) %></p><% end %>
+        <% if event.description.present? %><p class="lp-ft-desc"><%= truncate(event.description, length: 260) %></p><% end %>
+      </div>
     </div>
+  </article>
+  <%# Shown by featflow_controller with the details; always there where nothing moves. %>
+  <div class="lp-ft-acts" data-ft-acts>
+    <%= link_to t("landing.upcoming.view"), href, class: button_classes(:secondary, size: :xs) %>
+    <%= ticket_register_button(event, sold_out) %>
   </div>
 <% end %>

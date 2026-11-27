@@ -2556,28 +2556,15 @@
     will-change: transform, opacity;
   }
 
-  /* In motion the ticket keeps its resting layout whatever its width: the text columns are fixed, the width it
-     gains at the front shows more of the cover, and the details are laid out at the wide size from the start. */
-  .lp-flow .lp-ft {
-    grid-template-columns: 84px calc(var(--ftw) - 86px) 1fr;
-    background-position: left top;
-    background-repeat: no-repeat;
-    background-size: var(--ftwide) auto;
-  }
-
-  .lp-flow .lp-ft::before {
-    background: linear-gradient(
-      90deg,
-      rgb(17 19 21 / 0.35) 0,
-      rgb(17 19 21 / 0.82) calc(var(--ftw) * 0.36),
-      rgb(17 19 21 / 0.92) calc(var(--ftw) * 0.8),
-      rgb(17 19 21 / 0.15) calc(var(--ftw) * 1.12)
-    );
-  }
-
-  /* Shut until the ticket is at the front (the animation opens it); open where nothing moves. */
+  /* Shut until the ticket is at the front (the animation opens the details and shows the actions); open and
+     shown where nothing moves. */
   .lp-flow .lp-ft-more {
     max-height: 0;
+    opacity: 0;
+  }
+
+  .lp-flow .lp-ft-acts {
+    visibility: hidden;
     opacity: 0;
   }
 
@@ -2591,10 +2578,6 @@
     background: linear-gradient(90deg, transparent, rgb(255 244 214 / 0.1), transparent);
     opacity: 0;
     pointer-events: none;
-  }
-
-  .lp-flow .lp-ft-more > div {
-    width: calc(var(--ftwide) - 2px);
   }
 
   /* The featured title sits in the middle; the arrows (phones) stay at the right edge. */
@@ -2658,25 +2641,41 @@
     width: calc((100% - 3 * var(--rail-gap)) / 4);
   }
 
+  .lp-fw {
+    display: flex;
+    flex-direction: column;
+  }
+
   .lp-ft {
     position: relative;
-    display: grid;
-    grid-template-columns: 84px 1fr;
-    min-height: 150px;
     overflow: hidden;
     isolation: isolate;
     border: 1px solid var(--color-line);
     border-radius: 14px;
-    background: #000 center / cover;
+    background: #111315;
     box-shadow: 0 14px 34px -18px #000;
   }
 
-  .lp-ft::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: linear-gradient(90deg, rgb(17 19 21 / 0.35) 0, rgb(17 19 21 / 0.82) 36%, rgb(17 19 21 / 0.94) 100%);
+  /* The cover whole, with nothing over it. */
+  .lp-ft-cover {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .lp-ft-info {
+    display: grid;
+    grid-template-columns: 84px 1fr;
+    border-top: 1px solid var(--color-line);
+  }
+
+  /* Outside the box, under it. */
+  .lp-ft-acts {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 12px;
   }
 
   .lp-ft-stub {
@@ -2688,8 +2687,6 @@
     gap: 2px;
     padding: 12px 8px;
     text-align: center;
-    background: rgb(17 19 21 / 0.55);
-    backdrop-filter: blur(2px);
   }
 
   .lp-ft-stub::after {
@@ -2734,17 +2731,9 @@
     padding: 14px 16px;
   }
 
-  .lp-ft-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-  }
-
   .lp-ft-t {
     font: 700 16px var(--font-display);
     letter-spacing: -0.01em;
-    text-shadow: 0 2px 12px #000;
   }
 
   .lp-ft-t a:hover {
@@ -2755,16 +2744,6 @@
     font-size: 12px;
     line-height: 1.5;
     color: #aeb6bf;
-  }
-
-  .lp-ft-row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    margin-top: auto;
-    padding-top: 8px;
   }
 
   /* One ticket (option 4C): cover, body, perforated stub. */
