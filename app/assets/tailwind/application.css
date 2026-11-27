@@ -732,7 +732,7 @@
 
   .tab-on {
     color: var(--color-ink);
-    border-color: var(--color-accent);
+    border-color: var(--color-ink);
   }
 
   /* Folder tabs: each one a page; the open one is joined to the .tab-page under the bar. */

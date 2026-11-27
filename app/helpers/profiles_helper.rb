@@ -18,7 +18,7 @@ module ProfilesHelper
         profile_path(user.handle,
                      locale: params[:locale])
       end
-    link_to label, path, class: "hover:text-accent hover:underline"
+    link_to label, path, class: "hover:underline"
   end
 
   # "Portugal" for "PT"; the code itself for countries without a name here.

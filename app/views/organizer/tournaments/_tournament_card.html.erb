@@ -1,21 +1,20 @@
-<%# A "My tournaments" card: the cover behind the whole card (darkened towards the text), name, state chip,
-    date · place · enrolled, and one Edit button into the roster, where the event is run. Local: tournament. %>
+<%# A "My tournaments" card: the cover behind the whole card (darkened towards the text), name,
+    date · place · enrolled, one Edit button into the roster, where the event is run, and the state chip. Local: tournament. %>
 <article class="card evc" data-tournament-card id="<%= dom_id(tournament, :card) %>">
   <% if tournament.cover.attached? %>
     <div class="evc-ban" style="background-image: url('<%= tournament.cover.representable? ? ticket_banner(tournament, size: 960) : rails_blob_path(tournament.cover, only_path: true) %>')" aria-hidden="true"></div>
   <% end %>
   <div class="evc-shade" aria-hidden="true"></div>
   <div class="evc-in">
-    <div class="flex items-center justify-between gap-3">
-      <%= link_to tournament.name, organizer_tournament_path(tournament), class: "min-w-0 truncate font-display text-[15px] font-semibold text-ink hover:underline" %>
-      <%= organizer_state_chip(tournament) %>
-    </div>
+    <%= link_to tournament.name, organizer_tournament_path(tournament), class: "min-w-0 truncate font-display text-[15px] font-semibold text-ink hover:underline" %>
     <span class="text-[12px] text-muted">
       <%= [tournament_short_date(tournament), tournament.address.presence,
            t("organizer.tournaments.enrolled", count: tournament.event_participants_count)].compact.join(" · ") %>
     </span>
-    <div class="mt-1 flex flex-wrap gap-2">
+    <%# The state sits in the bottom right corner, across from Edit. %>
+    <div class="mt-1 flex flex-wrap items-end justify-between gap-2">
       <%= link_to t("organizer.tournaments.edit"), organizer_tournament_event_participants_path(tournament, layout: "application"), class: button_classes(:secondary, size: :sm) %>
+      <%= organizer_state_chip(tournament) %>
     </div>
   </div>
 </article>

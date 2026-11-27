@@ -1,5 +1,5 @@
 <%= render "organizer/tournaments/shell", tournament: @tournament %>
-<% role_tones = { "organizer" => :ok, "judge" => :info, "scorekeeper" => :warn, "caster" => :neutral } %>
+<% role_tones = { "organizer" => :plain, "judge" => :info, "scorekeeper" => :warn, "caster" => :neutral } %>
 
 <section class="col-span-full card overflow-clip" data-staff>
   <h2 class="card-title"><%= t("organizer.staff.link") %></h2>
@@ -16,7 +16,7 @@
       <tr>
         <td class="font-semibold"><%= @tournament.event_organizer.name %></td>
         <td class="text-muted"><%= @tournament.event_organizer.user&.email_address %></td>
-        <td><%= desk_chip(:ok) { t("organizer.staff.owner") } %></td>
+        <td><%= desk_chip(:plain) { t("organizer.staff.owner") } %></td>
         <td class="r"></td>
       </tr>
       <% @staff.each do |staff| %>
