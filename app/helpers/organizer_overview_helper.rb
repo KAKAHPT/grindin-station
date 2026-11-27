@@ -38,6 +38,36 @@ module OrganizerOverviewHelper
   def lately_text(kind, participant) = t("organizer.overview.lately.#{kind}", name: participant.name)
 
   # "7 / 1 / 0 · bye 7"
+  # The band at the top of the Overview: what the organizer does next, as { title:, hint:, action: } (action only
+  # for a role that may do it); nil for a canceled event.
+  def overview_next_step(tournament, counters, manager:)
+    state = tournament.state
+    return if state == "canceled"
+
+    { title: t("organizer.overview.next.#{state}.title"),
+      hint: t("organizer.overview.next.#{state}.hint", **counters.slice(:enrolled, :checked_in, :no_decklist)),
+      action: overview_next_action(tournament, manager) }
+  end
+
+  def overview_next_action(tournament, manager)
+    if tournament.finished?
+      return link_to(t("organizer.overview.next.finished.action"), play_standings_path(tournament.slug),
+                     target: "_blank", rel: "noopener", class: button_classes(:secondary, size: :sm))
+    end
+    next_state = tournament_next_state(tournament)
+    return overview_state_button(tournament, next_state) if next_state && manager
+
+    rounds = rounds_tab_path(tournament)
+    link_to(t("organizer.overview.next.rounds"), rounds, class: button_classes(:primary, size: :sm)) if rounds
+  end
+
+  def overview_state_button(tournament, next_state)
+    button_to(transition_for(state: next_state), organizer_tournament_path(tournament),
+              method: :patch, params: { tournament: { state: next_state } },
+              data: { turbo_confirm: state_confirm(tournament, next_state) },
+              class: button_classes(:primary, size: :sm))
+  end
+
   def tournament_points_line(tournament)
     t("organizer.overview.points_line", win: tournament.points_win, draw: tournament.points_draw,
                                         loss: tournament.points_loss, bye: tournament.points_bye)

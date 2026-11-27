@@ -459,11 +459,32 @@ module Organizer
       assert_tabs active: "Overview", open_calls: 1
       assert_select "[data-tabs] a[data-open-clock][data-controller=popup][href=?]", play_screen_path(tournament.slug),
                     text: /Open clock/
+      assert_select "[data-overview-next]", text: /Next step\s*Close registration when you are ready/
+      assert_select "[data-overview-next] form input[name='tournament[state]'][value=registration_closed]"
       assert_select "[data-overview-counters] .card", 4
       assert_select "[data-overview-format]", text: /Swiss rounds/
       assert_select "[data-overview-lately]", text: /Judge called/
       assert_select "[data-overview-counters]", text: /unpaid/i
       assert_no_legacy_classes
+    end
+
+    test "the Overview's next step follows the state: Go to rounds while it runs, the standings once finished" do
+      tournament = TournamentBuilder.build(players: 4, organizer: event_organizers(:standard_organizer))
+      round = tournament.rounds.create!(type: SwissRound, number: 1)
+
+      get organizer_tournament_path(tournament)
+      assert_select "[data-overview-next]", text: /The Swiss rounds are running/
+      rounds = organizer_tournament_round_path(tournament, round)
+      assert_select "[data-overview-next] a[href=?]", rounds, text: "Go to rounds"
+
+      tournament.update!(state: :finished)
+      get organizer_tournament_path(tournament)
+      assert_select "[data-overview-next]", text: /The tournament is finished/
+      assert_select "[data-overview-next] a[href=?]", play_standings_path(tournament.slug), text: "View final standings"
+
+      tournament.update_columns(state: Tournament.states[:canceled]) # rubocop:disable Rails/SkipsModelValidations
+      get organizer_tournament_path(tournament)
+      assert_select "[data-overview-next]", count: 0
     end
 
     test "a free tournament's Overview has no unpaid counter, and a drop shows under Lately" do

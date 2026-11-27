@@ -515,6 +515,28 @@ en:
     overview:
       "on": "On"
       "off": "Off"
+      next:
+        label: "Next step"
+        rounds: "Go to rounds"
+        draft:
+          title: "Open registration when the event is ready"
+          hint: "While it is a draft, players cannot see the event or register."
+        registration_open:
+          title: "Close registration when you are ready"
+          hint: "%{enrolled} registered · %{checked_in} checked in · %{no_decklist} without a decklist."
+        registration_closed:
+          title: "Start the tournament"
+          hint: "%{checked_in} of %{enrolled} players have checked in."
+        swiss:
+          title: "The Swiss rounds are running"
+          hint: "Pairings, results and the next round are on the Rounds tab."
+        single_elimination:
+          title: "The top cut is running"
+          hint: "Pairings, results and the next round are on the Rounds tab."
+        finished:
+          title: "The tournament is finished"
+          hint: "The final standings are public. The files for reporting are below."
+          action: "View final standings"
       enrolled:
         one: "registered · 1 on the waitlist"
         other: "registered · %{count} on the waitlist"
