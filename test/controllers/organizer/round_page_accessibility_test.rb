@@ -29,7 +29,7 @@ module Organizer
         rows.each do |row|
           assert_includes row["data-action"], "keydown.enter->pod-result#select"
           assert_includes row["data-action"], "keydown.space->pod-result#select"
-          assert_includes row["class"], "focus-visible:outline-accent"
+          assert_includes row["class"], "focus-visible:outline-ink"
         end
       end
     end

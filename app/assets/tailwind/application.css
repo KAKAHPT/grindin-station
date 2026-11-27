@@ -61,7 +61,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-ink);
     outline-offset: 2px;
   }
 }
@@ -84,7 +84,7 @@
   }
 
   .btn:focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-ink);
     outline-offset: 2px;
   }
 
@@ -1536,8 +1536,8 @@
   }
 
   .file-field:focus-within {
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 2px var(--color-accent);
+    border-color: var(--color-ink);
+    box-shadow: 0 0 0 2px var(--color-ink);
   }
 
   .file-field-input {
@@ -1567,8 +1567,8 @@
 
   .field-input:focus {
     outline: none;
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 2px var(--color-accent);
+    border-color: var(--color-ink);
+    box-shadow: 0 0 0 2px var(--color-ink);
   }
 
   .field-input:disabled {
@@ -1592,7 +1592,7 @@
   }
 
   .field-check:focus {
-    box-shadow: 0 0 0 1px var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-ink);
   }
 
   .form-section {
@@ -2028,7 +2028,10 @@
 
   .lp-sub em {
     font-style: normal;
-    color: var(--color-accent);
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
   }
 
   .lp-sub-a {
