@@ -27,7 +27,7 @@
               cursor-zoom-in font-display text-xl font-semibold tabular text-ink
               inline-flex items-center justify-center px-3 h-9 rounded-md
               bg-surface-raised border border-line shadow-card
-              focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent
+              focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink
             "
             data-controller="round-timer"
             data-round-timer-round-time-value="<%= @round.duration %>"
@@ -106,7 +106,7 @@
             />
           </svg>
         </div>
-        <%= text_field_tag :query, nil, id: "table-search", type: "search", autocomplete: "off", placeholder: t("rounds.search_players"), "aria-label": t("rounds.search_players"), data: { action: "input->pod-filter#filter", pod_filter_target: "input" }, class: "block h-10 ps-10 text-sm text-ink border border-line rounded-md w-full sm:w-80 bg-surface placeholder:text-muted focus:ring-accent focus:border-accent" %>
+        <%= text_field_tag :query, nil, id: "table-search", type: "search", autocomplete: "off", placeholder: t("rounds.search_players"), "aria-label": t("rounds.search_players"), data: { action: "input->pod-filter#filter", pod_filter_target: "input" }, class: "block h-10 ps-10 text-sm text-ink border border-line rounded-md w-full sm:w-80 bg-surface placeholder:text-muted focus:ring-ink focus:border-ink" %>
       </div>
     </div>
   </div>
