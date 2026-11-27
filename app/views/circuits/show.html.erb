@@ -38,7 +38,7 @@
       <% if open_event %>
         <%= link_to t("lists.circuits.register_next", name: open_event.name), ticket_href(open_event), class: button_classes(:primary, size: :sm), data: { circuit_register: true } %>
       <% elsif upcoming %>
-        <span class="text-[13px] text-muted" data-circuit-next><%= t("lists.circuits.next_event", name: link_to(upcoming.name, ticket_href(upcoming), class: "text-ink hover:underline"), date: l(upcoming.start_time, format: "%d %b %Y")).html_safe %></span>
+        <span class="text-[13px] text-muted" data-circuit-next><%= t("lists.circuits.next_event", name: link_to(upcoming.name, ticket_href(upcoming), class: "text-ink hover:underline"), date: event_date(upcoming, "%d %b %Y")).html_safe %></span>
       <% else %>
         <span class="text-[13px] text-muted" data-circuit-next><%= t("lists.circuits.no_upcoming") %></span>
       <% end %>

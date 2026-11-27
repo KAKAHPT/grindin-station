@@ -16,7 +16,7 @@
       <% end %>
     </div>
     <% unless event.points_locked? %>
-      <p class="text-muted" data-my-starts><%= t("my_events.starts_at", time: l(event.start_time, format: :short)) %></p>
+      <p class="text-muted" data-my-starts><%= event.date_tba ? t("play.events.date_tba") : t("my_events.starts_at", time: l(event.start_time, format: :short)) %></p>
       <% if participant.enrolled? && !participant.checked_in? %>
         <% if !event.self_check_in_enabled %>
           <p class="text-muted" data-my-check-in="desk"><%= t("my_events.check_in_desk") %></p>

@@ -25,6 +25,10 @@
   <div class="grid grid-cols-1 gap-x-3 sm:grid-cols-2">
     <%= f.datetime_local_field_with_label :start_time, required: true %>
     <%= f.datetime_local_field_with_label :end_time, required: true %>
+    <div class="sm:col-span-2">
+      <%= f.check_box_with_label :date_tba %>
+      <p class="form-help -mt-3 mb-4 ms-6"><%= t("organizer.settings.date_tba_help") %></p>
+    </div>
     <%= f.text_field_with_label :address, placeholder: t("organizer.settings.address_placeholder") %>
     <div>
       <%= f.text_field_with_label :country, maxlength: 2, placeholder: "PT", class: "uppercase" %>

@@ -35,6 +35,24 @@ module Play
       assert_select "[data-you]", count: 0
     end
 
+    test "a date to be announced hides the date on the event page, the lists and check-in" do
+      @tournament.update!(date_tba: true, self_check_in_enabled: true, start_time: 1.hour.from_now)
+      day = I18n.l(@tournament.start_time, format: "%-d %b %Y")
+
+      get play_event_path(@tournament.slug)
+
+      assert_select "[data-about] [data-date-tba]", text: "Date to be announced"
+      assert_select "[data-about] time", count: 0
+      assert_select ".evhead-line", text: /Date to be announced · Lisboa/
+      assert_not_includes response.body, day
+      assert_nil @tournament.check_in_opens_at
+      assert_not @tournament.check_in_open?
+
+      get events_path
+
+      assert_select "[data-upcoming-event='#{@tournament.slug}'] [data-date-tba]", text: "TBA"
+    end
+
     test "the About card names the pairing mode for multiplayer, and none for 1v1" do
       @tournament.update!(pairing_mode: "power")
       get play_event_path(@tournament.slug)

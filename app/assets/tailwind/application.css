@@ -2708,6 +2708,11 @@
     color: var(--color-ink);
   }
 
+  /* "TBA" in place of the day number: three letters in the stub's width. */
+  .lp-ft-stub .lp-ft-tba {
+    font-size: 24px;
+  }
+
   .lp-ft-stub small {
     font: 700 10px var(--font-body);
     letter-spacing: 0.18em;

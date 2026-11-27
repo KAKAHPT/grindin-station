@@ -67,7 +67,8 @@ module OrganizerShellHelper # rubocop:disable Metrics/ModuleLength
     return start if tournament.end_time.nil?
 
     same_day = tournament.end_time.to_date == tournament.start_time.to_date
-    "#{start} – #{l(tournament.end_time, format: same_day ? '%H:%M' : '%-d %b %Y, %H:%M')}"
+    dates = "#{start} – #{l(tournament.end_time, format: same_day ? '%H:%M' : '%-d %b %Y, %H:%M')}"
+    tournament.date_tba ? "#{dates} (#{t('organizer.settings.date_tba_hidden')})" : dates
   end
 
   def tournament_short_date(tournament)

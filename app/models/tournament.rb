@@ -3,7 +3,7 @@
 class Tournament < Event # rubocop:disable Metrics/ClassLength
   # The settings the organizer form edits (New tournament, Settings, the live preview).
   SETTINGS_ATTRIBUTES = %i[
-    name state description start_time end_time minimum_participants maximum_participants prizes address country
+    name state description start_time end_time date_tba minimum_participants maximum_participants prizes address country
     schedule rules price currency cover format match_games game_format points_win points_draw points_loss points_bye
     swiss_rounds_count top_cut_size round_minutes top_cut_round_minutes pairing_mode uneven_field self_report_enabled
     result_confirmation confirmation_timeout_minutes waitlist_enabled decklist_required self_check_in_enabled

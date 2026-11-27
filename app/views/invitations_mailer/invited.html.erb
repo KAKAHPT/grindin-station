@@ -1,6 +1,6 @@
 <p><%= t("invitations_mailer.invited.greeting", name: @user.name) %></p>
 <p><%= t("invitations_mailer.invited.body", organizer: @event.event_organizer&.name, event: @event.name) %></p>
-<% if @event.start_time %><p><%= l(@event.start_time, format: t("play.events.time_format")) %><% if @event.address.present? %> · <%= @event.address %><% end %></p><% end %>
+<% if @event.start_time %><p><%= @event.date_tba ? t("play.events.date_tba") : l(@event.start_time, format: t("play.events.time_format")) %><% if @event.address.present? %> · <%= @event.address %><% end %></p><% end %>
 <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:6px 0 16px;">
   <tr>
     <td style="background:#f4f5f6; border-radius:10px;">
