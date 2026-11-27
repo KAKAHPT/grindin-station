@@ -23,8 +23,9 @@
                   <span class="text-ink"><%= t("leagues.feed.draw", game: pod.round.display_name) %></span>
                   <span class="block text-[12.5px] text-muted"><%= players.map(&:name).to_sentence %></span>
                 <% end %>
+                <span class="block text-[12px] text-muted sm:hidden"><%= l(pod.round.finished_at, format: :short) %></span>
               </span>
-              <time class="shrink-0 text-[12px] text-muted" datetime="<%= pod.round.finished_at.iso8601 %>"><%= l(pod.round.finished_at, format: :short) %></time>
+              <time class="hidden shrink-0 text-[12px] text-muted sm:block" datetime="<%= pod.round.finished_at.iso8601 %>"><%= l(pod.round.finished_at, format: :short) %></time>
               <% if scorer %><span class="shrink-0 <%= button_classes(:primary, size: :xs) %>" data-feed-change-button><%= t("league_desk.change") %></span><% end %>
             </summary>
             <div class="flex flex-wrap items-center gap-3 border-t border-line/60 bg-white/[0.02] px-4 py-3 text-[13px]" data-feed-change>

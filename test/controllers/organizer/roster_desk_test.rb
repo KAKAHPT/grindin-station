@@ -45,8 +45,9 @@ module Organizer
       assert_select "tbody", text: /Checked in/
       assert_select "tbody", text: /Not checked in/
       assert_select "tbody span[role=img][aria-label]", minimum: 4
-      assert_select "tbody span", text: /\A\s*Decklist\s*\z/, count: 1
-      assert_select "tbody span", text: /\A\s*No decklist\s*\z/, count: 3
+      assert_select "tbody td span", text: /\A\s*Decklist\s*\z/, count: 1
+      assert_select "tbody td span", text: /\A\s*No decklist\s*\z/, count: 3
+      assert_select "tbody th [data-row-phone]", { count: 4 }, "phones read the chips under the name"
       assert_select "#roster_count_no_decklist", "3"
     end
 
@@ -67,7 +68,7 @@ module Organizer
       assert_select "tbody tr[id^=event_participant_]", 4, "the waitlist leaves the roster table"
       assert_select "[data-waitlist] [data-waitlist-row='#{waiting.id}']" do
         assert_select "td:first-child", text: "1"
-        assert_select "th", text: "Espera Um"
+        assert_select "th", text: /Espera Um/
         assert_select "form[action=?]", promote_organizer_tournament_event_participant_path(@tournament, waiting),
                       { count: 0 }, "no Add to bracket once the swiss started"
         assert_select "form[action=?] button", drop_organizer_tournament_event_participant_path(@tournament, waiting),

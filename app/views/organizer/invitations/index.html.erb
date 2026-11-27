@@ -20,8 +20,10 @@
         <% @results.each do |row| %>
           <% user_id = @user_ids[row[:player_id]] %>
           <tr data-result="<%= row[:player_id] %>">
-            <td class="font-semibold"><%= row[:name] %><% if row[:handle].present? %> <span class="font-normal text-muted">@<%= row[:handle] %></span><% end %></td>
-            <td class="text-muted break-all"><%= row[:email] %></td>
+            <td class="font-semibold"><%= row[:name] %><% if row[:handle].present? %> <span class="font-normal text-muted">@<%= row[:handle] %></span><% end %>
+              <span class="block break-all text-[11.5px] font-normal text-muted sm:hidden"><%= row[:email] %></span>
+            </td>
+            <td class="hidden text-muted break-all sm:table-cell"><%= row[:email] %></td>
             <td class="r">
               <% if row[:in_event] %>
                 <%= desk_chip(:plain) { t("invitations.registered") } %>
@@ -46,25 +48,25 @@
     <thead>
       <tr>
         <th><%= t("organizer.staff.name") %></th>
-        <th><%= t("organizer.staff.email") %></th>
-        <th><%= t("invitations.invited_on") %></th>
-        <th><%= t("invitations.status") %></th>
+        <th class="hidden sm:table-cell"><%= t("organizer.staff.email") %></th>
+        <th class="hidden sm:table-cell"><%= t("invitations.invited_on") %></th>
+        <th class="hidden sm:table-cell"><%= t("invitations.status") %></th>
         <th class="r"><span class="sr-only"><%= t("invitations.remove") %></span></th>
       </tr>
     </thead>
     <tbody>
       <% @invitations.each do |invitation| %>
+        <% registered = @registered.include?(invitation.user_id) %>
+        <% status = desk_chip(registered ? :plain : :missing) { t(registered ? "invitations.registered" : "invitations.waiting") } %>
         <tr data-invitation="<%= invitation.id %>">
-          <td class="font-semibold"><%= invitation.user.name %></td>
-          <td class="text-muted break-all"><%= invitation.user.email_address %></td>
-          <td class="whitespace-nowrap text-muted tabular"><%= l(invitation.updated_at, format: :short) %></td>
-          <td>
-            <% if @registered.include?(invitation.user_id) %>
-              <%= desk_chip(:plain) { t("invitations.registered") } %>
-            <% else %>
-              <%= desk_chip(:missing) { t("invitations.waiting") } %>
-            <% end %>
+          <td class="py-2 font-semibold sm:py-1">
+            <%= invitation.user.name %>
+            <span class="block break-all text-[11.5px] font-normal text-muted sm:hidden"><%= invitation.user.email_address %></span>
+            <span class="mt-1 block sm:hidden"><%= status %></span>
           </td>
+          <td class="hidden text-muted break-all sm:table-cell"><%= invitation.user.email_address %></td>
+          <td class="hidden whitespace-nowrap text-muted tabular sm:table-cell"><%= l(invitation.updated_at, format: :short) %></td>
+          <td class="hidden sm:table-cell"><%= status %></td>
           <td class="r">
             <%= button_to t("invitations.remove"), organizer_tournament_invitation_path(@tournament, invitation), method: :delete,
                           data: { turbo_confirm: t("invitations.confirm_remove", name: invitation.user.name) }, class: button_classes(:ghost, size: :sm) %>
