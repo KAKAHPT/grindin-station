@@ -1,6 +1,6 @@
 <div class="col-span-full flex flex-wrap items-end justify-between gap-3">
   <div class="min-w-0">
-    <%= link_to t("organizer.circuits.title"), organizer_circuits_path, class: "text-[12px] font-semibold uppercase tracking-[0.08em] text-accent hover:underline" %>
+    <%= link_to t("organizer.circuits.title"), organizer_circuits_path, class: "text-[12px] font-semibold uppercase tracking-[0.08em] text-ink hover:underline" %>
     <h1 class="mt-1 font-display text-2xl font-semibold text-ink"><%= @circuit.name %></h1>
     <% if @circuit.event_organizer %>
       <p class="mt-1 text-[13px] text-muted"><%= t("organizer.circuits.organized_by", name: @circuit.event_organizer.name) %></p>

@@ -3,7 +3,8 @@
 # The organizer roster ("desk" view): counters, flat status chips and the drop round.
 module RosterHelper
   DESK_CHIP_TONES = {
-    ok: "text-accent bg-accent/[0.07]",
+    # Done (checked in, paid, decklist in): white, like the rest of the interface; only what is missing has colour.
+    ok: "text-ink bg-white/[0.08]",
     warn: "text-warn bg-warn/[0.07]",
     bad: "text-danger bg-danger/[0.07]",
     info: "text-info bg-info/[0.07]",
