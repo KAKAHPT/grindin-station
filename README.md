@@ -73,6 +73,10 @@ An event is either **multiplayer** (pods of four, fair seats, cEDH tiebreakers) 
   rondas publicadas, sem byes nas mesas, `seed` = posição atual na classificação, rondas do corte como "Top 16".
   Nunca decklists nem links; comandantes só com `show_commanders_in_standings`. Rascunho ou cancelado → 404
   `{"error":"not_found"}`.
+- **Eventos de um organizador.** `/api/v1/organizers/:handle/events`: JSON público (cache 30 s, CORS `*`) com os
+  torneios e ligas do organizador ainda por acabar, os mesmos que `/events?organizer=:handle` mostra (data por anunciar
+  → `dateTba: true` sem datas). O cedhpt.com lê-o para juntar os eventos da cEDH PT aos do TopDeck. Organizador
+  desconhecido ou suspenso → 404.
 - **Desempenho.** Sprite de ícones local, Flowbite só no organizador, Leaflet local e carregado a pedido, fontes
   sem bloquear. `bin/rails "grindin:lighthouse[url]"` mede e falha abaixo de 90; resultados em
   `docs/superpowers/notes/2026-11-04-m3-lighthouse.md`.
