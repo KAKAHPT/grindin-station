@@ -39,5 +39,24 @@ module Play
       assert_select "tbody tr", 24
       assert_select "[data-standings-pages]", count: 0
     end
+
+    test "a signed-in player lands on the page their own row is on; page 1 is still one click away" do
+      get play_standings_path(@tournament.slug, page: 2)
+      last_row = css_select("tbody tr").last["id"].delete_prefix("event_participant_")
+      me = @tournament.event_participants.find(last_row)
+      me.player.user.update!(password: "password123")
+      post session_path, params: { session: { email_address: me.player.user.email_address, password: "password123" } }
+
+      get play_standings_path(@tournament.slug)
+
+      assert_select "[data-standings-pages]", text: /Page 2 of 2/
+      assert_select "tr#event_participant_#{me.id}[data-me]", count: 1
+      assert_select "[data-standings-pages] a[rel=prev][href=?]", play_standings_path(@tournament.slug, page: 1)
+
+      get play_standings_path(@tournament.slug, page: 1)
+
+      assert_select "[data-standings-pages]", text: /Page 1 of 2/
+      assert_select "tr[data-me]", count: 0
+    end
   end
 end

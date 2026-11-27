@@ -54,7 +54,9 @@
       positions once finished, then playing, rank score, name. The page shows 20 players at a time (the modal all). %>
   <% ranked = !@tournament.state.in?(%w[registration_open registration_closed]) %>
   <% rows = ranked ? Feeds::Standings.ranked(@tournament, @standings) : @standings.reject(&:waitlisted?).sort_by(&:name) %>
-  <% rows = Kaminari.paginate_array(rows).page(params[:page]).per(20) unless @standings_in_modal %>
+  <%# With no page asked for, a player lands on the page their own row is on. %>
+  <% own_page = (rows.index { |row| row.id == me_id }.to_i / 20) + 1 if me_id %>
+  <% rows = Kaminari.paginate_array(rows).page(params[:page].presence || own_page).per(20) unless @standings_in_modal %>
   <% rank_offset = @standings_in_modal ? 0 : rows.offset_value %>
   <div class="<%= @standings_in_modal ? "-m-4 md:-m-5 overflow-x-auto" : "-mx-4 sm:mx-0 rounded-none sm:rounded-xl bg-surface border-y sm:border border-line shadow-card overflow-clip" %>">
   <%# In the narrow play column (a container) OWR, Beaten and Unique (1v1: GW% and OGW%) show only from 32rem up; the modal shows all. %>
